@@ -1,0 +1,17 @@
+*.pyc
+dist
+build
+MANIFEST
+*.sig
+*.psproj
+.cache
+pyspread.egg-info
+
+# editors
+.idea/
+.spyderproject
+.spyderworkspace
+
+
+public/
+.sass-cache/
