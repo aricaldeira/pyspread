@@ -232,9 +232,13 @@ class CommandSetCellFormat(QUndoCommand):
 class CommandSetCellMerge(CommandSetCellFormat):
     """Sets cell merges in grid"""
 
-    def _update_cells(self):
-        """Updates cell spands and emits cell change event"""
+    def redo(self):
+        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.model.main_window.grid.update_cell_spans()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
+    def undo(self):
+        self.model.code_array.cell_attributes.pop()
         self.model.main_window.grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
