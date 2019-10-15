@@ -248,7 +248,7 @@ class CommandSetCellTextAlignment(CommandSetCellFormat):
 
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
-        self._update_cells()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class CommandFreezeCell(QUndoCommand):

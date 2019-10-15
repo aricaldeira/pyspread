@@ -291,6 +291,9 @@ class Grid(QTableView):
     def gui_update(self):
         """Emits gui update signal"""
 
+        self.model.main_window.grid.update_cell_spans()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
         attributes = self.model.code_array.cell_attributes[self.current]
         self.main_window.gui_update.emit(attributes)
 
