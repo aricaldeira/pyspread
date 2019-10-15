@@ -118,10 +118,12 @@ class CommandSetCellCode(QUndoCommand):
     def redo(self):
         for index, new_code in zip(self.indices, self.new_codes):
             self.model.setData(index, new_code, Qt.EditRole, raw=True)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         for index, old_code in zip(self.indices, self.old_codes):
             self.model.setData(index, old_code, Qt.EditRole, raw=True)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class CommandSetRowHeight(QUndoCommand):

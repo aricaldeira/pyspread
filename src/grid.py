@@ -111,6 +111,9 @@ class Grid(QTableView):
         self.undo_resizing_row = False
         self.undo_resizing_column = False
 
+        # Initially, select top left cell on table 0
+        self.current = 0, 0, 0
+
     # Properties
 
     @property
@@ -290,9 +293,6 @@ class Grid(QTableView):
 
     def gui_update(self):
         """Emits gui update signal"""
-
-        self.model.main_window.grid.update_cell_spans()
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
         attributes = self.model.code_array.cell_attributes[self.current]
         self.main_window.gui_update.emit(attributes)
