@@ -87,7 +87,8 @@ class Settings:
         # File -> Save would overwrite the last saved file.
         settings.setValue("last_file_input_path",
                           self.last_file_input_path.parent)
-        settings.setValue("last_file_output_path",
+        if self.last_file_output_path is not None:
+            settings.setValue("last_file_output_path",
                           self.last_file_output_path.parent)
         settings.setValue("timeout", self.timeout)
         settings.setValue("signature_key", self.signature_key)
