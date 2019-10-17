@@ -53,6 +53,7 @@ from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
 from src.dialogs import ApproveWarningDialog, PreferencesDialog
+from src.installer import InstallerDialog
 from src.panels import MacroPanel
 from src.lib.hashing import genkey
 
@@ -268,6 +269,13 @@ class MainWindow(QMainWindow):
                 if key == "signature_key" and not data[key]:
                     data[key] = genkey()
                 self.settings.__setattr__(key, data[key])
+
+    def on_installer(self):
+        """Dependancies installer (:class:`installer.InstallerDialog`) """
+
+        dial = InstallerDialog(self)
+        dial.exec_()
+
 
     def on_undo(self):
         """Undo event handler"""

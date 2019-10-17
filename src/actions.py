@@ -156,6 +156,11 @@ class MainWindowActions(dict):
                                      icon=Icon("preferences"),
                                      statustip='Pyspread setup parameters')
 
+        self["installer"] = Action(self.parent, "Installer...",
+                                     self.parent.on_installer,
+                                     icon=Icon("preferences"),
+                                     statustip='Install packages')
+
         self["quit"] = Action(self.parent, "&Quit",
                               self.parent.workflows.file_quit,
                               icon=Icon("quit"),
