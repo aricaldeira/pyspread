@@ -305,7 +305,7 @@ class Grid(QTableView):
         self.resize(w, h)
 
     def _selected_idx_to_str(self, selected_idx):
-        """Converts selected_idx to string wirh cell indices"""
+        """Converts selected_idx to string with cell indices"""
 
         return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
 
@@ -395,6 +395,24 @@ class Grid(QTableView):
         """Sets zoom level ot 1.0"""
 
         self.zoom = 1.0
+
+    def refresh_selected_frozen_cells(self):
+        """Refreshes selected frozen cells"""
+
+        cell_attributes = self.model.code_array.cell_attributes
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            if cell_attributes[key]["frozen"]:
+                code = self.model.code_array(key)
+                result = self.model.code_array._eval_cell(key, code)
+                self.model.code_array.frozen_cache[repr(key)] = result
+
+        cell_attributes._attr_cache.clear()
+        cell_attributes._table_cache.clear()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def on_show_frozen_pressed(self, toggled):
         """Show frozen cells event handler"""
