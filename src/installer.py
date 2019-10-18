@@ -8,13 +8,17 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from icons import Icon
 
 
-PY_EXTRAS = (
-    ["xlrd", ">=0.9.2", "loading excel files"],
-    ["xlwt", ">=0.9.2", "saving excel files"],
-    ["jedi", "(>=0.8.0", "for tab completion and context help in the entry line"],
-    ["pyrsvg", ">=2.32", "displaying SVG files in cells"],
-    ["pyenchant", ">=1.1",  "spell checking"],
-    ["basemap", ">=1.0.7", "for the weather example pys file"],
+PY_PACKAGES = (
+    ("xlrd", ">=0.9.2", "loading excel files"),
+    ("xlwt", ">=0.9.2", "saving excel files"),
+    ("jedi", "(>=0.8.0", "for tab completion and context help in the entry line"),
+    ("pyrsvg", ">=2.32", "displaying SVG files in cells"),
+    ("pyenchant", ">=1.1",  "spell checking"),
+    ("basemap", ">=1.0.7", "for the weather example pys file"),
+)
+
+APT_PACKAGES = (
+    ('TODO')
 )
 
 def is_lib_installed(name):
@@ -44,9 +48,9 @@ class InstallerDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("Installer")
         self.setMinimumWidth(600)
+        self.setMinimumHeight(500)
 
         ## Button group for install buttons
-        self.selIdx = None
         self.buttGroup = QtWidgets.QButtonGroup()
         self.buttGroup.buttonClicked.connect(self.on_butt_install)
 
@@ -61,15 +65,14 @@ class InstallerDialog(QtWidgets.QDialog):
         self.tree.setRootIsDecorated(False)
         #self.tree.setSelectionMode(NoSelection ?)
 
+        self.update_load()
 
-        self.load()
-
-    def load(self):
+    def update_load(self):
 
         C = self.C
         self.tree.clear()
 
-        for idx, package in enumerate(PY_EXTRAS):
+        for idx, package in enumerate(PY_PACKAGES):
             pkg, ver, desc = package
 
             item = QtWidgets.QTreeWidgetItem()
@@ -77,7 +80,6 @@ class InstallerDialog(QtWidgets.QDialog):
             item.setText(C.version, ver)
             item.setText(C.description, desc)
             self.tree.addTopLevelItem(item)
-
 
             if not is_lib_installed(pkg):
                 status = "Not installed"
@@ -97,32 +99,12 @@ class InstallerDialog(QtWidgets.QDialog):
     def on_butt_install(self, butt):
         """One of install buttons pressed"""
 
-        idx = self.buttGroup.id(butt)
         butt.setDisabled(True)
+        idx = self.buttGroup.id(butt)
 
-        dial = InstallPackageDialog(self, package=PY_EXTRAS[idx])
+        dial = InstallPackageDialog(self, package=PY_PACKAGES[idx])
         dial.exec_()
-        self.load()
-
-
-    def update_cmd_line(self, *unused):
-
-        pkg, ver, desc  = PY_EXTRAS[self.selIdx]
-
-        print("Install: %s" % pkg)
-        ## Umm ?? sudo, virtual env ??
-        # its gonna be > pip3 install foo ?
-        cmd = ""
-        if self.buttSudo.isChecked():
-            cmd += "sudo "
-
-        cmd += "pip3 install %s" % pkg
-
-        self.txtCommand.setText(cmd)
-
-    def on_butt_execute(self):
-        self.buttSudo.setDisabled(True)
-        self.buttExecute.setDisabled(True)
+        self.update_load()
 
 
 
@@ -130,14 +112,15 @@ class InstallerDialog(QtWidgets.QDialog):
 class InstallPackageDialog(QtWidgets.QDialog):
     """Shows a dialog to execute command"""
 
-
     def __init__(self, parent=None, package=None):
         super().__init__(parent)
+
+        self.package = package
 
         self.setWindowTitle("Install Package")
         self.setMinimumWidth(600)
 
-        self.package = package
+
 
         self.process = QtCore.QProcess(self)
         self.process.readyReadStandardOutput.connect(self.on_read_standard)
@@ -155,7 +138,7 @@ class InstallPackageDialog(QtWidgets.QDialog):
         self.mainLayout.addWidget(self.groupBox)
 
         self.buttSudo = QtWidgets.QPushButton()
-        self.buttSudo.setText("Sudo")
+        self.buttSudo.setText("sudo")
         self.buttSudo.setCheckable(True)
         self.groupBoxLayout.addWidget(self.buttSudo, 0)
         self.buttSudo.toggled.connect(self.update_cmd_line)
@@ -206,14 +189,13 @@ class InstallPackageDialog(QtWidgets.QDialog):
         s = str(self.process.readAllStandardOutput())
 
         ss = c + "\n-------------------------------------------------------\n" + s
-
         self.txtStdOut.setPlainText(ss)
         self.txtStdOut.moveCursor(QtGui.QTextCursor.End)
 
     def on_read_error(self):
         c = str(self.txtStdErr.toPlainText())
         s = str(self.process.readAllStandardError())
-        # print "errro-", s
+
         ss = c + "\n-------------------------------------------------------\n" + s
         self.txtStdErr.setPlainText(ss)
         self.txtStdErr.moveCursor(QtGui.QTextCursor.End)
