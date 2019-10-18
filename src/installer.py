@@ -137,11 +137,11 @@ class InstallPackageDialog(QtWidgets.QDialog):
         self.groupBox.setLayout(self.groupBoxLayout)
         self.mainLayout.addWidget(self.groupBox)
 
-        self.buttSudo = QtWidgets.QPushButton()
+        self.buttSudo = QtWidgets.QCheckBox()
         self.buttSudo.setText("sudo")
-        self.buttSudo.setCheckable(True)
         self.groupBoxLayout.addWidget(self.buttSudo, 0)
         self.buttSudo.toggled.connect(self.update_cmd_line)
+        self.buttSudo.setVisible(os.name != "nt")
 
         self.txtCommand = QtWidgets.QLineEdit()
         self.groupBoxLayout.addWidget(self.txtCommand, 10)
@@ -161,8 +161,6 @@ class InstallPackageDialog(QtWidgets.QDialog):
 
     def update_cmd_line(self, *unused):
 
-        if os.name == "nt":
-            self.buttSudo.hide()
 
         pkg = self.package[0]
 
