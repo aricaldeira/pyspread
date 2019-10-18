@@ -234,9 +234,9 @@ class GridShapeDialog(DataEntryDialog):
 
     """
 
-    def __init__(self, parent, shape, title="Create a new grid"):
-        groupbox_title = "Grid shape"
-        labels = ["Number of rows", "Number of columns", "Number of tables"]
+    def __init__(self, parent, shape, title="Create a new Grid"):
+        groupbox_title = "Grid Shape"
+        labels = ["Number of Rows", "Number of Columns", "Number of Tables"]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
         validators = [validator] * len(labels)
@@ -264,7 +264,7 @@ class PreferencesDialog(DataEntryDialog):
 
     def __init__(self, parent):
         title = "Preferences"
-        groupbox_title = "Global settings"
+        groupbox_title = "Global Settings"
         labels = ["Signature key for files", "Cell calculation timeout [s]"]
         self.keys = ["signature_key", "timeout"]
         self.mappers = [str, int]
