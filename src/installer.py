@@ -187,7 +187,7 @@ class InstallPackageDialog(QtWidgets.QDialog):
         # its gonna be > pip3 install foo ?
         cmd = ""
         if self.buttSudo.isChecked():
-            cmd += "sudo "
+            cmd += "pkexec  "
 
         cmd += "pip3 install %s" % pkg
 
@@ -197,6 +197,8 @@ class InstallPackageDialog(QtWidgets.QDialog):
         self.buttSudo.setDisabled(True)
         self.buttExecute.setDisabled(True)
 
+        self.txtStdOut.setPlainText("")
+        self.txtStdErr.setPlainText("")
         self.process.start(self.txtCommand.text())
 
     def on_read_standard(self):
@@ -217,5 +219,6 @@ class InstallPackageDialog(QtWidgets.QDialog):
         self.txtStdErr.moveCursor(QtGui.QTextCursor.End)
 
     def on_finished(self):
-        pass
+        self.buttSudo.setDisabled(False)
+        self.buttExecute.setDisabled(False)
 
