@@ -172,10 +172,13 @@ class DataEntryDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.create_form())
+        layout.addStretch(1)
         layout.addWidget(self.create_buttonbox())
         self.setLayout(layout)
 
         self.setWindowTitle(title)
+        self.setMinimumWidth(300)
+        self.setMinimumHeight(300)
 
     @property
     def data(self):
@@ -205,9 +208,10 @@ class DataEntryDialog(QDialog):
             editor.setAlignment(Qt.AlignRight)
             if validator:
                 editor.setValidator(validator)
-            form_layout.addRow(QLabel(label), editor)
+            form_layout.addRow(QLabel(label + " :"), editor)
             self.editors.append(editor)
 
+        form_layout.setLabelAlignment(Qt.AlignRight)
         form_group_box.setLayout(form_layout)
 
         return form_group_box
