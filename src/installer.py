@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 
+
+import importlib
 
 from PyQt5.QtCore import pyqtSignal, QSize
 from PyQt5 import QtWidgets
@@ -15,17 +18,27 @@ PY_EXTRAS = (
     ["basemap", ">=1.0.7", "for the weather example pys file"],
 )
 
+def is_lib_installed(name):
+    """Attempts to import lib
+    :param name: Lib to load eg xwrd"""
+    try:
+        importlib.import_module(name)
+        return True
+    except Exception as e:
+        print(e)
+        pass
+    return False
 
 class InstallerDialog(QtWidgets.QDialog):
-    """Installer dialog
-
-    """
+    """Installer dialog"""
 
     class C:
+        """Column nos"""
         button = 0
-        package = 1
-        version = 2
-        description = 3
+        status = 1
+        package = 2
+        version = 3
+        description = 4
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -36,14 +49,15 @@ class InstallerDialog(QtWidgets.QDialog):
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-
-
         self.tree = QtWidgets.QTreeWidget()
         self.mainLayout.addWidget(self.tree, 4)
 
-        self.tree.setHeaderLabels(["", "Package", "Version", "Description"])
+        self.tree.setHeaderLabels(["","Status", "Package", "Version", "Description"])
         self.tree.setRootIsDecorated(False)
         #self.tree.setSelectionMode()
+
+        self.buttGroup = QtWidgets.QButtonGroup()
+        self.buttGroup.buttonClicked.connect(self.on_button)
 
         self.load()
 
@@ -51,17 +65,37 @@ class InstallerDialog(QtWidgets.QDialog):
 
         C = self.C
         self.tree.clear()
-        for pkg, ver, desc in PY_EXTRAS:
+
+        for idx, package in enumerate(PY_EXTRAS):
+            pkg, ver, desc = package
+
             item = QtWidgets.QTreeWidgetItem()
             item.setText(C.package, pkg)
             item.setText(C.version, ver)
             item.setText(C.description, desc)
             self.tree.addTopLevelItem(item)
 
-            # TODO check if installed and version installed
-            butt = QtWidgets.QToolButton()
-            butt.setAutoRaise(True)
-            butt.setText("Install")
-            self.tree.setItemWidget(item, C.button, butt)
+            if not is_lib_installed(pkg):
+                item.setText(C.status, "Not installed")
+                butt = QtWidgets.QToolButton()
+                butt.setText("Install")
+                self.tree.setItemWidget(item, C.button, butt)
+                self.buttGroup.addButton(butt, idx)
+            else:
+                item.setText(C.status, "Installed")
+
+
+    def on_button(self, butt):
+
+        idx = self.buttGroup.id(butt)
+
+        pkg, ver, desc  = PY_EXTRAS[idx]
+
+        print("Install: %s" % pkg)
+        ## Umm ?? sudo, virtual env ??
+        # its gonna be > pip3 install foo ?
+        cmd = "pip3 install %s" % pkg
+
+
 
 
