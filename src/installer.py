@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-
+import os
 import importlib
 
-from PyQt5.QtCore import pyqtSignal, QSize
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 from icons import Icon
 
@@ -30,7 +29,7 @@ def is_lib_installed(name):
     return False
 
 class InstallerDialog(QtWidgets.QDialog):
-    """Installer dialog"""
+    """Installer dialog for python dependencies"""
 
     class C:
         """Column nos"""
@@ -46,7 +45,13 @@ class InstallerDialog(QtWidgets.QDialog):
         self.setWindowTitle("Installer")
         self.setMinimumWidth(600)
 
+        ## Button group for install buttons
+        self.selIdx = None
+        self.buttGroup = QtWidgets.QButtonGroup()
+        self.buttGroup.buttonClicked.connect(self.on_butt_install)
+
         self.mainLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout.setContentsMargins(10,10,10,10)
         self.setLayout(self.mainLayout)
 
         self.tree = QtWidgets.QTreeWidget()
@@ -54,10 +59,8 @@ class InstallerDialog(QtWidgets.QDialog):
 
         self.tree.setHeaderLabels(["","Status", "Package", "Version", "Description"])
         self.tree.setRootIsDecorated(False)
-        #self.tree.setSelectionMode()
+        #self.tree.setSelectionMode(NoSelection ?)
 
-        self.buttGroup = QtWidgets.QButtonGroup()
-        self.buttGroup.buttonClicked.connect(self.on_button)
 
         self.load()
 
@@ -75,27 +78,144 @@ class InstallerDialog(QtWidgets.QDialog):
             item.setText(C.description, desc)
             self.tree.addTopLevelItem(item)
 
+
             if not is_lib_installed(pkg):
-                item.setText(C.status, "Not installed")
+                status = "Not installed"
+                color = "#F3FFBB"
                 butt = QtWidgets.QToolButton()
                 butt.setText("Install")
                 self.tree.setItemWidget(item, C.button, butt)
                 self.buttGroup.addButton(butt, idx)
             else:
-                item.setText(C.status, "Installed")
+                color = "#DBFEAC"
+                status = "Installed"
+
+            item.setText(C.status, status)
+            item.setBackground(C.status, QtGui.QColor(color))
 
 
-    def on_button(self, butt):
+    def on_butt_install(self, butt):
+        """One of install buttons pressed"""
 
         idx = self.buttGroup.id(butt)
+        butt.setDisabled(True)
 
-        pkg, ver, desc  = PY_EXTRAS[idx]
+        dial = InstallPackageDialog(self, package=PY_EXTRAS[idx])
+        dial.exec_()
+        self.load()
+
+
+    def update_cmd_line(self, *unused):
+
+        pkg, ver, desc  = PY_EXTRAS[self.selIdx]
 
         print("Install: %s" % pkg)
         ## Umm ?? sudo, virtual env ??
         # its gonna be > pip3 install foo ?
-        cmd = "pip3 install %s" % pkg
+        cmd = ""
+        if self.buttSudo.isChecked():
+            cmd += "sudo "
+
+        cmd += "pip3 install %s" % pkg
+
+        self.txtCommand.setText(cmd)
+
+    def on_butt_execute(self):
+        self.buttSudo.setDisabled(True)
+        self.buttExecute.setDisabled(True)
 
 
 
+
+class InstallPackageDialog(QtWidgets.QDialog):
+    """Shows a dialog to execute command"""
+
+
+    def __init__(self, parent=None, package=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Install Package")
+        self.setMinimumWidth(600)
+
+        self.package = package
+
+        self.process = QtCore.QProcess(self)
+        self.process.readyReadStandardOutput.connect(self.on_read_standard)
+        self.process.readyReadStandardError.connect(self.on_read_error)
+        self.process.finished.connect(self.on_finished)
+
+        self.mainLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout.setContentsMargins(10,10,10,10)
+        self.setLayout(self.mainLayout)
+
+        self.groupBox = QtWidgets.QGroupBox()
+        self.groupBox.setTitle("Shell Command")
+        self.groupBoxLayout = QtWidgets.QHBoxLayout()
+        self.groupBox.setLayout(self.groupBoxLayout)
+        self.mainLayout.addWidget(self.groupBox)
+
+        self.buttSudo = QtWidgets.QPushButton()
+        self.buttSudo.setText("Sudo")
+        self.buttSudo.setCheckable(True)
+        self.groupBoxLayout.addWidget(self.buttSudo, 0)
+        self.buttSudo.toggled.connect(self.update_cmd_line)
+
+        self.txtCommand = QtWidgets.QLineEdit()
+        self.groupBoxLayout.addWidget(self.txtCommand, 10)
+
+        self.buttExecute = QtWidgets.QPushButton()
+        self.buttExecute.setText("Execute")
+        self.groupBoxLayout.addWidget(self.buttExecute, 0)
+        self.buttExecute.clicked.connect(self.on_butt_execute)
+
+        self.txtStdOut = QtWidgets.QPlainTextEdit()
+        self.mainLayout.addWidget(self.txtStdOut)
+
+        self.txtStdErr = QtWidgets.QPlainTextEdit()
+        self.mainLayout.addWidget(self.txtStdErr)
+
+        self.update_cmd_line()
+
+    def update_cmd_line(self, *unused):
+
+        if os.name == "nt":
+            self.buttSudo.hide()
+
+        pkg = self.package[0]
+
+        ## Umm ?? sudo, virtual env ??
+        # its gonna be > pip3 install foo ?
+        cmd = ""
+        if self.buttSudo.isChecked():
+            cmd += "sudo "
+
+        cmd += "pip3 install %s" % pkg
+
+        self.txtCommand.setText(cmd)
+
+    def on_butt_execute(self):
+        self.buttSudo.setDisabled(True)
+        self.buttExecute.setDisabled(True)
+
+        self.process.start(self.txtCommand.text())
+
+    def on_read_standard(self):
+        c = str(self.txtStdOut.toPlainText())
+        s = str(self.process.readAllStandardOutput())
+
+        ss = c + "\n-------------------------------------------------------\n" + s
+
+        self.txtStdOut.setPlainText(ss)
+        self.txtStdOut.moveCursor(QtGui.QTextCursor.End)
+
+    def on_read_error(self):
+        c = str(self.txtStdErr.toPlainText())
+        s = str(self.process.readAllStandardError())
+        # print "errro-", s
+        ss = c + "\n-------------------------------------------------------\n" + s
+        self.txtStdErr.setPlainText(ss)
+        self.txtStdErr.moveCursor(QtGui.QTextCursor.End)
+
+    def on_finished(self):
+        pass
 
