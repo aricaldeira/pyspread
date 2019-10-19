@@ -285,7 +285,7 @@ class MainWindow(QMainWindow):
         """Toggles periodic timer for frozen cells"""
 
         if toggled:
-            self.refresh_timer.start(self.settings.timeout)
+            self.refresh_timer.start(self.settings.refresh_timeout)
         else:
             self.refresh_timer.stop()
 
