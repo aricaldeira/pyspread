@@ -40,7 +40,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
-from PyQt5.QtGui import QIntValidator, QValidator, QImageWriter
+from PyQt5.QtGui import QIntValidator, QImageWriter
 
 try:
     from matplotlib.figure import Figure
@@ -172,10 +172,13 @@ class DataEntryDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.create_form())
+        layout.addStretch(1)
         layout.addWidget(self.create_buttonbox())
         self.setLayout(layout)
 
         self.setWindowTitle(title)
+        self.setMinimumWidth(300)
+        self.setMinimumHeight(300)
 
     @property
     def data(self):
@@ -205,9 +208,10 @@ class DataEntryDialog(QDialog):
             editor.setAlignment(Qt.AlignRight)
             if validator:
                 editor.setValidator(validator)
-            form_layout.addRow(QLabel(label), editor)
+            form_layout.addRow(QLabel(label + " :"), editor)
             self.editors.append(editor)
 
+        form_layout.setLabelAlignment(Qt.AlignRight)
         form_group_box.setLayout(form_layout)
 
         return form_group_box
@@ -234,9 +238,9 @@ class GridShapeDialog(DataEntryDialog):
 
     """
 
-    def __init__(self, parent, shape, title="Create a new grid"):
-        groupbox_title = "Grid shape"
-        labels = ["Number of rows", "Number of columns", "Number of tables"]
+    def __init__(self, parent, shape, title="Create a new Grid"):
+        groupbox_title = "Grid Shape"
+        labels = ["Number of Rows", "Number of Columns", "Number of Tables"]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
         validators = [validator] * len(labels)
@@ -364,7 +368,10 @@ class FileDialogBase:
 
     @property
     def suffix(self):
-        return ".pysu" if self.filters_list.index(self.selected_filter) == 0 else ".pys"
+        if self.filters_list.index(self.selected_filter):
+            return ".pys"
+        else:
+            return ".pysu"
 
     def __init__(self, main_window):
 
@@ -386,10 +393,10 @@ class FileOpenDialog(FileDialogBase):
     def show_dialog(self):
         """Present dialog and update values"""
         path = self.main_window.settings.last_file_input_path
-        self.file_path, self.selected_filter = QFileDialog.getOpenFileName(
-                                                    self.main_window,
-                                                    self.title, str(path),
-                                                    self.filters, self.selected_filter)
+        self.file_path, self.selected_filter = \
+            QFileDialog.getOpenFileName(self.main_window, self.title,
+                                        str(path), self.filters,
+                                        self.selected_filter)
 
 
 class FileSaveDialog(FileDialogBase):
@@ -400,11 +407,10 @@ class FileSaveDialog(FileDialogBase):
     def show_dialog(self):
         """Present dialog and update values"""
         path = self.main_window.settings.last_file_output_path
-        self.file_path, self.selected_filter = QFileDialog.getSaveFileName(
-                                            self.main_window,
-                                            self.title, str(path),
-                                            self.filters, self.selected_filter)
-
+        self.file_path, self.selected_filter = \
+            QFileDialog.getSaveFileName(self.main_window, self.title,
+                                        str(path), self.filters,
+                                        self.selected_filter)
 
 
 class ImageFileOpenDialog(FileDialogBase):

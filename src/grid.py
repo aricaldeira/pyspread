@@ -714,8 +714,7 @@ class Grid(QTableView):
     def on_text_color(self):
         """Text color change event handler"""
 
-        text_color = self.main_window.widgets.text_color_button.color
-        text_color_rgb = text_color.getRgb()
+        text_color_rgb = self.main_window.widgets.text_color_button.color.getRgb()
         attr = self.selection, self.table, {"textcolor": text_color_rgb}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set text color to {} for cells {}"
