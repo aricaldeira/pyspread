@@ -148,7 +148,7 @@ class MainWindow(QMainWindow):
         main_splitter.setSizes([self.entry_line.minimumHeight(), 9999, 20])
 
         self.macro_dock = QDockWidget("Macros", self)
-        self.macro_dock.setObjectName("Macro panel")
+        self.macro_dock.setObjectName("Macro Panel")
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 

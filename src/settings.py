@@ -111,17 +111,21 @@ class Settings:
 
         # GUI state
         for widget_name in self.widget_names:
-            geometry_name = widget_name + '/geometry'
-            widget_state_name = widget_name + '/windowState'
 
             if widget_name == "main_window":
                 widget = self.parent
             else:
                 widget = getattr(self.parent, widget_name)
+
+            # geometry
+            geometry_name = widget_name + '/geometry'
             try:
                 settings.setValue(geometry_name, widget.saveGeometry())
             except AttributeError:
                 pass
+
+            # state
+            widget_state_name = widget_name + '/windowState'
             try:
                 settings.setValue(widget_state_name, widget.saveState())
             except AttributeError:

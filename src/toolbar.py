@@ -62,13 +62,13 @@ def add_toolbutton_widget(button, widget, minsize=(300, 200),
 
 
 class MainToolBar(QToolBar):
-    """The main toolbar for pyspread"""
+    """The main toolbar"""
 
     def __init__(self, main_window):
         self.main_window = main_window
         super().__init__("Main toolbar", main_window)
 
-        self.setObjectName("Main toolbar")
+        self.setObjectName("Main Toolbar")
         self._create_toolbar(main_window.main_window_actions)
 
     def _create_toolbar(self, actions):
@@ -79,22 +79,28 @@ class MainToolBar(QToolBar):
         self.addAction(actions["save"])
         self.addAction(actions["export"])
         self.addSeparator()
+
         self.addAction(actions["undo"])
         self.addAction(actions["redo"])
         self.addSeparator()
+
         self.addAction(actions["toggle_spell_checker"])
         self.addSeparator()
+
         self.addAction(actions["find"])
         self.addAction(actions["replace"])
         self.addSeparator()
+
         self.addAction(actions["cut"])
         self.addAction(actions["copy"])
         self.addAction(actions["copy_results"])
         self.addAction(actions["paste"])
         self.addAction(actions["paste"])
         self.addSeparator()
+
         self.addAction(actions["freeze_cell"])
         self.addSeparator()
+
         self.addAction(actions["print"])
 
         undo_button = self.widgetForAction(actions["undo"])
@@ -108,9 +114,9 @@ class FindToolbar(QToolBar):
     """The find toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__("Find toolbar", main_window)
+        super().__init__("Find Toolbar", main_window)
 
-        self.setObjectName("Find toolbar")
+        self.setObjectName("Find Toolbar")
         self._create_toolbar(main_window.main_window_actions)
 
     def _create_toolbar(self, actions):
@@ -123,10 +129,10 @@ class FormatToolbar(QToolBar):
     """The format toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__("Format toolbar", main_window)
+        super().__init__("Format Toolbar", main_window)
 
         self.main_window = main_window
-        self.setObjectName("Format toolbar")
+        self.setObjectName("Format Toolbar")
         self._create_toolbar(main_window.main_window_actions)
 
     def _create_toolbar(self, actions):
@@ -202,12 +208,13 @@ class ToolBarManager(QToolButton):
     def __init__(self, parentToolBar):
         super().__init__()
 
+        self.parentToolBar = parentToolBar
+
         self.setToolTip("Toggle item visibility")
         self.setMenu(QMenu(self))
         self.setPopupMode(QToolButton.InstantPopup)
-        #self.setIcon(Icon("format_borders"))
+        #self.setIcon(Icon("TODO"))
         self.setFixedWidth(16)
-
 
         m = 0
         mainWidget = QWidget()
@@ -215,7 +222,7 @@ class ToolBarManager(QToolButton):
         mainlay.setContentsMargins(m,m,m,m)
         mainWidget.setLayout(mainlay)
 
-        lbl = QLabel("Set preference for visibility")
+        lbl = QLabel("Set preferences for visibility")
         lbl.setStyleSheet("background-color: #FFFDC3; padding: 4px;")
         mainlay.addWidget(lbl)
 
@@ -224,16 +231,16 @@ class ToolBarManager(QToolButton):
         self.grid.setContentsMargins(m,m,m,m)
         mainlay.addLayout(self.grid)
 
-        self.set_toolbar(parentToolBar)
+        self.create_widgets()
 
         widget_action = QWidgetAction(self)
         widget_action.setDefaultWidget(mainWidget)
         self.menu().addAction(widget_action)
 
 
-    def set_toolbar(self, toolbar):
+    def create_widgets(self):
 
-        for ridx, obj in enumerate(toolbar.actions()):
+        for ridx, obj in enumerate(self.parentToolBar.actions()):
 
             if obj.isSeparator():
                 # its a separator so draw a litle line
@@ -269,7 +276,7 @@ class ToolBarManager(QToolButton):
                     name = wid.text()
 
                 else:
-                    print("Un-hancled", wid.text())
+                    print("ERROR: Not handled. set_toolbar()", wid.text(), self)
 
 
                 if hasattr(wid, "icon"):
@@ -287,7 +294,6 @@ class ToolBarManager(QToolButton):
 
 
     def on_toggle(self, checkBox, srcObject):
-
         srcObject.setVisible(checkBox.isChecked())
 
 class MacroToolbar(QToolBar):
