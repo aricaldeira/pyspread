@@ -65,7 +65,8 @@ class Workflows:
 
     @contextmanager
     def progress_dialog(self, title, label, maximum, min_duration=3000):
-        """:class:`~contextlib.contextmanager` that displays a file progress dialog"""
+        """:class:`~contextlib.contextmanager` that displays a progress dialog
+        """
 
         progress_dialog = QProgressDialog(self.main_window)
         progress_dialog.setWindowTitle(title)
@@ -82,7 +83,11 @@ class Workflows:
 
     @contextmanager
     def disable_entryline_updates(self):
-        """Context manager for temporarily disabling the :class:`entryline.Entryline` """
+        """Context manager for temporarily disabling the
+
+        :class:`entryline.Entryline`
+
+        """
 
         self.main_window.entry_line.setUpdatesEnabled(False)
         yield
@@ -95,8 +100,10 @@ class Workflows:
         changes shall be discarded.
 
         - If the user selects `Cancel` then `func` is not executed.
-        - If the user selects `Save` then the file is saved and `func` is executed.
-        - If the user selects `Discard` then the file is not saved and `func` is executed.
+        - If the user selects `Save` then the file is saved and `func` is
+          executed.
+        - If the user selects `Discard` then the file is not saved and `func`
+          is executed.
 
         If no changes are present then `func` is directly executed.
         After executing `func`, :func:`reset_changed_since_save` is called.
