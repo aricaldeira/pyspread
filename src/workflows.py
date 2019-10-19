@@ -164,7 +164,6 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        # TODO: Fix signature key issue
         code_array = self.main_window.grid.model.code_array
 
         # Get filepath from user
@@ -228,6 +227,9 @@ class Workflows:
 
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
+
+        # Update macro editor
+        self.main_window.macro_panel.update()
 
     def sign_file(self, filepath):
         """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
