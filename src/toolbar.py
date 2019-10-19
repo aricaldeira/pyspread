@@ -31,17 +31,20 @@
 * :func:`add_toolbutton_widget`
 
 """
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QToolBar, QToolButton, QAction, QMenu, \
+    QHBoxLayout, QVBoxLayout, QGridLayout,  QUndoView, \
+    QWidget, QWidgetAction, QCheckBox, QLabel
 
-from PyQt5.QtWidgets import QToolBar, QToolButton, QUndoView, QMenu
-from PyQt5.QtWidgets import QHBoxLayout
 
 try:
     import matplotlib.figure as matplotlib_figure
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
-
+from src.icons import Icon
+from src.actions import Action
 
 def add_toolbutton_widget(button, widget, minsize=(300, 200),
                           popup_mode=QToolButton.MenuButtonPopup):
@@ -182,6 +185,68 @@ class FormatToolbar(QToolBar):
 
         self.addAction(actions["copy_format"])
         self.addAction(actions["paste_format"])
+
+        ## show/hide dropdown
+        viz_button = QToolButton(self)
+        viz_button.setToolTip("Toggle item visibility")
+        viz_menu = QMenu(viz_button)
+        viz_button.setMenu(viz_menu)
+        viz_button.setPopupMode(QToolButton.InstantPopup)
+        viz_button.setIcon(Icon("format_borders"))
+        self.addWidget(viz_button)
+
+        tb_mana = ToolBarManager()
+        tb_mana.set_toolbar(self)
+
+        widget_action = QWidgetAction(viz_menu)
+        widget_action.setDefaultWidget(tb_mana)
+        viz_menu.addAction(widget_action)
+
+        return
+        for obj in self.actions():
+            print("=", obj.text(), type(obj))
+            if isinstance(obj, Action):
+                act = QAction(viz_menu)
+                act.setText(obj.text())
+                act.setIcon(obj.icon())
+                act.setCheckable(True)
+                viz_menu.addAction(act)
+                #print(act)
+                #print(viz_menu.actions())
+
+
+class ToolBarManager(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        m = 6
+        mainlay = QVBoxLayout()
+        mainlay.setContentsMargins(m,m,m,m)
+        self.setLayout(mainlay)
+
+        lbl = QLabel("Set preference for visibility")
+        lbl.setStyleSheet("background-color: #FFFDC3; padding: 4px;")
+        mainlay.addWidget(lbl)
+
+        self.grid = QGridLayout()
+        mainlay.addLayout(self.grid)
+
+
+    def set_toolbar(self, toolbar):
+        for ridx, obj in enumerate(toolbar.actions()):
+            print("=", ridx, obj.text(), type(obj))
+            chk = QCheckBox()
+            self.grid.addWidget(chk, ridx, 0)
+            if isinstance(obj, Action):
+                icon = QLabel()
+                icon.setPixmap(obj.icon().pixmap(QSize(16,16)))
+                self.grid.addWidget(icon, ridx, 1)
+                act = QLabel(self)
+                act.setText(obj.text())
+                #act.setIcon(obj.icon())
+                #act.setCheckable(True)
+                self.grid.addWidget(act, ridx, 2)
 
 
 class MacroToolbar(QToolBar):
