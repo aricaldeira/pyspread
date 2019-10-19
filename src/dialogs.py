@@ -178,7 +178,7 @@ class DataEntryDialog(QDialog):
 
         self.setWindowTitle(title)
         self.setMinimumWidth(300)
-        self.setMinimumHeight(300)
+        self.setMinimumHeight(150)
 
     @property
     def data(self):
