@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
         self.settings = Settings(self)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
-        self.timer = QTimer()
+        self.refresh_timer = QTimer()
 
         self._init_widgets()
 
@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
         self.macro_dock.installEventFilter(self)
 
         self.gui_update.connect(self.on_gui_update)
-        self.timer.timeout.connect(self.on_timer)
+        self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
     def eventFilter(self, source, event):
         """Event filter for handling QDockWidget close events
@@ -281,25 +281,24 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def on_toggle_timer(self, toggled):
+    def on_toggle_refresh_timer(self, toggled):
         """Toggles periodic timer for frozen cells"""
 
         if toggled:
-            self.timer.start(self.settings.timeout)
+            self.refresh_timer.start(self.settings.timeout)
         else:
-            self.timer.stop()
+            self.refresh_timer.stop()
 
-    def on_timer(self):
-        """Event handler for self.timer.timeout
+    def on_refresh_timer(self):
+        """Event handler for self.refresh_timer.timeout
 
         Called for periodic updates of frozen cells.
         Does nothing if either the entry_line or a cell editor is active.
 
         """
 
-        raise NotImplementedError
-        print(self.entry_line.isActiveWindow())
-        if self.entry_line.isActiveWindow():
+        if not self.entry_line.hasFocus() \
+           and self.grid.state() != self.grid.EditingState:
             self.grid.refresh_frozen_cells()
 
     def _toggle_widget(self, widget, action_name, toggled):

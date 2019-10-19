@@ -426,11 +426,11 @@ class Grid(QTableView):
         for repr_key in frozen_cache:
             key = literal_eval(repr_key)
             self._refresh_frozen_cell(key)
-            index = self.model.index(*key[:2])
-            self.model.dataChanged.emit(index, index)
 
         cell_attributes._attr_cache.clear()
         cell_attributes._table_cache.clear()
+        self.model.code_array.result_cache.clear()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def refresh_selected_frozen_cells(self):
         """Refreshes selected frozen cells"""
