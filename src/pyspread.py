@@ -42,7 +42,8 @@ from PyQt5.QtWidgets import QDockWidget, QUndoStack
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont, QPalette
 
-from src.settings import Settings, VERSION
+from src import VERSION, APP_NAME
+from src.settings import Settings
 from src.icons import Icon
 from src.grid import Grid
 from src.entryline import Entryline
@@ -104,11 +105,11 @@ class MainWindow(QMainWindow):
     def _init_window(self):
         """Initialize main window components"""
 
-        self.setWindowTitle('Pyspread')
+        self.setWindowTitle(APP_NAME)
         self.setWindowIcon(Icon("pyspread"))
 
         self.safe_mode_widget = QSvgWidget(Icon.icon_path["warning"], self)
-        msg = "Pyspread is in safe mode.\nExpressions are not evaluated."
+        msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
         self.safe_mode_widget.hide()
@@ -353,7 +354,7 @@ class MainWindow(QMainWindow):
         """Show about message box"""
 
         about_msg_template = "<p>".join((
-            "<b>Pyspread</b>",
+            "<b>%s</b>" % APP_NAME,
             "A non-traditional Python spreadsheet application",
             "Version {version}",
             "Created by:<br>{devs}",
@@ -363,19 +364,19 @@ class MainWindow(QMainWindow):
             '<a href="https://pyspread.gitlab.io">pyspread.gitlab.io</a>',
             ))
 
-        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho"
+        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho, Pete Morgan"
 
-        doc_devs = "Martin Manns, Bosko Markovic"
+        doc_devs = "Martin Manns, Bosko Markovic, Pete Morgan"
 
         about_msg = about_msg_template.format(
-            version=VERSION, devs=devs, doc_devs=doc_devs, license=LICENSE)
-        QMessageBox.about(self, "About pyspread", about_msg)
+                    version=VERSION, license=LICENSE,
+                    devs=devs, doc_devs=doc_devs)
+        QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
 
     def on_gui_update(self, attributes):
         """GUI update event handler.
 
-        Emmitted on cell change. Attributes contains current cell_attributes.
-
+        Emitted on cell change. Attributes contains current cell_attributes.
         """
 
         widgets = self.widgets
