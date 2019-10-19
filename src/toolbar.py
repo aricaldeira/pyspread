@@ -34,7 +34,6 @@
 
 import functools
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QToolBar, QToolButton, QAction, QMenu, \
     QHBoxLayout, QVBoxLayout, QGridLayout,  QUndoView, \
     QWidget, QWidgetAction, QCheckBox, QLabel
@@ -101,6 +100,8 @@ class MainToolBar(QToolBar):
         undo_button = self.widgetForAction(actions["undo"])
         undo_view = QUndoView(self.main_window.undo_stack)
         add_toolbutton_widget(undo_button, undo_view)
+
+        self.addWidget(ToolBarManager(self))
 
 
 class FindToolbar(QToolBar):
@@ -190,44 +191,29 @@ class FormatToolbar(QToolBar):
         self.addAction(actions["copy_format"])
         self.addAction(actions["paste_format"])
 
-        ## show/hide dropdown
-        viz_button = QToolButton(self)
-        viz_button.setToolTip("Toggle item visibility")
-        viz_menu = QMenu(viz_button)
-        viz_button.setMenu(viz_menu)
-        viz_button.setPopupMode(QToolButton.InstantPopup)
-        viz_button.setIcon(Icon("format_borders"))
-        self.addWidget(viz_button)
+        self.addSeparator()
 
-        tb_mana = ToolBarManager()
-        tb_mana.set_toolbar(self)
-
-        widget_action = QWidgetAction(viz_menu)
-        widget_action.setDefaultWidget(tb_mana)
-        viz_menu.addAction(widget_action)
-
-        return
-        for obj in self.actions():
-            print("=", obj.text(), type(obj))
-            if isinstance(obj, Action):
-                act = QAction(viz_menu)
-                act.setText(obj.text())
-                act.setIcon(obj.icon())
-                act.setCheckable(True)
-                viz_menu.addAction(act)
-                #print(act)
-                #print(viz_menu.actions())
+        self.addWidget(ToolBarManager(self))
 
 
-class ToolBarManager(QWidget):
 
-    def __init__(self):
+class ToolBarManager(QToolButton):
+
+    def __init__(self, parentToolBar):
         super().__init__()
 
+        self.setToolTip("Toggle item visibility")
+        self.setMenu(QMenu(self))
+        self.setPopupMode(QToolButton.InstantPopup)
+        #self.setIcon(Icon("format_borders"))
+        self.setFixedWidth(16)
+
+
         m = 0
+        mainWidget = QWidget()
         mainlay = QVBoxLayout()
         mainlay.setContentsMargins(m,m,m,m)
-        self.setLayout(mainlay)
+        mainWidget.setLayout(mainlay)
 
         lbl = QLabel("Set preference for visibility")
         lbl.setStyleSheet("background-color: #FFFDC3; padding: 4px;")
@@ -237,6 +223,12 @@ class ToolBarManager(QWidget):
         self.grid = QGridLayout()
         self.grid.setContentsMargins(m,m,m,m)
         mainlay.addLayout(self.grid)
+
+        self.set_toolbar(parentToolBar)
+
+        widget_action = QWidgetAction(self)
+        widget_action.setDefaultWidget(mainWidget)
+        self.menu().addAction(widget_action)
 
 
     def set_toolbar(self, toolbar):
@@ -289,6 +281,9 @@ class ToolBarManager(QWidget):
                 lbl.setText(name)
                 self.grid.addWidget(lbl, ridx, 2)
 
+        self.grid.setRowStretch(0, 0)
+        self.grid.setRowStretch(1, 0)
+        self.grid.setRowStretch(2, 3)
 
 
     def on_toggle(self, checkBox, srcObject):
@@ -311,6 +306,8 @@ class MacroToolbar(QToolBar):
         self.addAction(actions["link_image"])
         if matplotlib_figure is not None:
             self.addAction(actions["insert_chart"])
+
+        self.addWidget(ToolBarManager(self))
 
 
 class WidgetToolbar(QToolBar):
