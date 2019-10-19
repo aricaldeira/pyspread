@@ -228,7 +228,7 @@ class ColorButton(QToolButton):
 
         dlg.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
         dlg.setWindowModality(Qt.ApplicationModal)
-        dlg.setOptions(QColorDialog.DontUseNativeDialog | QColorDialog.ShowAlphaChannel)
+        dlg.setOptions(QColorDialog.DontUseNativeDialog)
 
         p = self.mapFromGlobal(QCursor.pos())
         p.setX(p.x() + (self.rect().width() / 2))
