@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -24,8 +23,8 @@
 
 **Provides**
 
-* :class:`MenuBar`: QMenuBar, the main menubar for pyspread
-* :class:`BorderChoiceMenu`: QMenu for choosing cell borders that shall be manipulated
+* :class:`MenuBar`: QMenuBar, the main menubar
+* :class:`BorderChoiceMenu`: QMenu for choosing cell borders
 * :class:`BorderWidthMenu`: QMenu for choosing the cell border width
 
 """
@@ -41,7 +40,7 @@ from icons import Icon
 
 
 class MenuBar(QMenuBar):
-    """The main menubar for pyspread"""
+    """The main menubar """
 
     def __init__(self, main_window):
         super().__init__()
