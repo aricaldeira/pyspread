@@ -31,6 +31,8 @@
 * :func:`add_toolbutton_widget`
 
 """
+
+import functools
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QToolBar, QToolButton, QAction, QMenu, \
@@ -220,7 +222,7 @@ class ToolBarManager(QWidget):
     def __init__(self):
         super().__init__()
 
-        m = 6
+        m = 0
         mainlay = QVBoxLayout()
         mainlay.setContentsMargins(m,m,m,m)
         self.setLayout(mainlay)
@@ -229,25 +231,30 @@ class ToolBarManager(QWidget):
         lbl.setStyleSheet("background-color: #FFFDC3; padding: 4px;")
         mainlay.addWidget(lbl)
 
+        m = 5
         self.grid = QGridLayout()
+        self.grid.setContentsMargins(m,m,m,m)
         mainlay.addLayout(self.grid)
 
 
     def set_toolbar(self, toolbar):
         for ridx, obj in enumerate(toolbar.actions()):
-            print("=", ridx, obj.text(), type(obj))
+            #print("=", ridx, obj.text(), type(obj))
             chk = QCheckBox()
             self.grid.addWidget(chk, ridx, 0)
+            chk.setChecked(obj.isVisible())
+            chk.toggled.connect(functools.partial(self.on_toggle, chk, obj))
             if isinstance(obj, Action):
                 icon = QLabel()
                 icon.setPixmap(obj.icon().pixmap(QSize(16,16)))
                 self.grid.addWidget(icon, ridx, 1)
                 act = QLabel(self)
                 act.setText(obj.text())
-                #act.setIcon(obj.icon())
-                #act.setCheckable(True)
                 self.grid.addWidget(act, ridx, 2)
 
+    def on_toggle(self, checkBox, obj):
+        print("on_toggle", checkBox,checkBox.isChecked(), obj, obj.text())
+        obj.setVisible(checkBox.isChecked())
 
 class MacroToolbar(QToolBar):
     """The macro toolbar for pyspread"""
