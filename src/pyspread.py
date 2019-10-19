@@ -279,50 +279,58 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def _toggle_widget(self, widget, action_name):
+    def on_toggle_timer(self, toggle):
+        """"""
+
+        raise NotImplementedError
+
+    def _toggle_widget(self, widget, action_name, toggled):
         """Toggles widget visibility and updates toggle actions"""
 
-        if widget.isVisible():
-            widget.hide()
-        else:
+        if toggled:
             widget.show()
+        else:
+            widget.hide()
 
         self.main_window_actions[action_name].setChecked(widget.isVisible())
 
-    def on_toggle_main_toolbar(self):
+    def on_toggle_main_toolbar(self, toggled):
         """Main toolbar toggle event handler"""
 
-        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar")
+        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar", toggled)
 
-    def on_toggle_macro_toolbar(self):
+    def on_toggle_macro_toolbar(self, toggled):
         """Macro toolbar toggle event handler"""
 
-        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar")
+        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
+                            toggled)
 
-    def on_toggle_widget_toolbar(self):
+    def on_toggle_widget_toolbar(self, toggled):
         """Widget toolbar toggle event handler"""
 
-        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar")
+        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar",
+                            toggled)
 
-    def on_toggle_format_toolbar(self):
+    def on_toggle_format_toolbar(self, toggled):
         """Format toolbar toggle event handler"""
 
-        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar")
+        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar",
+                            toggled)
 
-    def on_toggle_find_toolbar(self):
+    def on_toggle_find_toolbar(self, toggled):
         """Find toolbar toggle event handler"""
 
-        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar")
+        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self):
+    def on_toggle_entry_line(self, toggled):
         """Entryline toggle event handler"""
 
-        self._toggle_widget(self.entry_line, "toggle_entry_line")
+        self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
 
-    def on_toggle_macro_panel(self):
+    def on_toggle_macro_panel(self, toggled):
         """Macro panel toggle event handler"""
 
-        self._toggle_widget(self.macro_dock, "toggle_macro_panel")
+        self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
 
     def on_about(self):
         """Show about message box"""

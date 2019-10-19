@@ -24,8 +24,10 @@
 **Provides**
 
 * :class:`Grid`: QTableView of the main grid
-* :class:`GridTableModel`: QAbstractTableModel linking the view to code_array backend
-* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and editors
+* :class:`GridTableModel`: QAbstractTableModel linking the view to code_array
+  backend
+* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and
+  editors
 
 """
 
