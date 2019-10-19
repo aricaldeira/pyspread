@@ -153,6 +153,7 @@ class FormatToolbar(QToolBar):
         self.addSeparator()
 
         self.border_menu_button = QToolButton(self)
+        self.border_menu_button.setText("Borders")
         border_submenu = self.main_window.menuBar().border_submenu
         self.border_menu_button.setMenu(border_submenu)
         self.border_menu_button.setIcon(Icon("border_menu"))
@@ -161,6 +162,7 @@ class FormatToolbar(QToolBar):
             QToolButton.InstantPopup)
 
         self.line_width_button = QToolButton(self)
+        self.line_width_button.setText("Border Width")
         line_width_submenu = self.main_window.menuBar().line_width_submenu
         self.line_width_button.setMenu(line_width_submenu)
         self.line_width_button.setIcon(Icon("format_borders"))
@@ -238,23 +240,60 @@ class ToolBarManager(QWidget):
 
 
     def set_toolbar(self, toolbar):
+
         for ridx, obj in enumerate(toolbar.actions()):
-            #print("=", ridx, obj.text(), type(obj))
+
+            if obj.isSeparator():
+                # its a separator so draw a litle line
+                linelbl = QLabel()
+                linelbl.setStyleSheet("background-color: #dddddd")
+                linelbl.setFixedHeight(1)
+                self.grid.addWidget(linelbl, ridx, 0, 1, 3)
+                continue
+
+            # Viz toggle
             chk = QCheckBox()
             self.grid.addWidget(chk, ridx, 0)
             chk.setChecked(obj.isVisible())
             chk.toggled.connect(functools.partial(self.on_toggle, chk, obj))
+
             if isinstance(obj, Action):
                 icon = QLabel()
                 icon.setPixmap(obj.icon().pixmap(QSize(16,16)))
                 self.grid.addWidget(icon, ridx, 1)
-                act = QLabel(self)
-                act.setText(obj.text())
-                self.grid.addWidget(act, ridx, 2)
+                lbl = QLabel(self)
+                lbl.setText(obj.text())
+                self.grid.addWidget(lbl, ridx, 2)
 
-    def on_toggle(self, checkBox, obj):
-        print("on_toggle", checkBox,checkBox.isChecked(), obj, obj.text())
-        obj.setVisible(checkBox.isChecked())
+            elif isinstance(obj, QWidgetAction):
+
+                wid = obj.defaultWidget()
+                name = None
+
+                if hasattr(wid, "label"): #eg Custom Combos
+                    name = wid.label
+
+                elif isinstance(wid, QToolButton):
+                    name = wid.text()
+
+                else:
+                    print("Un-hancled", wid.text())
+
+
+                if hasattr(wid, "icon"):
+                    icon = QLabel()
+                    icon.setPixmap(wid.icon().pixmap(QSize(16, 16)))
+                    self.grid.addWidget(icon, ridx, 1)
+
+                lbl = QLabel(self)
+                lbl.setText(name)
+                self.grid.addWidget(lbl, ridx, 2)
+
+
+
+    def on_toggle(self, checkBox, srcObject):
+
+        srcObject.setVisible(checkBox.isChecked())
 
 class MacroToolbar(QToolBar):
     """The macro toolbar for pyspread"""
