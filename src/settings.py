@@ -45,7 +45,7 @@ class Settings:
     last_file_input_path = Path.home()  # Initial path for opening files
     last_file_output_path = Path.home()  # Initial path for saving files
     border_choice = "All borders"  # The state of the border choice button
-    timeout = 1.0  # Timeout for cell calculations in seconds
+    timeout = 1000  # Timeout for cell calculations in milliseconds
     signature_key = None  # Key for signing save files
 
     font_sizes = 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32
@@ -123,7 +123,7 @@ class Settings:
 
         self.last_file_input_path = settings.value("last_file_input_path")
         self.last_file_output_path = settings.value("last_file_output_path")
-        self.timeout = settings.value("timeout")
+        self.timeout = int(settings.value("timeout"))
         self.signature_key = settings.value("signature_key")
 
         # GUI state

@@ -374,9 +374,8 @@ class MainWindowActions(dict):
 
         self["toggle_periodic_updates"] = \
             Action(self.parent, "Toggle periodic updates",
-                   self.parent.on_nothing,
-                   icon=Icon("toggle_periodic_updates"),
-                   checkable=True,
+                   self.parent.on_toggle_timer,
+                   icon=Icon("toggle_periodic_updates"), checkable=True,
                    statustip='Toggles periodic updates for frozen cells')
 
         self["show_frozen"] = Action(self.parent, "Show frozen",

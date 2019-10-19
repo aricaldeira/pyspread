@@ -31,6 +31,7 @@
 
 """
 
+from ast import literal_eval
 from contextlib import contextmanager
 
 import numpy
@@ -398,22 +399,47 @@ class Grid(QTableView):
 
         self.zoom = 1.0
 
-    def refresh_selected_frozen_cells(self):
-        """Refreshes selected frozen cells"""
+    def _refresh_frozen_cell(self, key):
+        """Refreshes the frozen cell key
 
+        Does neither emit dataChanged nor clear _attr_cache or _table_cache.
+
+        Parameters
+        ----------
+
+        * key: 3-tuple of int
+        \trow, column, table tuple
+
+        """
+
+        if self.model.code_array.cell_attributes[key]["frozen"]:
+            code = self.model.code_array(key)
+            result = self.model.code_array._eval_cell(key, code)
+            self.model.code_array.frozen_cache[repr(key)] = result
+
+    def refresh_frozen_cells(self):
+        """Refreshes all frozen cells"""
+
+        frozen_cache = self.model.code_array.frozen_cache
         cell_attributes = self.model.code_array.cell_attributes
 
-        for idx in self.selected_idx:
-            row = idx.row()
-            column = idx.column()
-            key = row, column, self.table
-            if cell_attributes[key]["frozen"]:
-                code = self.model.code_array(key)
-                result = self.model.code_array._eval_cell(key, code)
-                self.model.code_array.frozen_cache[repr(key)] = result
+        for repr_key in frozen_cache:
+            key = literal_eval(repr_key)
+            self._refresh_frozen_cell(key)
+            index = self.model.index(*key[:2])
+            self.model.dataChanged.emit(index, index)
 
         cell_attributes._attr_cache.clear()
         cell_attributes._table_cache.clear()
+
+    def refresh_selected_frozen_cells(self):
+        """Refreshes selected frozen cells"""
+
+        for idx in self.selected_idx:
+            self._refresh_frozen_cell((idx.row(), idx.column(), self.table))
+
+        self.model.code_array.cell_attributes._attr_cache.clear()
+        self.model.code_array.cell_attributes._table_cache.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def on_show_frozen_pressed(self, toggled):

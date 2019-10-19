@@ -36,7 +36,7 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack
 from PyQt5.QtSvg import QSvgWidget
@@ -77,6 +77,7 @@ class MainWindow(QMainWindow):
         self.settings = Settings(self)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
+        self.timer = QTimer()
 
         self._init_widgets()
 
@@ -153,6 +154,7 @@ class MainWindow(QMainWindow):
         self.macro_dock.installEventFilter(self)
 
         self.gui_update.connect(self.on_gui_update)
+        self.timer.timeout.connect(self.on_timer)
 
     def eventFilter(self, source, event):
         """Event filter for handling QDockWidget close events
@@ -279,10 +281,26 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def on_toggle_timer(self, toggle):
-        """"""
+    def on_toggle_timer(self, toggled):
+        """Toggles periodic timer for frozen cells"""
+
+        if toggled:
+            self.timer.start(self.settings.timeout)
+        else:
+            self.timer.stop()
+
+    def on_timer(self):
+        """Event handler for self.timer.timeout
+
+        Called for periodic updates of frozen cells.
+        Does nothing if either the entry_line or a cell editor is active.
+
+        """
 
         raise NotImplementedError
+        print(self.entry_line.isActiveWindow())
+        if self.entry_line.isActiveWindow():
+            self.grid.refresh_frozen_cells()
 
     def _toggle_widget(self, widget, action_name, toggled):
         """Toggles widget visibility and updates toggle actions"""
