@@ -45,7 +45,8 @@ class Settings:
     last_file_input_path = Path.home()  # Initial path for opening files
     last_file_output_path = Path.home()  # Initial path for saving files
     border_choice = "All borders"  # The state of the border choice button
-    timeout = 1.0  # Timeout for cell calculations in seconds
+    timeout = 1000  # Timeout for cell calculations in milliseconds
+    refresh_timeout = 1000  # Timeout for frozen cell updates in milliseconds
     signature_key = None  # Key for signing save files
 
     font_sizes = 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32
@@ -91,6 +92,7 @@ class Settings:
             settings.setValue("last_file_output_path",
                               self.last_file_output_path.parent)
         settings.setValue("timeout", self.timeout)
+        settings.setValue("refresh_timeout", self.refresh_timeout)
         settings.setValue("signature_key", self.signature_key)
 
         # GUI state
@@ -121,10 +123,17 @@ class Settings:
 
         # Application state
 
-        self.last_file_input_path = settings.value("last_file_input_path")
-        self.last_file_output_path = settings.value("last_file_output_path")
-        self.timeout = settings.value("timeout")
-        self.signature_key = settings.value("signature_key")
+        if settings.value("last_file_input_path") is not None:
+            self.last_file_input_path = settings.value("last_file_input_path")
+        if settings.value("last_file_output_path") is not None:
+            self.last_file_output_path = \
+                settings.value("last_file_output_path")
+        if settings.value("timeout") is not None:
+            self.timeout = int(settings.value("timeout"))
+        if settings.value("refresh_timeout") is not None:
+            self.refresh_timeout = int(settings.value("refresh_timeout"))
+        if settings.value("signature_key") is not None:
+            self.signature_key = settings.value("signature_key")
 
         # GUI state
 

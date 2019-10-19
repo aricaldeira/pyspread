@@ -265,13 +265,14 @@ class PreferencesDialog(DataEntryDialog):
     def __init__(self, parent):
         title = "Preferences"
         groupbox_title = "Global settings"
-        labels = ["Signature key for files", "Cell calculation timeout [s]"]
-        self.keys = ["signature_key", "timeout"]
-        self.mappers = [str, int]
+        labels = ["Signature key for files", "Cell calculation timeout [ms]",
+                  "Frozen cell refresh period [ms]"]
+        self.keys = ["signature_key", "timeout", "refresh_timeout"]
+        self.mappers = [str, int, int]
         data = [getattr(parent.settings, key) for key in self.keys]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
-        validators = [None, validator]
+        validators = [None, validator, validator]
         super().__init__(parent, title, labels, data, groupbox_title,
                          validators)
 

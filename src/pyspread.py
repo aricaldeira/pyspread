@@ -36,7 +36,7 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack
 from PyQt5.QtSvg import QSvgWidget
@@ -77,6 +77,7 @@ class MainWindow(QMainWindow):
         self.settings = Settings(self)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
+        self.refresh_timer = QTimer()
 
         self._init_widgets()
 
@@ -153,6 +154,7 @@ class MainWindow(QMainWindow):
         self.macro_dock.installEventFilter(self)
 
         self.gui_update.connect(self.on_gui_update)
+        self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
     def eventFilter(self, source, event):
         """Event filter for handling QDockWidget close events
@@ -279,50 +281,73 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def _toggle_widget(self, widget, action_name):
+    def on_toggle_refresh_timer(self, toggled):
+        """Toggles periodic timer for frozen cells"""
+
+        if toggled:
+            self.refresh_timer.start(self.settings.refresh_timeout)
+        else:
+            self.refresh_timer.stop()
+
+    def on_refresh_timer(self):
+        """Event handler for self.refresh_timer.timeout
+
+        Called for periodic updates of frozen cells.
+        Does nothing if either the entry_line or a cell editor is active.
+
+        """
+
+        if not self.entry_line.hasFocus() \
+           and self.grid.state() != self.grid.EditingState:
+            self.grid.refresh_frozen_cells()
+
+    def _toggle_widget(self, widget, action_name, toggled):
         """Toggles widget visibility and updates toggle actions"""
 
-        if widget.isVisible():
-            widget.hide()
-        else:
+        if toggled:
             widget.show()
+        else:
+            widget.hide()
 
         self.main_window_actions[action_name].setChecked(widget.isVisible())
 
-    def on_toggle_main_toolbar(self):
+    def on_toggle_main_toolbar(self, toggled):
         """Main toolbar toggle event handler"""
 
-        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar")
+        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar", toggled)
 
-    def on_toggle_macro_toolbar(self):
+    def on_toggle_macro_toolbar(self, toggled):
         """Macro toolbar toggle event handler"""
 
-        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar")
+        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
+                            toggled)
 
-    def on_toggle_widget_toolbar(self):
+    def on_toggle_widget_toolbar(self, toggled):
         """Widget toolbar toggle event handler"""
 
-        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar")
+        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar",
+                            toggled)
 
-    def on_toggle_format_toolbar(self):
+    def on_toggle_format_toolbar(self, toggled):
         """Format toolbar toggle event handler"""
 
-        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar")
+        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar",
+                            toggled)
 
-    def on_toggle_find_toolbar(self):
+    def on_toggle_find_toolbar(self, toggled):
         """Find toolbar toggle event handler"""
 
-        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar")
+        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self):
+    def on_toggle_entry_line(self, toggled):
         """Entryline toggle event handler"""
 
-        self._toggle_widget(self.entry_line, "toggle_entry_line")
+        self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
 
-    def on_toggle_macro_panel(self):
+    def on_toggle_macro_panel(self, toggled):
         """Macro panel toggle event handler"""
 
-        self._toggle_widget(self.macro_dock, "toggle_macro_panel")
+        self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
 
     def on_about(self):
         """Show about message box"""

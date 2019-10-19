@@ -26,6 +26,7 @@
 """
 
 from PyQt5.QtWidgets import QAction, QActionGroup
+from PyQt5.QtGui import QKeySequence
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -47,7 +48,7 @@ class Action(QAction):
                  icon=None, shortcut=None, statustip=None, checkable=False):
         """
 
-        :param parent: The parent object is generally :class:`pyspread.MainWindws`
+        :param parent: The parent object, normally :class:`pyspread.MainWindow`
         :param label: The text to appear
         :param callbacks: the callback functions
         :param icon: the :class:`icons.Icon`
@@ -126,7 +127,8 @@ class MainWindowActions(dict):
         self["approve"] = Action(self.parent, "&Approve file",
                                  self.parent.on_approve,
                                  icon=Icon("approve"),
-                                 statustip='Approve, unfreeze and sign the current file')
+                                 statustip='Approve, unfreeze and sign the '
+                                           'current file')
 
         self["clear_globals"] = Action(self.parent, "&Clear globals",
                                        self.parent.on_nothing,
@@ -290,48 +292,57 @@ class MainWindowActions(dict):
                                     statustip='Show grid in fullscreen mode '
                                               '(press <F11> to leave)')
 
-        self["toggle_main_toolbar"] = Action(self.parent, "Main toolbar",
+        self["toggle_main_toolbar"] = \
+            Action(self.parent, "Main toolbar",
                    self.parent.on_toggle_main_toolbar,
                    checkable=True,
                    statustip='Show/hide the main toolbar')
 
-        self["toggle_macro_toolbar"] = Action(self.parent, "Macro toolbar",
+        self["toggle_macro_toolbar"] = \
+            Action(self.parent, "Macro toolbar",
                    self.parent.on_toggle_macro_toolbar,
                    checkable=True,
                    statustip='Show/hide the macro toolbar')
 
-        self["toggle_widget_toolbar"] = Action(self.parent, "Widget toolbar",
+        self["toggle_widget_toolbar"] = \
+            Action(self.parent, "Widget toolbar",
                    self.parent.on_toggle_widget_toolbar,
                    checkable=True,
                    statustip='Show/hide the widget toolbar')
 
-        self["toggle_format_toolbar"] = Action(self.parent, "Format toolbar",
+        self["toggle_format_toolbar"] = \
+            Action(self.parent, "Format toolbar",
                    self.parent.on_toggle_format_toolbar,
                    checkable=True,
                    statustip='Show/hide the format toolbar')
 
-        self["toggle_find_toolbar"] = Action(self.parent, "Find toolbar",
+        self["toggle_find_toolbar"] = \
+            Action(self.parent, "Find toolbar",
                    self.parent.on_toggle_find_toolbar,
                    checkable=True,
                    statustip='Show/hide the find toolbar')
 
-        self["toggle_entry_line"] = Action(self.parent, "Entry line",
+        self["toggle_entry_line"] = \
+            Action(self.parent, "Entry line",
                    self.parent.on_toggle_entry_line,
                    checkable=True,
                    statustip='Show/hide the entry line')
 
-        self["toggle_macro_panel"] = Action(self.parent, "Macro panel",
-                                       self.parent.on_toggle_macro_panel,
-                                       checkable=True, shortcut='F4',
-                                       statustip='Show/hide the macro panel')
+        self["toggle_macro_panel"] = \
+            Action(self.parent, "Macro panel",
+                   self.parent.on_toggle_macro_panel,
+                   checkable=True, shortcut='F4',
+                   statustip='Show/hide the macro panel')
 
-        self["goto_cell"] = Action(self.parent, "Go to cell",
-                                   self.parent.workflows.view_goto_cell,
-                                   icon=Icon("goto_cell"),
-                                   shortcut='Ctrl+g',
-                                   statustip='Select a cell and put it into view')
+        self["goto_cell"] = \
+            Action(self.parent, "Go to cell",
+                   self.parent.workflows.view_goto_cell,
+                   icon=Icon("goto_cell"),
+                   shortcut='Ctrl+g',
+                   statustip='Select a cell and put it into view')
 
-        self["toggle_spell_checker"] = Action(self.parent, "Toggle spell checker",
+        self["toggle_spell_checker"] = \
+            Action(self.parent, "Toggle spell checker",
                    self.parent.entry_line.on_toggle_spell_check,
                    icon=Icon("check_spelling"),
                    checkable=True,
@@ -355,16 +366,16 @@ class MainWindowActions(dict):
                                 shortcut='Ctrl+0',
                                 statustip='Show grid on standard zoom level')
 
-        self["refresh_cells"] = Action(self.parent, "Refresh selected cells",
-                                   self.parent.on_nothing,
-                                   icon=Icon("refresh"),
-                                   shortcut='F5',
-                                   statustip='Refresh selected cells even when frozen')
+        self["refresh_cells"] = \
+            Action(self.parent, "Refresh selected cells",
+                   self.parent.grid.refresh_selected_frozen_cells,
+                   icon=Icon("refresh"), shortcut=QKeySequence.Refresh,
+                   statustip='Refresh selected cells even when frozen')
 
-        self["toggle_periodic_updates"] = Action(self.parent, "Toggle periodic updates",
-                   self.parent.on_nothing,
-                   icon=Icon("toggle_periodic_updates"),
-                   checkable=True,
+        self["toggle_periodic_updates"] = \
+            Action(self.parent, "Toggle periodic updates",
+                   self.parent.on_toggle_refresh_timer,
+                   icon=Icon("toggle_periodic_updates"), checkable=True,
                    statustip='Toggles periodic updates for frozen cells')
 
         self["show_frozen"] = Action(self.parent, "Show frozen",
@@ -383,7 +394,8 @@ class MainWindowActions(dict):
                                      statustip='Copy format of selection to '
                                                'the clipboard')
 
-        self["paste_format"] = Action(self.parent, "&Paste format",
+        self["paste_format"] = \
+            Action(self.parent, "&Paste format",
                    self.parent.workflows.format_paste_format,
                    icon=Icon("paste_format"),
                    statustip='Apply format from the clipboard to the selected '
@@ -419,24 +431,23 @@ class MainWindowActions(dict):
                                    statustip='Toggle underline for the '
                                              'selected cells')
 
-        self["strikethrough"] = Action(self.parent, "&Strikethrough",
-                                   self.parent.grid.on_strikethrough_pressed,
-                                   icon=Icon("strikethrough"), checkable=True,
-                                   statustip='Toggle strikethrough for the selected cells')
+        self["strikethrough"] = \
+            Action(self.parent, "&Strikethrough",
+                   self.parent.grid.on_strikethrough_pressed,
+                   icon=Icon("strikethrough"), checkable=True,
+                   statustip='Toggle strikethrough for the selected cells')
 
         self["text"] = Action(self.parent, "Text renderer",
-                                  self.parent.grid.on_text_renderer_pressed,
-                                  icon=Icon("text"),
-                                  checkable=True,
-                                  statustip='Show cell results as text (default). '
-                                            'Formats affect the whole cell.')
+                              self.parent.grid.on_text_renderer_pressed,
+                              icon=Icon("text"), checkable=True,
+                              statustip='Show cell results as text (default). '
+                                        'Formats affect the whole cell.')
 
         self["markup"] = Action(self.parent, "Markup renderer",
-                                    self.parent.grid.on_markup_renderer_pressed,
-                                    icon=Icon("markup"),
-                                    checkable=True,
-                                    statustip='Show cell results as markup, which '
-                                              'allows partly formatted output.')
+                                self.parent.grid.on_markup_renderer_pressed,
+                                icon=Icon("markup"), checkable=True,
+                                statustip='Show cell results as markup, which '
+                                          'allows partly formatted output.')
 
         self["image"] = Action(self.parent, "Image renderer",
                                self.parent.grid.on_image_renderer_pressed,
@@ -446,7 +457,8 @@ class MainWindowActions(dict):
                                          'A numpy array of shape (x, y, 3) '
                                          'is expected.')
         if matplotlib_figure is not None:
-            self["matplotlib"] = Action(self.parent, "Matplotlib chart renderer",
+            self["matplotlib"] = \
+                Action(self.parent, "Matplotlib chart renderer",
                        self.parent.grid.on_matplotlib_renderer_pressed,
                        icon=Icon("matplotlib"),
                        checkable=True,
@@ -587,42 +599,50 @@ class MainWindowActions(dict):
         align_group.addAction(self["align_center"])
         align_group.addAction(self["align_bottom"])
 
-        self["format_borders_all"] = Action(self.parent, "All borders",
+        self["format_borders_all"] = \
+            Action(self.parent, "All borders",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_all"), checkable=True,
                    statustip='Format all borders of selection')
 
-        self["format_borders_top"] = Action(self.parent, "Top border",
+        self["format_borders_top"] = \
+            Action(self.parent, "Top border",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_top"), checkable=True,
                    statustip='Format top border of selection')
 
-        self["format_borders_bottom"] = Action(self.parent, "Bottom border",
+        self["format_borders_bottom"] = \
+            Action(self.parent, "Bottom border",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_bottom"), checkable=True,
                    statustip='Format bottom border of selection')
 
-        self["format_borders_left"] = Action(self.parent, "Left border",
+        self["format_borders_left"] = \
+            Action(self.parent, "Left border",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_left"), checkable=True,
                    statustip='Format left border of selection')
 
-        self["format_borders_right"] = Action(self.parent, "Right border",
+        self["format_borders_right"] = \
+            Action(self.parent, "Right border",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_right"), checkable=True,
                    statustip='Format right border of selection')
 
-        self["format_borders_outer"] = Action(self.parent, "Outer borders",
+        self["format_borders_outer"] = \
+            Action(self.parent, "Outer borders",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_outer"), checkable=True,
                    statustip='Format outer borders of selection')
 
-        self["format_borders_inner"] = Action(self.parent, "Inner borders",
+        self["format_borders_inner"] = \
+            Action(self.parent, "Inner borders",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_inner"), checkable=True,
                    statustip='Format inner borders of selection')
 
-        self["format_borders_top_bottom"] = Action(self.parent, "Top and bottom borders",
+        self["format_borders_top_bottom"] = \
+            Action(self.parent, "Top and bottom borders",
                    self.parent.grid.on_border_choice,
                    icon=Icon("format_borders_top_bottom"), checkable=True,
                    statustip='Format top and bottom borders of selection')
@@ -777,99 +797,101 @@ class ChartDialogActions(dict):
                                        statustip='Insert code for pie chart.')
         self["chart_pie_1_1"].setData("chart_pie_1_1.py")
 
-        self["chart_ring_1_1"] = Action(self.parent, "Ring chart",
-                                        self.parent.on_template,
-                                        icon=Icon("chart_ring_1_1"),
-                                        statustip='Insert code for ring chart.')
+        self["chart_ring_1_1"] = \
+            Action(self.parent, "Ring chart", self.parent.on_template,
+                   icon=Icon("chart_ring_1_1"),
+                   statustip='Insert code for ring chart.')
         self["chart_ring_1_1"].setData("chart_ring_1_1.py")
 
-        self["chart_line_1_1"] = Action(self.parent, "Line chart",
-                                        self.parent.on_template,
-                                           icon=Icon("chart_line_1_1"),
-                                           statustip='Insert code for line chart.')
+        self["chart_line_1_1"] = \
+            Action(self.parent, "Line chart", self.parent.on_template,
+                   icon=Icon("chart_line_1_1"),
+                   statustip='Insert code for line chart.')
         self["chart_line_1_1"].setData("chart_line_1_1.py")
 
-        self["chart_polar_1_1"] = Action(self.parent, "Polar chart", self.parent.on_template,
+        self["chart_polar_1_1"] = \
+            Action(self.parent, "Polar chart", self.parent.on_template,
                    icon=Icon("chart_polar_1_1"),
                    statustip='Insert code for polar coordinates line chart.')
         self["chart_polar_1_1"].setData("chart_polar_1_1.py")
 
-        self["chart_area_1_1"] = Action(self.parent, "Area chart",
-                                        self.parent.on_template,
+        self["chart_area_1_1"] = \
+            Action(self.parent, "Area chart", self.parent.on_template,
                    icon=Icon("chart_area_1_1"),
                    statustip='Insert code for area chart.')
         self["chart_area_1_1"].setData("chart_area_1_1.py")
 
-        self["chart_column_1_1"] = Action(self.parent, "Grouped column chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_column_1_1"),
+        self["chart_column_1_1"] = \
+            Action(self.parent, "Grouped column chart",
+                   self.parent.on_template, icon=Icon("chart_column_1_1"),
                    statustip='Insert code for grouped column chart.')
         self["chart_column_1_1"].setData("chart_column_1_1.py")
 
-        self["chart_column_1_2"] = Action(self.parent, "Stacked column chart",
+        self["chart_column_1_2"] = \
+            Action(self.parent, "Stacked column chart",
                    self.parent.on_template,
                    icon=Icon("chart_column_1_2"),
                    statustip='Insert code for stacked column chart.')
         self["chart_column_1_2"].setData("chart_column_1_2.py")
 
-        self["chart_bar_1_3"] = Action(self.parent, "Normalized stacked bar chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_bar_1_3"),
+        self["chart_bar_1_3"] = \
+            Action(self.parent, "Normalized stacked bar chart",
+                   self.parent.on_template, icon=Icon("chart_bar_1_3"),
                    statustip='Insert code for normalized stacked bar chart.')
         self["chart_bar_1_3"].setData("chart_bar_1_3.py")
 
-        self["chart_scatter_1_1"] = Action(self.parent, "Scatter chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_scatter_1_1"),
+        self["chart_scatter_1_1"] = \
+            Action(self.parent, "Scatter chart",
+                   self.parent.on_template, icon=Icon("chart_scatter_1_1"),
                    statustip='Insert code for a scatter plot.')
         self["chart_scatter_1_1"].setData("chart_scatter_1_1.py")
 
-        self["chart_bubble_1_1"] = Action(self.parent, "Bubble chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_bubble_1_1"),
+        self["chart_bubble_1_1"] = \
+            Action(self.parent, "Bubble chart",
+                   self.parent.on_template, icon=Icon("chart_bubble_1_1"),
                    statustip='Insert code for a bubble plot that is ' +
                              'a scatter plot with individual point sizes.')
         self["chart_bubble_1_1"].setData("chart_bubble_1_1.py")
 
-        self["chart_boxplot_2_2"] = Action(self.parent, "Boxplot chart",
-                   self.parent.on_template,
+        self["chart_boxplot_2_2"] = \
+            Action(self.parent, "Boxplot chart", self.parent.on_template,
                    icon=Icon("chart_boxplot_2_2"),
                    statustip='Insert code for boxplot chart.')
         self["chart_boxplot_2_2"].setData("chart_boxplot_2_2.py")
 
-        self["chart_histogram_1_1"] = Action(self.parent, "Histogram chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_histogram_1_1"),
+        self["chart_histogram_1_1"] = \
+            Action(self.parent, "Histogram chart",
+                   self.parent.on_template, icon=Icon("chart_histogram_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_histogram_1_1"].setData("chart_histogram_1_1.py")
 
-        self["chart_histogram_1_4"] = Action(self.parent, "Multiple histogram charts",
-                   self.parent.on_template,
-                   icon=Icon("chart_histogram_1_4"),
+        self["chart_histogram_1_4"] = \
+            Action(self.parent, "Multiple histogram charts",
+                   self.parent.on_template, icon=Icon("chart_histogram_1_4"),
                    statustip='Insert code for multiple histogram charts.')
         self["chart_histogram_1_4"].setData("chart_histogram_1_4.py")
 
-        self["chart_scatterhist_1_1"] = Action(self.parent, "Scatter and histogram chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_scatterhist_1_1"),
+        self["chart_scatterhist_1_1"] = \
+            Action(self.parent, "Scatter and histogram chart",
+                   self.parent.on_template, icon=Icon("chart_scatterhist_1_1"),
                    statustip='Insert code for a scatter plot with ' +
                              'histograms for each axis.')
         self["chart_scatterhist_1_1"].setData("chart_scatterhist_1_1.py")
 
-        self["chart_matrix_1_1"] = Action(self.parent, "Matrix chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_matrix_1_1"),
+        self["chart_matrix_1_1"] = \
+            Action(self.parent, "Matrix chart",
+                   self.parent.on_template, icon=Icon("chart_matrix_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_matrix_1_1"].setData("chart_matrix_1_1.py")
 
-        self["chart_contour_1_2"] = Action(self.parent, "Contour chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_contour_1_2"),
+        self["chart_contour_1_2"] = \
+            Action(self.parent, "Contour chart",
+                   self.parent.on_template, icon=Icon("chart_contour_1_2"),
                    statustip='Insert code for contour chart.')
         self["chart_contour_1_2"].setData("chart_contour_1_2.py")
 
-        self["chart_surface_2_1"] = Action(self.parent, "Surface chart",
-                   self.parent.on_template,
+        self["chart_surface_2_1"] = \
+            Action(self.parent, "Surface chart", self.parent.on_template,
                    icon=Icon("chart_surface_2_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_surface_2_1"].setData("chart_surface_2_1.py")
