@@ -977,6 +977,38 @@ class GridTableModel(QAbstractTableModel):
         yield
         self.endResetModel()
 
+    @contextmanager
+    def inserting_rows(self):
+        """Context manager for inserting rows"""
+
+        self.beginInsertRows()
+        yield
+        self.endInsertRows()
+
+    @contextmanager
+    def inserting_columns(self):
+        """Context manager for inserting columns"""
+
+        self.beginInsertColumns()
+        yield
+        self.endInsertColumns()
+
+    @contextmanager
+    def removing_rows(self):
+        """Context manager for removing rows"""
+
+        self.beginRemoveRows()
+        yield
+        self.endRemoveRows()
+
+    @contextmanager
+    def removing_columns(self):
+        """Context manager for removing columns"""
+
+        self.beginRemoveColumns()
+        yield
+        self.endRemoveColumns()
+
     @property
     def shape(self):
         """Returns 3-tuple of rows, columns and tables"""
@@ -1010,6 +1042,47 @@ class GridTableModel(QAbstractTableModel):
         """Overloaded columnCount for code_array backend"""
 
         return self.shape[1]
+
+    def insertRows(self, row, count):
+        """Overloaded insertRows for code_array backend"""
+
+        with self.inserting_rows():
+            self.code_array.insert(row, count, axis=0, tab=self.grid.table)
+        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        return True
+
+    def removeRows(self, row, count):
+        """Overloaded removeRows for code_array backend"""
+
+        try:
+            with self.removing_rows():
+                self.code_array.delete(row, count, axis=0, tab=self.grid.table)
+        except ValueError:
+            return False
+
+        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        return True
+
+    def insertColumns(self, column, count):
+        """Overloaded insertColumns for code_array backend"""
+
+        with self.inserting_columns():
+            self.code_array.insert(column, count, axis=1, tab=self.grid.table)
+        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        return True
+
+    def removeColumns(self, column, count):
+        """Overloaded removeColumns for code_array backend"""
+
+        try:
+            with self.removing_columns():
+                self.code_array.delete(column, count, axis=1,
+                                       tab=self.grid.table)
+        except ValueError:
+            return False
+
+        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        return True
 
     def font(self, key):
         """Returns font for given key"""
