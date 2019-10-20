@@ -51,8 +51,8 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
-from src.commands import CommandFreezeCell, CommandThawCell
-from src.commands import CommandSetCellMerge
+from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
+from src.commands import CommandInsertColumns, CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
 from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
 from src.model.model import CodeArray
@@ -908,6 +908,37 @@ class Grid(QTableView):
                                          description)
             self.main_window.undo_stack.push(command)
 
+    def on_insert_rows(self):
+        """Insert rows event handler"""
+
+        (top, _), (bottom, _) = self.selection.get_grid_bbox(self.model.shape)
+        count = bottom - top + 1
+
+        index = self.currentIndex()
+        description_tpl = "Insert {} rows before row {}"
+        description = description_tpl.format(count, top)
+        command = CommandInsertRows(self.model, index, top, count, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_delete_rows(self):
+        """Delete rows event handler"""
+
+    def on_insert_columns(self):
+        """Insert columns event handler"""
+
+        (_, left), (_, right) = self.selection.get_grid_bbox(self.model.shape)
+        count = right - left + 1
+
+        index = self.currentIndex()
+        description_tpl = "Insert {} columns before column {}"
+        description = description_tpl.format(count, self.column)
+        command = CommandInsertColumns(self.model, index, left, count,
+                                       description)
+        self.main_window.undo_stack.push(command)
+
+    def on_delete_columns(self):
+        """Delete columns event handler"""
+
 
 class GridHeaderView(QHeaderView):
     """QHeaderView with zoom support"""
@@ -978,34 +1009,34 @@ class GridTableModel(QAbstractTableModel):
         self.endResetModel()
 
     @contextmanager
-    def inserting_rows(self):
+    def inserting_rows(self, index, first, last):
         """Context manager for inserting rows"""
 
-        self.beginInsertRows()
+        self.beginInsertRows(index, first, last)
         yield
         self.endInsertRows()
 
     @contextmanager
-    def inserting_columns(self):
+    def inserting_columns(self, index, first, last):
         """Context manager for inserting columns"""
 
-        self.beginInsertColumns()
+        self.beginInsertColumns(index, first, last)
         yield
         self.endInsertColumns()
 
     @contextmanager
-    def removing_rows(self):
+    def removing_rows(self, index, first, last):
         """Context manager for removing rows"""
 
-        self.beginRemoveRows()
+        self.beginRemoveRows(index, first, last)
         yield
         self.endRemoveRows()
 
     @contextmanager
-    def removing_columns(self):
+    def removing_columns(self, index, first, last):
         """Context manager for removing columns"""
 
-        self.beginRemoveColumns()
+        self.beginRemoveColumns(index, first, last)
         yield
         self.endRemoveColumns()
 
@@ -1045,43 +1076,32 @@ class GridTableModel(QAbstractTableModel):
 
     def insertRows(self, row, count):
         """Overloaded insertRows for code_array backend"""
-
-        with self.inserting_rows():
-            self.code_array.insert(row, count, axis=0, tab=self.grid.table)
-        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        print(row)
+        self.code_array.insert(row, count, axis=0, tab=self.grid.table)
         return True
 
     def removeRows(self, row, count):
         """Overloaded removeRows for code_array backend"""
 
         try:
-            with self.removing_rows():
-                self.code_array.delete(row, count, axis=0, tab=self.grid.table)
+            self.code_array.delete(row, count, axis=0, tab=self.grid.table)
         except ValueError:
             return False
-
-        self.dataChanged.emit(QModelIndex(), QModelIndex())
         return True
 
     def insertColumns(self, column, count):
         """Overloaded insertColumns for code_array backend"""
 
-        with self.inserting_columns():
-            self.code_array.insert(column, count, axis=1, tab=self.grid.table)
-        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.code_array.insert(column, count, axis=1, tab=self.grid.table)
         return True
 
     def removeColumns(self, column, count):
         """Overloaded removeColumns for code_array backend"""
 
         try:
-            with self.removing_columns():
-                self.code_array.delete(column, count, axis=1,
-                                       tab=self.grid.table)
+            self.code_array.delete(column, count, axis=1, tab=self.grid.table)
         except ValueError:
             return False
-
-        self.dataChanged.emit(QModelIndex(), QModelIndex())
         return True
 
     def font(self, key):

@@ -944,7 +944,7 @@ class DataArray(object):
         \tIf given then insertion is limited to this tab for axis < 2
 
         """
-
+        print(insertion_point, no_to_insert)
         if not 0 <= axis <= len(self.shape):
             raise ValueError("Axis not in grid dimensions")
 
@@ -956,7 +956,7 @@ class DataArray(object):
         del_keys = []
 
         for key in list(self.dict_grid.keys()):
-            if key[axis] > insertion_point and (tab is None or tab == key[2]):
+            if key[axis] >= insertion_point and (tab is None or tab == key[2]):
                 new_key = list(key)
                 new_key[axis] += no_to_insert
                 if 0 <= new_key[axis] < self.shape[axis]:
@@ -981,7 +981,7 @@ class DataArray(object):
         Axis specifies number of dimension, i.e. 0 == row, 1 == col, 2 == tab
 
         """
-
+        print(deletion_point, no_to_delete)
         if not 0 <= axis < len(self.shape):
             raise ValueError("Axis not in grid dimensions")
 

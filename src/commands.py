@@ -211,6 +211,59 @@ class CommandSetColumnWidth(QUndoCommand):
             self.grid.undo_resizing_column = False
 
 
+class CommandInsertRows(QUndoCommand):
+    """Inserts grid rows"""
+
+    def __init__(self, model, index, row, count, description):
+        super().__init__(description)
+        self.model = model
+        self.index = index
+        self.first = self.row = row
+        self.last = row + count
+        self.count = count
+
+    def redo(self):
+        with self.model.inserting_rows(self.index, self.first, self.last):
+            self.model.insertRows(self.row, self.count)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def undo(self):
+        with self.model.removing_rows(self.index, self.first, self.last):
+            self.model.removeRows(self.row, self.count)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
+class CommandDeleteRows(CommandInsertRows):
+    """Deletes grid rows"""
+
+
+class CommandInsertColumns(QUndoCommand):
+    """Inserts grid columns"""
+
+    def __init__(self, model, index, column, count, description):
+        super().__init__(description)
+        self.model = model
+        self.index = index
+        self.column = column
+        self.first = self.column = column
+        self.last = column + count
+        self.count = count
+
+    def redo(self):
+        with self.model.inserting_columns(self.index, self.first, self.last):
+            self.model.insertColumns(self.column, self.count)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def undo(self):
+        with self.model.removing_rows(self.index, self.first, self.last):
+            self.model.removeColumns(self.column, self.count)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
+class CommandDeleteColumns(CommandInsertColumns):
+    """Deletes grid columns"""
+
+
 class CommandSetCellFormat(QUndoCommand):
     """Sets cell format in grid"""
 

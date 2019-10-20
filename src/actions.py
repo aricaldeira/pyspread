@@ -243,13 +243,13 @@ class MainWindowActions(dict):
                                                    'descending order')
 
         self["insert_rows"] = Action(self.parent, "Insert rows",
-                                     self.parent.on_nothing,
+                                     self.parent.grid.on_insert_rows,
                                      icon=Icon("insert_row"),
                                      statustip='Insert max(1, no. selected '
                                                'rows) rows at cursor')
 
         self["insert_columns"] = Action(self.parent, "Insert columns",
-                                        self.parent.on_nothing,
+                                        self.parent.grid.on_insert_columns,
                                         icon=Icon("insert_column"),
                                         statustip='Insert max(1, no. selected '
                                                   'columns) columns at cursor')
@@ -261,13 +261,13 @@ class MainWindowActions(dict):
                                                 'table')
 
         self["delete_rows"] = Action(self.parent, "Delete rows",
-                                     self.parent.on_nothing,
+                                     self.parent.grid.on_delete_rows,
                                      icon=Icon("delete_row"),
                                      statustip='Delete max(1, no. selected '
                                                'rows) rows at cursor')
 
         self["delete_columns"] = Action(self.parent, "Delete columns",
-                                        self.parent.on_nothing,
+                                        self.parent.grid.on_delete_columns,
                                         icon=Icon("delete_column"),
                                         statustip='Delete max(1, no. selected '
                                                   'columns) columns at cursor')
