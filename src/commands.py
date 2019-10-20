@@ -214,8 +214,9 @@ class CommandSetColumnWidth(QUndoCommand):
 class CommandInsertRows(QUndoCommand):
     """Inserts grid rows"""
 
-    def __init__(self, model, index, row, count, description):
+    def __init__(self, grid, model, index, row, count, description):
         super().__init__(description)
+        self.grid = grid
         self.model = model
         self.index = index
         self.first = self.row = row
@@ -226,11 +227,17 @@ class CommandInsertRows(QUndoCommand):
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.grid.undo_resizing_row = True
+        self.grid.verticalHeader().update_zoom()
+        self.grid.undo_resizing_row = False
 
     def undo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.grid.undo_resizing_row = True
+        self.grid.verticalHeader().update_zoom()
+        self.grid.undo_resizing_row = False
 
 
 class CommandDeleteRows(CommandInsertRows):
@@ -240,8 +247,9 @@ class CommandDeleteRows(CommandInsertRows):
 class CommandInsertColumns(QUndoCommand):
     """Inserts grid columns"""
 
-    def __init__(self, model, index, column, count, description):
+    def __init__(self, grid, model, index, column, count, description):
         super().__init__(description)
+        self.grid = grid
         self.model = model
         self.index = index
         self.column = column
@@ -253,11 +261,17 @@ class CommandInsertColumns(QUndoCommand):
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.grid.undo_resizing_column = True
+        self.grid.horizontalHeader().update_zoom()
+        self.grid.undo_resizing_column = False
 
     def undo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.grid.undo_resizing_column = True
+        self.grid.horizontalHeader().update_zoom()
+        self.grid.undo_resizing_column = False
 
 
 class CommandDeleteColumns(CommandInsertColumns):

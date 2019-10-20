@@ -917,7 +917,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Insert {} rows before row {}"
         description = description_tpl.format(count, top)
-        command = CommandInsertRows(self.model, index, top, count, description)
+        command = CommandInsertRows(self.main_window.grid, self.model,
+                                    index, top, count, description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_rows(self):
@@ -932,8 +933,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Insert {} columns before column {}"
         description = description_tpl.format(count, self.column)
-        command = CommandInsertColumns(self.model, index, left, count,
-                                       description)
+        command = CommandInsertColumns(self.main_window.grid, self.model,
+                                       index, left, count, description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_columns(self):
