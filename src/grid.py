@@ -53,6 +53,7 @@ except ImportError:
 from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
 from src.commands import CommandInsertColumns, CommandDeleteRows
+from src.commands import CommandInsertTable, CommandDeleteTable
 from src.commands import CommandDeleteColumns, CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
 from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
@@ -916,7 +917,7 @@ class Grid(QTableView):
         count = bottom - top + 1
 
         index = self.currentIndex()
-        description_tpl = "Insert {} rows before row {}"
+        description_tpl = "Insert {} rows above row {}"
         description = description_tpl.format(count, top)
         command = CommandInsertRows(self.main_window.grid, self.model,
                                     index, top, count, description)
@@ -942,7 +943,7 @@ class Grid(QTableView):
         count = right - left + 1
 
         index = self.currentIndex()
-        description_tpl = "Insert {} columns before column {}"
+        description_tpl = "Insert {} columns left of column {}"
         description = description_tpl.format(count, self.column)
         command = CommandInsertColumns(self.main_window.grid, self.model,
                                        index, left, count, description)
@@ -959,6 +960,22 @@ class Grid(QTableView):
         description = description_tpl.format(count, self.column)
         command = CommandDeleteColumns(self.main_window.grid, self.model,
                                        index, left, count, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_insert_table(self):
+        """Insert table event handler"""
+
+        description = "Insert table in front of table {}".format(self.table)
+        command = CommandInsertTable(self.main_window.grid, self.model,
+                                     self.table, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_delete_table(self):
+        """Delete table event handler"""
+
+        description = "Delete table {}".format(self.table)
+        command = CommandDeleteTable(self.main_window.grid, self.model,
+                                     self.table, description)
         self.main_window.undo_stack.push(command)
 
 
@@ -1125,6 +1142,16 @@ class GridTableModel(QAbstractTableModel):
         except ValueError:
             return False
         return True
+
+    def insertTable(self, table, count=1):
+        """Inserts a table"""
+
+        self.code_array.insert(table, count, axis=2)
+
+    def removeTable(self, table, count=1):
+        """Inserts a table"""
+
+        self.code_array.delete(table, count, axis=2)
 
     def font(self, key):
         """Returns font for given key"""

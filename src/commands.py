@@ -335,7 +335,7 @@ class CommandDeleteColumns(QUndoCommand):
         self.last = column + count
         self.count = count
 
-        # Store content of deleted rows
+        # Store content of deleted columns
         self.old_col_widths = copy(self.model.code_array.col_widths)
         self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
         self.old_code = {}
@@ -367,6 +367,63 @@ class CommandDeleteColumns(QUndoCommand):
         self.grid.undo_resizing_column = True
         self.grid.horizontalHeader().update_zoom()
         self.grid.undo_resizing_column = False
+
+
+class CommandInsertTable(QUndoCommand):
+    """Inserts table"""
+
+    def __init__(self, grid, model, table, description):
+        super().__init__(description)
+        self.grid = grid
+        self.model = model
+        self.table = table
+
+    def redo(self):
+        self.model.insertTable(self.table)
+        self.grid.table_choice.table = self.table
+        self.grid.table_choice.on_table_changed(self.grid.current)
+
+    def undo(self):
+        self.model.removeTable(self.table)
+        self.grid.table_choice.table = self.table
+        self.grid.table_choice.on_table_changed(self.grid.current)
+
+
+class CommandDeleteTable(QUndoCommand):
+    """Deletes table"""
+
+    def __init__(self, grid, model, table, description):
+        super().__init__(description)
+        self.grid = grid
+        self.model = model
+        self.table = table
+
+        # Store content of deleted table
+        self.old_row_heights = copy(self.model.code_array.row_heights)
+        self.old_col_widths = copy(self.model.code_array.col_widths)
+        self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
+        self.old_code = {}
+        for key in self.model.code_array:
+            if key[2] == table:
+                self.old_code[key] = self.model.code_array(key)
+
+    def redo(self):
+        self.model.removeTable(self.table)
+        self.grid.table_choice.table = self.table
+        self.grid.table_choice.on_table_changed(self.grid.current)
+
+    def undo(self):
+        self.model.insertTable(self.table)
+
+        self.model.code_array.dict_grid.row_heights = self.old_row_heights
+        self.model.code_array.dict_grid.col_widths = self.old_col_widths
+        self.model.code_array.dict_grid.cell_attributes = \
+            self.old_cell_attributes
+        for key in self.old_code:
+            self.model.code_array[key] = self.old_code[key]
+
+        self.grid.table_choice.table = self.table
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
 
 class CommandSetCellFormat(QUndoCommand):

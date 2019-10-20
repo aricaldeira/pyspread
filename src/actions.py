@@ -255,7 +255,7 @@ class MainWindowActions(dict):
                                                   'columns) columns at cursor')
 
         self["insert_table"] = Action(self.parent, "Insert table",
-                                      self.parent.on_nothing,
+                                      self.parent.grid.on_insert_table,
                                       icon=Icon("insert_table"),
                                       statustip='Insert table before current '
                                                 'table')
@@ -273,7 +273,7 @@ class MainWindowActions(dict):
                                                   'columns) columns at cursor')
 
         self["delete_table"] = Action(self.parent, "Delete table",
-                                      self.parent.on_nothing,
+                                      self.parent.grid.on_delete_table,
                                       icon=Icon("delete_table"),
                                       statustip='Delete current table')
 
