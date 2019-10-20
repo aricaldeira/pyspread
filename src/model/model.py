@@ -326,7 +326,7 @@ class DataArray(object):
     def __eq__(self, other):
         if not hasattr(other, "dict_grid") or \
            not hasattr(other, "cell_attributes"):
-            return NotImplemented
+            return False
 
         return self.dict_grid == other.dict_grid and \
             self.cell_attributes == other.cell_attributes

@@ -52,7 +52,8 @@ except ImportError:
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
-from src.commands import CommandInsertColumns, CommandSetCellMerge
+from src.commands import CommandInsertColumns, CommandDeleteRows
+from src.commands import CommandDeleteColumns, CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
 from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
 from src.model.model import CodeArray
@@ -924,6 +925,16 @@ class Grid(QTableView):
     def on_delete_rows(self):
         """Delete rows event handler"""
 
+        (top, _), (bottom, _) = self.selection.get_grid_bbox(self.model.shape)
+        count = bottom - top + 1
+
+        index = self.currentIndex()
+        description_tpl = "Delete {} rows starting from row {}"
+        description = description_tpl.format(count, top)
+        command = CommandDeleteRows(self.main_window.grid, self.model,
+                                    index, top, count, description)
+        self.main_window.undo_stack.push(command)
+
     def on_insert_columns(self):
         """Insert columns event handler"""
 
@@ -939,6 +950,16 @@ class Grid(QTableView):
 
     def on_delete_columns(self):
         """Delete columns event handler"""
+
+        (_, left), (_, right) = self.selection.get_grid_bbox(self.model.shape)
+        count = right - left + 1
+
+        index = self.currentIndex()
+        description_tpl = "Delete {} columns starting from column {}"
+        description = description_tpl.format(count, self.column)
+        command = CommandDeleteColumns(self.main_window.grid, self.model,
+                                       index, left, count, description)
+        self.main_window.undo_stack.push(command)
 
 
 class GridHeaderView(QHeaderView):
@@ -1077,7 +1098,7 @@ class GridTableModel(QAbstractTableModel):
 
     def insertRows(self, row, count):
         """Overloaded insertRows for code_array backend"""
-        print(row)
+
         self.code_array.insert(row, count, axis=0, tab=self.grid.table)
         return True
 
