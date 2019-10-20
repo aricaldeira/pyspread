@@ -139,13 +139,14 @@ class MainWindow(QMainWindow):
 
         self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
-        main_splitter = QSplitter(Qt.Vertical, self)
-        self.setCentralWidget(main_splitter)
+        self.main_splitter = QSplitter(Qt.Vertical, self)
+        self.setCentralWidget(self.main_splitter)
 
-        main_splitter.addWidget(self.entry_line)
-        main_splitter.addWidget(self.grid)
-        main_splitter.addWidget(self.grid.table_choice)
-        main_splitter.setSizes([self.entry_line.minimumHeight(), 9999, 20])
+        self.main_splitter.addWidget(self.entry_line)
+        self.main_splitter.addWidget(self.grid)
+        self.main_splitter.addWidget(self.grid.table_choice)
+        self.main_splitter.setSizes([self.entry_line.minimumHeight(),
+                                     9999, 20])
 
         self.macro_dock = QDockWidget("Macros", self)
         self.macro_dock.setObjectName("Macro panel")

@@ -1,6 +1,4 @@
-
 APP_NAME = "pyspread"
 
-VERSION = "2-dev"
-"""Current pyspread version"""
-
+# Current pyspread version
+VERSION = "1.99"
