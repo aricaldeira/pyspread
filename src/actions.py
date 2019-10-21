@@ -159,7 +159,7 @@ class MainWindowActions(dict):
                                      statustip='Pyspread setup parameters')
 
         self["quit"] = Action(self.parent, "&Quit",
-                              self.parent.workflows.file_quit,
+                              self.parent.closeEvent,
                               icon=Icon("quit"),
                               shortcut='Ctrl+Q',
                               statustip='Exit pyspread')
