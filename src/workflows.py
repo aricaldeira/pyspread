@@ -349,8 +349,9 @@ class Workflows:
     @handle_changed_since_save
     def file_quit(self):
         """Program exit workflow"""
+        #sys.exit()
+        pass
 
-        sys.exit()
 
     # Edit menu
 

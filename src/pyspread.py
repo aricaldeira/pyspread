@@ -121,13 +121,15 @@ class MainWindow(QMainWindow):
         if self._loading:
             return
 
-    def closeEvent(self, event):
+    def closeEvent(self, event=None):
         """Overloaded close event, allows saving changes or canceling close"""
-
+        self.workflows.file_quit() # has @handle_changed_since_save decorator
         self.settings.save()
+        if event:
+            event.ignore()
+        # Maybe a warn of closing
+        sys.exit()
 
-        self.workflows.file_quit()
-        event.ignore()
 
     def _init_widgets(self):
         """Initialize widgets"""
