@@ -113,13 +113,23 @@ class Grid(QTableView):
         self.reset_selection()
 
         # Locking states for operations by undo and redo operations
-        self.undo_resizing_row = False
-        self.undo_resizing_column = False
+        self.__undo_resizing_row = False
+        self.__undo_resizing_column = False
 
         # Initially, select top left cell on table 0
         self.current = 0, 0, 0
 
-    # Properties
+    @contextmanager
+    def undo_resizing_row(self):
+        self.__undo_resizing_row = True
+        yield
+        self.__undo_resizing_row = False
+
+    @contextmanager
+    def undo_resizing_column(self):
+        self.__undo_resizing_column = True
+        yield
+        self.__undo_resizing_column = False
 
     @property
     def row(self):
@@ -363,7 +373,7 @@ class Grid(QTableView):
     def on_row_resized(self, row, old_height, new_height):
         """Row resized event handler"""
 
-        if self.undo_resizing_row:  # Resize from undo or redo command
+        if self.__undo_resizing_row:  # Resize from undo or redo command
             return
         description = "Resize row {} to {}".format(row, new_height)
         command = CommandSetRowHeight(self, row, self.table, old_height,
@@ -373,7 +383,7 @@ class Grid(QTableView):
     def on_column_resized(self, column, old_width, new_width):
         """Column resized event handler"""
 
-        if self.undo_resizing_column:  # Resize from undo or redo command
+        if self.__undo_resizing_column:  # Resize from undo or redo command
             return
         description = "Resize column {} to {}".format(column, new_width)
         command = CommandSetColumnWidth(self, column, self.table, old_width,
@@ -990,15 +1000,18 @@ class GridHeaderView(QHeaderView):
     def update_zoom(self):
         """Updates zoom for the section sizes"""
 
-        self.setDefaultSectionSize(self.default_section_size * self.grid.zoom)
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.setDefaultSectionSize(self.default_section_size
+                                           * self.grid.zoom)
 
-        if self.orientation() == Qt.Horizontal:
-            section_sizes = self.grid.column_widths
-        else:
-            section_sizes = self.grid.row_heights
+                if self.orientation() == Qt.Horizontal:
+                    section_sizes = self.grid.column_widths
+                else:
+                    section_sizes = self.grid.row_heights
 
-        for section, size in section_sizes:
-            self.resizeSection(section, size * self.grid.zoom)
+                for section, size in section_sizes:
+                    self.resizeSection(section, size * self.grid.zoom)
 
     def sizeHint(self):
         """Overrides sizeHint, which supports zoom"""
@@ -1034,10 +1047,6 @@ class GridTableModel(QAbstractTableModel):
 
         self.main_window = main_window
         self.code_array = CodeArray(dimensions, main_window.settings)
-
-    @property
-    def grid(self):
-        return self.main_window.grid
 
     @contextmanager
     def model_reset(self):
@@ -1078,6 +1087,10 @@ class GridTableModel(QAbstractTableModel):
         self.beginRemoveColumns(index, first, last)
         yield
         self.endRemoveColumns()
+
+    @property
+    def grid(self):
+        return self.main_window.grid
 
     @property
     def shape(self):
@@ -1730,6 +1743,8 @@ class TableChoice(QTabBar):
     def on_table_changed(self, current):
         """Event handler for table changes"""
 
-        self.grid.update_cell_spans()
-        self.grid.update_zoom()
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.grid.update_cell_spans()
+                self.grid.update_zoom()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())

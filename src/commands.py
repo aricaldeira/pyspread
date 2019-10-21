@@ -154,9 +154,8 @@ class CommandSetRowHeight(QUndoCommand):
             self.grid.model.code_array.row_heights[(self.row, self.table)] = \
                 self.new_height / self.grid.zoom
         if self.grid.rowHeight(self.row) != self.new_height:
-            self.grid.undo_resizing_row = True
-            self.grid.setRowHeight(self.row, self.new_height)
-            self.grid.undo_resizing_row = False
+            with self.grid.undo_resizing_row():
+                self.grid.setRowHeight(self.row, self.new_height)
 
     def undo(self):
         if self.old_height == self.grid.verticalHeader().defaultSectionSize():
@@ -165,9 +164,8 @@ class CommandSetRowHeight(QUndoCommand):
             self.grid.model.code_array.row_heights[(self.row, self.table)] = \
                 self.old_height / self.grid.zoom
         if self.grid.rowHeight(self.row) != self.old_height:
-            self.grid.undo_resizing_row = True
-            self.grid.setRowHeight(self.row, self.old_height)
-            self.grid.undo_resizing_row = False
+            with self.grid.undo_resizing_row():
+                self.grid.setRowHeight(self.row, self.old_height)
 
 
 class CommandSetColumnWidth(QUndoCommand):
@@ -196,9 +194,8 @@ class CommandSetColumnWidth(QUndoCommand):
             self.grid.model.code_array.col_widths[(self.column, self.table)] =\
                 self.new_width / self.grid.zoom
         if self.grid.columnWidth(self.column) != self.new_width:
-            self.grid.undo_resizing_column = True
-            self.grid.setColumnWidth(self.column, self.new_width)
-            self.grid.undo_resizing_column = False
+            with self.grid.undo_resizing_column():
+                self.grid.setColumnWidth(self.column, self.new_width)
 
     def undo(self):
         if self.old_width == self.grid.horizontalHeader().defaultSectionSize():
@@ -208,9 +205,8 @@ class CommandSetColumnWidth(QUndoCommand):
             self.grid.model.code_array.col_widths[(self.column, self.table)] =\
                 self.old_width / self.grid.zoom
         if self.grid.columnWidth(self.column) != self.old_width:
-            self.grid.undo_resizing_column = True
-            self.grid.setColumnWidth(self.column, self.old_width)
-            self.grid.undo_resizing_column = False
+            with self.grid.undo_resizing_column():
+                self.grid.setColumnWidth(self.column, self.old_width)
 
 
 class CommandInsertRows(QUndoCommand):
@@ -230,18 +226,16 @@ class CommandInsertRows(QUndoCommand):
             self.model.insertRows(self.row, self.count)
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_row = True
-        self.grid.verticalHeader().update_zoom()
-        self.grid.undo_resizing_row = False
+        with self.grid.undo_resizing_row():
+            self.grid.verticalHeader().update_zoom()
 
     def undo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_row = True
-        self.grid.verticalHeader().update_zoom()
-        self.grid.undo_resizing_row = False
+        with self.grid.undo_resizing_row():
+            self.grid.verticalHeader().update_zoom()
 
 
 class CommandDeleteRows(QUndoCommand):
@@ -270,9 +264,8 @@ class CommandDeleteRows(QUndoCommand):
             self.model.removeRows(self.row, self.count)
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_row = True
-        self.grid.verticalHeader().update_zoom()
-        self.grid.undo_resizing_row = False
+        with self.grid.undo_resizing_row():
+            self.grid.verticalHeader().update_zoom()
 
     def undo(self):
         with self.model.inserting_rows(self.index, self.first, self.last):
@@ -285,9 +278,8 @@ class CommandDeleteRows(QUndoCommand):
             self.model.code_array[key] = self.old_code[key]
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_row = True
-        self.grid.verticalHeader().update_zoom()
-        self.grid.undo_resizing_row = False
+        with self.grid.undo_resizing_row():
+            self.grid.verticalHeader().update_zoom()
 
 
 class CommandInsertColumns(QUndoCommand):
@@ -308,18 +300,16 @@ class CommandInsertColumns(QUndoCommand):
             self.model.insertColumns(self.column, self.count)
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_column = True
-        self.grid.horizontalHeader().update_zoom()
-        self.grid.undo_resizing_column = False
+        with self.grid.undo_resizing_column():
+            self.grid.horizontalHeader().update_zoom()
 
     def undo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_column = True
-        self.grid.horizontalHeader().update_zoom()
-        self.grid.undo_resizing_column = False
+        with self.grid.undo_resizing_column():
+            self.grid.horizontalHeader().update_zoom()
 
 
 class CommandDeleteColumns(QUndoCommand):
@@ -349,9 +339,8 @@ class CommandDeleteColumns(QUndoCommand):
             self.model.removeColumns(self.column, self.count)
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_column = True
-        self.grid.horizontalHeader().update_zoom()
-        self.grid.undo_resizing_column = False
+        with self.grid.undo_resizing_column():
+            self.grid.horizontalHeader().update_zoom()
 
     def undo(self):
         with self.model.inserting_columns(self.index, self.first, self.last):
@@ -364,9 +353,8 @@ class CommandDeleteColumns(QUndoCommand):
             self.model.code_array[key] = self.old_code[key]
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.undo_resizing_column = True
-        self.grid.horizontalHeader().update_zoom()
-        self.grid.undo_resizing_column = False
+        with self.grid.undo_resizing_column():
+            self.grid.horizontalHeader().update_zoom()
 
 
 class CommandInsertTable(QUndoCommand):
@@ -379,13 +367,15 @@ class CommandInsertTable(QUndoCommand):
         self.table = table
 
     def redo(self):
-        self.model.insertTable(self.table)
-        self.grid.table_choice.table = self.table
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.model.insertTable(self.table)
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
-        self.model.removeTable(self.table)
-        self.grid.table_choice.table = self.table
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.model.removeTable(self.table)
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
@@ -398,31 +388,35 @@ class CommandDeleteTable(QUndoCommand):
         self.model = model
         self.table = table
 
+    def redo(self):
         # Store content of deleted table
         self.old_row_heights = copy(self.model.code_array.row_heights)
         self.old_col_widths = copy(self.model.code_array.col_widths)
         self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
         self.old_code = {}
         for key in self.model.code_array:
-            if key[2] == table:
+            if key[2] == self.table:
                 self.old_code[key] = self.model.code_array(key)
 
-    def redo(self):
-        self.model.removeTable(self.table)
-        self.grid.table_choice.table = self.table
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.model.removeTable(self.table)
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
-        self.model.insertTable(self.table)
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.model.insertTable(self.table)
 
-        self.model.code_array.dict_grid.row_heights = self.old_row_heights
-        self.model.code_array.dict_grid.col_widths = self.old_col_widths
-        self.model.code_array.dict_grid.cell_attributes = \
-            self.old_cell_attributes
-        for key in self.old_code:
-            self.model.code_array[key] = self.old_code[key]
+                self.model.code_array.dict_grid.row_heights = \
+                    self.old_row_heights
+                self.model.code_array.dict_grid.col_widths = \
+                    self.old_col_widths
+                self.model.code_array.dict_grid.cell_attributes = \
+                    self.old_cell_attributes
+                for key in self.old_code:
+                    self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.table = self.table
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 

@@ -710,7 +710,7 @@ class DataArray(object):
         del_row_heights = []
 
         for row, tab in self.row_heights:
-            if tab > insertion_point:
+            if tab >= insertion_point:
                 new_row_heights[(row, tab + no_to_insert)] = \
                     self.row_heights[(row, tab)]
                 del_row_heights.append((row, tab))
@@ -728,7 +728,7 @@ class DataArray(object):
         del_col_widths = []
 
         for col, tab in self.col_widths:
-            if tab > insertion_point:
+            if tab >= insertion_point:
                 new_col_widths[(col, tab + no_to_insert)] = \
                     self.col_widths[(col, tab)]
                 del_col_widths.append((col, tab))
