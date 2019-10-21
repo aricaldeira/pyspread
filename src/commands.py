@@ -224,18 +224,12 @@ class CommandInsertRows(QUndoCommand):
     def redo(self):
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_row():
-            self.grid.verticalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_row():
-            self.grid.verticalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
 
 class CommandDeleteRows(QUndoCommand):
@@ -250,6 +244,7 @@ class CommandDeleteRows(QUndoCommand):
         self.last = row + count
         self.count = count
 
+    def redo(self):
         # Store content of deleted rows
         self.old_row_heights = copy(self.model.code_array.row_heights)
         self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
@@ -259,27 +254,20 @@ class CommandDeleteRows(QUndoCommand):
         for key in selection.cell_generator(self.model.shape, self.grid.table):
             self.old_code[key] = self.model.code_array(key)
 
-    def redo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_row():
-            self.grid.verticalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
-
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
         self.model.code_array.dict_grid.cell_attributes = \
             self.old_cell_attributes
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_row():
-            self.grid.verticalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
 
 class CommandInsertColumns(QUndoCommand):
@@ -298,18 +286,12 @@ class CommandInsertColumns(QUndoCommand):
     def redo(self):
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_column():
-            self.grid.horizontalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_column():
-            self.grid.horizontalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
 
 class CommandDeleteColumns(QUndoCommand):
@@ -325,6 +307,7 @@ class CommandDeleteColumns(QUndoCommand):
         self.last = column + count
         self.count = count
 
+    def redo(self):
         # Store content of deleted columns
         self.old_col_widths = copy(self.model.code_array.col_widths)
         self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
@@ -334,13 +317,9 @@ class CommandDeleteColumns(QUndoCommand):
         for key in selection.cell_generator(self.model.shape, self.grid.table):
             self.old_code[key] = self.model.code_array(key)
 
-    def redo(self):
         with self.model.removing_columns(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_column():
-            self.grid.horizontalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
         with self.model.inserting_columns(self.index, self.first, self.last):
@@ -352,9 +331,7 @@ class CommandDeleteColumns(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        with self.grid.undo_resizing_column():
-            self.grid.horizontalHeader().update_zoom()
+        self.grid.table_choice.on_table_changed(self.grid.current)
 
 
 class CommandInsertTable(QUndoCommand):

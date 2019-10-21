@@ -923,7 +923,11 @@ class Grid(QTableView):
     def on_insert_rows(self):
         """Insert rows event handler"""
 
-        (top, _), (bottom, _) = self.selection.get_grid_bbox(self.model.shape)
+        try:
+            (top, _), (bottom, _) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
         count = bottom - top + 1
 
         index = self.currentIndex()
@@ -936,7 +940,11 @@ class Grid(QTableView):
     def on_delete_rows(self):
         """Delete rows event handler"""
 
-        (top, _), (bottom, _) = self.selection.get_grid_bbox(self.model.shape)
+        try:
+            (top, _), (bottom, _) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
         count = bottom - top + 1
 
         index = self.currentIndex()
@@ -949,7 +957,11 @@ class Grid(QTableView):
     def on_insert_columns(self):
         """Insert columns event handler"""
 
-        (_, left), (_, right) = self.selection.get_grid_bbox(self.model.shape)
+        try:
+            (_, left), (_, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            left = right = self.column
         count = right - left + 1
 
         index = self.currentIndex()
@@ -962,7 +974,11 @@ class Grid(QTableView):
     def on_delete_columns(self):
         """Delete columns event handler"""
 
-        (_, left), (_, right) = self.selection.get_grid_bbox(self.model.shape)
+        try:
+            (_, left), (_, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            left = right = self.column
         count = right - left + 1
 
         index = self.currentIndex()
