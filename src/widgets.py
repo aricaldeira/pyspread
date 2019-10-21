@@ -101,6 +101,7 @@ class MultiStateBitmapButton(QToolButton):
 class RotationButton(MultiStateBitmapButton):
     """Rotation button for the format toolbar"""
 
+    label = "Rotate"
     actions = "rotate_0", "rotate_90", "rotate_180", "rotate_270"
 
     def __init__(self, main_window):
@@ -114,6 +115,7 @@ class RotationButton(MultiStateBitmapButton):
 class JustificationButton(MultiStateBitmapButton):
     """Justification button for the format toolbar"""
 
+    label = "Text Justification"
     actions = "justify_left", "justify_center", "justify_right", "justify_fill"
 
     def __init__(self, main_window):
@@ -127,6 +129,7 @@ class JustificationButton(MultiStateBitmapButton):
 class RendererButton(MultiStateBitmapButton):
     """Cell render button for the format toolbar"""
 
+    label = "Renderer Select"
     actions = "text", "markup", "image", "matplotlib"
 
     def __init__(self, main_window):
@@ -140,6 +143,7 @@ class RendererButton(MultiStateBitmapButton):
 class AlignmentButton(MultiStateBitmapButton):
     """Alignment button for the format toolbar"""
 
+    label = "Alignment Buttons"
     actions = "align_top", "align_center", "align_bottom"
 
     def __init__(self, main_window):
@@ -243,6 +247,8 @@ class ColorButton(QToolButton):
 class TextColorButton(ColorButton):
     """Color button with text icon"""
 
+    label = "Text Color"
+
     def __init__(self, color):
         icon = Icon("text_color")
         super().__init__(color, icon=icon)
@@ -254,6 +260,8 @@ class TextColorButton(ColorButton):
 
 class LineColorButton(ColorButton):
     """Color button with text icon"""
+
+    label = "Line Color"
 
     def __init__(self, color):
         icon = Icon("line_color")
@@ -267,6 +275,8 @@ class LineColorButton(ColorButton):
 class BackgroundColorButton(ColorButton):
     """Color button with text icon"""
 
+    label = "Background Color"
+
     def __init__(self, color):
         icon = Icon("background_color")
         super().__init__(color, icon=icon)
@@ -278,6 +288,8 @@ class BackgroundColorButton(ColorButton):
 
 class FontChoiceCombo(QFontComboBox):
     """Font choice combo box"""
+
+    label = "Font Family Combo"
 
     fontChanged = pyqtSignal()
 
@@ -312,6 +324,7 @@ class FontChoiceCombo(QFontComboBox):
 class FontSizeCombo(QComboBox):
     """Font choice combo box"""
 
+    label = "Font Size Combo"
     fontSizeChanged = pyqtSignal()
 
     def __init__(self, main_window):
