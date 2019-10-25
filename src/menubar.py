@@ -248,7 +248,7 @@ class BorderChoiceMenu(QMenu):
         super().__init__()
 
         self.setTitle("Formatted borders")
-        self.setIcon(Icon("border_menu"))
+        self.setIcon(Icon.border_menu)
 
         self.addAction(actions["format_borders_all"])
         self.addAction(actions["format_borders_top"])
@@ -267,7 +267,7 @@ class BorderWidthMenu(QMenu):
         super().__init__()
 
         self.setTitle("Border width")
-        self.setIcon(Icon("format_borders"))
+        self.setIcon(Icon.format_borders)
 
         self.addAction(actions["format_borders_0"])
         self.addAction(actions["format_borders_1"])

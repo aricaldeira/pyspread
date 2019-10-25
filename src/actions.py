@@ -92,75 +92,75 @@ class MainWindowActions(dict):
 
         self["new"] = Action(self.parent, "&New",
                              self.parent.workflows.file_new,
-                             icon=Icon("new"),
+                             icon=Icon.new,
                              shortcut='Ctrl+n',
                              statustip='Create a new, empty spreadsheet')
 
         self["open"] = Action(self.parent, "&Open",
                               self.parent.workflows.file_open,
-                              icon=Icon("open"),
+                              icon=Icon.open,
                               statustip='Open spreadsheet from file')
 
         self["save"] = Action(self.parent, "&Save",
                               self.parent.workflows.file_save,
-                              icon=Icon("save"),
+                              icon=Icon.save,
                               shortcut='Ctrl+s',
                               statustip='Save spreadsheet')
 
         self["save_as"] = Action(self.parent, "Save &As",
                                  self.parent.workflows.file_save_as,
-                                 icon=Icon("save_as"),
+                                 icon=Icon.save_as,
                                  shortcut='Shift+Ctrl+s',
                                  statustip='Save spreadsheet to a new file')
 
         self["import"] = Action(self.parent, "&Import",
                                 self.parent.on_nothing,
-                                icon=Icon("import"),
+                                icon=Icon.imprt,
                                 statustip='Import a file and paste it into '
                                           'the current grid')
 
         self["export"] = Action(self.parent, "&Export",
                                 self.parent.on_nothing,
-                                icon=Icon("export"),
+                                icon=Icon.export,
                                 statustip="Export selection to a file")
 
         self["approve"] = Action(self.parent, "&Approve file",
                                  self.parent.on_approve,
-                                 icon=Icon("approve"),
+                                 icon=Icon.approve,
                                  statustip='Approve, unfreeze and sign the '
                                            'current file')
 
         self["clear_globals"] = Action(self.parent, "&Clear globals",
                                        self.parent.on_nothing,
-                                       icon=Icon("clear_globals"),
+                                       icon=Icon.clear_globals,
                                        statustip='Deletes global variables '
                                                  'from memory and reloads '
                                                  'base modules')
 
         self["page_setup"] = Action(self.parent, "Page setup",
                                     self.parent.on_nothing,
-                                    icon=Icon("page_setup"),
+                                    icon=Icon.page_setup,
                                     statustip='Setup printer page')
 
         self["print_preview"] = Action(self.parent, "Print preview",
                                        self.parent.on_nothing,
-                                       icon=Icon("print_preview"),
+                                       icon=Icon.print_preview,
                                        statustip='Print preview')
 
         self["print"] = Action(self.parent, "Print",
                                self.parent.on_nothing,
-                               icon=Icon("print"),
+                               icon=Icon.print,
                                shortcut='Ctrl+p',
                                statustip='Print current spreadsheet')
 
         self["preferences"] = Action(self.parent, "Preferences...",
                                      self.parent.on_preferences,
-                                     icon=Icon("preferences"),
+                                     icon=Icon.preferences,
                                      statustip='Pyspread setup parameters')
 
         self["quit"] = Action(self.parent, "&Quit",
                               self.parent.closeEvent,
-                              icon=Icon("quit"),
+                              icon=Icon.quit,
                               shortcut='Ctrl+Q',
                               statustip='Exit pyspread')
 
@@ -168,118 +168,118 @@ class MainWindowActions(dict):
         """actions for Edit menu"""
 
         self["undo"] = Action(self.parent, "&Undo", self.parent.on_undo,
-                              icon=Icon("undo"),
+                              icon=Icon.undo,
                               shortcut='Ctrl+z',
                               statustip='Undo last step')
 
         self["redo"] = Action(self.parent, "&Redo", self.parent.on_redo,
-                              icon=Icon("redo"),
+                              icon=Icon.redo,
                               shortcut='Shift+Ctrl+z',
                               statustip='Redo last undone step')
 
         self["cut"] = Action(self.parent, "Cut",
                              self.parent.workflows.edit_cut,
-                             icon=Icon("cut"),
+                             icon=Icon.cut,
                              shortcut='Ctrl+x',
                              statustip='Cut cell to the clipboard')
 
         self["copy"] = Action(self.parent, "&Copy",
                               self.parent.workflows.edit_copy,
-                              icon=Icon("copy"),
+                              icon=Icon.copy,
                               shortcut='Ctrl+c',
                               statustip='Copy the input strings of the cells '
                                         'to the clipboard')
 
         self["copy_results"] = Action(self.parent, "Copy results",
                                       self.parent.workflows.edit_copy_results,
-                                      icon=Icon("copy_results"),
+                                      icon=Icon.copy_results,
                                       shortcut='Shift+Ctrl+c',
                                       statustip='Copy the result strings of '
                                                 'the cells to the clipboard')
 
         self["paste"] = Action(self.parent, "&Paste",
                                self.parent.workflows.edit_paste,
-                               icon=Icon("paste"),
+                               icon=Icon.paste,
                                shortcut='Ctrl+v',
                                statustip='Paste cells from the clipboard')
 
         self["paste_as"] = Action(self.parent, "Paste as...",
                                   self.parent.workflows.edit_paste_as,
-                                  icon=Icon("paste_as"),
+                                  icon=Icon.paste_as,
                                   shortcut='Shift+Ctrl+v',
                                   statustip='Transform clipboard and paste '
                                             'results')
 
         self["find"] = Action(self.parent, "&Find", self.parent.on_nothing,
-                              icon=Icon("find"),
+                              icon=Icon.find,
                               shortcut='Ctrl+f',
                               statustip='Find cell by content')
 
         self["replace"] = Action(self.parent, "&Replace...",
                                  self.parent.on_nothing,
-                                 icon=Icon("replace"),
+                                 icon=Icon.replace,
                                  shortcut='Shift+Ctrl+f',
                                  statustip='Replace sub-strings in cells')
 
         self["quote"] = Action(self.parent, "&Quote",
                                self.parent.grid.on_quote,
-                               icon=Icon("quote"),
+                               icon=Icon.quote,
                                shortcut='Ctrl+Return',
                                statustip="Convert cells' code to strings by "
                                          "addding quotes")
 
         self["sort_ascending"] = Action(self.parent, "Sort ascending",
                                         self.parent.on_nothing,
-                                        icon=Icon("sort_ascending"),
+                                        icon=Icon.sort_ascending,
                                         statustip='Sort selected columns (or '
                                                   'all if none selected) in '
                                                   'ascending order')
 
         self["sort_descending"] = Action(self.parent, "Sort descending",
                                          self.parent.on_nothing,
-                                         icon=Icon("sort_descending"),
+                                         icon=Icon.sort_descending,
                                          statustip='Sort selected columns (or '
                                                    'all if none selected) in '
                                                    'descending order')
 
         self["insert_rows"] = Action(self.parent, "Insert rows",
                                      self.parent.grid.on_insert_rows,
-                                     icon=Icon("insert_row"),
+                                     icon=Icon.insert_row,
                                      statustip='Insert max(1, no. selected '
                                                'rows) rows at cursor')
 
         self["insert_columns"] = Action(self.parent, "Insert columns",
                                         self.parent.grid.on_insert_columns,
-                                        icon=Icon("insert_column"),
+                                        icon=Icon.insert_column,
                                         statustip='Insert max(1, no. selected '
                                                   'columns) columns at cursor')
 
         self["insert_table"] = Action(self.parent, "Insert table",
                                       self.parent.grid.on_insert_table,
-                                      icon=Icon("insert_table"),
+                                      icon=Icon.insert_table,
                                       statustip='Insert table before current '
                                                 'table')
 
         self["delete_rows"] = Action(self.parent, "Delete rows",
                                      self.parent.grid.on_delete_rows,
-                                     icon=Icon("delete_row"),
+                                     icon=Icon.delete_row,
                                      statustip='Delete max(1, no. selected '
                                                'rows) rows at cursor')
 
         self["delete_columns"] = Action(self.parent, "Delete columns",
                                         self.parent.grid.on_delete_columns,
-                                        icon=Icon("delete_column"),
+                                        icon=Icon.delete_column,
                                         statustip='Delete max(1, no. selected '
                                                   'columns) columns at cursor')
 
         self["delete_table"] = Action(self.parent, "Delete table",
                                       self.parent.grid.on_delete_table,
-                                      icon=Icon("delete_table"),
+                                      icon=Icon.delete_table,
                                       statustip='Delete current table')
 
         self["resize_grid"] = Action(self.parent, "Resize grid",
                                      self.parent.workflows.edit_resize,
-                                     icon=Icon("resize_grid"),
+                                     icon=Icon.resize_grid,
                                      statustip='Resizes the current grid')
 
     def create_view_actions(self):
@@ -287,7 +287,7 @@ class MainWindowActions(dict):
 
         self["fullscreen"] = Action(self.parent, "Fullscreen",
                                     self.parent.on_fullscreen,
-                                    icon=Icon("fullscreen"),
+                                    icon=Icon.fullscreen,
                                     shortcut='F11',
                                     statustip='Show grid in fullscreen mode '
                                               '(press <F11> to leave)')
@@ -337,50 +337,50 @@ class MainWindowActions(dict):
         self["goto_cell"] = \
             Action(self.parent, "Go to cell",
                    self.parent.workflows.view_goto_cell,
-                   icon=Icon("goto_cell"),
+                   icon=Icon.goto_cell,
                    shortcut='Ctrl+g',
                    statustip='Select a cell and put it into view')
 
         self["toggle_spell_checker"] = \
             Action(self.parent, "Toggle spell checker",
                    self.parent.entry_line.on_toggle_spell_check,
-                   icon=Icon("check_spelling"),
+                   icon=Icon.check_spelling,
                    checkable=True,
                    statustip='Turn the spell checker in the entry line on/off')
 
         self["zoom_in"] = Action(self.parent, "Zoom in",
                                  self.parent.grid.on_zoom_in,
-                                 icon=Icon("zoom_in"),
+                                 icon=Icon.zoom_in,
                                  shortcut='Ctrl++',
                                  statustip='Zoom in the grid')
 
         self["zoom_out"] = Action(self.parent, "Zoom out",
                                   self.parent.grid.on_zoom_out,
-                                  icon=Icon("zoom_out"),
+                                  icon=Icon.zoom_out,
                                   shortcut='Ctrl+-',
                                   statustip='Zoom out the grid')
 
         self["zoom_1"] = Action(self.parent, "Original size",
                                 self.parent.grid.on_zoom_1,
-                                icon=Icon("zoom_1"),
+                                icon=Icon.zoom_1,
                                 shortcut='Ctrl+0',
                                 statustip='Show grid on standard zoom level')
 
         self["refresh_cells"] = \
             Action(self.parent, "Refresh selected cells",
                    self.parent.grid.refresh_selected_frozen_cells,
-                   icon=Icon("refresh"), shortcut=QKeySequence.Refresh,
+                   icon=Icon.refresh, shortcut=QKeySequence.Refresh,
                    statustip='Refresh selected cells even when frozen')
 
         self["toggle_periodic_updates"] = \
             Action(self.parent, "Toggle periodic updates",
                    self.parent.on_toggle_refresh_timer,
-                   icon=Icon("toggle_periodic_updates"), checkable=True,
+                   icon=Icon.toggle_periodic_updates, checkable=True,
                    statustip='Toggles periodic updates for frozen cells')
 
         self["show_frozen"] = Action(self.parent, "Show frozen",
                                      self.parent.grid.on_show_frozen_pressed,
-                                     icon=Icon("show_frozen"),
+                                     icon=Icon.show_frozen,
                                      checkable=True,
                                      statustip='Indicates frozen cells with a '
                                                'background crosshatch')
@@ -390,26 +390,26 @@ class MainWindowActions(dict):
 
         self["copy_format"] = Action(self.parent, "&Copy format",
                                      self.parent.workflows.format_copy_format,
-                                     icon=Icon("copy_format"),
+                                     icon=Icon.copy_format,
                                      statustip='Copy format of selection to '
                                                'the clipboard')
 
         self["paste_format"] = \
             Action(self.parent, "&Paste format",
                    self.parent.workflows.format_paste_format,
-                   icon=Icon("paste_format"),
+                   icon=Icon.paste_format,
                    statustip='Apply format from the clipboard to the selected '
                              'cells')
 
         self["font"] = Action(self.parent, "&Font...",
                               self.parent.grid. on_font_dialog,
-                              icon=Icon("font_dialog"),
+                              icon=Icon.font_dialog,
                               shortcut='Ctrl+n',
                               statustip='Lauch font dialog')
 
         self["bold"] = Action(self.parent, "&Bold",
                               self.parent.grid.on_bold_pressed,
-                              icon=Icon("bold"),
+                              icon=Icon.bold,
                               shortcut='Ctrl+b',
                               checkable=True,
                               statustip='Toggle bold font weight for the '
@@ -417,7 +417,7 @@ class MainWindowActions(dict):
 
         self["italics"] = Action(self.parent, "&Italics",
                                  self.parent.grid.on_italics_pressed,
-                                 icon=Icon("italics"),
+                                 icon=Icon.italics,
                                  shortcut='Ctrl+i',
                                  checkable=True,
                                  statustip='Toggle italics font style for the '
@@ -425,7 +425,7 @@ class MainWindowActions(dict):
 
         self["underline"] = Action(self.parent, "&Underline",
                                    self.parent.grid.on_underline_pressed,
-                                   icon=Icon("underline"),
+                                   icon=Icon.underline,
                                    shortcut='Ctrl+u',
                                    checkable=True,
                                    statustip='Toggle underline for the '
@@ -434,24 +434,24 @@ class MainWindowActions(dict):
         self["strikethrough"] = \
             Action(self.parent, "&Strikethrough",
                    self.parent.grid.on_strikethrough_pressed,
-                   icon=Icon("strikethrough"), checkable=True,
+                   icon=Icon.strikethrough, checkable=True,
                    statustip='Toggle strikethrough for the selected cells')
 
         self["text"] = Action(self.parent, "Text renderer",
                               self.parent.grid.on_text_renderer_pressed,
-                              icon=Icon("text"), checkable=True,
+                              icon=Icon.text, checkable=True,
                               statustip='Show cell results as text (default). '
                                         'Formats affect the whole cell.')
 
         self["markup"] = Action(self.parent, "Markup renderer",
                                 self.parent.grid.on_markup_renderer_pressed,
-                                icon=Icon("markup"), checkable=True,
+                                icon=Icon.markup, checkable=True,
                                 statustip='Show cell results as markup, which '
                                           'allows partly formatted output.')
 
         self["image"] = Action(self.parent, "Image renderer",
                                self.parent.grid.on_image_renderer_pressed,
-                               icon=Icon("image"),
+                               icon=Icon.image,
                                checkable=True,
                                statustip='Show cell results as image. '
                                          'A numpy array of shape (x, y, 3) '
@@ -460,7 +460,7 @@ class MainWindowActions(dict):
             self["matplotlib"] = \
                 Action(self.parent, "Matplotlib chart renderer",
                        self.parent.grid.on_matplotlib_renderer_pressed,
-                       icon=Icon("matplotlib"),
+                       icon=Icon.matplotlib,
                        checkable=True,
                        statustip='Show cell results as matplotlib chart. A '
                                  'numpy array of shape (x, y, 3) is expected.')
@@ -475,22 +475,22 @@ class MainWindowActions(dict):
         self["text_color"] = Action(
             self.parent, "Text color...",
             self.parent.widgets.text_color_button.on_pressed,
-            icon=Icon("text_color"), statustip='Lauch text color dialog')
+            icon=Icon.text_color, statustip='Lauch text color dialog')
 
         self["line_color"] = Action(
             self.parent, "Line color...",
             self.parent.widgets.line_color_button.on_pressed,
-            icon=Icon("line_color"), statustip='Lauch line color dialog')
+            icon=Icon.line_color, statustip='Lauch line color dialog')
 
         self["background_color"] = Action(
             self.parent, "Background color...",
             self.parent.widgets.background_color_button.on_pressed,
-            icon=Icon("background_color"),
+            icon=Icon.background_color,
             statustip='Lauch background color dialog')
 
         self["freeze_cell"] = Action(self.parent, "Freeze cell",
                                      self.parent.grid.on_freeze_pressed,
-                                     icon=Icon("freeze"),
+                                     icon=Icon.freeze,
                                      checkable=True,
                                      statustip='Freeze the selected cell so '
                                                'that is is only updated when '
@@ -498,38 +498,38 @@ class MainWindowActions(dict):
 
         self["lock_cell"] = Action(self.parent, "Lock cell",
                                    self.parent.grid.on_lock_pressed,
-                                   icon=Icon("lock"),
+                                   icon=Icon.lock,
                                    checkable=True,
                                    statustip='Lock cell so that its code '
                                              'cannot be changed')
 
         self["merge_cells"] = Action(self.parent, "Merge cells",
                                      self.parent.grid.on_merge_pressed,
-                                     icon=Icon("merge_cells"),
+                                     icon=Icon.merge_cells,
                                      checkable=True,
                                      statustip='Merge/unmerge selected cells')
 
         self["rotate_0"] = Action(self.parent, "0°",
                                   self.parent.grid.on_rotate_0,
-                                  icon=Icon("rotate_0"),
+                                  icon=Icon.rotate_0,
                                   checkable=True,
                                   statustip='Set text rotation to 0°')
 
         self["rotate_90"] = Action(self.parent, "90°",
                                    self.parent.grid.on_rotate_90,
-                                   icon=Icon("rotate_90"),
+                                   icon=Icon.rotate_90,
                                    checkable=True,
                                    statustip='Set text rotation to 90°')
 
         self["rotate_180"] = Action(self.parent, "180°",
                                     self.parent.grid.on_rotate_180,
-                                    icon=Icon("rotate_180"),
+                                    icon=Icon.rotate_180,
                                     checkable=True,
                                     statustip='Set text rotation to 180°')
 
         self["rotate_270"] = Action(self.parent, "270°",
                                     self.parent.grid.on_rotate_270,
-                                    icon=Icon("rotate_270"),
+                                    icon=Icon.rotate_270,
                                     checkable=True,
                                     statustip='Set text rotation to 270°')
 
@@ -541,7 +541,7 @@ class MainWindowActions(dict):
 
         self["justify_left"] = Action(self.parent, "Left",
                                       self.parent.grid.on_justify_left,
-                                      icon=Icon("justify_left"),
+                                      icon=Icon.justify_left,
                                       checkable=True,
                                       statustip='Display cell result text '
                                                 'left justified')
@@ -549,20 +549,20 @@ class MainWindowActions(dict):
         self["justify_center"] = Action(self.parent, "Center",
                                         self.parent.grid.on_justify_center,
                                         checkable=True,
-                                        icon=Icon("justify_center"),
+                                        icon=Icon.justify_center,
                                         statustip='Display cell result text '
                                                   'centered')
 
         self["justify_right"] = Action(self.parent, "Right",
                                        self.parent.grid.on_justify_right,
                                        checkable=True,
-                                       icon=Icon("justify_right"),
+                                       icon=Icon.justify_right,
                                        statustip='Display cell result text '
                                                  'right justified')
 
         self["justify_fill"] = Action(self.parent, "Fill",
                                       self.parent.grid.on_justify_fill,
-                                      icon=Icon("justify_fill"),
+                                      icon=Icon.justify_fill,
                                       checkable=True,
                                       statustip='Display cell result text '
                                                 'filled into the cell')
@@ -575,21 +575,21 @@ class MainWindowActions(dict):
 
         self["align_top"] = Action(self.parent, "Top",
                                    self.parent.grid.on_align_top,
-                                   icon=Icon("align_top"),
+                                   icon=Icon.align_top,
                                    checkable=True,
                                    statustip='Align cell result at the top of '
                                              'the cell')
 
         self["align_center"] = Action(self.parent, "Center",
                                       self.parent.grid.on_align_middle,
-                                      icon=Icon("align_center"),
+                                      icon=Icon.align_center,
                                       checkable=True,
                                       statustip='Center cell result within '
                                                 'the cell')
 
         self["align_bottom"] = Action(self.parent, "Bottom",
                                       self.parent.grid.on_align_bottom,
-                                      icon=Icon("align_bottom"),
+                                      icon=Icon.align_bottom,
                                       checkable=True,
                                       statustip='Align cell result at the '
                                                 'bottom of the cell')
@@ -602,49 +602,49 @@ class MainWindowActions(dict):
         self["format_borders_all"] = \
             Action(self.parent, "All borders",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_all"), checkable=True,
+                   icon=Icon.format_borders_all, checkable=True,
                    statustip='Format all borders of selection')
 
         self["format_borders_top"] = \
             Action(self.parent, "Top border",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_top"), checkable=True,
+                   icon=Icon.format_borders_top, checkable=True,
                    statustip='Format top border of selection')
 
         self["format_borders_bottom"] = \
             Action(self.parent, "Bottom border",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_bottom"), checkable=True,
+                   icon=Icon.format_borders_bottom, checkable=True,
                    statustip='Format bottom border of selection')
 
         self["format_borders_left"] = \
             Action(self.parent, "Left border",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_left"), checkable=True,
+                   icon=Icon.format_borders_left, checkable=True,
                    statustip='Format left border of selection')
 
         self["format_borders_right"] = \
             Action(self.parent, "Right border",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_right"), checkable=True,
+                   icon=Icon.format_borders_right, checkable=True,
                    statustip='Format right border of selection')
 
         self["format_borders_outer"] = \
             Action(self.parent, "Outer borders",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_outer"), checkable=True,
+                   icon=Icon.format_borders_outer, checkable=True,
                    statustip='Format outer borders of selection')
 
         self["format_borders_inner"] = \
             Action(self.parent, "Inner borders",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_inner"), checkable=True,
+                   icon=Icon.format_borders_inner, checkable=True,
                    statustip='Format inner borders of selection')
 
         self["format_borders_top_bottom"] = \
             Action(self.parent, "Top and bottom borders",
                    self.parent.grid.on_border_choice,
-                   icon=Icon("format_borders_top_bottom"), checkable=True,
+                   icon=Icon.format_borders_top_bottom, checkable=True,
                    statustip='Format top and bottom borders of selection')
 
         self.border_group = QActionGroup(self.parent)
@@ -660,47 +660,47 @@ class MainWindowActions(dict):
 
         self["format_borders_0"] = Action(self.parent, "Border width 0",
                                           self.parent.grid.on_borderwidth,
-                                          icon=Icon("format_borders_0"),
+                                          icon=Icon.format_borders_0,
                                           checkable=True,
                                           statustip='Set border width to 0')
 
         self["format_borders_1"] = Action(self.parent, "Border width 1",
                                           self.parent.grid.on_borderwidth,
-                                          icon=Icon("format_borders_1"),
+                                          icon=Icon.format_borders_1,
                                           checkable=True,
                                           statustip='Set border width to 1')
 
         self["format_borders_2"] = Action(self.parent, "Border width 2",
                                           self.parent.grid.on_borderwidth,
-                                          icon=Icon("format_borders_2"),
+                                          icon=Icon.format_borders_2,
                                           checkable=True,
                                           statustip='Set border width to 2')
 
         self["format_borders_4"] = Action(self.parent, "Border width 4",
                                           self.parent.grid.on_borderwidth,
-                                          icon=Icon("format_borders_4"),
+                                          icon=Icon.format_borders_4,
                                           checkable=True,
                                           statustip='Set border width to 4')
 
         self["format_borders_8"] = Action(self.parent, "Border width 8",
                                           self.parent.grid.on_borderwidth,
-                                          icon=Icon("format_borders_8"),
+                                          icon=Icon.format_borders_8,
                                           checkable=True,
                                           statustip='Set border width to 8')
         self["format_borders_16"] = Action(self.parent, "Border width 16",
                                            self.parent.grid.on_borderwidth,
-                                           icon=Icon("format_borders_16"),
+                                           icon=Icon.format_borders_16,
                                            checkable=True,
                                            statustip='Set border width to 16')
         self["format_borders_32"] = Action(self.parent, "Border width 32",
                                            self.parent.grid.on_borderwidth,
-                                           icon=Icon("format_borders_32"),
+                                           icon=Icon.format_borders_32,
                                            checkable=True,
                                            statustip='Set border width to 32')
 
         self["format_borders_64"] = Action(self.parent, "Border width 64",
                                            self.parent.grid.on_borderwidth,
-                                           icon=Icon("format_borders_64"),
+                                           icon=Icon.format_borders_64,
                                            checkable=True,
                                            statustip='Set border width to 64')
 
@@ -720,18 +720,18 @@ class MainWindowActions(dict):
 
         self["insert_image"] = Action(self.parent, "Insert image...",
                                       self.parent.workflows.macro_insert_image,
-                                      icon=Icon("insert_image"),
+                                      icon=Icon.insert_image,
                                       statustip='Load an image from a file '
                                                 'into a cell')
 
         self["link_image"] = Action(self.parent, "Link image...",
                                     self.parent.on_nothing,
-                                    icon=Icon("link_image"),
+                                    icon=Icon.link_image,
                                     statustip='Link an image file from a cell')
 
         self["insert_chart"] = Action(self.parent, "Insert chart...",
                                       self.parent.workflows.macro_insert_chart,
-                                      icon=Icon("insert_chart"),
+                                      icon=Icon.insert_chart,
                                       statustip='Create a matplotlib chart '
                                                 'and insert code so that it '
                                                 'is displayed')
@@ -741,7 +741,7 @@ class MainWindowActions(dict):
 
         self["first_steps"] = Action(self.parent, "First steps...",
                                      self.parent.on_nothing,
-                                     icon=Icon("help"),
+                                     icon=Icon.help,
                                      shortcut='F1',
                                      statustip='Display the first steps '
                                                'document that provides a '
@@ -749,23 +749,23 @@ class MainWindowActions(dict):
 
         self["tutorial"] = Action(self.parent, "Tutorial...",
                                   self.parent.on_nothing,
-                                  icon=Icon("tutorial"),
+                                  icon=Icon.tutorial,
                                   statustip='Display a pyspread tutorial')
 
         self["faq"] = Action(self.parent, "FAQ...",
                              self.parent.on_nothing,
-                             icon=Icon("faq"),
+                             icon=Icon.faq,
                              statustip='Display frequently asked questions')
 
         self["dependencies"] = Action(self.parent, "Dependencies...",
                                       self.parent.on_nothing,
-                                      icon=Icon("dependencies"),
+                                      icon=Icon.dependencies,
                                       statustip='Overview of installed '
                                                 'dependencies')
 
         self["about"] = Action(self.parent, "About pyspread...",
                                self.parent.on_about,
-                               icon=Icon("pyspread"),
+                               icon=Icon.pyspread,
                                statustip='About pyspread')
 
     def disable_unavailable(self):
@@ -793,105 +793,105 @@ class ChartDialogActions(dict):
 
         self["chart_pie_1_1"] = Action(self.parent, "Pie chart",
                                        self.parent.on_template,
-                                       icon=Icon("chart_pie_1_1"),
+                                       icon=Icon.chart_pie_1_1,
                                        statustip='Insert code for pie chart.')
         self["chart_pie_1_1"].setData("chart_pie_1_1.py")
 
         self["chart_ring_1_1"] = \
             Action(self.parent, "Ring chart", self.parent.on_template,
-                   icon=Icon("chart_ring_1_1"),
+                   icon=Icon.chart_ring_1_1,
                    statustip='Insert code for ring chart.')
         self["chart_ring_1_1"].setData("chart_ring_1_1.py")
 
         self["chart_line_1_1"] = \
             Action(self.parent, "Line chart", self.parent.on_template,
-                   icon=Icon("chart_line_1_1"),
+                   icon=Icon.chart_line_1_1,
                    statustip='Insert code for line chart.')
         self["chart_line_1_1"].setData("chart_line_1_1.py")
 
         self["chart_polar_1_1"] = \
             Action(self.parent, "Polar chart", self.parent.on_template,
-                   icon=Icon("chart_polar_1_1"),
+                   icon=Icon.chart_polar_1_1,
                    statustip='Insert code for polar coordinates line chart.')
         self["chart_polar_1_1"].setData("chart_polar_1_1.py")
 
         self["chart_area_1_1"] = \
             Action(self.parent, "Area chart", self.parent.on_template,
-                   icon=Icon("chart_area_1_1"),
+                   icon=Icon.chart_area_1_1,
                    statustip='Insert code for area chart.')
         self["chart_area_1_1"].setData("chart_area_1_1.py")
 
         self["chart_column_1_1"] = \
             Action(self.parent, "Grouped column chart",
-                   self.parent.on_template, icon=Icon("chart_column_1_1"),
+                   self.parent.on_template, icon=Icon.chart_column_1_1,
                    statustip='Insert code for grouped column chart.')
         self["chart_column_1_1"].setData("chart_column_1_1.py")
 
         self["chart_column_1_2"] = \
             Action(self.parent, "Stacked column chart",
                    self.parent.on_template,
-                   icon=Icon("chart_column_1_2"),
+                   icon=Icon.chart_column_1_2,
                    statustip='Insert code for stacked column chart.')
         self["chart_column_1_2"].setData("chart_column_1_2.py")
 
         self["chart_bar_1_3"] = \
             Action(self.parent, "Normalized stacked bar chart",
-                   self.parent.on_template, icon=Icon("chart_bar_1_3"),
+                   self.parent.on_template, icon=Icon.chart_bar_1_3,
                    statustip='Insert code for normalized stacked bar chart.')
         self["chart_bar_1_3"].setData("chart_bar_1_3.py")
 
         self["chart_scatter_1_1"] = \
             Action(self.parent, "Scatter chart",
-                   self.parent.on_template, icon=Icon("chart_scatter_1_1"),
+                   self.parent.on_template, icon=Icon.chart_scatter_1_1,
                    statustip='Insert code for a scatter plot.')
         self["chart_scatter_1_1"].setData("chart_scatter_1_1.py")
 
         self["chart_bubble_1_1"] = \
             Action(self.parent, "Bubble chart",
-                   self.parent.on_template, icon=Icon("chart_bubble_1_1"),
+                   self.parent.on_template, icon=Icon.chart_bubble_1_1,
                    statustip='Insert code for a bubble plot that is ' +
                              'a scatter plot with individual point sizes.')
         self["chart_bubble_1_1"].setData("chart_bubble_1_1.py")
 
         self["chart_boxplot_2_2"] = \
             Action(self.parent, "Boxplot chart", self.parent.on_template,
-                   icon=Icon("chart_boxplot_2_2"),
+                   icon=Icon.chart_boxplot_2_2,
                    statustip='Insert code for boxplot chart.')
         self["chart_boxplot_2_2"].setData("chart_boxplot_2_2.py")
 
         self["chart_histogram_1_1"] = \
             Action(self.parent, "Histogram chart",
-                   self.parent.on_template, icon=Icon("chart_histogram_1_1"),
+                   self.parent.on_template, icon=Icon.chart_histogram_1_1,
                    statustip='Insert code for boxplot chart.')
         self["chart_histogram_1_1"].setData("chart_histogram_1_1.py")
 
         self["chart_histogram_1_4"] = \
             Action(self.parent, "Multiple histogram charts",
-                   self.parent.on_template, icon=Icon("chart_histogram_1_4"),
+                   self.parent.on_template, icon=Icon.chart_histogram_1_4,
                    statustip='Insert code for multiple histogram charts.')
         self["chart_histogram_1_4"].setData("chart_histogram_1_4.py")
 
         self["chart_scatterhist_1_1"] = \
             Action(self.parent, "Scatter and histogram chart",
-                   self.parent.on_template, icon=Icon("chart_scatterhist_1_1"),
+                   self.parent.on_template, icon=Icon.chart_scatterhist_1_1,
                    statustip='Insert code for a scatter plot with ' +
                              'histograms for each axis.')
         self["chart_scatterhist_1_1"].setData("chart_scatterhist_1_1.py")
 
         self["chart_matrix_1_1"] = \
             Action(self.parent, "Matrix chart",
-                   self.parent.on_template, icon=Icon("chart_matrix_1_1"),
+                   self.parent.on_template, icon=Icon.chart_matrix_1_1,
                    statustip='Insert code for boxplot chart.')
         self["chart_matrix_1_1"].setData("chart_matrix_1_1.py")
 
         self["chart_contour_1_2"] = \
             Action(self.parent, "Contour chart",
-                   self.parent.on_template, icon=Icon("chart_contour_1_2"),
+                   self.parent.on_template, icon=Icon.chart_contour_1_2,
                    statustip='Insert code for contour chart.')
         self["chart_contour_1_2"].setData("chart_contour_1_2.py")
 
         self["chart_surface_2_1"] = \
             Action(self.parent, "Surface chart", self.parent.on_template,
-                   icon=Icon("chart_surface_2_1"),
+                   icon=Icon.chart_surface_2_1,
                    statustip='Insert code for boxplot chart.')
         self["chart_surface_2_1"].setData("chart_surface_2_1.py")

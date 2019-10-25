@@ -44,7 +44,7 @@ from PyQt5.QtGui import QColor, QFont, QPalette
 
 from src import VERSION, APP_NAME
 from src.settings import Settings
-from src.icons import Icon
+from src.icons import Icon, IconPath
 from src.grid import Grid
 from src.entryline import Entryline
 from src.menubar import MenuBar
@@ -106,9 +106,9 @@ class MainWindow(QMainWindow):
         """Initialize main window components"""
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(Icon("pyspread"))
+        self.setWindowIcon(Icon.pyspread)
 
-        self.safe_mode_widget = QSvgWidget(Icon.icon_path["warning"], self)
+        self.safe_mode_widget = QSvgWidget(str(IconPath.warning), self)
         msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
@@ -123,13 +123,12 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event=None):
         """Overloaded close event, allows saving changes or canceling close"""
-        self.workflows.file_quit() # has @handle_changed_since_save decorator
+        self.workflows.file_quit()  # has @handle_changed_since_save decorator
         self.settings.save()
         if event:
             event.ignore()
         # Maybe a warn of closing
         sys.exit()
-
 
     def _init_widgets(self):
         """Initialize widgets"""

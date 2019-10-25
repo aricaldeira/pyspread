@@ -162,7 +162,7 @@ class FormatToolbar(QToolBar):
         self.border_menu_button.setText("Borders")
         border_submenu = self.main_window.menuBar().border_submenu
         self.border_menu_button.setMenu(border_submenu)
-        self.border_menu_button.setIcon(Icon("border_menu"))
+        self.border_menu_button.setIcon(Icon.border_menu)
         self.addWidget(self.border_menu_button)
         self.border_menu_button.setPopupMode(
             QToolButton.InstantPopup)
@@ -171,7 +171,7 @@ class FormatToolbar(QToolBar):
         self.line_width_button.setText("Border Width")
         line_width_submenu = self.main_window.menuBar().line_width_submenu
         self.line_width_button.setMenu(line_width_submenu)
-        self.line_width_button.setIcon(Icon("format_borders"))
+        self.line_width_button.setIcon(Icon.format_borders)
         self.addWidget(self.line_width_button)
         self.line_width_button.setPopupMode(
             QToolButton.InstantPopup)

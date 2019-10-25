@@ -20,7 +20,7 @@
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QToolButton, QColorDialog, QFontComboBox, QComboBox
-from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QIcon, QCursor
+from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
 from icons import Icon
 
@@ -33,18 +33,16 @@ class MultiStateBitmapButton(QToolButton):
     Parameters
     ----------
 
-    * actions: List of QIcons
-    \tThe list of icons to be cycled through
+    * actions: List of QActions
+    \tThe list of actions to be cycled through
 
     """
 
-    def __init__(self, actions):
+    def __init__(self, main_window):
         super().__init__()
+        self.main_window = main_window
 
-        self.actions = actions
         self._current_action_idx = 0
-
-        self.setIcon(QIcon(Icon(self.actions[0])))
 
         self.clicked.connect(self.on_clicked)
 
@@ -53,60 +51,57 @@ class MultiStateBitmapButton(QToolButton):
         return self._current_action_idx
 
     @current_action_idx.setter
-    def current_action_idx(self, value):
+    def current_action_idx(self, index):
         """Sets current action index and updates button and menu"""
 
-        self._current_action_idx = value
-        action = self.actions[value]
-        self.setIcon(QIcon(Icon(action)))
+        self._current_action_idx = index
+        action = self.get_action(index)
+        self.setIcon(action.icon())
 
-    def set_current_action(self, action):
+    def get_action(self, index):
+        """Returns action from index in action_names"""
+
+        action_name = self.action_names[index]
+        return self.main_window.main_window_actions[action_name]
+
+    def set_current_action(self, action_name):
         """Sets current action"""
 
-        self.current_action_idx = self.actions.index(action)
+        self.current_action_idx = self.action_names.index(action_name)
 
     def next(self):
         """Advances current_action_idx and returns current action"""
 
-        if self.current_action_idx >= len(self.actions) - 1:
+        if self.current_action_idx >= len(self.action_names) - 1:
             self.current_action_idx = 0
         else:
             self.current_action_idx += 1
 
-        return self.actions[self.current_action_idx]
+        return self.get_action(self.current_action_idx)
 
-    def trigger_menu(self, action):
-        """Trigger main menu actions"""
-
-        for __action in self.actions:
-            if action == __action:
-                self.main_window.main_window_actions[__action].trigger()
-
-    def set_menu_checked(self, action):
+    def set_menu_checked(self, action_name):
         """Sets checked status of menu"""
 
-        for __action in self.actions:
-            if action == __action:
-                self.main_window.main_window_actions[__action].setChecked(True)
+        action = self.main_window.main_window_actions[action_name]
+        action.setChecked(True)
 
     def on_clicked(self):
         """Button clicked event handler. Chechs corresponding menu item"""
 
-        next_action = self.next()
-        self.trigger_menu(next_action)
-        self.set_menu_checked(next_action)
+        action = self.next()
+        action.trigger()
+        action.setChecked(True)
 
 
 class RotationButton(MultiStateBitmapButton):
     """Rotation button for the format toolbar"""
 
     label = "Rotate"
-    actions = "rotate_0", "rotate_90", "rotate_180", "rotate_270"
+    action_names = "rotate_0", "rotate_90", "rotate_180", "rotate_270"
 
     def __init__(self, main_window):
-        self.main_window = main_window
+        super().__init__(main_window)
 
-        super().__init__(self.actions)
         self.setStatusTip("Text rotation")
         self.setToolTip("Text rotation")
 
@@ -115,12 +110,12 @@ class JustificationButton(MultiStateBitmapButton):
     """Justification button for the format toolbar"""
 
     label = "Text Justification"
-    actions = "justify_left", "justify_center", "justify_right", "justify_fill"
+    action_names = ("justify_left", "justify_center", "justify_right",
+                    "justify_fill")
 
     def __init__(self, main_window):
-        self.main_window = main_window
+        super().__init__(main_window)
 
-        super().__init__(self.actions)
         self.setStatusTip("Text justification")
         self.setToolTip("Text justification")
 
@@ -129,12 +124,11 @@ class RendererButton(MultiStateBitmapButton):
     """Cell render button for the format toolbar"""
 
     label = "Renderer Select"
-    actions = "text", "markup", "image", "matplotlib"
+    action_names = "text", "markup", "image", "matplotlib"
 
     def __init__(self, main_window):
-        self.main_window = main_window
+        super().__init__(main_window)
 
-        super().__init__(self.actions)
         self.setStatusTip("Cell render type")
         self.setToolTip("Cell render type")
 
@@ -143,12 +137,11 @@ class AlignmentButton(MultiStateBitmapButton):
     """Alignment button for the format toolbar"""
 
     label = "Alignment Buttons"
-    actions = "align_top", "align_center", "align_bottom"
+    action_names = "align_top", "align_center", "align_bottom"
 
     def __init__(self, main_window):
-        self.main_window = main_window
+        super().__init__(main_window)
 
-        super().__init__(self.actions)
         self.setStatusTip("Text alignment")
         self.setToolTip("Text alignment")
 
@@ -249,7 +242,7 @@ class TextColorButton(ColorButton):
     label = "Text Color"
 
     def __init__(self, color):
-        icon = Icon("text_color")
+        icon = Icon.text_color
         super().__init__(color, icon=icon)
 
         self.title = "Select text color"
@@ -263,7 +256,7 @@ class LineColorButton(ColorButton):
     label = "Line Color"
 
     def __init__(self, color):
-        icon = Icon("line_color")
+        icon = Icon.line_color
         super().__init__(color, icon=icon)
 
         self.title = "Select cell border line color"
@@ -277,7 +270,7 @@ class BackgroundColorButton(ColorButton):
     label = "Background Color"
 
     def __init__(self, color):
-        icon = Icon("background_color")
+        icon = Icon.background_color
         super().__init__(color, icon=icon)
 
         self.title = "Select cell background color"
