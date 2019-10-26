@@ -201,7 +201,6 @@ class FormatToolbar(QToolBar):
         self.addWidget(ToolBarManager(self))
 
 
-
 class ToolBarManager(QToolButton):
 
     def __init__(self, parentToolBar):
