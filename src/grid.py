@@ -62,8 +62,8 @@ from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
 from src.lib.qimage2ndarray import array2qimage
 from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
-from src.menubar import GridContextMenu, TableChoiceContextMenu
-from src.menubar import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
+from src.menus import GridContextMenu, TableChoiceContextMenu
+from src.menus import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
 
 
 class Grid(QTableView):

@@ -36,6 +36,7 @@ try:
 except ImportError:
     matplotlib_figure = None
 
+from actions import Action
 from icons import Icon
 
 
@@ -330,3 +331,30 @@ class TableChoiceContextMenu(QMenu):
 
         self.addAction(actions.insert_table)
         self.addAction(actions.delete_table)
+
+
+class ToolbarManagerMenu(QMenu):
+    """Menu with all actions of a toolbar that allows toggling visibility"""
+
+    def __init__(self, toolbar):
+        super().__init__()
+        self.toolbar = toolbar
+
+        for action in toolbar.actions():
+            if action.isSeparator():
+                self.addSeparator()
+            else:
+                self.addAction(self._get_toogle_action(action))
+
+    def _get_toogle_action(self, action):
+        """Returns a toggle actions for a QAction instance"""
+
+        toggle_action = Action(action, action.text(), self.on_toggled,
+                               icon=action.icon(), checkable=True)
+        toggle_action.setChecked(action.isVisible())
+        return toggle_action
+
+    def on_toggled(self, action, toggled):
+        """Action toggle ebent handler"""
+
+        action.parent().setVisible(toggled)

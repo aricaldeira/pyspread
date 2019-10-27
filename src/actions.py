@@ -25,6 +25,8 @@
 
 """
 
+from functools import partial
+
 from PyQt5.QtWidgets import QAction, QActionGroup
 from PyQt5.QtGui import QKeySequence
 
@@ -68,7 +70,7 @@ class Action(QAction):
             self.setStatusTip(statustip)
 
         for connect in callbacks:
-            self.triggered.connect(connect)
+            self.triggered.connect(partial(connect, self))
 
 
 class AttrDict(dict):

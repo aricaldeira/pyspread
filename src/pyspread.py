@@ -47,7 +47,7 @@ from src.settings import Settings
 from src.icons import Icon, IconPath
 from src.grid import Grid
 from src.entryline import Entryline
-from src.menubar import MenuBar
+from src.menus import MenuBar
 from src.toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
 from src.toolbar import WidgetToolbar
 from src.actions import MainWindowActions

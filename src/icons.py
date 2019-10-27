@@ -147,6 +147,9 @@ class IconPath:
     faq = ACTION_PATH / 'help-faq.svg'
     dependencies = ACTION_PATH / 'help-dependencies.svg'
 
+    # Toolbar icons
+    menu_manager = ACTION_PATH / 'menu-manager.svg'
+
     # Chart dialog template icons
     chart_pie_1_1 = CHARTS_PATH / 'chart_pie_1_1.svg'
     chart_ring_1_1 = CHARTS_PATH / 'chart_ring_1_1.svg'
