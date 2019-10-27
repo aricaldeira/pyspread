@@ -345,14 +345,19 @@ class ToolbarManagerMenu(QMenu):
                 self.addSeparator()
             else:
                 self.addAction(self._get_toogle_action(action))
+        self.update_checked_states()
 
     def _get_toogle_action(self, action):
         """Returns a toggle actions for a QAction instance"""
 
-        toggle_action = Action(action, action.text(), self.on_toggled,
-                               icon=action.icon(), checkable=True)
-        toggle_action.setChecked(action.isVisible())
-        return toggle_action
+        return Action(action, action.text(), self.on_toggled,
+                      icon=action.icon(), checkable=True)
+
+    def update_checked_states(self):
+        """Updates checked states"""
+
+        for tool_action, action in zip(self.toolbar.actions(), self.actions()):
+            action.setChecked(tool_action.isVisible())
 
     def on_toggled(self, action, toggled):
         """Action toggle ebent handler"""

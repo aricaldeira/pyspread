@@ -22,6 +22,7 @@
 from pathlib import Path
 
 from PyQt5.QtCore import QSettings
+from PyQt5.QtWidgets import QToolBar
 
 from src import VERSION, APP_NAME
 
@@ -130,6 +131,13 @@ class Settings:
                 settings.setValue(widget_state_name, widget.saveState())
             except AttributeError:
                 pass
+
+            if isinstance(widget, QToolBar):
+                toolbar_visibility_name = widget_name + '/visibility'
+                settings.value(toolbar_visibility_name, [], bool)
+                settings.setValue(toolbar_visibility_name,
+                                  [a.isVisible() for a in widget.actions()])
+
             if widget_name == "entry_line":
                 settings.setValue("entry_line_isvisible", widget.isVisible())
 
@@ -171,6 +179,14 @@ class Settings:
             widget_state = settings.value(widget_state_name)
             if widget_state:
                 widget.restoreState(widget_state)
+
+            if isinstance(widget, QToolBar):
+                toolbar_visibility_name = widget_name + '/visibility'
+                visibility = settings.value(toolbar_visibility_name)
+                for is_visible, action in zip(visibility, widget.actions()):
+                    action.setVisible(is_visible == 'true')
+                manager_button = widget.widgetForAction(widget.actions()[-1])
+                manager_button.menu().update_checked_states()
 
             if widget_name == "entry_line" \
                and settings.value("entry_line_isvisible") is not None:
