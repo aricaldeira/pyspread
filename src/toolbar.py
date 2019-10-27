@@ -33,9 +33,9 @@
 
 import functools
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QToolBar, QToolButton, QAction, QMenu, \
-    QHBoxLayout, QVBoxLayout, QGridLayout,  QUndoView, \
-    QWidget, QWidgetAction, QCheckBox, QLabel
+from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout,  QUndoView
+from PyQt5.QtWidgets import QWidget, QWidgetAction, QCheckBox, QLabel
 
 
 try:
@@ -45,6 +45,7 @@ except ImportError:
 
 from src.icons import Icon
 from src.actions import Action
+
 
 def add_toolbutton_widget(button, widget, minsize=(300, 200),
                           popup_mode=QToolButton.MenuButtonPopup):
@@ -73,36 +74,36 @@ class MainToolBar(QToolBar):
     def _create_toolbar(self, actions):
         """Fills the main toolbar with QActions"""
 
-        self.addAction(actions["new"])
-        self.addAction(actions["open"])
-        self.addAction(actions["save"])
-        self.addAction(actions["export"])
+        self.addAction(actions.new)
+        self.addAction(actions.open)
+        self.addAction(actions.save)
+        self.addAction(actions.export)
         self.addSeparator()
 
-        self.addAction(actions["undo"])
-        self.addAction(actions["redo"])
+        self.addAction(actions.undo)
+        self.addAction(actions.redo)
         self.addSeparator()
 
-        self.addAction(actions["toggle_spell_checker"])
+        self.addAction(actions.toggle_spell_checker)
         self.addSeparator()
 
-        self.addAction(actions["find"])
-        self.addAction(actions["replace"])
+        self.addAction(actions.find)
+        self.addAction(actions.replace)
         self.addSeparator()
 
-        self.addAction(actions["cut"])
-        self.addAction(actions["copy"])
-        self.addAction(actions["copy_results"])
-        self.addAction(actions["paste"])
-        self.addAction(actions["paste"])
+        self.addAction(actions.cut)
+        self.addAction(actions.copy)
+        self.addAction(actions.copy_results)
+        self.addAction(actions.paste)
+        self.addAction(actions.paste)
         self.addSeparator()
 
-        self.addAction(actions["freeze_cell"])
+        self.addAction(actions.freeze_cell)
         self.addSeparator()
 
-        self.addAction(actions["print"])
+        self.addAction(actions.print)
 
-        undo_button = self.widgetForAction(actions["undo"])
+        undo_button = self.widgetForAction(actions.undo)
         undo_view = QUndoView(self.main_window.undo_stack)
         add_toolbutton_widget(undo_button, undo_view)
 
@@ -140,15 +141,15 @@ class FormatToolbar(QToolBar):
         self.addWidget(self.main_window.widgets.font_combo)
         self.addWidget(self.main_window.widgets.font_size_combo)
 
-        self.addAction(actions["bold"])
-        self.addAction(actions["italics"])
-        self.addAction(actions["underline"])
-        self.addAction(actions["strikethrough"])
+        self.addAction(actions.bold)
+        self.addAction(actions.italics)
+        self.addAction(actions.underline)
+        self.addAction(actions.strikethrough)
 
         self.addSeparator()
 
         self.addWidget(self.main_window.widgets.renderer_button)
-        self.addAction(actions["merge_cells"])
+        self.addAction(actions.merge_cells)
 
         self.addSeparator()
 
@@ -193,8 +194,8 @@ class FormatToolbar(QToolBar):
 
         self.addSeparator()
 
-        self.addAction(actions["copy_format"])
-        self.addAction(actions["paste_format"])
+        self.addAction(actions.copy_format)
+        self.addAction(actions.paste_format)
 
         self.addSeparator()
 
@@ -211,13 +212,13 @@ class ToolBarManager(QToolButton):
         self.setToolTip("Toggle item visibility")
         self.setMenu(QMenu(self))
         self.setPopupMode(QToolButton.InstantPopup)
-        #self.setIcon(Icon("TODO"))
+        #  self.setIcon(Icon("TODO"))
         self.setFixedWidth(16)
 
         m = 0
         mainWidget = QWidget()
         mainlay = QVBoxLayout()
-        mainlay.setContentsMargins(m,m,m,m)
+        mainlay.setContentsMargins(m, m, m, m)
         mainWidget.setLayout(mainlay)
 
         lbl = QLabel("Set preferences for visibility")
@@ -226,7 +227,7 @@ class ToolBarManager(QToolButton):
 
         m = 5
         self.grid = QGridLayout()
-        self.grid.setContentsMargins(m,m,m,m)
+        self.grid.setContentsMargins(m, m, m, m)
         mainlay.addLayout(self.grid)
 
         self.create_widgets()
@@ -234,7 +235,6 @@ class ToolBarManager(QToolButton):
         widget_action = QWidgetAction(self)
         widget_action.setDefaultWidget(mainWidget)
         self.menu().addAction(widget_action)
-
 
     def create_widgets(self):
 
@@ -256,7 +256,7 @@ class ToolBarManager(QToolButton):
 
             if isinstance(obj, Action):
                 icon = QLabel()
-                icon.setPixmap(obj.icon().pixmap(QSize(16,16)))
+                icon.setPixmap(obj.icon().pixmap(QSize(16, 16)))
                 self.grid.addWidget(icon, ridx, 1)
                 lbl = QLabel(self)
                 lbl.setText(obj.text())
@@ -267,15 +267,15 @@ class ToolBarManager(QToolButton):
                 wid = obj.defaultWidget()
                 name = None
 
-                if hasattr(wid, "label"): #eg Custom Combos
+                if hasattr(wid, "label"):  # eg Custom Combos
                     name = wid.label
 
                 elif isinstance(wid, QToolButton):
                     name = wid.text()
 
                 else:
-                    print("ERROR: Not handled. set_toolbar()", wid.text(), self)
-
+                    print("ERROR: Not handled. set_toolbar()", wid.text(),
+                          self)
 
                 if hasattr(wid, "icon"):
                     icon = QLabel()
@@ -290,9 +290,9 @@ class ToolBarManager(QToolButton):
         self.grid.setRowStretch(1, 0)
         self.grid.setRowStretch(2, 3)
 
-
     def on_toggle(self, checkBox, srcObject):
         srcObject.setVisible(checkBox.isChecked())
+
 
 class MacroToolbar(QToolBar):
     """The macro toolbar for pyspread"""
@@ -306,10 +306,10 @@ class MacroToolbar(QToolBar):
     def _create_toolbar(self, actions):
         """Fills the macro toolbar with QActions"""
 
-        self.addAction(actions["insert_image"])
-        self.addAction(actions["link_image"])
+        self.addAction(actions.insert_image)
+        self.addAction(actions.link_image)
         if matplotlib_figure is not None:
-            self.addAction(actions["insert_chart"])
+            self.addAction(actions.insert_chart)
 
         self.addWidget(ToolBarManager(self))
 
@@ -341,20 +341,20 @@ class ChartTemplatesToolBar(QToolBar):
     def _create_toolbar(self, actions):
         """Fills the main toolbar with QActions"""
 
-        self.addAction(actions["chart_pie_1_1"])
-        self.addAction(actions["chart_ring_1_1"])
-        self.addAction(actions["chart_line_1_1"])
-        self.addAction(actions["chart_polar_1_1"])
-        self.addAction(actions["chart_area_1_1"])
-        self.addAction(actions["chart_column_1_1"])
-        self.addAction(actions["chart_column_1_2"])
-        self.addAction(actions["chart_bar_1_3"])
-        self.addAction(actions["chart_scatter_1_1"])
-        self.addAction(actions["chart_bubble_1_1"])
-        self.addAction(actions["chart_boxplot_2_2"])
-        self.addAction(actions["chart_histogram_1_1"])
-        self.addAction(actions["chart_histogram_1_4"])
-        self.addAction(actions["chart_scatterhist_1_1"])
-        self.addAction(actions["chart_matrix_1_1"])
-        self.addAction(actions["chart_contour_1_2"])
-        self.addAction(actions["chart_surface_2_1"])
+        self.addAction(actions.chart_pie_1_1)
+        self.addAction(actions.chart_ring_1_1)
+        self.addAction(actions.chart_line_1_1)
+        self.addAction(actions.chart_polar_1_1)
+        self.addAction(actions.chart_area_1_1)
+        self.addAction(actions.chart_column_1_1)
+        self.addAction(actions.chart_column_1_2)
+        self.addAction(actions.chart_bar_1_3)
+        self.addAction(actions.chart_scatter_1_1)
+        self.addAction(actions.chart_bubble_1_1)
+        self.addAction(actions.chart_boxplot_2_2)
+        self.addAction(actions.chart_histogram_1_1)
+        self.addAction(actions.chart_histogram_1_4)
+        self.addAction(actions.chart_scatterhist_1_1)
+        self.addAction(actions.chart_matrix_1_1)
+        self.addAction(actions.chart_contour_1_2)
+        self.addAction(actions.chart_surface_2_1)
