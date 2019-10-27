@@ -54,8 +54,8 @@ from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
 from src.commands import CommandInsertColumns, CommandDeleteRows
 from src.commands import CommandInsertTable, CommandDeleteTable
 from src.commands import CommandDeleteColumns, CommandSetCellMerge
-from src.commands import CommandSetCellRenderer, CommandSetRowHeight
-from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
+from src.commands import CommandSetCellRenderer, CommandSetRowsHeight
+from src.commands import CommandSetColumnsWidth, CommandSetCellTextAlignment
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -382,9 +382,16 @@ class Grid(QTableView):
 
         if self.__undo_resizing_row:  # Resize from undo or redo command
             return
-        description = "Resize row {} to {}".format(row, new_height)
-        command = CommandSetRowHeight(self, row, self.table, old_height,
-                                      new_height, description)
+
+        (top, _), (bottom, _) = self.selection.get_grid_bbox(self.model.shape)
+        if bottom - top > 1 and top <= row <= bottom:
+            rows = list(range(top, bottom + 1))
+        else:
+            rows = [row]
+
+        description = "Resize rows {} to {}".format(rows, new_height)
+        command = CommandSetRowsHeight(self, rows, self.table, old_height,
+                                       new_height, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
@@ -392,9 +399,16 @@ class Grid(QTableView):
 
         if self.__undo_resizing_column:  # Resize from undo or redo command
             return
-        description = "Resize column {} to {}".format(column, new_width)
-        command = CommandSetColumnWidth(self, column, self.table, old_width,
-                                        new_width, description)
+
+        (_, left), (_, right) = self.selection.get_grid_bbox(self.model.shape)
+        if right - left > 1 and left <= column <= right:
+            columns = list(range(left, right + 1))
+        else:
+            columns = [column]
+
+        description = "Resize columns {} to {}".format(columns, new_width)
+        command = CommandSetColumnsWidth(self, columns, self.table, old_width,
+                                         new_width, description)
         self.main_window.undo_stack.push(command)
 
     def on_zoom_in(self):
