@@ -70,7 +70,7 @@ class MenuBar(QMenuBar):
         file_menu.addAction(self.actions["save"])
         file_menu.addAction(self.actions["save_as"])
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["import"])
+        file_menu.addAction(self.actions["imprt"])
         file_menu.addAction(self.actions["export"])
         file_menu.addSeparator()
         file_menu.addAction(self.actions["approve"])
