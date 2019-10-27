@@ -277,3 +277,56 @@ class BorderWidthMenu(QMenu):
         self.addAction(actions.format_borders_16)
         self.addAction(actions.format_borders_32)
         self.addAction(actions.format_borders_64)
+
+
+class GridContextMenu(QMenu):
+    """Context menu for grid"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.cut)
+        self.addAction(actions.copy)
+        self.addAction(actions.copy_results)
+        self.addAction(actions.paste)
+        self.addAction(actions.paste_as)
+        self.addSeparator()
+        self.addAction(actions.quote)
+        self.addSeparator()
+        self.addAction(actions.insert_rows)
+        self.addAction(actions.insert_columns)
+        self.addAction(actions.insert_table)
+        self.addSeparator()
+        self.addAction(actions.delete_rows)
+        self.addAction(actions.delete_columns)
+        self.addAction(actions.delete_table)
+
+
+class HorizontalHeaderContextMenu(QMenu):
+    """Context menu for horizontal grid header"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.insert_columns)
+        self.addAction(actions.delete_columns)
+
+
+class VerticalHeaderContextMenu(QMenu):
+    """Context menu for vertical grid header"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.insert_rows)
+        self.addAction(actions.delete_rows)
+
+
+class TableChoiceContextMenu(QMenu):
+    """Context menu for table choice"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.insert_table)
+        self.addAction(actions.delete_table)

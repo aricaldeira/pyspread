@@ -245,7 +245,9 @@ class MainWindow(QMainWindow):
 
     def on_nothing(self):
         """Dummy action that does nothing"""
-        pass
+
+        sender = self.sender()
+        print("on_nothing > ", sender.text(), sender)
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""

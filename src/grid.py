@@ -62,6 +62,8 @@ from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
 from src.lib.qimage2ndarray import array2qimage
 from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
+from src.menubar import GridContextMenu, TableChoiceContextMenu
+from src.menubar import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
 
 
 class Grid(QTableView):
@@ -297,6 +299,12 @@ class Grid(QTableView):
                 self.on_zoom_out()
         else:
             super().wheelEvent(event)
+
+    def contextMenuEvent(self, event):
+        """Overrides contextMenuEvent to install GridContextMenu"""
+
+        menu = GridContextMenu(self.main_window.main_window_actions)
+        menu.exec_(self.mapToGlobal(event.pos()))
 
     # Helpers
 
@@ -1007,26 +1015,13 @@ class Grid(QTableView):
 class GridHeaderView(QHeaderView):
     """QHeaderView with zoom support"""
 
-    def __init__(self, orientation, parent):
-        super().__init__(orientation, parent)
+    def __init__(self, orientation, grid):
+        super().__init__(orientation, grid)
+        self.setSectionsClickable(True)
         self.default_section_size = self.defaultSectionSize()
-        self.grid = parent
+        self.grid = grid
 
-    def update_zoom(self):
-        """Updates zoom for the section sizes"""
-
-        with self.grid.undo_resizing_row():
-            with self.grid.undo_resizing_column():
-                self.setDefaultSectionSize(self.default_section_size
-                                           * self.grid.zoom)
-
-                if self.orientation() == Qt.Horizontal:
-                    section_sizes = self.grid.column_widths
-                else:
-                    section_sizes = self.grid.row_heights
-
-                for section, size in section_sizes:
-                    self.resizeSection(section, size * self.grid.zoom)
+    # Overrides
 
     def sizeHint(self):
         """Overrides sizeHint, which supports zoom"""
@@ -1052,6 +1047,39 @@ class GridHeaderView(QHeaderView):
         painter.scale(self.grid.zoom, self.grid.zoom)
         super().paintSection(painter, unzoomed_rect, logicalIndex)
         painter.restore()
+
+    def contextMenuEvent(self, event):
+        """Overrides contextMenuEvent
+
+        Installs HorizontalHeaderContextMenu or VerticalHeaderContextMenu
+        depending on self.orientation().
+
+        """
+
+        actions = self.grid.main_window.main_window_actions
+        if self.orientation() == Qt.Horizontal:
+            menu = HorizontalHeaderContextMenu(actions)
+        else:
+            menu = VerticalHeaderContextMenu(actions)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    # End of overrides
+
+    def update_zoom(self):
+        """Updates zoom for the section sizes"""
+
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.setDefaultSectionSize(self.default_section_size
+                                           * self.grid.zoom)
+
+                if self.orientation() == Qt.Horizontal:
+                    section_sizes = self.grid.column_widths
+                else:
+                    section_sizes = self.grid.row_heights
+
+                for section, size in section_sizes:
+                    self.resizeSection(section, size * self.grid.zoom)
 
 
 class GridTableModel(QAbstractTableModel):
@@ -1754,6 +1782,18 @@ class TableChoice(QTabBar):
         """Sets a new table to be displayed"""
 
         self.setCurrentIndex(value)
+
+    # Overrides
+
+    def contextMenuEvent(self, event):
+        """Overrides contextMenuEvent to install GridContextMenu"""
+
+        actions = self.grid.main_window.main_window_actions
+
+        menu = TableChoiceContextMenu(actions)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    # Event handlers
 
     def on_table_changed(self, current):
         """Event handler for table changes"""
