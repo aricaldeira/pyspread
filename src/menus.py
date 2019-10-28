@@ -29,14 +29,15 @@
 
 """
 
-from PyQt5.QtWidgets import QMenuBar, QMenu
+from functools import partial
+
+from PyQt5.QtWidgets import QMenuBar, QMenu, QAction
 
 try:
     import matplotlib.figure as matplotlib_figure
 except ImportError:
     matplotlib_figure = None
 
-from actions import Action
 from icons import Icon
 
 
@@ -350,8 +351,10 @@ class ToolbarManagerMenu(QMenu):
     def _get_toogle_action(self, action):
         """Returns a toggle actions for a QAction instance"""
 
-        return Action(action, action.text(), self.on_toggled,
-                      icon=action.icon(), checkable=True)
+        taction = QAction(action.icon(), action.text(), action, checkable=True)
+        taction.triggered.connect(partial(self.on_toggled, action))
+
+        return taction
 
     def update_checked_states(self):
         """Updates checked states"""
@@ -360,6 +363,6 @@ class ToolbarManagerMenu(QMenu):
             action.setChecked(tool_action.isVisible())
 
     def on_toggled(self, action, toggled):
-        """Action toggle ebent handler"""
+        """Action toggle event handler"""
 
-        action.parent().setVisible(toggled)
+        action.setVisible(toggled)

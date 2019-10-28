@@ -105,11 +105,16 @@ class RotationButton(MultiStateBitmapButton):
         self.setStatusTip("Text rotation")
         self.setToolTip("Text rotation")
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.rotate_0
+
 
 class JustificationButton(MultiStateBitmapButton):
     """Justification button for the format toolbar"""
 
-    label = "Text Justification"
+    label = "Justification"
     action_names = ("justify_left", "justify_center", "justify_right",
                     "justify_fill")
 
@@ -119,11 +124,16 @@ class JustificationButton(MultiStateBitmapButton):
         self.setStatusTip("Text justification")
         self.setToolTip("Text justification")
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.justify_left
+
 
 class RendererButton(MultiStateBitmapButton):
     """Cell render button for the format toolbar"""
 
-    label = "Renderer Select"
+    label = "Renderer"
     action_names = "text", "markup", "image", "matplotlib"
 
     def __init__(self, main_window):
@@ -132,11 +142,16 @@ class RendererButton(MultiStateBitmapButton):
         self.setStatusTip("Cell render type")
         self.setToolTip("Cell render type")
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.text
+
 
 class AlignmentButton(MultiStateBitmapButton):
     """Alignment button for the format toolbar"""
 
-    label = "Alignment Buttons"
+    label = "Alignment"
     action_names = "align_top", "align_center", "align_bottom"
 
     def __init__(self, main_window):
@@ -144,6 +159,11 @@ class AlignmentButton(MultiStateBitmapButton):
 
         self.setStatusTip("Text alignment")
         self.setToolTip("Text alignment")
+
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.align_top
 
 
 class ColorButton(QToolButton):
@@ -281,7 +301,7 @@ class BackgroundColorButton(ColorButton):
 class FontChoiceCombo(QFontComboBox):
     """Font choice combo box"""
 
-    label = "Font Family Combo"
+    label = "Font Family"
 
     fontChanged = pyqtSignal()
 
@@ -307,6 +327,11 @@ class FontChoiceCombo(QFontComboBox):
         self.setCurrentFont(QFont(font))
         self.currentFontChanged.connect(self.on_font)
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.font_dialog
+
     def on_font(self, font):
         """Font choice event handler"""
 
@@ -316,7 +341,7 @@ class FontChoiceCombo(QFontComboBox):
 class FontSizeCombo(QComboBox):
     """Font choice combo box"""
 
-    label = "Font Size Combo"
+    label = "Font Size"
     fontSizeChanged = pyqtSignal()
 
     def __init__(self, main_window):
@@ -347,6 +372,11 @@ class FontSizeCombo(QComboBox):
         self.currentTextChanged.disconnect(self.on_text)
         self.setCurrentText(str(size))
         self.currentTextChanged.connect(self.on_text)
+
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.font_dialog
 
     def on_text(self, size):
         """Font size choice event handler"""

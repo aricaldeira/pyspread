@@ -149,11 +149,22 @@ class FormatToolbar(ToolBarBase):
         self.setObjectName("Format Toolbar")
         self._create_toolbar(main_window.main_window_actions)
 
+    def add_widget(self, widget):
+        """Adds widget with addWidget and assigns action text and icon
+
+        The widget must have a label attribute and an icon method.
+
+        """
+
+        self.addWidget(widget)
+        self.actions()[-1].setText(widget.label)
+        self.actions()[-1].setIcon(widget.icon())
+
     def _create_toolbar(self, actions):
         """Fills the format toolbar with QActions"""
 
-        self.addWidget(self.main_window.widgets.font_combo)
-        self.addWidget(self.main_window.widgets.font_size_combo)
+        self.add_widget(self.main_window.widgets.font_combo)
+        self.add_widget(self.main_window.widgets.font_size_combo)
 
         self.addAction(actions.bold)
         self.addAction(actions.italics)
@@ -162,47 +173,49 @@ class FormatToolbar(ToolBarBase):
 
         self.addSeparator()
 
-        self.addWidget(self.main_window.widgets.renderer_button)
+        self.add_widget(self.main_window.widgets.renderer_button)
         self.addAction(actions.merge_cells)
 
         self.addSeparator()
 
-        self.addWidget(self.main_window.widgets.rotate_button)
-        self.addWidget(self.main_window.widgets.justify_button)
-        self.addWidget(self.main_window.widgets.align_button)
+        self.add_widget(self.main_window.widgets.rotate_button)
+        self.add_widget(self.main_window.widgets.justify_button)
+        self.add_widget(self.main_window.widgets.align_button)
 
         self.addSeparator()
 
         self.border_menu_button = QToolButton(self)
         self.border_menu_button.setText("Borders")
+        self.border_menu_button.label = "Borders"
         border_submenu = self.main_window.menuBar().border_submenu
         self.border_menu_button.setMenu(border_submenu)
         self.border_menu_button.setIcon(Icon.border_menu)
-        self.addWidget(self.border_menu_button)
+        self.add_widget(self.border_menu_button)
         self.border_menu_button.setPopupMode(QToolButton.InstantPopup)
 
         self.line_width_button = QToolButton(self)
         self.line_width_button.setText("Border Width")
+        self.line_width_button.label = "Border Width"
         line_width_submenu = self.main_window.menuBar().line_width_submenu
         self.line_width_button.setMenu(line_width_submenu)
         self.line_width_button.setIcon(Icon.format_borders)
-        self.addWidget(self.line_width_button)
+        self.add_widget(self.line_width_button)
         self.line_width_button.setPopupMode(QToolButton.InstantPopup)
 
         self.addSeparator()
 
         text_color_button = self.main_window.widgets.text_color_button
         text_color_button.set_max_size(self.iconSize())
-        self.addWidget(text_color_button)
+        self.add_widget(text_color_button)
 
         line_color_button = self.main_window.widgets.line_color_button
         line_color_button.set_max_size(self.iconSize())
-        self.addWidget(line_color_button)
+        self.add_widget(line_color_button)
 
         background_color_button = \
             self.main_window.widgets.background_color_button
         background_color_button.set_max_size(self.iconSize())
-        self.addWidget(background_color_button)
+        self.add_widget(background_color_button)
 
         self.addSeparator()
 
