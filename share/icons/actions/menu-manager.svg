@@ -10,8 +10,8 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.0"
    id="svg2"
-   height="147.36975"
-   width="57.905315"
+   height="160"
+   width="18.671875"
    sodipodi:docname="menu-manager.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <sodipodi:namedview
@@ -27,13 +27,13 @@
      inkscape:window-height="480"
      id="namedview153"
      showgrid="false"
-     fit-margin-top="0"
+     fit-margin-top="20"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0"
+     fit-margin-bottom="40"
      inkscape:zoom="1.6014141"
-     inkscape:cx="-3.8308677"
-     inkscape:cy="84.456975"
+     inkscape:cx="-45.303273"
+     inkscape:cy="75.794173"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -680,38 +680,13 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(-35.047342,11.684874)"
+     transform="translate(-54.664062,8)"
      id="layer1">
-    <g
-       transform="matrix(0.42604063,0,0,1.0586907,40.141724,-7.3442416)"
-       id="g3492">
-      <rect
-         y="7.5"
-         x="8"
-         height="116"
-         width="96"
-         id="rect3515"
-         style="opacity:0.45;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter3525)" />
-      <rect
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect3462"
-         width="96"
-         height="116"
-         x="8"
-         y="7.5" />
-      <rect
-         y="9.5"
-         x="10"
-         height="112"
-         width="92"
-         id="rect3510"
-         style="opacity:1;fill:url(#radialGradient3512);fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
     <rect
        ry="3.0524642"
        rx="0.71244037"

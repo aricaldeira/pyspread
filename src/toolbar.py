@@ -31,8 +31,8 @@
 
 """
 
-from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu
-from PyQt5.QtWidgets import QHBoxLayout, QUndoView
+from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu, QLineEdit
+from PyQt5.QtWidgets import QHBoxLayout, QUndoView, QSizePolicy
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -60,6 +60,17 @@ def add_toolbutton_widget(button, widget, minsize=(300, 200),
 class ToolBarBase(QToolBar):
     """Base toolbar class that provides toolbar manager button method"""
 
+    def add_widget(self, widget):
+        """Adds widget with addWidget and assigns action text and icon
+
+        The widget must have a label attribute and an icon method.
+
+        """
+
+        self.addWidget(widget)
+        self.actions()[-1].setText(widget.label)
+        self.actions()[-1].setIcon(widget.icon())
+
     def get_manager_button(self):
         """Returns QToolButton for managing the toolbar"""
 
@@ -67,7 +78,7 @@ class ToolBarBase(QToolBar):
         button.setText("Add/remove toolbar icons")
         button.setMenu(ToolbarManagerMenu(self))
         button.setIcon(Icon.menu_manager)
-        button.setFixedWidth(button.height()//2)
+        button.setFixedWidth(button.height()/3)
         button.setPopupMode(QToolButton.InstantPopup)
 
         return button
@@ -134,6 +145,14 @@ class FindToolbar(ToolBarBase):
     def _create_toolbar(self, actions):
         """Fills the find toolbar with QActions"""
 
+        find_editor = QLineEdit(self)
+        find_editor.label = "Find editor"
+        find_editor.icon = lambda: Icon.find_next
+        find_editor.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)
+        find_editor.setClearButtonEnabled(True)
+        find_editor.addAction(actions.find_next, QLineEdit.LeadingPosition)
+        self.add_widget(find_editor)
+
         self.addSeparator()
 
         self.addWidget(self.get_manager_button())
@@ -148,17 +167,6 @@ class FormatToolbar(ToolBarBase):
         self.main_window = main_window
         self.setObjectName("Format Toolbar")
         self._create_toolbar(main_window.main_window_actions)
-
-    def add_widget(self, widget):
-        """Adds widget with addWidget and assigns action text and icon
-
-        The widget must have a label attribute and an icon method.
-
-        """
-
-        self.addWidget(widget)
-        self.actions()[-1].setText(widget.label)
-        self.actions()[-1].setIcon(widget.icon())
 
     def _create_toolbar(self, actions):
         """Fills the format toolbar with QActions"""

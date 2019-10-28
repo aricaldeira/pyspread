@@ -64,6 +64,7 @@ class IconPath:
     paste_as = ACTION_PATH / 'edit-paste-as.svg'
     select_all = ACTION_PATH / 'edit-select-all.svg'
     find = ACTION_PATH / 'edit-find.svg'
+    find_next = ACTION_PATH / 'edit-find-next.svg'
     replace = ACTION_PATH / 'edit-find-replace.svg'
     quote = ACTION_PATH / 'edit-quote.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'

@@ -213,12 +213,18 @@ class MainWindowActions(AttrDict):
                                icon=Icon.paste_as,
                                shortcut='Shift+Ctrl+v',
                                statustip='Transform clipboard and paste '
-                                            'results')
+                                         'results')
 
-        self.find = Action(self.parent, "&Find", self.parent.on_nothing,
+        self.find = Action(self.parent, "&Find...", self.parent.on_nothing,
                            icon=Icon.find,
                            shortcut='Ctrl+f',
-                           statustip='Find cell by content')
+                           statustip='Find dialog')
+
+        self.find_next = Action(self.parent, "&Find next",
+                                self.parent.on_nothing,
+                                icon=Icon.find_next,
+                                shortcut='F3',
+                                statustip='Find next matching cell')
 
         self.replace = Action(self.parent, "&Replace...",
                               self.parent.on_nothing,
