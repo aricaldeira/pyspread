@@ -228,7 +228,7 @@ class MainWindowActions(AttrDict):
                                 statustip='Find next matching cell')
 
         self.replace = Action(self.parent, "&Replace...",
-                              self.parent.on_nothing,
+                              self.parent.workflows.edit_replace,
                               icon=Icon.replace,
                               shortcut='Shift+Ctrl+f',
                               statustip='Replace sub-strings in cells')

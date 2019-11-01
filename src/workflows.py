@@ -51,7 +51,7 @@ from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandSetGridSize
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
-from src.dialogs import CellKeyDialog, FindDialog
+from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -768,6 +768,14 @@ class Workflows:
             grid.current = next_match
             msg = "String {} found in cell {}.".format(find_string, next_match)
             self.main_window.statusBar().showMessage(msg)
+
+    def edit_replace(self):
+        """Edit -> Replace workflow, opens ReplaceDialog"""
+
+        find_dialog = ReplaceDialog(self.main_window)
+        find_dialog.show()
+        find_dialog.raise_()
+        find_dialog.activateWindow()
 
     def edit_resize(self):
         """Edit -> Resize workflow"""

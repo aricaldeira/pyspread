@@ -514,31 +514,32 @@ class FindDialog(QDialog):
     def _layout(self):
         """Find dialog layout"""
 
-        extension_layout = QVBoxLayout()
-        extension_layout.setContentsMargins(0, 0, 0, 0)
-        extension_layout.addWidget(self.backward_checkbox)
-        extension_layout.addWidget(self.word_checkbox)
-        extension_layout.addWidget(self.regex_checkbox)
-        extension_layout.addWidget(self.from_start_checkbox)
-        self.extension.setLayout(extension_layout)
+        self.extension_layout = QVBoxLayout()
+        self.extension_layout.setContentsMargins(0, 0, 0, 0)
+        self.extension_layout.addWidget(self.backward_checkbox)
+        self.extension_layout.addWidget(self.word_checkbox)
+        self.extension_layout.addWidget(self.regex_checkbox)
+        self.extension_layout.addWidget(self.from_start_checkbox)
+        self.extension.setLayout(self.extension_layout)
 
-        search_text_layout = QHBoxLayout()
-        search_text_layout.addWidget(self.search_text_label)
-        search_text_layout.addWidget(self.search_text_editor)
+        self.text_layout = QGridLayout()
+        self.text_layout.addWidget(self.search_text_label, 0, 0)
+        self.text_layout.addWidget(self.search_text_editor, 0, 1)
+        self.text_layout.setColumnStretch(0, 1)
 
-        search_layout = QVBoxLayout()
-        search_layout.addLayout(search_text_layout)
-        search_layout.addWidget(self.case_checkbox)
-        search_layout.addWidget(self.results_checkbox)
+        self.search_layout = QVBoxLayout()
+        self.search_layout.addLayout(self.text_layout)
+        self.search_layout.addWidget(self.case_checkbox)
+        self.search_layout.addWidget(self.results_checkbox)
 
-        main_layout = QGridLayout()
-        main_layout.setSizeConstraint(QLayout.SetFixedSize)
-        main_layout.addLayout(search_layout, 0, 0)
-        main_layout.addWidget(self.button_box, 0, 1)
-        main_layout.addWidget(self.extension, 1, 0, 1, 2)
-        main_layout.setRowStretch(2, 1)
+        self.main_layout = QGridLayout()
+        self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
+        self.main_layout.addLayout(self.search_layout, 0, 0)
+        self.main_layout.addWidget(self.button_box, 0, 1)
+        self.main_layout.addWidget(self.extension, 1, 0, 1, 2)
+        self.main_layout.setRowStretch(2, 1)
 
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
 
     def restore(self, state):
         """Restores state from FindDialogState"""
@@ -568,6 +569,30 @@ class FindDialog(QDialog):
         self.main_window.settings.find_dialog_state = state
 
         super().closeEvent(event)
+
+
+class ReplaceDialog(FindDialog):
+    """Replace dialog that is launched from the main menu"""
+
+    def __init__(self, main_window):
+        super().__init__(main_window)
+
+        self.setWindowTitle("Replace")
+
+        self.replace_text_label = QLabel("Replace with:")
+        self.replace_text_editor = QLineEdit()
+        self.replace_text_label.setBuddy(self.replace_text_editor)
+
+        self.text_layout.addWidget(self.replace_text_label, 1, 0)
+        self.text_layout.addWidget(self.replace_text_editor, 1, 1)
+
+        self.replace_button = QPushButton("&Replace")
+        self.replace_all_button = QPushButton("Replace &all")
+
+        self.button_box.addButton(self.replace_button,
+                                  QDialogButtonBox.ActionRole)
+        self.button_box.addButton(self.replace_all_button,
+                                  QDialogButtonBox.ActionRole)
 
 
 class ChartDialog(QDialog):
