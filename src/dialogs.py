@@ -32,14 +32,20 @@
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
  * :class:`ImageFileOpenDialog`
+ * :class:`FindDialog`
  * :class:`ChartDialog`
 
 """
 
-from PyQt5.QtCore import Qt
+from dataclasses import dataclass
+from functools import partial
+
+from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
+from PyQt5.QtWidgets import QCheckBox, QGridLayout, QHBoxLayout, QLayout
+from PyQt5.QtWidgets import QPushButton, QWidget
 from PyQt5.QtGui import QIntValidator, QImageWriter
 
 try:
@@ -434,6 +440,134 @@ class ImageFileOpenDialog(FileDialogBase):
                                         self.title,
                                         str(path),
                                         self.name_filter)
+
+
+@dataclass
+class FindDialogState:
+    """Dataclass for FindDialog state storage"""
+
+    pos: QPoint
+    case: bool
+    results: bool
+    more: bool
+    backward: bool
+    word: bool
+    regex: bool
+    start: bool
+
+
+class FindDialog(QDialog):
+    """Find dialog that is launched from the main menu"""
+
+    def __init__(self, main_window):
+        super().__init__(main_window)
+
+        self.main_window = main_window
+        workflows = main_window.workflows
+
+        self._create_widgets()
+        self._layout()
+
+        self.setWindowTitle("Find")
+
+        self.extension.hide()
+
+        self.more_button.toggled.connect(self.extension.setVisible)
+        self.find_button.clicked.connect(
+                partial(workflows.find_dialog_on_find, self))
+
+        # Restore state
+        state = self.main_window.settings.find_dialog_state
+        if state is not None:
+            self.restore(state)
+
+    def _create_widgets(self):
+        """Create find dialog widgets"""
+
+        self.search_text_label = QLabel("Search for:")
+        self.search_text_editor = QLineEdit()
+        self.search_text_label.setBuddy(self.search_text_editor)
+
+        self.case_checkbox = QCheckBox("Match &case")
+        self.results_checkbox = QCheckBox("Code and &results")
+
+        self.find_button = QPushButton("&Find")
+        self.find_button.setDefault(True)
+
+        self.more_button = QPushButton("&More")
+        self.more_button.setCheckable(True)
+        self.more_button.setAutoDefault(False)
+
+        self.extension = QWidget()
+
+        self.backward_checkbox = QCheckBox("&Backward")
+        self.word_checkbox = QCheckBox("&Whole words")
+        self.regex_checkbox = QCheckBox("Regular e&xpression")
+        self.from_start_checkbox = QCheckBox("From &start")
+
+        self.button_box = QDialogButtonBox(Qt.Vertical)
+        self.button_box.addButton(self.find_button,
+                                  QDialogButtonBox.ActionRole)
+        self.button_box.addButton(self.more_button,
+                                  QDialogButtonBox.ActionRole)
+
+    def _layout(self):
+        """Find dialog layout"""
+
+        extension_layout = QVBoxLayout()
+        extension_layout.setContentsMargins(0, 0, 0, 0)
+        extension_layout.addWidget(self.backward_checkbox)
+        extension_layout.addWidget(self.word_checkbox)
+        extension_layout.addWidget(self.regex_checkbox)
+        extension_layout.addWidget(self.from_start_checkbox)
+        self.extension.setLayout(extension_layout)
+
+        search_text_layout = QHBoxLayout()
+        search_text_layout.addWidget(self.search_text_label)
+        search_text_layout.addWidget(self.search_text_editor)
+
+        search_layout = QVBoxLayout()
+        search_layout.addLayout(search_text_layout)
+        search_layout.addWidget(self.case_checkbox)
+        search_layout.addWidget(self.results_checkbox)
+
+        main_layout = QGridLayout()
+        main_layout.setSizeConstraint(QLayout.SetFixedSize)
+        main_layout.addLayout(search_layout, 0, 0)
+        main_layout.addWidget(self.button_box, 0, 1)
+        main_layout.addWidget(self.extension, 1, 0, 1, 2)
+        main_layout.setRowStretch(2, 1)
+
+        self.setLayout(main_layout)
+
+    def restore(self, state):
+        """Restores state from FindDialogState"""
+
+        self.move(state.pos)
+        self.case_checkbox.setChecked(state.case)
+        self.results_checkbox.setChecked(state.results)
+        self.more_button.setChecked(state.more)
+        self.backward_checkbox.setChecked(state.backward)
+        self.word_checkbox.setChecked(state.word)
+        self.regex_checkbox.setChecked(state.regex)
+        self.from_start_checkbox.setChecked(state.start)
+
+    # Overrides
+
+    def closeEvent(self, event):
+        """Store state for next invocation and close"""
+
+        state = FindDialogState(pos=self.pos(),
+                                case=self.case_checkbox.isChecked(),
+                                results=self.results_checkbox.isChecked(),
+                                more=self.more_button.isChecked(),
+                                backward=self.backward_checkbox.isChecked(),
+                                word=self.word_checkbox.isChecked(),
+                                regex=self.regex_checkbox.isChecked(),
+                                start=self.from_start_checkbox.isChecked())
+        self.main_window.settings.find_dialog_state = state
+
+        super().closeEvent(event)
 
 
 class ChartDialog(QDialog):

@@ -450,38 +450,35 @@ class FindEditor(QLineEdit):
     def prepend_actions(self, menu):
         """Prepends find specific actions to menu"""
 
-        toggle_up = Action(self, "Search upwards",
-                           self.on_toggle_up, checkable=True,
-                           statustip='Search up-/downwards in find toolbar')
-
-        toggle_word = Action(self, "Whole word search",
-                             self.on_toggle_word, checkable=True,
-                             statustip='Full word only search in find toolbar')
-
-        toggle_case = Action(self, "Case sensitive search",
+        toggle_case = Action(self, "Match &case",
                              self.on_toggle_case, checkable=True,
-                             statustip='Search case sensitive in find toolbar')
+                             statustip='Match case in search')
 
-        toggle_regexp = Action(self, "Regular expression search",
-                               self.on_toggle_regexp, checkable=True,
-                               statustip='Search in find toolbar using '
-                                         'regular expression')
-
-        toggle_results = Action(self, "Code and results search",
+        toggle_results = Action(self, "Code and results",
                                 self.on_toggle_results, checkable=True,
-                                statustip='Search in find toolbar also '
-                                          'considers string representations '
-                                          'of result objects.\nThis option '
-                                          'may slow down searches.')
+                                statustip='Search also considers string '
+                                          'representations of result objects.')
 
+        toggle_up = Action(self, "Search &backward",
+                           self.on_toggle_up, checkable=True,
+                           statustip='Search fore-/backwards')
+
+        toggle_word = Action(self, "&Whole words",
+                             self.on_toggle_word, checkable=True,
+                             statustip='Whole word search')
+
+        toggle_regexp = Action(self, "Regular expression",
+                               self.on_toggle_regexp, checkable=True,
+                               statustip='Regular expression search')
+
+        toggle_case.setChecked(self.case)
+        toggle_results.setChecked(self.results)
         toggle_up.setChecked(self.up)
         toggle_word.setChecked(self.word)
-        toggle_case.setChecked(self.case)
         toggle_regexp.setChecked(self.regexp)
-        toggle_results.setChecked(self.results)
 
-        actions = (toggle_up, toggle_word, toggle_case, toggle_regexp,
-                   toggle_results)
+        actions = (toggle_case, toggle_results, toggle_up, toggle_word,
+                   toggle_regexp)
         menu.insertActions(menu.actions()[0], actions)
 
     def on_context_menu(self, point):

@@ -51,7 +51,7 @@ from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandSetGridSize
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
-from src.dialogs import CellKeyDialog
+from src.dialogs import CellKeyDialog, FindDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -703,6 +703,46 @@ class Workflows:
         else:
             # Unknown mime type
             return NotImplemented
+
+    def edit_find(self):
+        """Edit -> Find workflow, opens FindDialog"""
+
+        find_dialog = FindDialog(self.main_window)
+        find_dialog.show()
+        find_dialog.raise_()
+        find_dialog.activateWindow()
+
+    def find_dialog_on_find(self, find_dialog):
+        """Edit -> Find workflow, after pressing find button in FindDialog"""
+
+        grid = self.main_window.grid
+        findnextmatch = grid.model.code_array.findnextmatch
+
+        find_editor = find_dialog.search_text_editor
+        find_string = find_editor.text()
+
+        if find_dialog.from_start_checkbox.isChecked():
+            start_key = 0, 0, grid.table
+        elif find_dialog.backward_checkbox.isChecked():
+            start_key = grid.row - 1, grid.column, grid.table
+        else:
+            start_key = grid.row + 1, grid.column, grid.table
+
+        next_match = findnextmatch(
+            start_key, find_string,
+            up=find_dialog.backward_checkbox.isChecked(),
+            word=find_dialog.word_checkbox.isChecked(),
+            case=find_dialog.case_checkbox.isChecked(),
+            regexp=find_dialog.regex_checkbox.isChecked(),
+            results=find_dialog.results_checkbox.isChecked())
+
+        if next_match:
+            grid.current = next_match
+            msg = "String {} found in cell {}.".format(find_string, next_match)
+            self.main_window.statusBar().showMessage(msg)
+
+            if find_dialog.from_start_checkbox.isChecked():
+                find_dialog.from_start_checkbox.setChecked(False)
 
     def edit_find_next(self):
         """Edit -> Find next workflow"""

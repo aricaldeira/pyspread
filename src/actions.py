@@ -216,7 +216,7 @@ class MainWindowActions(AttrDict):
                                          'results')
 
         self.find = Action(self.parent, "&Find...",
-                           self.parent.on_nothing,
+                           self.parent.workflows.edit_find,
                            icon=Icon.find,
                            shortcut='Ctrl+f',
                            statustip='Find dialog')

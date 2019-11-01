@@ -70,6 +70,9 @@ class Settings:
     # If `True` then frozen cell background is striped
     show_frozen = False
 
+    # Find dialog state - needs to be stored when dialog is closed
+    find_dialog_state = None
+
     # Number of bytes for csv sniffer
     # sniff_size should be larger than 1st+2nd line
     sniff_size = 65536  # TODO
