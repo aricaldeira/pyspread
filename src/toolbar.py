@@ -32,7 +32,7 @@
 """
 
 from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu, QLineEdit
-from PyQt5.QtWidgets import QHBoxLayout, QUndoView, QSizePolicy
+from PyQt5.QtWidgets import QHBoxLayout, QUndoView
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -41,6 +41,7 @@ except ImportError:
 
 from src.icons import Icon
 from src.menus import ToolbarManagerMenu
+from src.widgets import FindEditor
 
 
 def add_toolbutton_widget(button, widget, minsize=(300, 200),
@@ -146,18 +147,10 @@ class FindToolbar(ToolBarBase):
     def _create_toolbar(self, actions):
         """Fills the find toolbar with QActions"""
 
-        self.find_editor = find_editor = QLineEdit(self)
-        find_editor.label = "Find editor"
-        find_editor.icon = lambda: Icon.find_next
-        find_editor.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)
-        find_editor.setClearButtonEnabled(True)
-        find_editor.addAction(actions.find_next, QLineEdit.LeadingPosition)
-        self.add_widget(find_editor)
-        self.addSeparator()
-        self.addWidget(self.get_manager_button())
+        self.find_editor = FindEditor(self)
 
-        workflows = self.main_window.workflows
-        find_editor.returnPressed.connect(workflows.edit_find_next)
+        self.add_widget(self.find_editor)
+        self.addWidget(self.get_manager_button())
 
 
 class FormatToolbar(ToolBarBase):

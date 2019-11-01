@@ -1446,7 +1446,7 @@ class CodeArray(DataArray):
             return pos
 
     def findnextmatch(self, startkey, find_string, up=False, word=False,
-                      case=False, regexp=False, result=True):
+                      case=False, regexp=False, results=True):
         """the position of the next match of find_string
 
         :param startkey: 3-tuple of int, start position of search
@@ -1455,14 +1455,14 @@ class CodeArray(DataArray):
         :param word: Bool, defaults to False, search full words only if True
         :param case: Bool, defaults to False, search case sensitively if True
         :param regexp: Bool, defaults to False, reg. expression search if True
-        :param search_result: Bool, defaults to True. search includes result
+        :param results: Bool, defaults to True. search includes result
         string if True (slower)
         :rtype: str or None
         :return:  Returns a tuple with the position of the next match of
         find_string
         """
 
-        if result:
+        if results:
             def is_matching(key, find_string, word, case, regexp):
                 code = self(key)
                 pos = self.string_match(code, find_string, word, case, regexp)

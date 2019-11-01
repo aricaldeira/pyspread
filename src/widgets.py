@@ -20,9 +20,11 @@
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QToolButton, QColorDialog, QFontComboBox, QComboBox
+from PyQt5.QtWidgets import QSizePolicy, QLineEdit
 from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
-from icons import Icon
+from src.actions import Action
+from src.icons import Icon
 
 
 class MultiStateBitmapButton(QToolButton):
@@ -417,3 +419,100 @@ class Widgets:
         self.rotate_button = RotationButton(main_window)
         self.justify_button = JustificationButton(main_window)
         self.align_button = AlignmentButton(main_window)
+
+
+class FindEditor(QLineEdit):
+    """The Find editor widget for the find toolbar"""
+
+    up = False
+    word = False
+    case = False
+    regexp = False
+    results = False
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.actions = parent.main_window.main_window_actions
+
+        self.label = "Find editor"
+        self.icon = lambda: Icon.find_next
+        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)
+        self.setClearButtonEnabled(True)
+        self.addAction(self.actions.find_next, QLineEdit.LeadingPosition)
+
+        workflows = parent.main_window.workflows
+        self.returnPressed.connect(workflows.edit_find_next)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_context_menu)
+
+    def prepend_actions(self, menu):
+        """Prepends find specific actions to menu"""
+
+        toggle_up = Action(self, "Search upwards",
+                           self.on_toggle_up, checkable=True,
+                           statustip='Search up-/downwards in find toolbar')
+
+        toggle_word = Action(self, "Whole word search",
+                             self.on_toggle_word, checkable=True,
+                             statustip='Full word only search in find toolbar')
+
+        toggle_case = Action(self, "Case sensitive search",
+                             self.on_toggle_case, checkable=True,
+                             statustip='Search case sensitive in find toolbar')
+
+        toggle_regexp = Action(self, "Regular expression search",
+                               self.on_toggle_regexp, checkable=True,
+                               statustip='Search in find toolbar using '
+                                         'regular expression')
+
+        toggle_results = Action(self, "Code and results search",
+                                self.on_toggle_results, checkable=True,
+                                statustip='Search in find toolbar also '
+                                          'considers string representations '
+                                          'of result objects.\nThis option '
+                                          'may slow down searches.')
+
+        toggle_up.setChecked(self.up)
+        toggle_word.setChecked(self.word)
+        toggle_case.setChecked(self.case)
+        toggle_regexp.setChecked(self.regexp)
+        toggle_results.setChecked(self.results)
+
+        actions = (toggle_up, toggle_word, toggle_case, toggle_regexp,
+                   toggle_results)
+        menu.insertActions(menu.actions()[0], actions)
+
+    def on_context_menu(self, point):
+        """Context menu event handler"""
+
+        menu = self.createStandardContextMenu()
+        menu.insertSeparator(menu.actions()[0])
+        self.prepend_actions(menu)
+        menu.exec(self.mapToGlobal(point))
+
+    def on_toggle_up(self, toggled):
+        """Find upwards toggle event handler"""
+
+        self.up = toggled
+
+    def on_toggle_word(self, toggled):
+        """Find whole word toggle event handler"""
+
+        self.word = toggled
+
+    def on_toggle_case(self, toggled):
+        """Find case sensitively toggle event handler"""
+
+        self.case = toggled
+
+    def on_toggle_regexp(self, toggled):
+        """Find with regular expression toggle event handler"""
+
+        self.regexp = toggled
+
+    def on_toggle_results(self, toggled):
+        """Find in results toggle event handler"""
+
+        self.results = toggled

@@ -709,15 +709,21 @@ class Workflows:
 
         grid = self.main_window.grid
         findnextmatch = grid.model.code_array.findnextmatch
-        start_key = grid.row + 1, grid.column, grid.table
 
         find_editor = self.main_window.find_toolbar.find_editor
         find_string = find_editor.text()
 
-        # TODO: Get vflags and change start key if search direction is up
+        if find_editor.up:
+            start_key = grid.row - 1, grid.column, grid.table
+        else:
+            start_key = grid.row + 1, grid.column, grid.table
 
-        next_match = findnextmatch(start_key, find_string)
-
+        next_match = findnextmatch(start_key, find_string,
+                                   up=find_editor.up,
+                                   word=find_editor.word,
+                                   case=find_editor.case,
+                                   regexp=find_editor.regexp,
+                                   results=find_editor.results)
         if next_match:
             grid.current = next_match
 
