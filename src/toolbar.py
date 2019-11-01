@@ -150,6 +150,7 @@ class FindToolbar(ToolBarBase):
         self.find_editor = FindEditor(self)
 
         self.add_widget(self.find_editor)
+        self.addAction(actions.replace)
         self.addWidget(self.get_manager_button())
 
 

@@ -726,6 +726,8 @@ class Workflows:
                                    results=find_editor.results)
         if next_match:
             grid.current = next_match
+            msg = "String {} found in cell {}.".format(find_string, next_match)
+            self.main_window.statusBar().showMessage(msg)
 
     def edit_resize(self):
         """Edit -> Resize workflow"""
