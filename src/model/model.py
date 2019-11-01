@@ -1405,37 +1405,33 @@ class CodeArray(DataArray):
         for key in searchkeys:
             yield key
 
-    def string_match(self, datastring, findstring, flags=None):
+    def string_match(self, datastring, findstring, word, case, regexp):
+        """Returns position of findstring in datastring or None if not found
+
+        :param word: Bool, search full words only if True
+        :param case: Bool, search case sensitively if True
+        :param regexp: Bool, reg. expression search if True
+        :rtype: int or None
+        :return:  Returns position of findstring in datastring
+        or None if not found
+
         """
-        Returns position of findstring in datastring or None if not found.
 
-        Flags is a list of strings. Supported strings are:
+        if not isinstance(datastring, str):  # Empty cell
+            return
 
-        * MATCH_CASE - The case has to match for valid find
-        * WHOLE_WORD: The word has to be surrounded by whitespace characters
-          if in the middle of the string
-        * REG_EXP:    A regular expression is evaluated.
-
-        """
-
-        if type(datastring) is int:  # Empty cell
-            return None
-
-        if flags is None:
-            flags = []
-
-        if "REG_EXP" in flags:
+        if regexp:
             match = re.search(findstring, datastring)
             if match is None:
                 pos = -1
             else:
                 pos = match.start()
         else:
-            if "MATCH_CASE" not in flags:
+            if not case:
                 datastring = datastring.lower()
                 findstring = findstring.lower()
 
-            if "WHOLE_WORD" in flags:
+            if word:
                 pos = -1
                 matchstring = r'\b' + findstring + r'+\b'
                 for match in re.finditer(matchstring, datastring):
@@ -1449,46 +1445,46 @@ class CodeArray(DataArray):
         else:
             return pos
 
-    def findnextmatch(self, startkey, find_string, flags, search_result=True):
+    def findnextmatch(self, startkey, find_string, up=False, word=False,
+                      case=False, regexp=False, result=True):
         """the position of the next match of find_string
 
-        :param startkey:   Start position of search
+        :param startkey: 3-tuple of int, start position of search
         :param find_string: String to be searched for
-        :param flags:  List of strings, out of
-        ["UP" xor "DOWN", "WHOLE_WORD", "MATCH_CASE", "REG_EXP"]
-        :param search_result: Bool, defaults to True.
-        If True then the search includes the result string (slower)
+        :param up: Bool, defaults to False, search up instead of down if True
+        :param word: Bool, defaults to False, search full words only if True
+        :param case: Bool, defaults to False, search case sensitively if True
+        :param regexp: Bool, defaults to False, reg. expression search if True
+        :param search_result: Bool, defaults to True. search includes result
+        string if True (slower)
         :rtype: str or None
         :return:  Returns a tuple with the position of the next match of
         find_string
         """
 
-        assert "UP" in flags or "DOWN" in flags
-        assert not ("UP" in flags and "DOWN" in flags)
-
-        if search_result:
-            def is_matching(key, find_string, flags):
+        if result:
+            def is_matching(key, find_string, word, case, regexp):
                 code = self(key)
-                if self.string_match(code, find_string, flags) is not None:
+                pos = self.string_match(code, find_string, word, case, regexp)
+                if pos is not None:
                     return True
                 else:
                     res_str = str(self[key])
-                    return self.string_match(res_str, find_string, flags) \
-                        is not None
+                    pos = self.string_match(res_str, find_string, word, case,
+                                            regexp)
+                    return pos is not None
 
         else:
-            def is_matching(code, find_string, flags):
+            def is_matching(code, find_string, word, case, regexp):
                 code = self(key)
-                return self.string_match(code, find_string, flags) is not None
+                pos = self.string_match(code, find_string, word, case, regexp)
+                return pos is not None
 
         # List of keys in sgrid in search order
 
-        reverse = "UP" in flags
-
-        for key in self._sorted_keys(list(self.keys()), startkey,
-                                     reverse=reverse):
+        for key in self._sorted_keys(list(self.keys()), startkey, reverse=up):
             try:
-                if is_matching(key, find_string, flags):
+                if is_matching(key, find_string, word, case, regexp):
                     return key
 
             except Exception:
