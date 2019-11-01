@@ -345,10 +345,10 @@ class ToolbarManagerMenu(QMenu):
             if action.isSeparator():
                 self.addSeparator()
             else:
-                self.addAction(self._get_toogle_action(action))
+                self.addAction(self._get_toggle_action(action))
         self.update_checked_states()
 
-    def _get_toogle_action(self, action):
+    def _get_toggle_action(self, action):
         """Returns a toggle actions for a QAction instance"""
 
         taction = QAction(action.icon(), action.text(), action, checkable=True)

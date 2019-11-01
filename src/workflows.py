@@ -33,6 +33,7 @@ import io
 import os.path
 from pathlib import Path
 from shutil import move
+import sys
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer
@@ -348,7 +349,8 @@ class Workflows:
     def file_quit(self):
         """Program exit workflow"""
 
-        pass
+        self.main_window.settings.save()
+        sys.exit()
 
     # Edit menu
 
@@ -738,7 +740,7 @@ class Workflows:
             command = CommandSetGridSize(grid, old_shape, shape, description)
             self.main_window.undo_stack.push(command)
 
-        # Select upper left cell because initial selection behaves strange
+        # Select upper left cell because initial selection behaves strangely
         self.main_window.grid.reset_selection()
 
     # View menu
