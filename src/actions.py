@@ -215,13 +215,14 @@ class MainWindowActions(AttrDict):
                                statustip='Transform clipboard and paste '
                                          'results')
 
-        self.find = Action(self.parent, "&Find...", self.parent.on_nothing,
+        self.find = Action(self.parent, "&Find...",
+                           self.parent.on_nothing,
                            icon=Icon.find,
                            shortcut='Ctrl+f',
                            statustip='Find dialog')
 
         self.find_next = Action(self.parent, "&Find next",
-                                self.parent.on_nothing,
+                                self.parent.workflows.edit_find_next,
                                 icon=Icon.find_next,
                                 shortcut='F3',
                                 statustip='Find next matching cell')

@@ -145,7 +145,7 @@ class FindToolbar(ToolBarBase):
     def _create_toolbar(self, actions):
         """Fills the find toolbar with QActions"""
 
-        find_editor = QLineEdit(self)
+        self.find_editor = find_editor = QLineEdit(self)
         find_editor.label = "Find editor"
         find_editor.icon = lambda: Icon.find_next
         find_editor.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)

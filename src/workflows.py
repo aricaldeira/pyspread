@@ -33,7 +33,6 @@ import io
 import os.path
 from pathlib import Path
 from shutil import move
-import sys
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer
@@ -348,9 +347,8 @@ class Workflows:
     @handle_changed_since_save
     def file_quit(self):
         """Program exit workflow"""
-        #sys.exit()
-        pass
 
+        pass
 
     # Edit menu
 
@@ -703,6 +701,22 @@ class Workflows:
         else:
             # Unknown mime type
             return NotImplemented
+
+    def edit_find_next(self):
+        """Edit -> Find next workflow"""
+
+        grid = self.main_window.grid
+        findnextmatch = grid.model.code_array.findnextmatch
+        start_key = grid.row + 1, grid.column, grid.table
+
+        find_editor = self.main_window.find_toolbar.find_editor
+        find_string = find_editor.text()
+
+        # TODO: Get vflags and change start key if search direction is up
+
+        next_match = findnextmatch(start_key, find_string)
+
+        grid.current = next_match
 
     def edit_resize(self):
         """Edit -> Resize workflow"""

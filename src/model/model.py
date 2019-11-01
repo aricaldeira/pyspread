@@ -1482,7 +1482,10 @@ class CodeArray(DataArray):
 
         # List of keys in sgrid in search order
 
-        for key in self._sorted_keys(list(self.keys()), startkey, reverse=up):
+        table = startkey[2]
+        keys = [key for key in self.keys() if key[2] == table]
+
+        for key in self._sorted_keys(keys, startkey, reverse=up):
             try:
                 if is_matching(key, find_string, word, case, regexp):
                     return key
