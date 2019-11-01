@@ -139,6 +139,7 @@ class FindToolbar(ToolBarBase):
     def __init__(self, main_window):
         super().__init__("Find Toolbar", main_window)
 
+        self.main_window = main_window
         self.setObjectName("Find Toolbar")
         self._create_toolbar(main_window.main_window_actions)
 
@@ -152,10 +153,11 @@ class FindToolbar(ToolBarBase):
         find_editor.setClearButtonEnabled(True)
         find_editor.addAction(actions.find_next, QLineEdit.LeadingPosition)
         self.add_widget(find_editor)
-
         self.addSeparator()
-
         self.addWidget(self.get_manager_button())
+
+        workflows = self.main_window.workflows
+        find_editor.returnPressed.connect(workflows.edit_find_next)
 
 
 class FormatToolbar(ToolBarBase):

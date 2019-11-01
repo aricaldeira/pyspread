@@ -716,7 +716,8 @@ class Workflows:
 
         next_match = findnextmatch(start_key, find_string)
 
-        grid.current = next_match
+        if next_match:
+            grid.current = next_match
 
     def edit_resize(self):
         """Edit -> Resize workflow"""
