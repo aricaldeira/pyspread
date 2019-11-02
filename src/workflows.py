@@ -712,8 +712,8 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def find_dialog_on_find(self, find_dialog):
-        """Edit -> Find workflow, after pressing find button in FindDialog"""
+    def _get_next_match(self, find_dialog):
+        """Returns tuple of find string and next matching cell key"""
 
         grid = self.main_window.grid
         findnextmatch = grid.model.code_array.findnextmatch
@@ -728,16 +728,21 @@ class Workflows:
         else:
             start_key = grid.row + 1, grid.column, grid.table
 
-        next_match = findnextmatch(
-            start_key, find_string,
-            up=find_dialog.backward_checkbox.isChecked(),
-            word=find_dialog.word_checkbox.isChecked(),
-            case=find_dialog.case_checkbox.isChecked(),
-            regexp=find_dialog.regex_checkbox.isChecked(),
-            results=find_dialog.results_checkbox.isChecked())
+        return find_string, findnextmatch(
+                start_key, find_string,
+                up=find_dialog.backward_checkbox.isChecked(),
+                word=find_dialog.word_checkbox.isChecked(),
+                case=find_dialog.case_checkbox.isChecked(),
+                regexp=find_dialog.regex_checkbox.isChecked(),
+                results=find_dialog.results_checkbox.isChecked())
+
+    def find_dialog_on_find(self, find_dialog):
+        """Edit -> Find workflow, after pressing find button in FindDialog"""
+
+        find_string, next_match = self._get_next_match(find_dialog)
 
         if next_match:
-            grid.current = next_match
+            self.main_window.grid.current = next_match
             msg = "String {} found in cell {}.".format(find_string, next_match)
             self.main_window.statusBar().showMessage(msg)
 
@@ -776,6 +781,32 @@ class Workflows:
         find_dialog.show()
         find_dialog.raise_()
         find_dialog.activateWindow()
+
+    def replace_dialog_on_replace(self, replace_dialog):
+        """Edit -> Replace workflow after pushing Replace in ReplaceDialog"""
+
+        model = self.main_window.grid.model
+
+        find_string, next_match = self._get_next_match(replace_dialog)
+        replace_string = replace_dialog.replace_text_editor.text()
+
+        if next_match:
+            old_code = model.code_array(next_match)
+            new_code = old_code.replace(find_string, replace_string)
+
+            description_tpl = "Replaced {old} with {new} in cell {key}."
+            description = description_tpl.format(old=old_code, new=new_code,
+                                                 key=next_match)
+            index = model.index(*next_match[:2])
+            command = CommandSetCellCode(new_code, model, index, description)
+            self.main_window.undo_stack.push(command)
+
+            self.main_window.grid.current = next_match
+
+            self.main_window.statusBar().showMessage(description)
+
+            if replace_dialog.from_start_checkbox.isChecked():
+                replace_dialog.from_start_checkbox.setChecked(False)
 
     def edit_resize(self):
         """Edit -> Resize workflow"""

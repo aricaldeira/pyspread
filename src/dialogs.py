@@ -44,7 +44,7 @@ from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
-from PyQt5.QtWidgets import QCheckBox, QGridLayout, QHBoxLayout, QLayout
+from PyQt5.QtWidgets import QCheckBox, QGridLayout, QLayout
 from PyQt5.QtWidgets import QPushButton, QWidget
 from PyQt5.QtGui import QIntValidator, QImageWriter
 
@@ -577,6 +577,8 @@ class ReplaceDialog(FindDialog):
     def __init__(self, main_window):
         super().__init__(main_window)
 
+        workflows = main_window.workflows
+
         self.setWindowTitle("Replace")
 
         self.replace_text_label = QLabel("Replace with:")
@@ -593,6 +595,9 @@ class ReplaceDialog(FindDialog):
                                   QDialogButtonBox.ActionRole)
         self.button_box.addButton(self.replace_all_button,
                                   QDialogButtonBox.ActionRole)
+
+        self.replace_button.clicked.connect(
+                partial(workflows.replace_dialog_on_replace, self))
 
 
 class ChartDialog(QDialog):

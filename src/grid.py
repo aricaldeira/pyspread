@@ -636,10 +636,6 @@ class Grid(QTableView):
         """Set cell rotation to 0° left button pressed event handler"""
 
         attr = self.selection, self.table, {"angle": 0.0}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
-
-        attr = self.selection, self.table, {"angle": 0.0}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 0° for cells {}".format(idx_string)
         command = CommandSetCellTextAlignment(attr, self.model,
