@@ -71,8 +71,6 @@ class Selection(object):
 
         """
 
-        assert type(other) is type(self)
-
         attrs = ("block_tl", "block_br", "rows", "cols", "cells")
 
         return all(getattr(self, at) == getattr(other, at) for at in attrs)

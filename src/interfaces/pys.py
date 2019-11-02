@@ -42,7 +42,7 @@ from builtins import str, map, object
 import ast
 from collections import OrderedDict
 
-from lib.selection import Selection
+from src.lib.selection import Selection
 
 
 def wxcolor2rgb(wxcolor):
