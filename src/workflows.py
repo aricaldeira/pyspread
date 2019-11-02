@@ -782,8 +782,8 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def replace_dialog_on_replace(self, replace_dialog):
-        """Edit -> Replace workflow after pushing Replace in ReplaceDialog"""
+    def replace_dialog_on_replace(self, replace_dialog, toggled=False, max_=1):
+        """Edit -> Replace workflow when pushing Replace in ReplaceDialog"""
 
         model = self.main_window.grid.model
 
@@ -792,7 +792,7 @@ class Workflows:
 
         if next_match:
             old_code = model.code_array(next_match)
-            new_code = old_code.replace(find_string, replace_string)
+            new_code = old_code.replace(find_string, replace_string, max_)
 
             description_tpl = "Replaced {old} with {new} in cell {key}."
             description = description_tpl.format(old=old_code, new=new_code,
@@ -807,6 +807,11 @@ class Workflows:
 
             if replace_dialog.from_start_checkbox.isChecked():
                 replace_dialog.from_start_checkbox.setChecked(False)
+
+    def replace_dialog_on_replace_all(self, replace_dialog):
+        """Edit -> Replace workflow when pushing ReplaceAll in ReplaceDialog"""
+
+        self.replace_dialog_on_replace(replace_dialog, max_=-1)
 
     def edit_resize(self):
         """Edit -> Resize workflow"""
