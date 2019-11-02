@@ -467,6 +467,7 @@ class FindDialog(QDialog):
 
         self._create_widgets()
         self._layout()
+        self._order()
 
         self.setWindowTitle("Find")
 
@@ -541,6 +542,14 @@ class FindDialog(QDialog):
 
         self.setLayout(self.main_layout)
 
+    def _order(self):
+        """Find dialog tabOrder"""
+
+        self.setTabOrder(self.results_checkbox, self.backward_checkbox)
+        self.setTabOrder(self.backward_checkbox, self.word_checkbox)
+        self.setTabOrder(self.word_checkbox, self.regex_checkbox)
+        self.setTabOrder(self.regex_checkbox, self.from_start_checkbox)
+
     def restore(self, state):
         """Restores state from FindDialogState"""
 
@@ -595,6 +604,9 @@ class ReplaceDialog(FindDialog):
                                   QDialogButtonBox.ActionRole)
         self.button_box.addButton(self.replace_all_button,
                                   QDialogButtonBox.ActionRole)
+
+        self.setTabOrder(self.search_text_editor, self.replace_text_editor)
+        self.setTabOrder(self.more_button, self.replace_button)
 
         self.replace_button.clicked.connect(
                 partial(workflows.replace_dialog_on_replace, self))
