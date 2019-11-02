@@ -186,8 +186,10 @@ class Settings:
             if isinstance(widget, QToolBar):
                 toolbar_visibility_name = widget_name + '/visibility'
                 visibility = settings.value(toolbar_visibility_name)
-                for is_visible, action in zip(visibility, widget.actions()):
-                    action.setVisible(is_visible == 'true')
+                if visibility is not None:
+                    for is_visible, action in zip(visibility,
+                                                  widget.actions()):
+                        action.setVisible(is_visible == 'true')
                 manager_button = widget.widgetForAction(widget.actions()[-1])
                 manager_button.menu().update_checked_states()
 
