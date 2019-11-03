@@ -614,6 +614,7 @@ class ReplaceDialog(FindDialog):
         self.replace_all_button.clicked.connect(
                 partial(workflows.replace_dialog_on_replace_all, self))
 
+
 class ChartDialog(QDialog):
     """The chart dialog"""
 

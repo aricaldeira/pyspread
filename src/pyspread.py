@@ -281,7 +281,6 @@ class MainWindow(QMainWindow):
         dial = InstallerDialog(self)
         dial.exec_()
 
-
     def on_undo(self):
         """Undo event handler"""
 
