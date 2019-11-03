@@ -770,10 +770,9 @@ class MainWindowActions(AttrDict):
                           statustip='Display frequently asked questions')
 
         self.dependencies = Action(self.parent, "Dependencies...",
-                                   self.parent.on_nothing,
+                                   self.parent.on_installer,
                                    icon=Icon.dependencies,
-                                   statustip='Overview of installed '
-                                             'dependencies')
+                                   statustip='List and install dependencies')
 
         self.about = Action(self.parent, "About pyspread...",
                             self.parent.on_about,
