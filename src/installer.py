@@ -1,11 +1,57 @@
 # -*- coding: utf-8 -*-
 
-import os
+from dataclasses import dataclass
 import importlib
+import os
+from pkg_resources import get_distribution, DistributionNotFound
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from icons import Icon
+
+@dataclass
+class Module:
+    name: str
+    description: str
+    required_version: str  # The minimum version number that is required
+
+    @property
+    def version(self) -> str:
+        """Currently installed version number, False if not installed"""
+
+        try:
+            return get_distribution(self.name).version
+        except DistributionNotFound:
+            return False
+
+    @property
+    def is_installed(self) -> bool:
+        """True if the module is installed"""
+
+        return bool(self.version)
+
+# The required dependencies numpy and pyqt5 are not mentioned because
+#  pyspread does not launch without them.
+
+# Optional dependencies
+# ---------------------
+
+
+OPTIONAL_DEPENDENCIES = [
+    Module(name="matplotlib",
+           description="Create charts",
+           required_version="1.1.1"),
+    Module(name="xlrd",
+           description="Load Excel files",
+           required_version="0.9.2"),
+    Module(name="xlwt",
+           description="Save Excel files",
+           required_version="0.9.2"),
+    Module(name="pyenchant",
+           description="Spell checker",
+           required_version="1.1"),
+]
+
+
 
 
 PY_PACKAGES = (
@@ -17,9 +63,8 @@ PY_PACKAGES = (
     ("basemap", ">=1.0.7", "for the weather example pys file"),
 )
 
-APT_PACKAGES = (
-    ('TODO')
-)
+
+
 
 def is_lib_installed(name):
     """Attempts to import lib
