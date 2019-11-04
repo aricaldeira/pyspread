@@ -33,8 +33,9 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
-from lib.dependencies import get_enchant_version
+from src.icons import Icon
+from src.lib.attrdict import AttrDict
+from src.lib.dependencies import get_enchant_version
 
 
 class Action(QAction):
@@ -69,14 +70,6 @@ class Action(QAction):
 
         for connect in callbacks:
             self.triggered.connect(connect)
-
-
-class AttrDict(dict):
-    """Dictionary with attribute access"""
-
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
 
 
 class MainWindowActions(AttrDict):
