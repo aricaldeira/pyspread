@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-import importlib
 import os
 from pkg_resources import get_distribution, DistributionNotFound
 
