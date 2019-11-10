@@ -268,9 +268,9 @@ class FileHistoryMenu(QMenu):
     def update(self):
         """Updates file history menu"""
 
-        file_history = self.main_window.settings.file_history
         self.clear()
-        for posixpath in file_history:
+
+        for posixpath in self.main_window.settings.file_history:
             filepath = Path(posixpath)
             if filepath.is_file():
                 action = QAction(filepath.name, self)
