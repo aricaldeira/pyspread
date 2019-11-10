@@ -281,8 +281,8 @@ class FileHistoryMenu(QMenu):
     def on_recent(self):
         """Event handler for file history menu"""
 
-        sender = self.sender()
-        print("on_recent > ", sender.statusTip())
+        posixpath = self.sender().statusTip()
+        self.main_window.workflows.file_open_recent(posixpath)
 
 
 class BorderChoiceMenu(QMenu):

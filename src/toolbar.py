@@ -31,7 +31,7 @@
 
 """
 
-from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu, QLineEdit
+from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu
 from PyQt5.QtWidgets import QHBoxLayout, QUndoView
 
 try:

@@ -92,7 +92,7 @@ class Workflows:
         yield
         self.main_window.entry_line.setUpdatesEnabled(True)
 
-    def handle_changed_since_save(func):
+    def handle_changed_since_save(func, *args, **kwargs):
         """Decorator to handle changes since last saving the document
 
         If changes are present then a dialog is displayed that asks if the
@@ -109,7 +109,7 @@ class Workflows:
 
         """
 
-        def function_wrapper(self):
+        def function_wrapper(self, *args, **kwargs):
             """Check changes and display and handle the dialog"""
 
             if self.main_window.settings.changed_since_save:
@@ -118,7 +118,7 @@ class Workflows:
                     return
                 elif not choice:
                     self.file_save()
-            func(self)
+            func(self, *args, **kwargs)
             self.reset_changed_since_save()
 
         return function_wrapper
@@ -159,18 +159,10 @@ class Workflows:
         # Exit safe mode
         self.main_window.safe_mode = False
 
-    @handle_changed_since_save
-    def file_open(self):
-        """File open workflow"""
+    def _filepath_open(self, filepath):
+        """Workflow for opening a file if a filepath is known"""
 
         code_array = self.main_window.grid.model.code_array
-
-        # Get filepath from user
-        dial = FileOpenDialog(self.main_window)
-        if not dial.file_path:
-            return  # Cancel pressed
-
-        filepath = Path(dial.file_path).with_suffix(dial.suffix)
         filesize = os.path.getsize(filepath)
 
         # Reset grid
@@ -232,6 +224,25 @@ class Workflows:
 
         # Add to file history
         self.main_window.settings.add_to_file_history(filepath.as_posix())
+
+    @handle_changed_since_save
+    def file_open(self):
+        """File open workflow"""
+
+        # Get filepath from user
+        dial = FileOpenDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+
+        filepath = Path(dial.file_path).with_suffix(dial.suffix)
+
+        self._filepath_open(filepath)
+
+    @handle_changed_since_save
+    def file_open_recent(self, filepath):
+        """File open recent workflow"""
+
+        self._filepath_open(Path(filepath))
 
     def sign_file(self, filepath):
         """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
