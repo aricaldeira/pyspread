@@ -113,6 +113,8 @@ class DependenciesDialog(QDialog):
                 color = "#F3FFBB"
                 butt = QToolButton()
                 butt.setText("Install")
+                butt.setEnabled(Module(name="pip", description="pip installer",
+                                       required_version="17.0").is_installed())
                 self.tree.setItemWidget(item, self.column.button, butt)
                 self.buttGroup.addButton(butt, idx)
 
