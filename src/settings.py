@@ -50,6 +50,12 @@ class Settings:
     # Initial :class:`~pathlib.Path` for saving files
     last_file_output_path = Path.home()
 
+    # Maximum number of files in file history
+    max_file_history = 5
+
+    # Maximum number of files in file history
+    file_history = []
+
     # The state of the border choice button
     border_choice = "All borders"
 
@@ -86,6 +92,13 @@ class Settings:
                                  self=self, key=key))
         super().__setattr__(key, value)
 
+    def add_to_file_history(self, filename):
+        """Adds new file to history"""
+
+        self.file_history = [f for f in self.file_history if f != filename]
+        self.file_history.insert(0, filename)
+        self.file_history = self.file_history[:self.max_file_history]
+
     def reset(self):
         cls_attrs = (attr for attr in dir(self)
                      if (not attr.startswith("__")
@@ -109,6 +122,10 @@ class Settings:
         if self.last_file_output_path is not None:
             settings.setValue("last_file_output_path",
                               self.last_file_output_path.parent)
+        settings.setValue("max_file_history", self.max_file_history)
+        settings.value("file_history", [], 'QStringList')
+        if self.file_history:
+            settings.setValue("file_history", self.file_history)
         settings.setValue("timeout", self.timeout)
         settings.setValue("refresh_timeout", self.refresh_timeout)
         settings.setValue("signature_key", self.signature_key)
@@ -151,19 +168,27 @@ class Settings:
 
         settings = QSettings(APP_NAME, APP_NAME)
 
+        def setting2attr(setting_name, attr=None, mapper=None):
+            """Sets attr to mapper(<Setting from setting_name>)"""
+
+            value = settings.value(setting_name)
+            if value is None:
+                return
+            if attr is None:
+                attr = setting_name
+            if mapper is None:
+                def mapper(x): return x
+            setattr(self, attr, mapper(value))
+
         # Application state
 
-        if settings.value("last_file_input_path") is not None:
-            self.last_file_input_path = settings.value("last_file_input_path")
-        if settings.value("last_file_output_path") is not None:
-            self.last_file_output_path = \
-                settings.value("last_file_output_path")
-        if settings.value("timeout") is not None:
-            self.timeout = int(settings.value("timeout"))
-        if settings.value("refresh_timeout") is not None:
-            self.refresh_timeout = int(settings.value("refresh_timeout"))
-        if settings.value("signature_key") is not None:
-            self.signature_key = settings.value("signature_key")
+        setting2attr("last_file_input_path")
+        setting2attr("last_file_output_path")
+        setting2attr("max_file_history", mapper=int)
+        setting2attr("file_history")
+        setting2attr("timeout", mapper=int)
+        setting2attr("refresh_timeout", mapper=int)
+        setting2attr("signature_key")
 
         # GUI state
 

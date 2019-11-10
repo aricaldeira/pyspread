@@ -387,9 +387,11 @@ class MainWindow(QMainWindow):
         """GUI update event handler.
 
         Emitted on cell change. Attributes contains current cell_attributes.
+
         """
 
         widgets = self.widgets
+        menubar = self.menuBar()
 
         is_bold = attributes["fontweight"] == QFont.Bold
         self.main_window_actions.bold.setChecked(is_bold)
@@ -425,14 +427,14 @@ class MainWindow(QMainWindow):
         border_action = self.main_window_actions.border_group.checkedAction()
         if border_action is not None:
             icon = border_action.icon()
-            self.menuBar().border_submenu.setIcon(icon)
+            menubar.format_menu.border_submenu.setIcon(icon)
             self.format_toolbar.border_menu_button.setIcon(icon)
 
         border_width_action = \
             self.main_window_actions.border_width_group.checkedAction()
         if border_width_action is not None:
             icon = border_width_action.icon()
-            self.menuBar().line_width_submenu.setIcon(icon)
+            menubar.format_menu.line_width_submenu.setIcon(icon)
             self.format_toolbar.line_width_button.setIcon(icon)
 
         if attributes["textcolor"] is None:

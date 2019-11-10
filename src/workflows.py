@@ -230,6 +230,9 @@ class Workflows:
         # Update macro editor
         self.main_window.macro_panel.update()
 
+        # Add to file history
+        self.main_window.settings.add_to_file_history(filepath.as_posix())
+
     def sign_file(self, filepath):
         """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
 

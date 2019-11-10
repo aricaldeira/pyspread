@@ -167,6 +167,8 @@ class FormatToolbar(ToolBarBase):
     def _create_toolbar(self, actions):
         """Fills the format toolbar with QActions"""
 
+        menubar = self.main_window.menuBar()
+
         self.add_widget(self.main_window.widgets.font_combo)
         self.add_widget(self.main_window.widgets.font_size_combo)
 
@@ -191,7 +193,7 @@ class FormatToolbar(ToolBarBase):
         self.border_menu_button = QToolButton(self)
         self.border_menu_button.setText("Borders")
         self.border_menu_button.label = "Borders"
-        border_submenu = self.main_window.menuBar().border_submenu
+        border_submenu = menubar.format_menu.border_submenu
         self.border_menu_button.setMenu(border_submenu)
         self.border_menu_button.setIcon(Icon.border_menu)
         self.add_widget(self.border_menu_button)
@@ -200,7 +202,7 @@ class FormatToolbar(ToolBarBase):
         self.line_width_button = QToolButton(self)
         self.line_width_button.setText("Border Width")
         self.line_width_button.label = "Border Width"
-        line_width_submenu = self.main_window.menuBar().line_width_submenu
+        line_width_submenu = menubar.format_menu.line_width_submenu
         self.line_width_button.setMenu(line_width_submenu)
         self.line_width_button.setIcon(Icon.format_borders)
         self.add_widget(self.line_width_button)
