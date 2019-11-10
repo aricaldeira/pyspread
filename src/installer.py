@@ -55,6 +55,9 @@ OPTIONAL_DEPENDENCIES = [
     Module(name="pyenchant",
            description="Spell checker",
            required_version="1.1"),
+    Module(name="xyz",
+           description="Test",
+           required_version="1.1"),
 ]
 
 
@@ -100,7 +103,8 @@ class InstallerDialog(QDialog):
         for idx, module in enumerate(OPTIONAL_DEPENDENCIES):
             item = QTreeWidgetItem()
             item.setText(self.column.name, module.name)
-            item.setText(self.column.version, module.version)
+            version = module.version if module.version else "not installed"
+            item.setText(self.column.version, version)
             item.setText(self.column.required_version, module.required_version)
             item.setText(self.column.description, module.description)
             self.tree.addTopLevelItem(item)
@@ -132,6 +136,8 @@ class InstallerDialog(QDialog):
 
 class InstallPackageDialog(QDialog):
     """Shows a dialog to execute command"""
+
+    line_str = "-" * 56
 
     def __init__(self, parent=None, module=None):
         super().__init__(parent)
@@ -179,9 +185,8 @@ class InstallPackageDialog(QDialog):
         self.update_cmd_line()
 
     def update_cmd_line(self, *unused):
+        """Update the commend line considring sudo button state"""
 
-        ## Umm ?? sudo, virtual env ??
-        # its gonna be > pip3 install foo ?
         cmd = ""
         if self.buttSudo.isChecked():
             cmd += "pkexec  "
@@ -202,7 +207,7 @@ class InstallPackageDialog(QDialog):
         c = str(self.txtStdOut.toPlainText())
         s = str(self.process.readAllStandardOutput())
 
-        ss = c + "\n-------------------------------------------------------\n" + s
+        ss = c + "\n" + self.line_str + "\n" + s
         self.txtStdOut.setPlainText(ss)
         self.txtStdOut.moveCursor(QTextCursor.End)
 
@@ -210,11 +215,10 @@ class InstallPackageDialog(QDialog):
         c = str(self.txtStdErr.toPlainText())
         s = str(self.process.readAllStandardError())
 
-        ss = c + "\n-------------------------------------------------------\n" + s
+        ss = c + "\n" + self.line_str + "\n" + s
         self.txtStdErr.setPlainText(ss)
         self.txtStdErr.moveCursor(QTextCursor.End)
 
     def on_finished(self):
         self.buttSudo.setDisabled(False)
         self.buttExecute.setDisabled(False)
-
