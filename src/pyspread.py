@@ -54,7 +54,7 @@ from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
 from src.dialogs import ApproveWarningDialog, PreferencesDialog
-from src.installer import InstallerDialog
+from src.installer import DependenciesDialog
 from src.panels import MacroPanel
 from src.lib.hashing import genkey
 
@@ -275,10 +275,10 @@ class MainWindow(QMainWindow):
                     data[key] = genkey()
                 self.settings.__setattr__(key, data[key])
 
-    def on_installer(self):
+    def on_dependencies(self):
         """Dependancies installer (:class:`installer.InstallerDialog`) """
 
-        dial = InstallerDialog(self)
+        dial = DependenciesDialog(self)
         dial.exec_()
 
     def on_undo(self):

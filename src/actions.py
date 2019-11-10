@@ -763,7 +763,7 @@ class MainWindowActions(AttrDict):
                           statustip='Display frequently asked questions')
 
         self.dependencies = Action(self.parent, "Dependencies...",
-                                   self.parent.on_installer,
+                                   self.parent.on_dependencies,
                                    icon=Icon.dependencies,
                                    statustip='List and install dependencies')
 

@@ -57,8 +57,8 @@ OPTIONAL_DEPENDENCIES = [
 ]
 
 
-class InstallerDialog(QDialog):
-    """Installer dialog for python dependencies"""
+class DependenciesDialog(QDialog):
+    """Dependencies dialog for python dependencies"""
 
     column = AttrDict(zip(("button", "status", "name", "version",
                            "required_version", "description"), range(6)))
