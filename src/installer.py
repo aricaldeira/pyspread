@@ -54,9 +54,6 @@ OPTIONAL_DEPENDENCIES = [
     Module(name="pyenchant",
            description="Spell checker",
            required_version="1.1"),
-    Module(name="xyz",
-           description="Test",
-           required_version="1.1"),
 ]
 
 
