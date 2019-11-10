@@ -36,6 +36,7 @@
 """
 
 from functools import partial
+from pathlib import Path
 
 from PyQt5.QtWidgets import QMenuBar, QMenu, QAction
 
@@ -53,7 +54,8 @@ class MenuBar(QMenuBar):
     def __init__(self, main_window):
         super().__init__()
 
-        self.actions = actions = main_window.main_window_actions
+        self.main_window = main_window
+        actions = main_window.main_window_actions
 
         self.file_menu = FileMenu(self, actions)
         self.edit_menu = EditMenu(self, actions)
@@ -76,8 +78,12 @@ class FileMenu(QMenu):
     def __init__(self, parent, actions):
         super().__init__('&File', parent)
 
+        self.parent = parent
+
         self.addAction(actions.new)
         self.addAction(actions.open)
+        self.history_submenu = FileHistoryMenu(self, actions)
+        self.history_action = self.addMenu(self.history_submenu)
         self.addSeparator()
         self.addAction(actions.save)
         self.addAction(actions.save_as)
@@ -249,6 +255,34 @@ class HelpMenu(QMenu):
         self.addAction(actions.dependencies)
         self.addSeparator()
         self.addAction(actions.about)
+
+
+class FileHistoryMenu(QMenu):
+    """Menu that displays the file history"""
+
+    def __init__(self, parent, actions):
+        super().__init__('&Recent files', parent)
+
+        self.main_window = parent.parent.main_window
+
+    def update(self):
+        """Updates file history menu"""
+
+        file_history = self.main_window.settings.file_history
+        self.clear()
+        for posixpath in file_history:
+            filepath = Path(posixpath)
+            if filepath.is_file():
+                action = QAction(filepath.name, self)
+                action.setStatusTip(posixpath)
+                self.addAction(action)
+                action.triggered.connect(self.on_recent)
+
+    def on_recent(self):
+        """Event handler for file history menu"""
+
+        sender = self.sender()
+        print("on_recent > ", sender.statusTip())
 
 
 class BorderChoiceMenu(QMenu):

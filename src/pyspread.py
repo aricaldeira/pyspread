@@ -92,6 +92,9 @@ class MainWindow(QMainWindow):
         if self.settings.signature_key is None:
             self.settings.signature_key = genkey()
 
+        # Update recent files in the file menu
+        self.menuBar().file_menu.history_submenu.update()
+
         self.show()
         self._update_action_toggles()
 
