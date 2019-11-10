@@ -30,6 +30,7 @@
 * :class:`FormatMenu`: Format menu for the main menubar
 * :class:`MacroMenu`: Macro menu for the main menubar
 * :class:`HelpMenu`: Help menu for the main menubar
+* :class:`FileHistoryMenu`: Menu showing recent files
 * :class:`BorderChoiceMenu`: QMenu for choosing cell borders
 * :class:`BorderWidthMenu`: QMenu for choosing the cell border width
 
