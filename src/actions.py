@@ -141,11 +141,11 @@ class MainWindowActions(AttrDict):
                                  statustip='Setup printer page')
 
         self.print_preview = Action(self.parent, "Print preview",
-                                    self.parent.on_nothing,
+                                    self.parent.on_preview,
                                     icon=Icon.print_preview,
                                     statustip='Print preview')
 
-        self.print = Action(self.parent, "Print", self.parent.on_nothing,
+        self.print = Action(self.parent, "Print", self.parent.on_print,
                             icon=Icon.print,
                             shortcut='Ctrl+p',
                             statustip='Print current spreadsheet')

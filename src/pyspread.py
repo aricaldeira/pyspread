@@ -38,9 +38,10 @@ import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
-from PyQt5.QtWidgets import QDockWidget, QUndoStack
+from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtGui import QColor, QFont, QPalette
+from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 from src import VERSION, APP_NAME
 from src.settings import Settings
@@ -244,6 +245,65 @@ class MainWindow(QMainWindow):
             self.grid.model.code_array.result_cache.clear()
             # Execute macros
             self.grid.model.code_array.execute_macros()
+
+    def on_print(self):
+        """Print event handler"""
+
+        # Create printer
+        printer = QPrinter(QPrinter.HighResolution)
+        # Create Print dialog
+        dialog = QPrintDialog(printer, self)
+        if dialog.exec_() == QPrintDialog.Accepted:
+            self.on_paint_request(printer)
+
+    def on_preview(self):
+        """Print preview event handler"""
+
+        dialog = QPrintPreviewDialog()
+        dialog.paintRequested.connect(self.on_paint_request)
+        dialog.exec_()
+
+    def on_paint_request(self, printer):
+        """Paints to printer"""
+
+        painter = QPainter(printer)
+        option = QStyleOptionViewItem()
+
+        painter.setViewport(self.grid.rect())
+        painter.setWindow(self.grid.rect())
+
+        rows = range(10)
+        columns = range(10)
+
+        total_width = 0
+        total_height = 0
+
+        for row in rows:
+            total_height += self.grid.rowHeight(row)
+        for column in columns:
+            total_width += self.grid.columnWidth(column)
+
+        area = printer.pageRect()
+        painter.setClipRect(area)
+
+        xscale = area.width() / total_width
+        yscale = area.height() / total_height
+
+        painter.save()
+
+        painter.scale(xscale, xscale)
+        painter.translate(area.x() + xscale, area.y() + xscale)
+        print(area, xscale)
+
+
+        for row in rows:
+            for column in columns:
+                idx = self.grid.model.index(row, column)
+                option.rect = self.grid.visualRect(idx)
+                self.grid.itemDelegate().paint(painter, option, idx)
+
+        painter.restore()
+        painter.end()
 
     def on_nothing(self):
         """Dummy action that does nothing"""
