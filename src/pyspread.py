@@ -36,7 +36,7 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRect
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgWidget
@@ -250,7 +250,7 @@ class MainWindow(QMainWindow):
         """Print event handler"""
 
         # Create printer
-        printer = QPrinter(QPrinter.HighResolution)
+        printer = QPrinter(mode=QPrinter.HighResolution)
         # Create Print dialog
         dialog = QPrintDialog(printer, self)
         if dialog.exec_() == QPrintDialog.Accepted:
@@ -259,7 +259,10 @@ class MainWindow(QMainWindow):
     def on_preview(self):
         """Print preview event handler"""
 
-        dialog = QPrintPreviewDialog()
+        # Create printer
+        printer = QPrinter(mode=QPrinter.HighResolution)
+
+        dialog = QPrintPreviewDialog(printer)
         dialog.paintRequested.connect(self.on_paint_request)
         dialog.exec_()
 
@@ -283,26 +286,39 @@ class MainWindow(QMainWindow):
         for column in columns:
             total_width += self.grid.columnWidth(column)
 
-        area = printer.pageRect()
-        painter.setClipRect(area)
+        area = printer.paperRect()
+        left, top, right, bottom = printer.getPageMargins(QPrinter.DevicePixel)
 
-        xscale = area.width() / total_width
-        yscale = area.height() / total_height
+        clip_rect = QRect(area.x()+left, area.y()+top,
+                          area.width()-left-right, area.height()-top-bottom)
+        painter.setClipRect(clip_rect)
 
+        print(area, left, right, area.width() - left - right, total_width)
+
+        xscale = (area.width() - 2*left - 2*right) / total_width
+        yscale = (area.height() - 2*top - 2*bottom) / total_height
+
+        scale = min(xscale, yscale)
         painter.save()
 
-        painter.scale(xscale, xscale)
-        painter.translate(area.x() + xscale, area.y() + xscale)
-        print(area, xscale)
+        painter.scale(scale, scale)
+        painter.translate((-area.x() + left) / scale,
+                          (-area.y() + top) / scale)
 
+        x_offset = self.grid.columnViewportPosition(0)
+        y_offset = self.grid.rowViewportPosition(0)
 
         for row in rows:
             for column in columns:
                 idx = self.grid.model.index(row, column)
-                option.rect = self.grid.visualRect(idx)
+                visual_rect = self.grid.visualRect(idx)
+                option.rect = QRect(visual_rect.x() - x_offset,
+                                    visual_rect.y() - y_offset,
+                                    visual_rect.width(), visual_rect.height())
                 self.grid.itemDelegate().paint(painter, option, idx)
 
         painter.restore()
+
         painter.end()
 
     def on_nothing(self):
