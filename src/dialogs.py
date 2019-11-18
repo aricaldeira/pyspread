@@ -28,6 +28,7 @@
  * :class:`ApproveWarningDialog`
  * :class:`DataEntryDialog`
  * :class:`GridShapeDialog`
+ * :class:`PrintAreaDialog`
  * (:class:`FileDialogBase`)
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
@@ -256,6 +257,61 @@ class GridShapeDialog(DataEntryDialog):
     @property
     def shape(self):
         """Executes the dialog and returns an int tuple rows, columns, tables
+
+        Returns None if the dialog is canceled.
+
+        """
+
+        data = self.data
+        if data is not None:
+            try:
+                return tuple(map(int, data))
+            except ValueError:
+                return
+
+
+class PrintAreaDialog(DataEntryDialog):
+    """Modal dialog for entering print area
+
+    Initially, this dialog is filled with the selection bounding box
+    if present or with the visible area of <= 1 cell is selected.
+
+    Parameters
+    ----------
+    * parent: QWidget
+    \tParent window
+    * shape: 3-tuple of Integer
+    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
+
+    """
+
+    def __init__(self, parent, grid, title="Print settings"):
+        groupbox_title = "Print area"
+        labels = ["Top", "Left", "Bottom", "Right"]
+
+        row_validator = QIntValidator()
+        row_validator.setBottom(0)  # Do not allow negative values
+        row_validator.setTop(grid.model.shape[0])
+        column_validator = QIntValidator()
+        column_validator.setBottom(0)  # Do not allow negative values
+        column_validator.setTop(grid.model.shape[1])
+
+        if grid.selection and len(grid.selected_idx) > 1:
+            (bb_top, bb_left), (bb_bottom, bb_right) = \
+                grid.selection.get_grid_bbox(grid.model.shape)
+        else:
+            bb_top, bb_bottom = grid.rowAt(0), grid.rowAt(grid.height())
+            bb_left, bb_right = grid.columnAt(0), grid.columnAt(grid.width())
+
+        initial_values = bb_top, bb_left, bb_bottom, bb_right
+
+        validators = [row_validator, column_validator] * 2
+        super().__init__(parent, title, labels, initial_values, groupbox_title,
+                         validators)
+
+    @property
+    def area(self):
+        """Executes the dialog and returns int tuple top, left, bottom, right
 
         Returns None if the dialog is canceled.
 

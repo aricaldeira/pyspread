@@ -55,6 +55,7 @@ from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
 from src.dialogs import ApproveWarningDialog, PreferencesDialog
+from src.dialogs import PrintAreaDialog
 from src.installer import DependenciesDialog
 from src.panels import MacroPanel
 from src.lib.hashing import genkey
@@ -251,7 +252,13 @@ class MainWindow(QMainWindow):
 
         # Create printer
         printer = QPrinter(mode=QPrinter.HighResolution)
-        # Create Print dialog
+
+        # Get print area
+        self.print_area = PrintAreaDialog(self, self.grid).area
+        if self.print_area is None:
+            return
+
+        # Create print dialog
         dialog = QPrintDialog(printer, self)
         if dialog.exec_() == QPrintDialog.Accepted:
             self.on_paint_request(printer)
@@ -262,6 +269,12 @@ class MainWindow(QMainWindow):
         # Create printer
         printer = QPrinter(mode=QPrinter.HighResolution)
 
+        # Get print area
+        self.print_area = PrintAreaDialog(self, self.grid).area
+        if self.print_area is None:
+            return
+
+        # Create print preview dialog
         dialog = QPrintPreviewDialog(printer)
         dialog.paintRequested.connect(self.on_paint_request)
         dialog.exec_()
@@ -275,8 +288,10 @@ class MainWindow(QMainWindow):
         painter.setViewport(self.grid.rect())
         painter.setWindow(self.grid.rect())
 
-        rows = range(10)
-        columns = range(10)
+        top, left, bottom, right = self.print_area
+
+        rows = range(top, bottom + 1)
+        columns = range(left, right + 1)
 
         total_width = 0
         total_height = 0
@@ -292,8 +307,6 @@ class MainWindow(QMainWindow):
         clip_rect = QRect(area.x()+left, area.y()+top,
                           area.width()-left-right, area.height()-top-bottom)
         painter.setClipRect(clip_rect)
-
-        print(area, left, right, area.width() - left - right, total_width)
 
         xscale = (area.width() - 2*left - 2*right) / total_width
         yscale = (area.height() - 2*top - 2*bottom) / total_height
