@@ -554,8 +554,8 @@ class Selection(object):
 
         (top, left), (bottom, right) = self.get_grid_bbox(shape)
 
-        for row in range(top, bottom):
-            for column in range(left, right):
+        for row in range(top, bottom + 1):
+            for column in range(left, right + 1):
                 if (row, column) in self:
                     if table is None:
                         yield row, column
