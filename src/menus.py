@@ -96,7 +96,6 @@ class FileMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.clear_globals)
         self.addSeparator()
-        self.addAction(actions.page_setup)
         self.addAction(actions.print_preview)
         self.addAction(actions.print)
         self.addSeparator()

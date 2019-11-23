@@ -45,16 +45,18 @@ OPTIONAL_DEPENDENCIES = [
     Module(name="matplotlib",
            description="Create charts",
            required_version="1.1.1"),
-    Module(name="xlrd",
-           description="Load Excel files",
-           required_version="0.9.2"),
-    Module(name="xlwt",
-           description="Save Excel files",
-           required_version="0.9.2"),
     Module(name="pyenchant",
            description="Spell checker",
            required_version="1.1"),
 ]
+
+# Not yet implemented modules
+#    Module(name="xlrd",
+#           description="Load Excel files",
+#           required_version="0.9.2"),
+#    Module(name="xlwt",
+#           description="Save Excel files",
+#           required_version="0.9.2"),
 
 
 class DependenciesDialog(QDialog):

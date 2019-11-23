@@ -135,11 +135,6 @@ class MainWindowActions(AttrDict):
                                     statustip='Deletes global variables '
                                               'and reloads base modules')
 
-        self.page_setup = Action(self.parent, "Page setup",
-                                 self.parent.on_nothing,
-                                 icon=Icon.page_setup,
-                                 statustip='Setup printer page')
-
         self.print_preview = Action(self.parent, "Print preview",
                                     self.parent.on_preview,
                                     icon=Icon.print_preview,
