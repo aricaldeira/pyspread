@@ -36,11 +36,12 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRect
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
-from PyQt5.QtWidgets import QDockWidget, QUndoStack
+from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtGui import QColor, QFont, QPalette
+from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 from src import VERSION, APP_NAME
 from src.settings import Settings
@@ -54,6 +55,7 @@ from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
 from src.dialogs import ApproveWarningDialog, PreferencesDialog
+from src.dialogs import PrintAreaDialog
 from src.installer import DependenciesDialog
 from src.panels import MacroPanel
 from src.lib.hashing import genkey
@@ -244,6 +246,93 @@ class MainWindow(QMainWindow):
             self.grid.model.code_array.result_cache.clear()
             # Execute macros
             self.grid.model.code_array.execute_macros()
+
+    def on_print(self):
+        """Print event handler"""
+
+        # Create printer
+        printer = QPrinter(mode=QPrinter.HighResolution)
+
+        # Get print area
+        self.print_area = PrintAreaDialog(self, self.grid).area
+        if self.print_area is None:
+            return
+
+        # Create print dialog
+        dialog = QPrintDialog(printer, self)
+        if dialog.exec_() == QPrintDialog.Accepted:
+            self.on_paint_request(printer)
+
+    def on_preview(self):
+        """Print preview event handler"""
+
+        # Create printer
+        printer = QPrinter(mode=QPrinter.HighResolution)
+
+        # Get print area
+        self.print_area = PrintAreaDialog(self, self.grid).area
+        if self.print_area is None:
+            return
+
+        # Create print preview dialog
+        dialog = QPrintPreviewDialog(printer)
+        dialog.paintRequested.connect(self.on_paint_request)
+        dialog.exec_()
+
+    def on_paint_request(self, printer):
+        """Paints to printer"""
+
+        painter = QPainter(printer)
+        option = QStyleOptionViewItem()
+
+        painter.setViewport(self.grid.rect())
+        painter.setWindow(self.grid.rect())
+
+        top, left, bottom, right = self.print_area
+
+        rows = range(top, bottom + 1)
+        columns = range(left, right + 1)
+
+        total_width = 0
+        total_height = 0
+
+        for row in rows:
+            total_height += self.grid.rowHeight(row)
+        for column in columns:
+            total_width += self.grid.columnWidth(column)
+
+        area = printer.paperRect()
+        left, top, right, bottom = printer.getPageMargins(QPrinter.DevicePixel)
+
+        clip_rect = QRect(area.x()+left, area.y()+top,
+                          area.width()-left-right, area.height()-top-bottom)
+        painter.setClipRect(clip_rect)
+
+        xscale = (area.width() - 2*left - 2*right) / total_width
+        yscale = (area.height() - 2*top - 2*bottom) / total_height
+
+        scale = min(xscale, yscale)
+        painter.save()
+
+        painter.scale(scale, scale)
+        painter.translate((-area.x() + left) / scale,
+                          (-area.y() + top) / scale)
+
+        x_offset = self.grid.columnViewportPosition(0)
+        y_offset = self.grid.rowViewportPosition(0)
+
+        for row in rows:
+            for column in columns:
+                idx = self.grid.model.index(row, column)
+                visual_rect = self.grid.visualRect(idx)
+                option.rect = QRect(visual_rect.x() - x_offset,
+                                    visual_rect.y() - y_offset,
+                                    visual_rect.width(), visual_rect.height())
+                self.grid.itemDelegate().paint(painter, option, idx)
+
+        painter.restore()
+
+        painter.end()
 
     def on_nothing(self):
         """Dummy action that does nothing"""
