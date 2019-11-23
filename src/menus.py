@@ -20,7 +20,6 @@
 
 """
 
-
 **Provides**
 
 * :class:`MenuBar`: QMenuBar, the main menubar

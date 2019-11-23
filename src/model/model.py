@@ -188,10 +188,8 @@ class CellAttributes(list):
 
         or None if cell key not merged
 
-        Parameters
-        ----------
-        key: 3-tuple of Integer
-        \tThe key of the cell that is merged
+        :param key: Key of the cell that is merged
+        :type key: tuple
 
         """
 
@@ -251,10 +249,8 @@ class DictGrid(KeyValueStore):
 
     This class represents layer 1 of the model.
 
-    Parameters
-    ----------
-    shape: n-tuple of integer
-    \tShape of the grid
+    :param shape: Shape of the grid
+    :type shape: tuple
 
     """
 
@@ -294,7 +290,7 @@ class DictGrid(KeyValueStore):
 # -----------------------------------------------------------------------------
 
 
-class DataArray(object):
+class DataArray:
     """DataArray provides enhanced grid read/write access.
 
     Enhancements comprise:
@@ -304,10 +300,8 @@ class DataArray(object):
 
     This class represents layer 2 of the model.
 
-    Parameters
-    ----------
-    shape: n-tuple of integer
-    \tShape of the grid
+    :param shape: Shape of the grid
+    :type shape: tuple
 
     """
 
@@ -345,8 +339,7 @@ class DataArray(object):
         - However, it is not used for importing and exporting data because
           these operations are partial to the grid.
 
-        Keys
-        ----
+        Keys:
 
         shape: 3-tuple of Integer
         \tGrid shape
@@ -381,21 +374,18 @@ class DataArray(object):
         Old values are deleted.
         If a paremeter is not given, nothing is changed.
 
-        Parameters
-        ----------
-
-        shape: 3-tuple of Integer
-        \tGrid shape
-        grid: Dict of 3-tuples to strings
-        \tCell content
-        attributes: List of 3-tuples
-        \tCell attributes
-        row_heights: Dict of 2-tuples to float
-        \t(row, tab): row_height
-        col_widths: Dict of 2-tuples to float
-        \t(col, tab): col_width
-        macros: String
-        \tMacros from macro list
+        :param shape: Grid shape
+        :type shape: tuple
+        :param grid: Cell content
+        :type grid: dict
+        :param attributes: Cell attributes
+        :type attributes: CellAttributes
+        :param row_heights: Dict (row, tab): row_height
+        :type row_heights: dict
+        :param col_widths: Dict (col, tab): col_width
+        :type col_widths: dict
+        :param macros: Macros from macro list
+        :type macros: str
 
         """
 
@@ -480,10 +470,8 @@ class DataArray(object):
 
         Returns a dict of the deleted cells' contents
 
-        Parameters
-        ----------
-        shape: 3-tuple of Integer
-        \tTarget shape for grid
+        :param shape: Target shape for grid
+        :type shape: tuple
 
         """
 
@@ -532,10 +520,8 @@ class DataArray(object):
 
         The cells are returned as a generator of generators, of ... of unicode.
 
-        Parameters
-        ----------
-        key: n-tuple of integer or slice
-        \tKeys of the cell code that is returned
+        :param key: Keys of the cell code that is returned
+        :type key:  tuple of integer or slice
 
         Note
         ----
@@ -561,12 +547,10 @@ class DataArray(object):
     def __setitem__(self, key, value):
         """Accepts index and slice keys
 
-        Parameters
-        ----------
-        key: 3-tuple of Integer or Slice object
-        \tCell key(s) that shall be set
-        value: Object (should be Unicode or similar)
-        \tCode for cell(s) to be set
+        :param key: Cell key(s) that shall be set
+        :type key: tuple of 3 int or 3 slice
+        :param value: Code for cell(s) to be set
+        :type value: str
 
         """
 
@@ -649,10 +633,8 @@ class DataArray(object):
     def get_last_filled_cell(self, table=None):
         """Returns key for the bottommost rightmost cell with content
 
-        Parameters
-        ----------
-        table: Integer, defaults to None
-        \tLimit search to this table
+        :param table: Limit search to this table
+        :type table: int, optional
 
         """
 
@@ -669,10 +651,8 @@ class DataArray(object):
     def cell_array_generator(self, key):
         """Generator traversing cells specified in key
 
-        Parameters
-        ----------
-        key: Iterable of Integer or slice
-        \tThe key specifies the cell keys of the generator
+        :param key: Specifies the cell keys of the generator
+        :type key: Iterable of Integer or slice
 
         """
 
@@ -771,16 +751,14 @@ class DataArray(object):
     def _adjust_merge_area(self, attrs, insertion_point, no_to_insert, axis):
         """Returns an updated merge area
 
-        Parameters
-        ----------
-        attrs: Dict
-        \tCell attribute dictionary that shall be adjusted
-        insertion_point: Integer
-        \tPont on axis, before which insertion takes place
-        no_to_insert: Integer >= 0
-        \tNumber of rows/cols/tabs that shall be inserted
-        axis: Integer in range(2)
-        \tSpecifies number of dimension, i.e. 0 == row, 1 == col
+        :param attrs: Cell attribute dictionary that shall be adjusted
+        :type attrs: dict
+        :param insertion_point: Point on axis before insertion takes place
+        :type insertion_point: int
+        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
+        :type no_to_insert: int, >=0
+        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col
+        :type axis: int in range(2)
 
         """
 
@@ -834,18 +812,16 @@ class DataArray(object):
                                 tab=None, cell_attrs=None):
         """Adjusts cell attributes on insertion/deletion
 
-        Parameters
-        ----------
-        insertion_point: Integer
-        \tPont on axis, before which insertion takes place
-        no_to_insert: Integer >= 0
-        \tNumber of rows/cols/tabs that shall be inserted
-        axis: Integer in range(3)
-        \tSpecifies number of dimension, i.e. 0 == row, 1 == col, ...
-        tab: Integer, defaults to None
-        \tIf given then insertion is limited to this tab for axis < 2
-        cell_attrs: List, defaults to []
-        \tIf not empty then the given cell attributes replace the existing ones
+        :param insertion_point: Point on axis before insertion
+        :type insertion_point: int
+        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
+        :type no_to_insert: int, >=0
+        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col ...
+        :type axis: int in range(3)
+        :param tab: Limits insertion to tab for axis < 2
+        :type tab: int, optional
+        :param cell_attrs: If given replaces the existing CellAttributes
+        :type cell_attrs: CellAttributes, optional
 
         """
 
@@ -930,17 +906,14 @@ class DataArray(object):
     def insert(self, insertion_point, no_to_insert, axis, tab=None):
         """Inserts no_to_insert rows/cols/tabs/... before insertion_point
 
-        Parameters
-        ----------
-
-        insertion_point: Integer
-        \tPont on axis, before which insertion takes place
-        no_to_insert: Integer >= 0
-        \tNumber of rows/cols/tabs that shall be inserted
-        axis: Integer
-        \tSpecifies number of dimension, i.e. 0 == row, 1 == col, ...
-        tab: Integer, defaults to None
-        \tIf given then insertion is limited to this tab for axis < 2
+        :param insertion_point: Point on axis before insertion
+        :type insertion_point: int
+        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
+        :type no_to_insert: int, >= 0,
+        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col ...
+        :type axis: int
+        :param tab: If given then insertion is limited to this tab for axis < 2
+        :type tab: int, optional
 
         """
 
@@ -1140,10 +1113,8 @@ class CodeArray(DataArray):
     def _get_updated_environment(self, env_dict=None):
         """Returns globals environment with 'magic' variable
 
-        Parameters
-        ----------
-        env_dict: Dict, defaults to {'S': self}
-        \tDict that maps global variable name to value
+        :param env_dict: Maps global variable name to value
+        :type env_dict: dict, optional, defaults to {'S': self}
 
         """
 
@@ -1254,10 +1225,8 @@ class CodeArray(DataArray):
     def pop(self, key):
         """pop with cache support
 
-        Parameters
-        ----------
-        key: 3-tuple of Integer
-        \tCell key that shall be popped
+        :param key: Cell key that shall be popped
+        :type key: tuple
 
         """
 
@@ -1375,15 +1344,12 @@ class CodeArray(DataArray):
     def _sorted_keys(self, keys, startkey, reverse=False):
         """Generator that yields sorted keys starting with startkey
 
-        Parameters
-        ----------
-
-        keys: Iterable of tuple/list
-        \tKey sequence that is sorted
-        startkey: Tuple/list
-        \tFirst key to be yielded
-        reverse: Bool
-        \tSort direction reversed if True
+        :param keys: Key sequence that is sorted
+        :type keys: Iterable of tuple
+        :param startkey: First key to be yielded
+        :type startkey: tuple
+        :param reverse: Sort direction reversed if True
+        :type reverse: bool, optional, defaults to False
 
         """
 
@@ -1408,12 +1374,13 @@ class CodeArray(DataArray):
     def string_match(self, datastring, findstring, word, case, regexp):
         """Returns position of findstring in datastring or None if not found
 
-        :param word: Bool, search full words only if True
-        :param case: Bool, search case sensitively if True
-        :param regexp: Bool, reg. expression search if True
+        :param word: Search full words only if True
+        :type word: bool
+        :param case: Search case sensitively if True
+        :type case: bool
+        :param regexp: Regular expression search if True
         :rtype: int or None
-        :return:  Returns position of findstring in datastring
-        or None if not found
+        :return: Position of findstring in datastring or None if not found
 
         """
 
@@ -1449,17 +1416,23 @@ class CodeArray(DataArray):
                       case=False, regexp=False, results=True):
         """the position of the next match of find_string
 
-        :param startkey: 3-tuple of int, start position of search
+        :param startkey: Start position of search
+        :type startkey: tuple
         :param find_string: String to be searched for
-        :param up: Bool, defaults to False, search up instead of down if True
-        :param word: Bool, defaults to False, search full words only if True
-        :param case: Bool, defaults to False, search case sensitively if True
-        :param regexp: Bool, defaults to False, reg. expression search if True
-        :param results: Bool, defaults to True. search includes result
-        string if True (slower)
+        :type startkey: str
+        :param up: Search up instead of down if True
+        :type up: bool, optional, defaults to False
+        :param word: Search full words only if True
+        :type word: bool, optional, defaults to False
+        :param case: Search case sensitively if True
+        :type case: bool, optional, defaults to False
+        :param regexp: Reg. expression search if True
+        :type regexp: bool, optional, defaults to False
+        :param results: Search includes result string if True (slower)
+        :type results: bool, optional, defaults to True
         :rtype: str or None
-        :return:  Returns a tuple with the position of the next match of
-        find_string
+        :return:  Returns tuple with position of the next match of find_string
+
         """
 
         if results:

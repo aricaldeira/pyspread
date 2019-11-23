@@ -541,12 +541,8 @@ class Selection(object):
     def cell_generator(self, shape, table=None):
         """Returns a generator of cell key tuples
 
-        Parameters:
-        -----------
-         * shape: 3-tuple of int
-        \tGrid shape
-         * table: int, defaults to None
-        \tThird component of each returned key
+        :param shape: Grid shape
+        :param table: Third component of each returned key
 
         If table is None 2-tuples (row, column) are yielded else 3-tuples
 
