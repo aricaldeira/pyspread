@@ -5,6 +5,15 @@ before_script:
   - apt-get install -y -qq python3-pip python3-dev python3-pil graphviz python3-pyqt5 python3-pyqt5.qtwebengine python3-pyqt5.qtchart
   - pip3 install -r requirements.txt
 
+stages:
+  - test
+  - pages
+
+test:
+  script:
+  - export PYTHONPATH=$PYTHONPATH:.
+  - python3 setup.py test
+
 pages:
   script:
   - pip3 install -r apidocs/requirements.txt
