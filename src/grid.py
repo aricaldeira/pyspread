@@ -1572,7 +1572,10 @@ class GridCellDelegate(QStyledItemDelegate):
             try:
                 svg_bytes = bytes(res)
             except TypeError:
-                svg_bytes = bytes(res, encoding='utf-8')
+                try:
+                    svg_bytes = bytes(res, encoding='utf-8')
+                except TypeError:
+                    return
 
             if not is_svg(svg_bytes):
                 return
@@ -1728,7 +1731,7 @@ class GridCellDelegate(QStyledItemDelegate):
             return
 
         if self.cell_attributes[key]["renderer"] == "matplotlib":
-            self.main_window.workflows.insert_chart()
+            self.main_window.workflows.macro_insert_chart()
             return
 
         return super(GridCellDelegate, self).createEditor(parent, option,
