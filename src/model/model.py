@@ -51,8 +51,8 @@ import sys
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
 
-from lib.typechecks import isslice, isstring
-from lib.selection import Selection
+from src.lib.typechecks import isslice, isstring
+from src.lib.selection import Selection
 
 
 class CellAttributes(list):

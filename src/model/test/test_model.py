@@ -37,27 +37,20 @@ import ast
 from copy import deepcopy
 import fractions  ## Yes, it is required
 import math  ## Yes, it is required
-import os
-import sys
 
 import py.test as pytest
 import numpy
-
-import wx
-app = wx.App()
-
-TESTPATH = os.sep.join(os.path.realpath(__file__).split(os.sep)[:-1]) + os.sep
-sys.path.insert(0, TESTPATH)
-sys.path.insert(0, TESTPATH + (os.sep + os.pardir) * 3)
-sys.path.insert(0, TESTPATH + (os.sep + os.pardir) * 2)
-
-from src.lib.testlib import params, pytest_generate_tests, undotest_model
 
 from src.model.model import KeyValueStore, CellAttributes, DictGrid
 from src.model.model import DataArray, CodeArray
 
 from src.lib.selection import Selection
-from src.lib.undo import stack as undo_stack
+
+
+class Settings:
+    """Simulates settings class"""
+
+    timeout = 1000
 
 
 class TestKeyValueStore(object):
@@ -86,7 +79,6 @@ class TestCellAttributes(object):
         """Creates empty CellAttributes"""
 
         self.cell_attr = CellAttributes()
-        undo_stack().clear()
 
     def test_append(self):
         """Test append"""
@@ -98,7 +90,6 @@ class TestCellAttributes(object):
         self.cell_attr.append((selection, table, attr))
 
         # Check if 1 item - the actual action has been added
-        assert undo_stack().undocount() == 1
         assert not self.cell_attr._attr_cache
 
     def test_getitem(self):
@@ -158,7 +149,7 @@ class TestDataArray(object):
     def setup_method(self, method):
         """Creates empty DataArray"""
 
-        self.data_array = DataArray((100, 100, 100))
+        self.data_array = DataArray((100, 100, 100), Settings())
 
     def test_iter(self):
         """Unit test for __iter__"""
@@ -180,7 +171,6 @@ class TestDataArray(object):
 
         assert sorted(self.data_array.keys()) == [(1, 2, 3), (1, 2, 4)]
 
-    @undotest_model
     def test_pop(self):
         """Unit test for pop"""
 
@@ -196,7 +186,6 @@ class TestDataArray(object):
 
         assert self.data_array.shape == (100, 100, 100)
 
-    @undotest_model
     def test_set_shape(self):
         """Unit test for _set_shape"""
 
@@ -211,7 +200,7 @@ class TestDataArray(object):
         {'content': {(32, 30, 0): "432"}, 'table': 0, 'res': (32, 30)},
     ]
 
-    @params(param_get_last_filled_cell)
+    @pytest.mark.parametrize("content,table,res", param_get_last_filled_cell)
     def test_get_last_filled_cell(self, content, table, res):
         """Unit test for get_last_filled_cellet_end"""
 
@@ -315,7 +304,8 @@ class TestDataArray(object):
          },
     ]
 
-    @params(param_get_adjusted_merge_area)
+    @pytest.mark.parametrize("attrs, insertion_point, no_to_insert, axis, res",
+                             param_get_adjusted_merge_area)
     def test_get_adjusted_merge_area(self, attrs, insertion_point,
                                      no_to_insert, axis, res):
         """Unit test for _get_adjusted_merge_area"""
@@ -343,7 +333,8 @@ class TestDataArray(object):
          'src': (4, 3, 2), 'target': (4, 3, 1)},
     ]
 
-    @params(param_adjust_cell_attributes)
+    @pytest.mark.parametrize("inspoint, noins, axis, src, target",
+                             param_adjust_cell_attributes)
     def test_adjust_cell_attributes(self, inspoint, noins, axis, src, target):
         """Unit test for _adjust_cell_attributes"""
 
@@ -378,7 +369,8 @@ class TestDataArray(object):
          },
     ]
 
-    @params(param_test_insert)
+    @pytest.mark.parametrize("data, inspoint, notoins, axis, tab, res",
+                             param_test_insert)
     def test_insert(self, data, inspoint, notoins, axis, tab, res):
         """Unit test for insert operation"""
 
@@ -421,7 +413,8 @@ class TestDataArray(object):
          },
     ]
 
-    @params(param_test_delete)
+    @pytest.mark.parametrize("data, delpoint, notodel, axis, tab, res",
+                             param_test_delete)
     def test_delete(self, data, delpoint, notodel, axis, tab, res):
         """Tests delete operation"""
 
@@ -461,7 +454,7 @@ class TestCodeArray(object):
     def setup_method(self, method):
         """Creates empty DataArray"""
 
-        self.code_array = CodeArray((100, 10, 3))
+        self.code_array = CodeArray((100, 10, 3), Settings())
 
     param_test_setitem = [
         {"data": {(2, 3, 2): "42"},
@@ -470,7 +463,7 @@ class TestCodeArray(object):
          },
     ]
 
-    @params(param_test_setitem)
+    @pytest.mark.parametrize("data, items, res_data", param_test_setitem)
     def test_setitem(self, data, items, res_data):
         """Unit test for __setitem__"""
 
@@ -499,7 +492,7 @@ class TestCodeArray(object):
         assert get_shape == orig_shape
 
         gridsize = 100
-        filled_grid = CodeArray((gridsize, 10, 1))
+        filled_grid = CodeArray((gridsize, 10, 1), Settings())
         for i in [-2**99, 2**99, 0]:
             for j in range(gridsize):
                 filled_grid[j, 0, 0] = str(i)
@@ -562,7 +555,7 @@ class TestCodeArray(object):
         {'code': "a = 3 ; a < 44", 'res': None},
     ]
 
-    @params(param_get_assignment_target_end)
+    @pytest.mark.parametrize("code, res", param_get_assignment_target_end)
     def test_get_assignment_target_end(self, code, res):
         """Unit test for _get_assignment_target_end"""
 
@@ -583,7 +576,7 @@ class TestCodeArray(object):
         {'key': (43, 2, 1), 'code': "X, Y, Z", 'res': (43, 2, 1)},
     ]
 
-    @params(param_eval_cell)
+    @pytest.mark.parametrize("key, code, res", param_eval_cell)
     def test_eval_cell(self, key, code, res):
         """Unit test for _eval_cell"""
 
