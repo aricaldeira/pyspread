@@ -206,10 +206,11 @@ class CellAttributes(list):
         row, col, tab = key
 
         # Is cell merged
-        merge_area = self[key]["merge_area"]
-
-        if merge_area:
-            return merge_area[0], merge_area[1], tab
+        for selection, table, attr in self:
+            if tab == table and "merge_area" in attr:
+                top, left, bottom, right = attr["merge_area"]
+                if top <= row <= bottom and left <= col <= right:
+                    return top, left, tab
 
     def for_table(self, table):
         """Return cell attributes for a given table"""
