@@ -328,7 +328,10 @@ class MainWindow(QMainWindow):
                 option.rect = QRect(visual_rect.x() - x_offset,
                                     visual_rect.y() - y_offset,
                                     visual_rect.width(), visual_rect.height())
+                painter.save()
+                painter.setClipRect(option.rect)
                 self.grid.itemDelegate().paint(painter, option, idx)
+                painter.restore()
 
         painter.restore()
 

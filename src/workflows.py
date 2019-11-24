@@ -118,7 +118,10 @@ class Workflows:
                     return
                 elif not choice:
                     self.file_save()
-            func(self, *args, **kwargs)
+            try:
+                func(self, *args, **kwargs)
+            except TypeError:
+                func(self)  # No args accepted
             self.reset_changed_since_save()
 
         return function_wrapper
