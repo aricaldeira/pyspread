@@ -34,7 +34,6 @@ from builtins import range
 from builtins import object
 
 import ast
-from copy import deepcopy
 import fractions  ## Yes, it is required
 import math  ## Yes, it is required
 
@@ -193,11 +192,11 @@ class TestDataArray(object):
         assert self.data_array.shape == (10000, 100, 100)
 
     param_get_last_filled_cell = [
-        {'content': {(0, 0, 0): "2"}, 'table': 0, 'res': (0, 0)},
-        {'content': {(2, 0, 2): "2"}, 'table': 0, 'res': (0, 0)},
-        {'content': {(2, 0, 2): "2"}, 'table': None, 'res': (2, 0)},
-        {'content': {(2, 0, 2): "2"}, 'table': 2, 'res': (2, 0)},
-        {'content': {(32, 30, 0): "432"}, 'table': 0, 'res': (32, 30)},
+        ({(0, 0, 0): "2"}, 0, (0, 0)),
+        ({(2, 0, 2): "2"}, 0, (0, 0)),
+        ({(2, 0, 2): "2"}, None, (2, 0)),
+        ({(2, 0, 2): "2"}, 2, (2, 0)),
+        ({(32, 30, 0): "432"}, 0, (32, 30)),
     ]
 
     @pytest.mark.parametrize("content,table,res", param_get_last_filled_cell)
@@ -246,62 +245,20 @@ class TestDataArray(object):
         assert self.data_array.cell_attributes == cell_attributes
 
     param_get_adjusted_merge_area = [
-        {'attrs': {},
-         'insertion_point': 0, 'no_to_insert': 1, 'axis': 0,
-         'res': None,
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 5, 'no_to_insert': 1, 'axis': 0,
-         'res': (2, 2, 3, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 1, 'axis': 0,
-         'res': (3, 2, 4, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 10, 'axis': 0,
-         'res': (12, 2, 13, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 2, 'no_to_insert': 1, 'axis': 0,
-         'res': (2, 2, 4, 4),
-         },
-        {'attrs': {'merge_area': (992, 2, 993, 4)},
-         'insertion_point': 5, 'no_to_insert': 10, 'axis': 0,
-         'res': None,
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -1, 'axis': 0,
-         'res': (1, 2, 2, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 5, 'no_to_insert': -1, 'axis': 0,
-         'res': (2, 2, 3, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 2, 'no_to_insert': -1, 'axis': 0,
-         'res': (2, 2, 2, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -2, 'axis': 0,
-         'res': (0, 2, 1, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -3, 'axis': 0,
-         'res': (0, 2, 0, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 1, 'axis': 1,
-         'res': (2, 3, 3, 5),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 200, 'axis': 1,
-         'res': None,
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -2, 'axis': 1,
-         'res': (2, 0, 3, 2),
-         },
+        ({}, 0, 1, 0, None),
+        ({'merge_area': (2, 2, 3, 4)}, 5, 1, 0, (2, 2, 3, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 0, 1, 0, (3, 2, 4, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 0, 10, 0, (12, 2, 13, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 2, 1, 0, (2, 2, 4, 4)),
+        ({'merge_area': (992, 2, 993, 4)}, 5, 10, 0, None),
+        ({'merge_area': (2, 2, 3, 4)}, 0, -1, 0, (1, 2, 2, 4),),
+        ({'merge_area': (2, 2, 3, 4)}, 5, -1, 0, (2, 2, 3, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 2, -1, 0, (2, 2, 2, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 0, -2, 0, (0, 2, 1, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 0, -3, 0, (0, 2, 0, 4)),
+        ({'merge_area': (2, 2, 3, 4)}, 0, 1, 1, (2, 3, 3, 5)),
+        ({'merge_area': (2, 2, 3, 4)}, 0, 200, 1, None),
+        ({'merge_area': (2, 2, 3, 4)}, 0, -2, 1, (2, 0, 3, 2)),
     ]
 
     @pytest.mark.parametrize("attrs, insertion_point, no_to_insert, axis, res",
@@ -540,43 +497,13 @@ class TestCodeArray(object):
 
         assert res == [[["Test" for _ in range(2)] for _ in range(2)]]
 
-    param_get_assignment_target_end = [
-        {'code': "a=5", 'res': 1},
-        {'code': "a = 5", 'res': 1},
-        {'code': "5", 'res': -1},
-        {'code': "a == 5", 'res': -1},
-        {'code': "", 'res': -1},
-        {'code': "fractions = __import__('fractions')", 'res': 9},
-        {'code': "math = __import__('math')", 'res': 4},
-        {'code': "a = 3==4", 'res': 1},
-        {'code': "a == 3 < 44", 'res': -1},
-        {'code': "a != 3 < 44", 'res': -1},
-        {'code': "a >= 3 < 44", 'res': -1},
-        {'code': "a = 3 ; a < 44", 'res': None},
+    data_eval_cell = [
+        ((0, 0, 0), "2 + 4", 6),
+        ((1, 0, 0), "S[0, 0, 0]", None),
+        ((43, 2, 1), "X, Y, Z", (43, 2, 1)),
     ]
 
-    @pytest.mark.parametrize("code, res", param_get_assignment_target_end)
-    def test_get_assignment_target_end(self, code, res):
-        """Unit test for _get_assignment_target_end"""
-
-        module = ast.parse(code)
-
-        if res is None:
-            try:
-                self.code_array._get_assignment_target_end(module)
-                raise ValueError("Multiple expressions cell not identified")
-            except ValueError:
-                pass
-        else:
-            assert self.code_array._get_assignment_target_end(module) == res
-
-    param_eval_cell = [
-        {'key': (0, 0, 0), 'code': "2 + 4", 'res': 6},
-        {'key': (1, 0, 0), 'code': "S[0, 0, 0]", 'res': None},
-        {'key': (43, 2, 1), 'code': "X, Y, Z", 'res': (43, 2, 1)},
-    ]
-
-    @pytest.mark.parametrize("key, code, res", param_eval_cell)
+    @pytest.mark.parametrize("key, code, res", data_eval_cell)
     def test_eval_cell(self, key, code, res):
         """Unit test for _eval_cell"""
 
@@ -598,12 +525,18 @@ class TestCodeArray(object):
 
         keys = [(1, 0, 0), (2, 0, 0), (0, 1, 0), (0, 99, 0), (0, 0, 0),
                 (0, 0, 99), (1, 2, 3)]
-        assert list(code_array._sorted_keys(keys, (0, 1, 0))) == \
-            [(0, 1, 0), (0, 99, 0), (1, 2, 3), (0, 0, 99), (0, 0, 0),
-             (1, 0, 0), (2, 0, 0)]
-        sk = list(code_array._sorted_keys(keys, (0, 3, 0), reverse=True))
-        assert sk == [(0, 1, 0), (2, 0, 0), (1, 0, 0), (0, 0, 0), (0, 0, 99),
-                      (1, 2, 3), (0, 99, 0)]
+        sorted_keys = [(0, 1, 0), (0, 99, 0), (1, 2, 3), (0, 0, 99), (0, 0, 0),
+                       (1, 0, 0), (2, 0, 0)]
+        rev_sorted_keys = [(0, 1, 0), (2, 0, 0), (1, 0, 0), (0, 0, 0),
+                           (0, 0, 99), (1, 2, 3), (0, 99, 0)]
+
+        sort_gen = code_array._sorted_keys(keys, (0, 1, 0))
+        for result, expected_result in zip(sort_gen, sorted_keys):
+            assert result == expected_result
+
+        rev_sort_gen = code_array._sorted_keys(keys, (0, 3, 0), reverse=True)
+        for result, expected_result in zip(rev_sort_gen, rev_sorted_keys):
+            assert result == expected_result
 
     def test_string_match(self):
         """Tests creation of string_match"""
@@ -618,22 +551,24 @@ class TestCodeArray(object):
         search_string = "Hello"
 
         # Normal search
-        flags = []
+        flags = False, False, False
         results = [None, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, None]
         for test_string, result in zip(test_strings, results):
-            res = code_array.string_match(test_string, search_string, flags)
+            res = code_array.string_match(test_string, search_string, *flags)
             assert res == result
 
-        flags = ["MATCH_CASE"]
+        # Case sensitive
+        flags = False, True, False
         results = [None, 0, 1, 0, 1, 0, 1, 1, 1, None, None, None]
         for test_string, result in zip(test_strings, results):
-            res = code_array.string_match(test_string, search_string, flags)
+            res = code_array.string_match(test_string, search_string, *flags)
             assert res == result
 
-        flags = ["WHOLE_WORD"]
+        # Word search
+        flags = True, False, False
         results = [None, 0, 1, 0, 1, 0, None, None, None, 0, 0, None]
         for test_string, result in zip(test_strings, results):
-            res = code_array.string_match(test_string, search_string, flags)
+            res = code_array.string_match(test_string, search_string, *flags)
             assert res == result
 
     def test_findnextmatch(self):
@@ -645,5 +580,5 @@ class TestCodeArray(object):
             code_array[i, 0, 0] = str(i)
 
         assert code_array[3, 0, 0] == 3
-        assert code_array.findnextmatch((0, 0, 0), "3", "DOWN") == (3, 0, 0)
-        assert code_array.findnextmatch((0, 0, 0), "99", "DOWN") == (99, 0, 0)
+        assert code_array.findnextmatch((0, 0, 0), "3", False) == (3, 0, 0)
+        assert code_array.findnextmatch((0, 0, 0), "99", True) == (99, 0, 0)
