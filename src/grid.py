@@ -902,18 +902,17 @@ class Grid(QTableView):
         if self.columnSpan(top, left) > 1 or self.rowSpan(top, left) > 1:
             selection = Selection([], [], [], [], [(top, left)])
             attr = selection, self.table, {"merge_area": None}
-        elif self.columnSpan(self.row, self.column) > 1 \
-                or self.rowSpan(self.row, self.column) > 1:
-            # Unmerge the cell that merges the current cell (!)
-            selection = Selection([], [], [], [], [(self.row, self.column)])
-            attr = selection, self.table, {"merge_area": None}
-        else:
-            # Merge and store the current selection (!)
+            description_tpl = "Unmerge cells with top-left cell {}"
+        elif bottom > top or right > left:
+            # Merge and store the current selection
             merging_selection = Selection([], [], [], [], [(top, left)])
             attr = merging_selection, self.table, {"merge_area":
                                                    (top, left, bottom, right)}
+            description_tpl = "Merge cells with top-left cell {}"
+        else:
+            # Cells are not merged because the span is one
+            return
 
-        description_tpl = "Merge cells with top-left cell {}"
         description = description_tpl.format((top, left))
         command = CommandSetCellMerge(attr, self.model, self.currentIndex(),
                                       self.selected_idx, description)

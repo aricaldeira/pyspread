@@ -117,7 +117,17 @@ class CellAttributes(list):
     def append(self, value):
         """append that clears caches"""
 
-        super().append(value)
+        # We need to clean up merge areas
+        selection, table, attr = value
+        if "merge_area" in attr:
+            for i, ele in enumerate(reversed(self)):
+                if ele[0] == selection and ele[1] == table:
+                    self.pop(-1 - i)
+            if attr["merge_area"] is not None:
+                super().append(value)
+        else:
+            super().append(value)
+
         self._attr_cache.clear()
         self._table_cache.clear()
 
