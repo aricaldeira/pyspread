@@ -274,20 +274,13 @@ class TestDataArray(object):
         assert merge_area == res
 
     param_adjust_cell_attributes = [
-        {'inspoint': 0, 'noins': 5, 'axis': 0,
-         'src': (4, 3, 0), 'target': (9, 3, 0)},
-        {'inspoint': 34, 'noins': 5, 'axis': 0,
-         'src': (4, 3, 0), 'target': (4, 3, 0)},
-        {'inspoint': 0, 'noins': 0, 'axis': 0,
-         'src': (4, 3, 0), 'target': (4, 3, 0)},
-        {'inspoint': 1, 'noins': 5, 'axis': 1,
-         'src': (4, 3, 0), 'target': (4, 8, 0)},
-        {'inspoint': 1, 'noins': 5, 'axis': 1,
-         'src': (4, 3, 1), 'target': (4, 8, 1)},
-        {'inspoint': 0, 'noins': -1, 'axis': 2,
-         'src': (4, 3, 1), 'target': None},
-        {'inspoint': 0, 'noins': -1, 'axis': 2,
-         'src': (4, 3, 2), 'target': (4, 3, 1)},
+        (0, 5, 0, (4, 3, 0), (9, 3, 0)),
+        (34, 5, 0, (4, 3, 0), (4, 3, 0)),
+        (0, 0, 0, (4, 3, 0), (4, 3, 0)),
+        (1, 5, 1, (4, 3, 0), (4, 8, 0)),
+        (1, 5, 1, (4, 3, 1), (4, 8, 1)),
+        (0, -1, 2, (4, 3, 1), None),
+        (0, -1, 2, (4, 3, 2), (4, 3, 1)),
     ]
 
     @pytest.mark.parametrize("inspoint, noins, axis, src, target",
@@ -300,7 +293,7 @@ class TestDataArray(object):
         val = {"angle": 0.2}
 
         attrs = [(Selection([], [], [], [], [(row, col)]), tab, val)]
-        self.data_array._set_cell_attributes(attrs)
+        self.data_array.cell_attributes[:] = attrs
         self.data_array._adjust_cell_attributes(inspoint, noins, axis)
 
         if target is None:
@@ -314,16 +307,10 @@ class TestDataArray(object):
                 assert self.data_array.cell_attributes[target][key] == val[key]
 
     param_test_insert = [
-        {
-            "data": {(2, 3, 0): "42"},
-            "inspoint": 1, "notoins": 1, "axis": 0, "tab": None,
-            "res": {(2, 3, 0): None, (3, 3, 0): "42"},
-         },
-        {
-            "data": {(0, 0, 0): "0", (0, 0, 2): "2"},
-            "inspoint": 1, "notoins": 1, "axis": 2, "tab": None,
-            "res": {(0, 0, 3): "2", (0, 0, 4): None},
-         },
+        ({(2, 3, 0): "42"}, 1, 1, 0,  None,
+         {(2, 3, 0): None, (3, 3, 0): "42"}),
+        ({(0, 0, 0): "0", (0, 0, 2): "2"}, 1, 1, 2, None,
+         {(0, 0, 3): "2", (0, 0, 4): None}),
     ]
 
     @pytest.mark.parametrize("data, inspoint, notoins, axis, tab, res",
@@ -338,36 +325,12 @@ class TestDataArray(object):
             assert self.data_array[key] == res[key]
 
     param_test_delete = [
-        {
-            "data": {(2, 3, 4): "42"},
-            "delpoint": 1, "notodel": 1, "axis": 0, "tab": None,
-            "res": {(1, 3, 4): "42"},
-         },
-        {
-            "data": {(0, 0, 0): "1"},
-            "delpoint": 0, "notodel": 1, "axis": 0, "tab": 0,
-            "res": {(0, 0, 0): None},
-         },
-        {
-            "data": {(0, 0, 1): "1"},
-            "delpoint": 0, "notodel": 1, "axis": 2, "tab": None,
-            "res": {(0, 0, 0): "1"},
-         },
-        {
-            "data": {(3, 3, 2): "3"},
-            "delpoint": 0, "notodel": 2, "axis": 2, "tab": None,
-            "res": {(3, 3, 0): "3"},
-         },
-        {
-            "data": {(4, 2, 1): "3"},
-            "delpoint": 2, "notodel": 1, "axis": 1, "tab": 1,
-            "res": {(4, 2, 1): None},
-         },
-        {
-            "data": {(10, 0, 0): "1"},
-            "delpoint": 0, "notodel": 10, "axis": 0, "tab": 0,
-            "res": {(0, 0, 0): "1"},
-         },
+        ({(2, 3, 4): "42"}, 1, 1, 0, None, {(1, 3, 4): "42"}),
+        ({(0, 0, 0): "1"}, 0, 1, 0, 0, {(0, 0, 0): None}),
+        ({(0, 0, 1): "1"}, 0, 1, 2, None, {(0, 0, 0): "1"}),
+        ({(3, 3, 2): "3"}, 0, 2, 2, None, {(3, 3, 0): "3"}),
+        ({(4, 2, 1): "3"}, 2, 1, 1, 1, {(4, 2, 1): None}),
+        ({(10, 0, 0): "1"}, 0, 10, 0, 0, {(0, 0, 0): "1"}),
     ]
 
     @pytest.mark.parametrize("data, delpoint, notodel, axis, tab, res",
@@ -414,10 +377,8 @@ class TestCodeArray(object):
         self.code_array = CodeArray((100, 10, 3), Settings())
 
     param_test_setitem = [
-        {"data": {(2, 3, 2): "42"},
-         "items": {(1, 3, 2): "42"},
-         "res_data": {(1, 3, 2): "42", (2, 3, 2): "42"},
-         },
+        ({(2, 3, 2): "42"}, {(1, 3, 2): "42"},
+         {(1, 3, 2): "42", (2, 3, 2): "42"}),
     ]
 
     @pytest.mark.parametrize("data, items, res_data", param_test_setitem)
