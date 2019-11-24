@@ -118,7 +118,7 @@ class TestCellAttributes(object):
         assert self.cell_attr.get_merging_cell((1, 1, 0)) is None
 
         # Cell 3. 3, 0 is merged to cell 3, 2, 0
-        assert self.cell_attr.get_merging_cell((3, 3, 0)) == (3, 2, 0)
+        assert self.cell_attr.get_merging_cell((3, 3, 0)) == (2, 2, 0)
 
         # Cell 2. 2, 0 is merged to cell 2, 2, 0
         assert self.cell_attr.get_merging_cell((2, 2, 0)) == (2, 2, 0)
@@ -241,37 +241,8 @@ class TestDataArray(object):
         """Unit test for _set_cell_attributes"""
 
         cell_attributes = ["Test"]
-        self.data_array._set_cell_attributes(cell_attributes)
+        self.data_array.cell_attributes[:] = cell_attributes
         assert self.data_array.cell_attributes == cell_attributes
-
-    param_get_adjusted_merge_area = [
-        ({}, 0, 1, 0, None),
-        ({'merge_area': (2, 2, 3, 4)}, 5, 1, 0, (2, 2, 3, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 0, 1, 0, (3, 2, 4, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 0, 10, 0, (12, 2, 13, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 2, 1, 0, (2, 2, 4, 4)),
-        ({'merge_area': (992, 2, 993, 4)}, 5, 10, 0, None),
-        ({'merge_area': (2, 2, 3, 4)}, 0, -1, 0, (1, 2, 2, 4),),
-        ({'merge_area': (2, 2, 3, 4)}, 5, -1, 0, (2, 2, 3, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 2, -1, 0, (2, 2, 2, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 0, -2, 0, (0, 2, 1, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 0, -3, 0, (0, 2, 0, 4)),
-        ({'merge_area': (2, 2, 3, 4)}, 0, 1, 1, (2, 3, 3, 5)),
-        ({'merge_area': (2, 2, 3, 4)}, 0, 200, 1, None),
-        ({'merge_area': (2, 2, 3, 4)}, 0, -2, 1, (2, 0, 3, 2)),
-    ]
-
-    @pytest.mark.parametrize("attrs, insertion_point, no_to_insert, axis, res",
-                             param_get_adjusted_merge_area)
-    def test_get_adjusted_merge_area(self, attrs, insertion_point,
-                                     no_to_insert, axis, res):
-        """Unit test for _get_adjusted_merge_area"""
-
-        merge_area = self.data_array._get_adjusted_merge_area(attrs,
-                                                              insertion_point,
-                                                              no_to_insert,
-                                                              axis)
-        assert merge_area == res
 
     param_adjust_cell_attributes = [
         (0, 5, 0, (4, 3, 0), (9, 3, 0)),

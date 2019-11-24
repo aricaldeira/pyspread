@@ -839,9 +839,9 @@ class DataArray:
         def replace_cell_attributes_table(index, new_table):
             """Replaces table in cell_attributes item"""
 
-            ca = list(self.cell_attributes.get_item(index))
+            ca = list(list.__getitem__(self.cell_attributes, index))
             ca[1] = new_table
-            self.cell_attributes.__setitem__(index, tuple(ca))
+            self.cell_attributes[index] = tuple(ca)
 
         def get_ca_with_updated_ma(attrs, merge_area):
             """Returns cell attributes with updated merge area"""
