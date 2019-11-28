@@ -121,7 +121,8 @@ class CellAttributes(list):
         selection, table, attr = value
         if "merge_area" in attr:
             for i, ele in enumerate(reversed(self)):
-                if ele[0] == selection and ele[1] == table:
+                if ele[0] == selection and ele[1] == table \
+                   and "merge_area" in ele[2]:
                     self.pop(-1 - i)
             if attr["merge_area"] is not None:
                 super().append(value)
