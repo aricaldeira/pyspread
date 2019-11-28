@@ -414,6 +414,7 @@ class Workflows:
                     code = grid.model.code_array((row, column, table))
                     if code is None:
                         code = ""
+                    code = code.replace("\n", "\u000C")  # Replace LF by FF
                 else:
                     code = ""
                 data[-1].append(code)
@@ -542,6 +543,8 @@ class Workflows:
                     if (paste_row, paste_column) in selection:
                         index = model.index(paste_row, paste_column,
                                             QModelIndex())
+                        # Preserve line breaks
+                        value = value.replace("\u000C", "\n")
                         command = CommandSetCellCode(value, model, index,
                                                      description)
                         undo_stack.push(command)
@@ -569,6 +572,8 @@ class Workflows:
                 paste_column = column + left
                 if (paste_row, paste_column, table) in code_array:
                     index = model.index(paste_row, paste_column, QModelIndex())
+                    # Preserve line breaks
+                    value = value.replace("\u000C", "\n")
                     command = CommandSetCellCode(value, model, index,
                                                  description)
                     undo_stack.push(command)
