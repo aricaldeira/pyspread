@@ -28,6 +28,7 @@ from ast import literal_eval
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
+from copy import deepcopy
 from itertools import cycle
 import io
 import os.path
@@ -881,7 +882,7 @@ class Workflows:
         def remove_tabu_keys(attr):
             """Remove keys that are not copied from attr"""
 
-            tabu_attrs = "merge_area", "renderer", "frozen"
+            tabu_attrs = "merge_area", "frozen"
             for tabu_attr in tabu_attrs:
                 try:
                     attrs.pop(tabu_attr)
@@ -903,7 +904,8 @@ class Workflows:
         (top, left), (bottom, right) = \
             selection.get_grid_bbox(grid.model.shape)
 
-        for __selection, _, attrs in cell_attributes.for_table(table):
+        table_cell_attributes = deepcopy(cell_attributes.for_table(table))
+        for __selection, _, attrs in table_cell_attributes:
             new_selection = selection & __selection
             if new_selection:
                 # We do not copy merged cells and cell renderers
@@ -942,7 +944,7 @@ class Workflows:
         cas = literal_eval(cas_data_str)
         assert isinstance(cas, list)
 
-        tabu_attrs = "merge_area", "renderer", "frozen"
+        tabu_attrs = "merge_area", "frozen"
 
         description_tpl = "Paste format for selections {}"
         description = description_tpl.format([ca[0] for ca in cas])
