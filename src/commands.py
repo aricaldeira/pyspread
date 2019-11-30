@@ -40,7 +40,7 @@ from copy import copy
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QUndoCommand
 
-from lib.selection import Selection
+from src.lib.selection import Selection
 
 
 class CommandSetGridSize(QUndoCommand):

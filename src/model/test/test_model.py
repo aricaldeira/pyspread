@@ -33,9 +33,8 @@ from builtins import str
 from builtins import range
 from builtins import object
 
-import ast
-import fractions  ## Yes, it is required
-import math  ## Yes, it is required
+import fractions  # Yes, it is required
+import math  # Yes, it is required
 
 import py.test as pytest
 import numpy

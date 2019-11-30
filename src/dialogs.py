@@ -55,10 +55,10 @@ try:
 except ImportError:
     Figure = None
 
-from lib.spelltextedit import SpellTextEdit
-from actions import ChartDialogActions
-from toolbar import ChartTemplatesToolBar
-from icons import PYSPREAD_PATH
+from src.lib.spelltextedit import SpellTextEdit
+from src.actions import ChartDialogActions
+from src.toolbar import ChartTemplatesToolBar
+from src.icons import PYSPREAD_PATH
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 

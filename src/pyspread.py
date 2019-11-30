@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application):
+    def __init__(self, application, show=False):
         super().__init__()
 
         self._loading = True
@@ -97,7 +97,9 @@ class MainWindow(QMainWindow):
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
-        self.show()
+        if show:
+            self.show()
+
         self._update_action_toggles()
 
         # Update the GUI so that everything matches the model

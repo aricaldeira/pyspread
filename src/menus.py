@@ -45,7 +45,7 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
+from src.icons import Icon
 
 
 class MenuBar(QMenuBar):
