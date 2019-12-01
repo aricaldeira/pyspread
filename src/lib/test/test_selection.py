@@ -129,7 +129,7 @@ class TestSelection:
          True),
     ]
 
-    @pytest.mark.parametrize("sel, key, res", param_test_eq)
+    @pytest.mark.parametrize("sel, key, res", param_test_contains)
     def test_contains(self, sel, key, res):
         """Unit test for __contains__
 
@@ -268,20 +268,3 @@ class TestSelection:
         """Unit test for shifted"""
 
         assert sel.shifted(rows, cols) == res
-
-    param_test_grid_select = [
-        (Selection([], [], [], [], [(1, 0), (2, 0)]), (1, 0), True),
-        (Selection([], [], [], [], [(1, 0), (2, 0)]), (0, 0), False),
-        (Selection([], [], [1, 2], [], []), (0, 0), False),
-        (Selection([], [], [1, 2], [], []), (1, 0), True),
-        (Selection([], [], [], [3], []), (0, 3), True),
-        (Selection([], [], [], [3], []), (0, 0), False),
-        (Selection([(0, 0)], [(2, 2)], [], [], []), (1, 1), True),
-    ]
-
-    @pytest.mark.parametrize("sel, key, res", param_test_grid_select)
-    def test_grid_select(self, sel, key, res):
-        """Unit test for grid_select"""
-
-        sel.grid_select(self.grid)
-        assert self.grid.IsInSelection(*key) == res
