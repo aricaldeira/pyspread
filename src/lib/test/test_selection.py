@@ -29,22 +29,11 @@ Unit tests for selection.py
 
 import py.test as pytest
 
-from PyQt5.QtWidgets import QApplication
-
-from src.pyspread import MainWindow
 from src.lib.selection import Selection
 
 
 class TestSelection:
     """Unit tests for Selection"""
-
-    def setup_method(self, method):
-        self.app = QApplication([])
-        self.main_window = MainWindow(self.app, show=False)
-        self.grid = self.main_window.grid
-
-    def teardown_method(self, method):
-        self.app.quit()
 
     param_test_nonzero = [
         (Selection([], [], [], [], [(32), (34)]),),
@@ -189,7 +178,7 @@ class TestSelection:
         """Unit test for __and__"""
 
         s1_and_s2 = s1 & s2
-        if type(res) is type([]):
+        if isinstance(res, list):
             for cell in res:
                 assert cell in s1_and_s2
         else:

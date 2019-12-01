@@ -38,7 +38,7 @@ def quote(code):
     ----------
 
     * code: String
-    \tCode that is quoted
+    \tCode that is to be quoted
 
     """
 
@@ -47,9 +47,13 @@ def quote(code):
         ('"', '"'),
         ("u'", "'"),
         ('u"', '"'),
+        ("b'", "'"),
+        ('b"', '"'),
+        ("r'", "'"),
+        ('r"', '"'),
     ]
 
-    if code is None or not isinstance(code, str):
+    if code is None or not (isinstance(code, bytes) or isinstance(code, str)):
         return code
 
     code = code.strip()
