@@ -7,21 +7,21 @@ before_script:
 
 stages:
   - test
-#  - pages
+  - pages
 
 test:
   script:
   - export PYTHONPATH=$PYTHONPATH:.
   - python3 setup.py test
 
-#pages:
-#  script:
-#  - pip3 install -r apidocs/requirements.txt
-#  - mkdir public
-#  - sphinx-build -a -b html ./apidocs ./public/
-#  artifacts:
-#    paths:
-#    - public
-#  only:
-#  - master
+pages:
+  script:
+  - pip3 install -r apidocs/requirements.txt
+  - mkdir public
+  - sphinx-build -a -b html ./apidocs ./public/
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
 
