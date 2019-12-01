@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application, show=False):
+    def __init__(self, application, show=True):
         super().__init__()
 
         self._loading = True
