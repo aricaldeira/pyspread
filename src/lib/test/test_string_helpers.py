@@ -20,10 +20,10 @@
 
 
 """
-test_selection
-==============
+test_string_helpers
+===================
 
-Unit tests for selection.py
+Unit tests for string_helpers.py
 
 """
 
