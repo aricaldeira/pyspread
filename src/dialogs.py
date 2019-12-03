@@ -249,7 +249,7 @@ class GridShapeDialog(DataEntryDialog):
         groupbox_title = "Grid Shape"
         labels = ["Number of Rows", "Number of Columns", "Number of Tables"]
         validator = QIntValidator()
-        validator.setBottom(0)  # Do not allow negative values
+        validator.setBottom(1)  # Do not allow negative values
         validators = [validator] * len(labels)
         super().__init__(parent, title, labels, shape, groupbox_title,
                          validators)
