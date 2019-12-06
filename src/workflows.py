@@ -871,6 +871,8 @@ class Workflows:
             self.main_window.statusBar().showMessage(msg)
             return
 
+        self.main_window.grid.current = 0, 0, 0
+
         description = "Resize grid to {}".format(shape)
 
         with self.disable_entryline_updates():
