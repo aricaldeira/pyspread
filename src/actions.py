@@ -228,20 +228,6 @@ class MainWindowActions(AttrDict):
                             statustip="Convert cells' code to strings by "
                                       "addding quotes")
 
-        self.sort_ascending = Action(self.parent, "Sort ascending",
-                                     self.parent.on_nothing,
-                                     icon=Icon.sort_ascending,
-                                     statustip='Sort selected columns (or '
-                                               'all if none selected) in '
-                                               'ascending order')
-
-        self.sort_descending = Action(self.parent, "Sort descending",
-                                      self.parent.on_nothing,
-                                      icon=Icon.sort_descending,
-                                      statustip='Sort selected columns (or '
-                                                'all if none selected) in '
-                                                'descending order')
-
         self.insert_rows = Action(self.parent, "Insert rows",
                                   self.parent.grid.on_insert_rows,
                                   icon=Icon.insert_row,
