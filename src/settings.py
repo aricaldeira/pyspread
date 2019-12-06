@@ -41,6 +41,9 @@ class Settings:
     # Shape of initial grid (rows, columns, tables)
     shape = 1000, 100, 3
 
+    # Maximum shape of the grid
+    maxshape = 1000000, 100000, 100
+
     # If `True` then File actions trigger a dialog
     changed_since_save = False
 

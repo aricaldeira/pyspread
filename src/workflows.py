@@ -144,11 +144,21 @@ class Workflows:
     def file_new(self):
         """File new workflow"""
 
+        maxshape = self.main_window.settings.maxshape
+
         # Get grid shape from user
         old_shape = self.main_window.grid.model.code_array.shape
         shape = GridShapeDialog(self.main_window, old_shape).shape
-        if shape is None or any(ax == 0 for ax in shape):
+        if shape is None:
             # Abort changes because the dialog has been canceled
+            return
+        elif any(ax == 0 for ax in shape):
+            msg = "Invalid grid shape {}.".format(shape)
+            self.main_window.statusBar().showMessage(msg)
+            return
+        elif any(ax > axmax for axmax, ax in zip(maxshape, shape)):
+            msg = "Grid shape {} exceeds {}.".format(shape, maxshape)
+            self.main_window.statusBar().showMessage(msg)
             return
 
         # Reset grid
@@ -841,12 +851,22 @@ class Workflows:
 
         grid = self.main_window.grid
 
+        maxshape = self.main_window.settings.maxshape
+
         # Get grid shape from user
         old_shape = grid.model.code_array.shape
         title = "Resize grid"
         shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
         if shape is None:
             # Abort changes because the dialog has been canceled
+            return
+        elif any(ax == 0 for ax in shape):
+            msg = "Invalid grid shape {}.".format(shape)
+            self.main_window.statusBar().showMessage(msg)
+            return
+        elif any(ax > axmax for axmax, ax in zip(maxshape, shape)):
+            msg = "Grid shape {} exceeds {}.".format(shape, maxshape)
+            self.main_window.statusBar().showMessage(msg)
             return
 
         description = "Resize grid to {}".format(shape)
