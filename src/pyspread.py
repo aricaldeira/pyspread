@@ -122,6 +122,9 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
         self.safe_mode_widget.hide()
 
+        # Disable the approve fiel menu button
+        self.main_window_actions.approve.setEnabled(False)
+
         self.setMenuBar(MenuBar(self))
 
     def resizeEvent(self, event):
@@ -242,8 +245,12 @@ class MainWindow(QMainWindow):
 
         if value:  # Safe mode entered
             self.safe_mode_widget.show()
+            # Enable approval menu entry
+            self.main_window_actions.approve.setEnabled(True)
         else:  # Safe_mode disabled
             self.safe_mode_widget.hide()
+            # Disable approval menu entry
+            self.main_window_actions.approve.setEnabled(False)
             # Clear result cache
             self.grid.model.code_array.result_cache.clear()
             # Execute macros
