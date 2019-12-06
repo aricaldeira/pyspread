@@ -161,6 +161,8 @@ class Workflows:
             self.main_window.statusBar().showMessage(msg)
             return
 
+        self.main_window.grid.current = 0, 0, 0
+
         # Reset grid
         self.main_window.grid.model.reset()
 
