@@ -56,6 +56,7 @@ except ImportError:
     Figure = None
 
 from src.lib.spelltextedit import SpellTextEdit
+from src.lib.testlib import unit_test_dialog_override
 from src.actions import ChartDialogActions
 from src.toolbar import ChartTemplatesToolBar
 from src.icons import PYSPREAD_PATH
@@ -255,6 +256,7 @@ class GridShapeDialog(DataEntryDialog):
                          validators)
 
     @property
+    @unit_test_dialog_override
     def shape(self):
         """Executes the dialog and returns an int tuple rows, columns, tables
 

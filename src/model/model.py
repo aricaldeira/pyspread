@@ -40,7 +40,6 @@ from builtins import object
 import ast
 import base64
 import bz2
-from collections import defaultdict
 from copy import copy
 import datetime
 from inspect import isgenerator
@@ -276,6 +275,9 @@ class DictGrid(KeyValueStore):
 
         self.macros = u""
         """Macros as string"""
+
+        # We need to import this here for the unit tests to work
+        from collections import defaultdict
 
         self.row_heights = defaultdict(float)  # Keys have format (row, table)
         self.col_widths = defaultdict(float)  # Keys have format (col, table)

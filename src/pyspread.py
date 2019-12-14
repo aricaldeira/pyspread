@@ -69,15 +69,22 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class MainWindow(QMainWindow):
-    """Pyspread main window"""
+    """Pyspread main window
+
+    :unit_test: If True then the application runs in unit_test mode
+    :type unit_test: bool, defaults to False
+
+    """
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application, show=True):
+    def __init__(self, application, unit_test=False):
         super().__init__()
 
         self._loading = True
         self.application = application
+        self.unit_test = unit_test
+
         self.settings = Settings(self)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
@@ -97,7 +104,7 @@ class MainWindow(QMainWindow):
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
-        if show:
+        if not self.unit_test:
             self.show()
 
         self._update_action_toggles()
