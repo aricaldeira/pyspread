@@ -74,7 +74,8 @@ class Workflows:
         progress_dialog.setLabelText(label)
         progress_dialog.setMaximum(maximum)
         progress_dialog.setMinimumDuration(min_duration)
-        progress_dialog.show()
+        if not self.main_window.unit_test:
+            progress_dialog.show()
         progress_dialog.setValue(0)
 
         yield progress_dialog
@@ -245,12 +246,16 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        # Get filepath from user
-        dial = FileOpenDialog(self.main_window)
-        if not dial.file_path:
-            return  # Cancel pressed
+        if self.main_window.unit_test:
+            # We are in a unit test and use the unit test filepath
+            filepath = self.main_window.unit_test_data
 
-        filepath = Path(dial.file_path).with_suffix(dial.suffix)
+        else:
+            # Get filepath from user
+            dial = FileOpenDialog(self.main_window)
+            if not dial.file_path:
+                return  # Cancel pressed
+            filepath = Path(dial.file_path).with_suffix(dial.suffix)
 
         self._filepath_open(filepath)
 
@@ -263,7 +268,7 @@ class Workflows:
     def sign_file(self, filepath):
         """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
 
-        if self.main_window.grid.model.code_array.safe_mode:
+        if self.main_window.safe_mode:
             msg = "File saved but not signed because it is unapproved."
             self.main_window.statusBar().showMessage(msg)
             return

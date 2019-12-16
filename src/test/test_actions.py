@@ -27,10 +27,11 @@ Unit tests for actions in pyspread
 
 """
 
-import py.test as pytest
+from contextlib import contextmanager
+from pathlib import Path
 
+import py.test as pytest
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTimer
 
 from src.pyspread import MainWindow
 
@@ -60,6 +61,7 @@ class TestActions:
         ((0, 0, 0), (1000, 100, 3)),
         ((9999999999, 0, 0), (1000, 100, 3)),
         ((1000000, 10000, 10), (1000000, 10000, 10)),
+        ((1000, 100, 3), (1000, 100, 3)),
     ]
 
     @pytest.mark.parametrize("shape, res", param_test_file_new)
@@ -69,3 +71,48 @@ class TestActions:
         self.main_window.unit_test_data = shape
         self.main_window.main_window_actions.new.trigger()
         assert self.main_window.grid.model.shape == res
+
+    param_test_file_open = [
+        ("test.pysu", True, False, True, "fig"),
+        ("test.pysu", False, True, True, "fig"),
+        ("non_existing_test.pysu", False, True, True, ""),
+        #("test_invalid1.pysu", True, True, True, ""),
+        #("test_invalid2.pysu", True, True, True, ""),
+        #("test.pysu", False, True, False, ""),
+    ]
+
+    @pytest.mark.parametrize("infilename, signed, safe_mode, readable, res",
+                             param_test_file_open)
+    def test_file_open(self, infilename, signed, safe_mode, readable, res):
+        """Unit test for File -> Open"""
+
+        infilepath = Path(__file__).parent / infilename
+        self.main_window.unit_test_data = infilepath
+
+        @contextmanager
+        def signature():
+            if not readable:
+                infilepath.chmod(0o200)
+
+            if signed:
+                # Create signature
+                self.main_window.safe_mode = False
+                self.main_window.workflows.sign_file(infilepath)
+                self.main_window.safe_mode = safe_mode
+
+            yield
+
+            if not readable:
+                infilepath.chmod(0o500)
+            if signed:
+                # Remove signature
+                sigpath = infilepath.with_suffix(infilepath.suffix + '.sig')
+                sigpath.unlink()
+
+        with signature():
+            self.main_window.main_window_actions.open.trigger()
+
+        code_array = self.main_window.grid.model.code_array
+
+        assert code_array((2, 1, 0)).startswith("fig")
+        assert self.main_window.safe_mode == safe_mode
