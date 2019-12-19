@@ -75,10 +75,8 @@ class TestActions:
     param_test_file_open = [
         ("test.pysu", True, False, True, "fig"),
         ("test.pysu", False, True, True, "fig"),
-        #("non_existing_test.pysu", False, True, True, ""),
         ("test_invalid1.pysu", False, True, True, None),
         ("test_invalid2.pysu", False, True, True, None),
-        #("test_unreadable.pysu", False, True, False, ""),
     ]
 
     @pytest.mark.parametrize("infilename, signed, safe_mode, readable, res",
