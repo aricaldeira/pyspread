@@ -73,15 +73,15 @@ class TestActions:
         assert self.main_window.grid.model.shape == res
 
     param_test_file_open = [
-        ("test.pysu", True, False, True, "fig"),
-        ("test.pysu", False, True, True, "fig"),
-        ("test_invalid1.pysu", False, True, True, None),
-        ("test_invalid2.pysu", False, True, True, None),
+        ("test.pysu", True, False, "fig"),
+        ("test.pysu", False, True, "fig"),
+        ("test_invalid1.pysu", False, True, None),
+        ("test_invalid2.pysu", False, True, None),
     ]
 
-    @pytest.mark.parametrize("infilename, signed, safe_mode, readable, res",
+    @pytest.mark.parametrize("infilename, signed, safe_mode, res",
                              param_test_file_open)
-    def test_file_open(self, infilename, signed, safe_mode, readable, res):
+    def test_file_open(self, infilename, signed, safe_mode, res):
         """Unit test for File -> Open"""
 
         infilepath = Path(__file__).parent / infilename
