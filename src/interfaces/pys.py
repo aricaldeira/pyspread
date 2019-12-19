@@ -133,7 +133,12 @@ class PysReader:
     def _pys2shape(self, line):
         """Updates shape in code_array"""
 
-        self.code_array.shape = self._get_key(*self._split_tidy(line))
+        shape = self._get_key(*self._split_tidy(line))
+        if any(dim <= 0 for dim in shape):
+            # Abort if any axis is 0 or less
+            msg = "Code array has invalid shape {shape}."
+            raise ValueError(msg.format(shape=shape))
+        self.code_array.shape = shape
 
     def _pys2code(self, line):
         """Updates code in pys code_array"""

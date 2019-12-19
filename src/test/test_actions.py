@@ -75,10 +75,10 @@ class TestActions:
     param_test_file_open = [
         ("test.pysu", True, False, True, "fig"),
         ("test.pysu", False, True, True, "fig"),
-        ("non_existing_test.pysu", False, True, True, ""),
-        #("test_invalid1.pysu", True, True, True, ""),
-        #("test_invalid2.pysu", True, True, True, ""),
-        #("test.pysu", False, True, False, ""),
+        #("non_existing_test.pysu", False, True, True, ""),
+        ("test_invalid1.pysu", False, True, True, None),
+        ("test_invalid2.pysu", False, True, True, None),
+        #("test_unreadable.pysu", False, True, False, ""),
     ]
 
     @pytest.mark.parametrize("infilename, signed, safe_mode, readable, res",
@@ -91,9 +91,6 @@ class TestActions:
 
         @contextmanager
         def signature():
-            if not readable:
-                infilepath.chmod(0o200)
-
             if signed:
                 # Create signature
                 self.main_window.safe_mode = False
@@ -102,8 +99,6 @@ class TestActions:
 
             yield
 
-            if not readable:
-                infilepath.chmod(0o500)
             if signed:
                 # Remove signature
                 sigpath = infilepath.with_suffix(infilepath.suffix + '.sig')
@@ -114,5 +109,8 @@ class TestActions:
 
         code_array = self.main_window.grid.model.code_array
 
-        assert code_array((2, 1, 0)).startswith("fig")
+        if res is None:
+            assert code_array((2, 1, 0)) is res
+        else:
+            assert code_array((2, 1, 0)).startswith(res)
         assert self.main_window.safe_mode == safe_mode
