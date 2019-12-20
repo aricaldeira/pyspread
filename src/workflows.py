@@ -208,24 +208,31 @@ class Workflows:
         self.main_window.application.processEvents()
 
         # Load file into grid
-        with fopen(filepath, "rb") as infile:
-            title = "File open progress"
-            label = "Opening {}...".format(filepath.name)
-            with self.progress_dialog(title, label,
-                                      filesize) as progress_dialog:
-                try:
-                    for line in PysReader(infile, code_array):
-                        progress_dialog.setValue(infile.tell())
-                        self.main_window.application.processEvents()
-                        if progress_dialog.wasCanceled():
-                            self.main_window.grid.model.reset()
-                            self.main_window.safe_mode = False
-                            break
-                except ValueError as error:
-                    self.main_window.grid.model.reset()
-                    self.main_window.statusBar().showMessage(str(error))
-                    return
-
+        try:
+            with fopen(filepath, "rb") as infile:
+                title = "File open progress"
+                label = "Opening {}...".format(filepath.name)
+                with self.progress_dialog(title, label,
+                                          filesize) as progress_dialog:
+                    try:
+                        for line in PysReader(infile, code_array):
+                            progress_dialog.setValue(infile.tell())
+                            self.main_window.application.processEvents()
+                            if progress_dialog.wasCanceled():
+                                self.main_window.grid.model.reset()
+                                self.main_window.safe_mode = False
+                                break
+                    except ValueError as error:
+                        self.main_window.grid.model.reset()
+                        self.main_window.statusBar().showMessage(str(error))
+                        return
+        except OSError as err:
+            msg_tpl = "Error opening file {filepath}: {err}."
+            msg = msg_tpl.format(filepath=filepath, err=err)
+            self.main_window.statusBar().showMessage(msg)
+            # Reset grid
+            self.main_window.grid.model.reset()
+            return
         # Explicitly set the grid shape
         shape = self.main_window.grid.model.code_array.shape
         self.main_window.grid.model.shape = shape
