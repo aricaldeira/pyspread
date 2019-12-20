@@ -119,7 +119,10 @@ class Workflows:
                 if choice is None:
                     return
                 elif not choice:
-                    self.file_save()
+                    # We try to save to a file
+                    if self.file_save() is False:
+                        # File could not be saved --> Abort
+                        return
             try:
                 func(self, *args, **kwargs)
             except TypeError:
@@ -379,9 +382,11 @@ class Workflows:
         filepath = self.main_window.settings.last_file_input_path
         if filepath.suffix:
             self._save(filepath)
-        else:
-            # New, changed file that has never been saved before
-            self.file_save_as()
+
+        # New, changed file that has never been saved before
+        elif self.file_save_as() is False:
+            # Now the user has aborted the file save as dialog
+            return False
 
     def file_save_as(self):
         """File save as workflow"""
@@ -389,7 +394,7 @@ class Workflows:
         # Get filepath from user
         dial = FileSaveDialog(self.main_window)
         if not dial.file_path:
-            return  # Cancel pressed
+            return False  # Cancel pressed
 
         fp = Path(dial.file_path)
 

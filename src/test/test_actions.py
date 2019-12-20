@@ -86,7 +86,7 @@ class TestActions:
         """Unit test for File -> Open"""
 
         infilepath = Path(__file__).parent / infilename
-        assert infilepath == "test"
+        assert infilepath.exists()
         self.main_window.unit_test_data = infilepath
 
         @contextmanager
