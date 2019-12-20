@@ -12,6 +12,8 @@ test:
   variables:
     QT_QPA_PLATFORM: "offscreen"
   script:
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - export PYTHONPATH=$PYTHONPATH:.
   - python3 setup.py test
 
