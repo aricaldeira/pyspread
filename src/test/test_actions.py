@@ -77,6 +77,7 @@ class TestActions:
         ("test.pysu", False, True, "fig"),
         ("test_invalid1.pysu", False, True, None),
         ("test_invalid2.pysu", False, True, None),
+        ("xxx", False, False, None),
     ]
 
     @pytest.mark.parametrize("infilename, signed, safe_mode, res",

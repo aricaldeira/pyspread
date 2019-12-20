@@ -1,8 +1,8 @@
 image: debian
 
 before_script:
-  - apt-get update -qq
-  - apt-get install -y -qq python3-pip python3-dev  python3-pyqt5 python3-pyqt5.qtsvg python3-numpy python3-matplotlib
+  - apt update -qq
+  - apt install -y -qq python3-pip python3-dev python3-pyqt5 python3-pyqt5.qtsvg python3-numpy python3-matplotlib
 
 stages:
   - test
@@ -11,7 +11,7 @@ stages:
 test:
   script:
   - export PYTHONPATH=$PYTHONPATH:.
-  - python3 setup.py test --capture=sys
+  - python3 setup.py test
 
 pages:
   script:

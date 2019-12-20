@@ -180,7 +180,13 @@ class Workflows:
         """Workflow for opening a file if a filepath is known"""
 
         code_array = self.main_window.grid.model.code_array
-        filesize = os.path.getsize(filepath)
+        try:
+            filesize = os.path.getsize(filepath)
+        except OSError as err:
+            msg_tpl = "Error opening file {filepath}: {err}."
+            msg = msg_tpl.format(filepath=filepath, err=err)
+            self.main_window.statusBar().showMessage(msg)
+            return
 
         # Reset grid
         self.main_window.grid.model.reset()
