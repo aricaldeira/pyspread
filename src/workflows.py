@@ -310,10 +310,14 @@ class Workflows:
             return
 
         signature_path = filepath.with_suffix(filepath.suffix + '.sig')
-        with open(signature_path, 'wb') as signfile:
-            signfile.write(signature)
+        try:
+            with open(signature_path, 'wb') as signfile:
+                signfile.write(signature)
+                msg = "File saved and signed."
+        except OSError as err:
+            msg_tpl = "Error signing file {filepath}: {err}."
+            msg = msg_tpl.format(filepath=filepath, err=err)
 
-        msg = "File saved and signed."
         self.main_window.statusBar().showMessage(msg)
 
     def _save(self, filepath):
@@ -351,7 +355,7 @@ class Workflows:
                         if progress_dialog.wasCanceled():
                             tempfile.delete = True  # Delete incomplete tmpfile
                             return
-            except (IOError, ValueError) as err:
+            except (OSError, ValueError) as err:
                 tempfile.delete = True
                 QMessageBox.critical(self.main_window, "Error saving file",
                                      str(err))
@@ -1031,12 +1035,24 @@ class Workflows:
         index = self.main_window.grid.currentIndex()
 
         if filepath.suffix == ".svg":
-            with open(filepath, "r") as svgfile:
-                svg = svgfile.read()
+            try:
+                with open(filepath, "r") as svgfile:
+                    svg = svgfile.read()
+            except OSError as err:
+                msg_tpl = "Error opening file {filepath}: {err}."
+                msg = msg_tpl.format(filepath=filepath, err=err)
+                self.main_window.statusBar().showMessage(msg)
+                return
             self._paste_svg(svg, index)
         else:
-            with open(filepath, "rb") as imgfile:
-                image_data = imgfile.read()
+            try:
+                with open(filepath, "rb") as imgfile:
+                    image_data = imgfile.read()
+            except OSError as err:
+                msg_tpl = "Error opening file {filepath}: {err}."
+                msg = msg_tpl.format(filepath=filepath, err=err)
+                self.main_window.statusBar().showMessage(msg)
+                return
             self._paste_image(image_data, index)
 
     def macro_insert_chart(self):

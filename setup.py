@@ -69,6 +69,7 @@ setup(
             './runtests.py',
             'src/*.py',
             'src/pyspread',
+            'src/test/*.pysu',
             'src/*/*.py',
             'src/*/*/*.py',
             'share/icons/*',
