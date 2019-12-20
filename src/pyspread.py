@@ -261,7 +261,7 @@ class MainWindow(QMainWindow):
             # Clear result cache
             self.grid.model.code_array.result_cache.clear()
             # Execute macros
-            self.grid.model.code_array.execute_macros()
+            self.macro_panel.on_apply()
 
     def on_print(self):
         """Print event handler"""
