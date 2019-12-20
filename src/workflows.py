@@ -365,7 +365,8 @@ class Workflows:
 
         except OSError as err:
             # No tmp file present
-            QMessageBox.critical(self.main_window, "Error saving file", err)
+            QMessageBox.critical(self.main_window, "Error saving file",
+                                 str(err))
             return
 
         # Change the main window filepath state
