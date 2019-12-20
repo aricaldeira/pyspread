@@ -61,7 +61,6 @@ setup(
 #    },
     tests_require=["pytest"],
     cmdclass={"pytest": PyTest},
-    packages=[''],
     scripts=['src/pyspread.py'],
     package_data={'': [
             '*.py',

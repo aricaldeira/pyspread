@@ -11,7 +11,7 @@ stages:
 test:
   script:
   - export PYTHONPATH=$PYTHONPATH:.
-  - python3 setup.py test
+  - python3 setup.py test --capture=sys
 
 pages:
   script:
