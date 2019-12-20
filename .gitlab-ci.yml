@@ -9,6 +9,8 @@ stages:
   - pages
 
 test:
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
   script:
   - export PYTHONPATH=$PYTHONPATH:.
   - python3 setup.py test
