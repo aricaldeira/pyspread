@@ -266,7 +266,8 @@ class FileHistoryMenu(QMenu):
 
         self.clear()
 
-        for posixpath in self.main_window.settings.file_history:
+        settings = self.main_window.settings
+        for posixpath in settings.file_history[:settings.max_file_history]:
             filepath = Path(posixpath)
             if filepath.is_file():
                 action = QAction(filepath.name, self)

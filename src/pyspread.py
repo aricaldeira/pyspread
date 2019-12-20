@@ -383,11 +383,19 @@ class MainWindow(QMainWindow):
         data = PreferencesDialog(self).data
 
         if data is not None:
-            # Dialog has not been approved --> Store data to settings
+            print(data)
+            max_file_history_changed = \
+                self.settings.max_file_history != data['max_file_history']
+
+            # Dialog has been approved --> Store data to settings
             for key in data:
                 if key == "signature_key" and not data[key]:
                     data[key] = genkey()
                 self.settings.__setattr__(key, data[key])
+
+            # Immediately adjust file history in menu
+            if max_file_history_changed:
+                self.menuBar().file_menu.history_submenu.update()
 
     def on_dependencies(self):
         """Dependancies installer (:class:`installer.InstallerDialog`) """

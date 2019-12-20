@@ -341,7 +341,7 @@ class PreferencesDialog(DataEntryDialog):
                   "Frozen cell refresh period [ms]", "Number of recent files"]
         self.keys = ["signature_key", "timeout", "refresh_timeout",
                      "max_file_history"]
-        self.mappers = [str, int, int]
+        self.mappers = [str, int, int, int]
         data = [getattr(parent.settings, key) for key in self.keys]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
