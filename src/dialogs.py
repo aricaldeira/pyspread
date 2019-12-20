@@ -291,16 +291,18 @@ class PrintAreaDialog(DataEntryDialog):
         groupbox_title = "Print area"
         labels = ["Top", "Left", "Bottom", "Right"]
 
+        self.shape = grid.model.shape
+
         row_validator = QIntValidator()
         row_validator.setBottom(0)  # Do not allow negative values
-        row_validator.setTop(grid.model.shape[0])
+        row_validator.setTop(self.shape[0])
         column_validator = QIntValidator()
         column_validator.setBottom(0)  # Do not allow negative values
-        column_validator.setTop(grid.model.shape[1])
+        column_validator.setTop(self.shape[1])
 
         if grid.selection and len(grid.selected_idx) > 1:
             (bb_top, bb_left), (bb_bottom, bb_right) = \
-                grid.selection.get_grid_bbox(grid.model.shape)
+                grid.selection.get_grid_bbox(self.shape)
         else:
             bb_top, bb_bottom = grid.rowAt(0), grid.rowAt(grid.height())
             bb_left, bb_right = grid.columnAt(0), grid.columnAt(grid.width())
@@ -319,10 +321,12 @@ class PrintAreaDialog(DataEntryDialog):
 
         """
 
-        data = self.data
+        int_data = map(int, self.data)
+        data = (min(self.shape[i % 2], d) for i, d in enumerate(int_data))
+
         if data is not None:
             try:
-                return tuple(map(int, data))
+                return tuple(data)
             except ValueError:
                 return
 
