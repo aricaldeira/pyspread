@@ -130,7 +130,7 @@ class MainWindowActions(AttrDict):
                                         'current file')
 
         self.clear_globals = Action(self.parent, "&Clear globals",
-                                    self.parent.on_nothing,
+                                    self.parent.on_clear_globals,
                                     icon=Icon.clear_globals,
                                     statustip='Deletes global variables '
                                               'and reloads base modules')

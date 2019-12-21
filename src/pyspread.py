@@ -377,6 +377,15 @@ class MainWindow(QMainWindow):
         if ApproveWarningDialog(self).choice:
             self.safe_mode = False
 
+    def on_clear_globals(self):
+        """Clear globals event handler"""
+
+        self.grid.model.code_array.result_cache.clear()
+
+        # Clear globals
+        self.grid.model.code_array.clear_globals()
+        self.grid.model.code_array.reload_modules()
+
     def on_preferences(self):
         """Preferences event handler (:class:`dialogs.PreferencesDialog`) """
 
