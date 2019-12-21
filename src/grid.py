@@ -45,9 +45,10 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
 
 try:
-    import matplotlib.figure as matplotlib_figure
+    import matplotlib
+    import matplotlib.figure
 except ImportError:
-    matplotlib_figure = None
+    matplotlib = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
@@ -1614,14 +1615,14 @@ class GridCellDelegate(QStyledItemDelegate):
     def _render_matplotlib(self, painter, option, index):
         """Matplotlib renderer"""
 
-        if matplotlib_figure is None:
+        if matplotlib is None:
             # matplotlib is not installed
             return
 
         key = index.row(), index.column(), self.grid.table
         figure = self.code_array[key]
 
-        if not isinstance(figure, matplotlib_figure.Figure):
+        if not isinstance(figure, matplotlib.figure.Figure):
             return
 
         dpi = figure.get_dpi()
