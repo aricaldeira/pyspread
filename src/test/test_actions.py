@@ -131,10 +131,5 @@ class TestActions:
 
         assert save_path.with_suffix(save_path.suffix + ".sig").exists()
 
-        # Now check save for missing write permission
         save_path.with_suffix(save_path.suffix + ".sig").unlink()
-        chmod(save_path, 0o000)
-        self.main_window.main_window_actions.save.trigger()
-        assert not save_path.with_suffix(save_path.suffix + ".sig").exists()
-        chmod(save_path, 0o600)
         save_path.unlink()
