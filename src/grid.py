@@ -35,13 +35,13 @@ from contextlib import contextmanager
 
 import numpy
 
-from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
+from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar, QWidget
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView, QFontDialog
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QPainter, QPalette
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
 
 try:
@@ -1728,8 +1728,26 @@ class GridCellDelegate(QStyledItemDelegate):
             self.main_window.workflows.macro_insert_chart()
             return
 
-        return super(GridCellDelegate, self).createEditor(parent, option,
-                                                          index)
+        self.editor = super(GridCellDelegate, self).createEditor(parent,
+                                                                 option, index)
+
+        self.editor.installEventFilter(self)
+        return self.editor
+
+    def eventFilter(self, source, event):
+        """Quotes cell editor content for <Ctrl>+<Enter> and <Ctrl>+<Return>
+
+        Overrides QLineEdit default shortcut. Counts as undoable action.
+
+        """
+
+        if event.type() == QEvent.ShortcutOverride \
+           and source is self.editor \
+           and event.modifiers() == Qt.ControlModifier \
+           and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.grid.model.setData(self.grid.currentIndex(),
+                                    quote(source.text()), Qt.EditRole)
+        return QWidget.eventFilter(self, source, event)
 
     def setEditorData(self, editor, index):
         row = index.row()
