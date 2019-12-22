@@ -295,10 +295,10 @@ class PrintAreaDialog(DataEntryDialog):
 
         row_validator = QIntValidator()
         row_validator.setBottom(0)  # Do not allow negative values
-        row_validator.setTop(self.shape[0])
+        row_validator.setTop(self.shape[0] - 1)
         column_validator = QIntValidator()
         column_validator.setBottom(0)  # Do not allow negative values
-        column_validator.setTop(self.shape[1])
+        column_validator.setTop(self.shape[1] - 1)
 
         if grid.selection and len(grid.selected_idx) > 1:
             (bb_top, bb_left), (bb_bottom, bb_right) = \
