@@ -28,9 +28,12 @@ Unit tests for actions in pyspread
 """
 
 from contextlib import contextmanager
+from os import chmod
 from pathlib import Path
 
 import py.test as pytest
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 from src.pyspread import MainWindow
@@ -114,3 +117,24 @@ class TestActions:
         else:
             assert code_array((2, 1, 0)).startswith(res)
         assert self.main_window.safe_mode == safe_mode
+
+    def test_file_save(self):
+        """Unit test for File -> Save"""
+
+        grid = self.main_window.grid
+        grid.model.setData(grid.currentIndex(), "'Test'", Qt.EditRole)
+
+        assert self.main_window.settings.changed_since_save
+        save_path = Path(__file__).parent / "save_test1.pysu"
+        self.main_window.settings.last_file_input_path = save_path
+        self.main_window.main_window_actions.save.trigger()
+
+        assert save_path.with_suffix(save_path.suffix + ".sig").exists()
+
+        # Now check save for missing write permission
+        save_path.with_suffix(save_path.suffix + ".sig").unlink()
+        chmod(save_path, 0o000)
+        self.main_window.main_window_actions.save.trigger()
+        assert not save_path.with_suffix(save_path.suffix + ".sig").exists()
+        chmod(save_path, 0o600)
+        save_path.unlink()

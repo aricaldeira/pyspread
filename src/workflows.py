@@ -361,6 +361,8 @@ class Workflows:
                                      str(err))
                 return
         try:
+            if filepath.exists() and not os.access(filepath, os.W_OK):
+                raise PermissionError("No write access to {}".format(filepath))
             move(filename, filepath)
 
         except OSError as err:
