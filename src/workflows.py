@@ -691,9 +691,9 @@ class Workflows:
 
         """
 
-        code = (r'_load_img(base64.b85decode(' +
-                repr(b85encode(image_data)) +
-                '))'
+        code = (r'_load_img(bz2.decompress(base64.b85decode(' +
+                repr(b85encode(bz2.compress(image_data))) +
+                ')))'
                 r' if exec("'
                 r'def _load_img(data): qimg = QImage(); '
                 r'QImage.loadFromData(qimg, data); '

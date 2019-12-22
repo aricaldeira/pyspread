@@ -44,6 +44,8 @@ from base64 import b64decode, b85encode
 import bz2
 from collections import OrderedDict
 
+from PyQt5.QtGui import QImage
+
 from src.lib.selection import Selection
 
 
@@ -142,30 +144,42 @@ class PysReader:
             raise ValueError(msg.format(shape=shape))
         self.code_array.shape = shape
 
-    def _code_convert_1_2(self, code):
+    def _code_convert_1_2(self, key, code):
         """Converts chart and image code from v1.0 to v2.0"""
 
-        def get_image_code(image_data):
+        def get_image_code(image_data, width, height):
             """Returns code string for v2.0"""
 
-            return (r'_load_img(base64.b85decode(' +
-                    repr(b85encode(image_data)) +
-                    '))'
-                    r' if exec("'
-                    r'def _load_img(data): qimg = QImage(); '
-                    r'QImage.loadFromData(qimg, data); '
-                    r'return qimg\n'
-                    r'") is None else None')
+            image_buffer_tpl = 'bz2.decompress(base64.b85decode({data}))'
+            image_array_tpl = 'numpy.frombuffer({buffer}, dtype="uint8")'
+            image_matrix_tpl = '{array}.reshape({height}, {width}, 3)'
+
+            image_buffer = image_buffer_tpl.format(data=image_data)
+            image_array = image_array_tpl.format(buffer=image_buffer)
+            image_matrix = image_matrix_tpl.format(array=image_array,
+                                                   height=height, width=width)
+
+            return image_matrix
 
         start_str = "bz2.decompress(base64.b64decode('"
-        stop_str = "'))).ConvertToBitmap()"
-        if "wx.ImageFromData(" in code and start_str in code:
+        size_start_str = "wx.ImageFromData("
+        if size_start_str in code and start_str in code:
+            size_start = code.index(size_start_str) + len(size_start_str)
+            size_str_list = code[size_start:].split(",")[:2]
+            width, height = tuple(map(int, size_str_list))
+
             # We have a cell that displays a bitmap
             data_start = code.index(start_str) + len(start_str)
-            enc_data = bytes(code[data_start:-len(stop_str)], encoding='utf-8')
-            #compressed_image_data = b64decode(enc_data)
-            #image_data = bz2.decompress(compressed_image_data)
-            #code = get_image_code(image_data)
+            data_stop = code.find("'", data_start)
+            enc_data = bytes(code[data_start:data_stop], encoding='utf-8')
+            compressed_image_data = b64decode(enc_data)
+            reenc_data = b85encode(compressed_image_data)
+            code = get_image_code(repr(reenc_data), width, height)
+
+            selection = Selection([], [], [], [], [(key[0], key[1])])
+            tab = key[2]
+            attrs = {"renderer": "image"}
+            self.code_array.cell_attributes.append((selection, tab, attrs))
 
         return code
 
@@ -175,7 +189,8 @@ class PysReader:
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
         if self.version <= 1.0:
-            self.code_array.dict_grid[key] = str(self._code_convert_1_2(code))
+            self.code_array.dict_grid[key] = str(self._code_convert_1_2(key,
+                                                                        code))
         else:
             self.code_array.dict_grid[key] = ast.literal_eval(code)
 
@@ -238,7 +253,7 @@ class PysReader:
                 # Even cols are values
                 value = ast.literal_eval(ele)
 
-                # Convert old wx color values
+                # Convert old wx color values and merged cells
                 if self.version <= 1.0:
                     key, value = self._attr_convert_1_2(key, value)
 

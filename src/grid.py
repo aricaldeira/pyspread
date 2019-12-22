@@ -1532,8 +1532,11 @@ class GridCellDelegate(QStyledItemDelegate):
         rect_x, rect_y = option.rect.x(), option.rect.y()
         rect_width, rect_height = option.rect.width(), option.rect.height()
 
-        image_width, image_height = scale_size(image_width, image_height,
-                                               rect_width, rect_height)
+        try:
+            image_width, image_height = scale_size(image_width, image_height,
+                                                   rect_width, rect_height)
+        except ZeroDivisionError:
+            pass
         image_x, image_y = rect_x, rect_y
 
         if justification == "justify_center":
