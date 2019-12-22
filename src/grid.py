@@ -1465,29 +1465,23 @@ class GridCellDelegate(QStyledItemDelegate):
     def _render_markup(self, painter, option, index):
         """HTML markup renderer"""
 
-        options = QStyleOptionViewItem(option)
-        self.initStyleOption(options, index)
+        self.initStyleOption(option, index)
 
-        if options.widget is None:
-            style = QApplication.style()
-        else:
-            style = options.widget.style()
+        style = option.widget.style()
 
         doc = QTextDocument()
-        doc.setHtml(options.text)
-        doc.setTextWidth(options.rect.width())
+        doc.setHtml(option.text)
+        doc.setTextWidth(option.rect.width())
 
-        options.text = ""
-        style.drawControl(QStyle.CE_ItemViewItem, options, painter,
-                          options.widget)
+        option.text = ""
+        style.drawControl(QStyle.CE_ItemViewItem, option, painter,
+                          option.widget)
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
-        html_rect = style.subElementRect(QStyle.SE_ItemViewItemText, options,
-                                         options.widget)
         painter.save()
-        painter.translate(html_rect.topLeft())
-        painter.setClipRect(html_rect.translated(-html_rect.topLeft()))
+        painter.translate(option.rect.topLeft())
+        painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
         doc.documentLayout().draw(painter, ctx)
 
         painter.restore()

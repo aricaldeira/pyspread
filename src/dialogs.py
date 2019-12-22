@@ -268,7 +268,7 @@ class GridShapeDialog(DataEntryDialog):
         if data is not None:
             try:
                 return tuple(map(int, data))
-            except ValueError:
+            except (TypeError, ValueError):
                 return
 
 
@@ -321,8 +321,11 @@ class PrintAreaDialog(DataEntryDialog):
 
         """
 
-        int_data = map(int, self.data)
-        data = (min(self.shape[i % 2], d) for i, d in enumerate(int_data))
+        try:
+            int_data = map(int, self.data)
+            data = (min(self.shape[i % 2], d) for i, d in enumerate(int_data))
+        except (TypeError, ValueError):
+            return
 
         if data is not None:
             try:
