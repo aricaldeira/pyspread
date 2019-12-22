@@ -556,7 +556,6 @@ class Selection(object):
         (top, left), (bottom, right) = self.get_grid_bbox(shape)
         bottom = min(bottom, rows - 1)
         right = min(right, columns - 1)
-        print(self.get_grid_bbox(shape))
 
         for row in range(top, bottom + 1):
             for column in range(left, right + 1):

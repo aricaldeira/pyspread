@@ -712,11 +712,6 @@ class MainWindowActions(AttrDict):
                                    statustip='Load an image from a file '
                                              'into a cell')
 
-        self.link_image = Action(self.parent, "Link image...",
-                                 self.parent.on_nothing,
-                                 icon=Icon.link_image,
-                                 statustip='Link an image file from a cell')
-
         self.insert_chart = Action(self.parent, "Insert chart...",
                                    self.parent.workflows.macro_insert_chart,
                                    icon=Icon.insert_chart,

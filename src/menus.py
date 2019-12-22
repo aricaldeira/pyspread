@@ -233,7 +233,6 @@ class MacroMenu(QMenu):
         super().__init__('&Macro', parent)
 
         self.addAction(actions.insert_image)
-        self.addAction(actions.link_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
 

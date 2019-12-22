@@ -246,7 +246,6 @@ class MacroToolbar(ToolBarBase):
         """Fills the macro toolbar with QActions"""
 
         self.addAction(actions.insert_image)
-        self.addAction(actions.link_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
 
