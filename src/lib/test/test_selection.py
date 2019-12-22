@@ -204,6 +204,8 @@ class TestSelection:
         (Selection([], [], [], [], [(32, 53), (34, 56)]),
          ((32, 53), (34, 56))),
         (Selection([(4, 5)], [(100, 200)], [], [], []), ((4, 5), (100, 200))),
+        (Selection([], [], [2], [3], []), ((None, None), (None, None))),
+        (Selection([], [], [], [3], []), ((None, 3), (None, 3))),
     ]
 
     @pytest.mark.parametrize("sel, res", param_test_get_bbox)
@@ -257,3 +259,34 @@ class TestSelection:
         """Unit test for shifted"""
 
         assert sel.shifted(rows, cols) == res
+
+    param_test_single_cell_selected = [
+        (Selection([], [], [], [], [(32, 53)]), True),
+        (Selection([], [], [], [], [(32, 53), (34, 56)]), False),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), False),
+        (Selection([], [], [(1, 2)], [], []), False),
+        (Selection([], [], [], [(1, 2)], []), False),
+    ]
+
+    @pytest.mark.parametrize("sel, res", param_test_single_cell_selected)
+    def test_single_cell_selected(self, sel, res):
+        """Unit test for single_cell_selected"""
+
+        assert sel.single_cell_selected() is res
+
+    param_test_cell_generator = [
+        (Selection([], [], [], [], [(32, 53), (34, 56)]), (200, 200, 1), None,
+         set([(32, 53), (34, 56)])),
+        (Selection([], [], [], [], [(32, 53), (34, 56)]), (1, 1, 1), None,
+         set()),
+        (Selection([], [], [(2)], [], []), (20, 20, 3), None,
+         set([(2, i) for i in range(20)])),
+        (Selection([], [], [2], [3], []), (4, 4, 3), None,
+         set([(2, i) for i in range(4)] + [(i, 3) for i in range(4)])),
+    ]
+
+    @pytest.mark.parametrize("sel, shape, tab, res", param_test_cell_generator)
+    def test_cell_generator(self, sel, shape, tab, res):
+        """Unit test for cell_generator"""
+
+        assert set(sel.cell_generator(shape, tab)) == res

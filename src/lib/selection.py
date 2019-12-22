@@ -341,8 +341,11 @@ class Selection(object):
             if bb_right is None or bb_right < cell_col:
                 bb_right = cell_col
 
-        if all(val is None for val in [bb_top, bb_left, bb_bottom, bb_right]):
-            return None
+        if self.rows:
+            bb_left = bb_right = None
+
+        if self.cols:
+            bb_top = bb_bottom = None
 
         return ((bb_top, bb_left), (bb_bottom, bb_right))
 
@@ -548,12 +551,17 @@ class Selection(object):
 
         """
 
-        (top, left), (bottom, right) = self.get_grid_bbox(shape)
+        rows, columns, tables = shape
 
-        for row in range(top, bottom):
-            for column in range(left, right):
+        (top, left), (bottom, right) = self.get_grid_bbox(shape)
+        bottom = min(bottom, rows - 1)
+        right = min(right, columns - 1)
+        print(self.get_grid_bbox(shape))
+
+        for row in range(top, bottom + 1):
+            for column in range(left, right + 1):
                 if (row, column) in self:
                     if table is None:
                         yield row, column
-                    else:
+                    elif table < tables - 1:
                         yield row, column, table
