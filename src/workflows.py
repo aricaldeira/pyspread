@@ -805,6 +805,16 @@ class Workflows:
                 regexp=find_dialog.regex_checkbox.isChecked(),
                 results=find_dialog.results_checkbox.isChecked())
 
+    def _display_match_msg(self, find_string, next_match, regexp):
+        """Displays find match message in statusbar"""
+
+        str_name = "Regular expression" if regexp else "String"
+        msg_tpl = "{str_name} {find_string} found in cell {next_match}."
+        msg = msg_tpl.format(str_name=str_name,
+                             find_string=find_string,
+                             next_match=next_match)
+        self.main_window.statusBar().showMessage(msg)
+
     def find_dialog_on_find(self, find_dialog):
         """Edit -> Find workflow, after pressing find button in FindDialog"""
 
@@ -812,8 +822,9 @@ class Workflows:
 
         if next_match:
             self.main_window.grid.current = next_match
-            msg = "String {} found in cell {}.".format(find_string, next_match)
-            self.main_window.statusBar().showMessage(msg)
+
+            regexp = find_dialog.regex_checkbox.isChecked()
+            self._display_match_msg(find_string, next_match, regexp)
 
             if find_dialog.from_start_checkbox.isChecked():
                 find_dialog.from_start_checkbox.setChecked(False)
@@ -840,8 +851,9 @@ class Workflows:
                                    results=find_editor.results)
         if next_match:
             grid.current = next_match
-            msg = "String {} found in cell {}.".format(find_string, next_match)
-            self.main_window.statusBar().showMessage(msg)
+
+            self._display_match_msg(find_string, next_match,
+                                    find_editor.regexp)
 
     def edit_replace(self):
         """Edit -> Replace workflow, opens ReplaceDialog"""
