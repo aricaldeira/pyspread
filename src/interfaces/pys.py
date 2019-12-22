@@ -40,6 +40,8 @@ It is split into the following sections
 from builtins import str, map, object
 
 import ast
+from base64 import b64decode, b85encode
+import bz2
 from collections import OrderedDict
 
 from src.lib.selection import Selection
@@ -140,15 +142,78 @@ class PysReader:
             raise ValueError(msg.format(shape=shape))
         self.code_array.shape = shape
 
+    def _code_convert_1_2(self, code):
+        """Converts chart and image code from v1.0 to v2.0"""
+
+        def get_image_code(image_data):
+            """Returns code string for v2.0"""
+
+            return (r'_load_img(base64.b85decode(' +
+                    repr(b85encode(image_data)) +
+                    '))'
+                    r' if exec("'
+                    r'def _load_img(data): qimg = QImage(); '
+                    r'QImage.loadFromData(qimg, data); '
+                    r'return qimg\n'
+                    r'") is None else None')
+
+        start_str = "bz2.decompress(base64.b64decode('"
+        stop_str = "'))).ConvertToBitmap()"
+        if "wx.ImageFromData(" in code and start_str in code:
+            # We have a cell that displays a bitmap
+            data_start = code.index(start_str) + len(start_str)
+            enc_data = bytes(code[data_start:-len(stop_str)], encoding='utf-8')
+            #compressed_image_data = b64decode(enc_data)
+            #image_data = bz2.decompress(compressed_image_data)
+            #code = get_image_code(image_data)
+
+        return code
+
     def _pys2code(self, line):
         """Updates code in pys code_array"""
 
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
         if self.version <= 1.0:
-            self.code_array.dict_grid[key] = str(code)
+            self.code_array.dict_grid[key] = str(self._code_convert_1_2(code))
         else:
             self.code_array.dict_grid[key] = ast.literal_eval(code)
+
+    def _attr_convert_1_2(self, key, value):
+        """Converts key, value attribute pair from v1.0 to v2.0"""
+
+        color_attrs = ["bordercolor_bottom", "bordercolor_right", "bgcolor",
+                       "textcolor"]
+        if key in color_attrs:
+            return key, wxcolor2rgb(value)
+
+        elif key == "fontweight":
+            return key, wx2qt_fontweights[value]
+
+        elif key == "fontstyle":
+            return key, wx2qt_fontstyles[value]
+
+        elif key == "markup" and value:
+            return "renderer", "markup"
+
+        elif key == "merge_area":
+            # Value in v1.0 None if the cell was merged
+            # In v 2.0 this is no longer necessary
+            return None, value
+
+        # Update justifiaction and alignment values
+        elif key in ["vertical_align", "justification"]:
+            just_align_value_tansitions = {
+                    "left": "justify_left",
+                    "center": "justify_center",
+                    "right": "justify_right",
+                    "top": "align_top",
+                    "middle": "align_center",
+                    "bottom": "align_bottom",
+            }
+            return key, just_align_value_tansitions[value]
+
+        return key, value
 
     def _pys2attributes(self, line):
         """Updates attributes in code_array"""
@@ -161,6 +226,9 @@ class PysReader:
         tab = int(splitline[5])
 
         attrs = {}
+        if self.version <= 1.0:
+            old_merged_cells = {}
+
         for col, ele in enumerate(splitline[6:]):
             if not (col % 2):
                 # Odd entries are keys
@@ -172,36 +240,22 @@ class PysReader:
 
                 # Convert old wx color values
                 if self.version <= 1.0:
-                    color_attrs = ["bordercolor_bottom", "bordercolor_right",
-                                   "bgcolor", "textcolor"]
-                    if key in color_attrs:
-                        value = wxcolor2rgb(value)
+                    key, value = self._attr_convert_1_2(key, value)
 
-                    elif key == "fontweight":
-                        value = wx2qt_fontweights[value]
-
-                    elif key == "fontstyle":
-                        value = wx2qt_fontstyles[value]
-
-                    elif key == "markup" and value:
-                        key = "renderer"
-                        value = "markup"
-
-                    # Update justifiaction and alignment values
-                    elif key in ["vertical_align", "justification"]:
-                        just_align_value_tansitions = {
-                                "left": "justify_left",
-                                "center": "justify_center",
-                                "right": "justify_right",
-                                "top": "align_top",
-                                "middle": "align_center",
-                                "bottom": "align_bottom",
-                        }
-                        value = just_align_value_tansitions[value]
-
-                attrs[key] = value
+                    if key is None and value is not None:
+                        # We have a merged cell
+                        old_merged_cells[value[:2]] = value
+                else:
+                    attrs[key] = value
 
         self.code_array.cell_attributes.append((selection, tab, attrs))
+
+        if self.version <= 1.0:
+            for key in old_merged_cells:
+                selection = Selection([], [], [], [], [key])
+                attrs = {"merge_area": old_merged_cells[key]}
+                self.code_array.cell_attributes.append((selection, tab, attrs))
+            old_merged_cells.clear()
 
     def _pys2row_heights(self, line):
         """Updates row_heights in code_array"""
