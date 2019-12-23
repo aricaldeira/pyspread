@@ -1,9 +1,29 @@
 Changelog for pyspread
 ======================
 
-Note: This changelog starts at version 2.0
+Note: This changelog does not comprise development of pyspread for Python2
+      It starts with the first Alpha release 1.99.0.0
 
-2.0
----
+1.99.0.0
+--------
 
- * Initial release of pyspread v2.0 for Python 3.7+
+Initial Alpha release of pyspread v2.0 for Python 3.7+
+
+Basic functionality is present.
+However, the code is neither complete nor thoroughly tested.
+DO NOT USE FOR IMPORTANT WORK!
+
+Dependencies:
+ * Mandatory: Python3.7+, PyQt5, PyQt5.Svg
+ * Optional: matplotlib, pyenchant
+ * For building the apidocs with Sphinx see apidics/requirements.txt
+
+Missing features:
+ * Import and export of data
+ * Help system
+ * Button cells
+ * Command line interface
+
+Known issues:
+ * Figures and images are printed in low resolution
+ * The topmost and leftmost lines of grid are not printed
