@@ -146,7 +146,6 @@ class ViewMenu(QMenu):
         self.toolbar_submenu = self.addMenu('Toolbars')
         self.toolbar_submenu.addAction(actions.toggle_main_toolbar)
         self.toolbar_submenu.addAction(actions.toggle_macro_toolbar)
-        self.toolbar_submenu.addAction(actions.toggle_widget_toolbar)
         self.toolbar_submenu.addAction(actions.toggle_format_toolbar)
         self.toolbar_submenu.addAction(actions.toggle_find_toolbar)
 

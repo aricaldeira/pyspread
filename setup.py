@@ -58,6 +58,7 @@ setup(
     requires=['numpy (>=1.1)', 'PyQt5 (>=5.11.3)'],
 #    extras_require = {
 #        'matplotlib': ['matplotlib (>=1.1.1)']
+#        'pyenchant': ['pyenchant (>=1.1)']
 #    },
     tests_require=["pytest"],
     cmdclass={"pytest": PyTest},

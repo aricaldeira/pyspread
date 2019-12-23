@@ -26,7 +26,6 @@
 * :class:`FindToolbar`
 * :class:`FormatToolbar`
 * :class:`MacroToolbar`
-* :class:`WidgetToolbar`
 * :func:`add_toolbutton_widget`
 
 """
@@ -248,23 +247,6 @@ class MacroToolbar(ToolBarBase):
         self.addAction(actions.insert_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
-
-        self.addWidget(self.get_manager_button())
-
-
-class WidgetToolbar(ToolBarBase):
-    """The widget toolbar for pyspread"""
-
-    def __init__(self, main_window):
-        super().__init__("Widget toolbar", main_window)
-
-        self.setObjectName("Widget toolbar")
-        self._create_toolbar(main_window.main_window_actions)
-
-    def _create_toolbar(self, actions):
-        """Fills the widget toolbar with QActions"""
-
-        self.addSeparator()
 
         self.addWidget(self.get_manager_button())
 

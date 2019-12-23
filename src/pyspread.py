@@ -50,7 +50,6 @@ from src.grid import Grid
 from src.entryline import Entryline
 from src.menus import MenuBar
 from src.toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
-from src.toolbar import WidgetToolbar
 from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
@@ -195,14 +194,12 @@ class MainWindow(QMainWindow):
         self.find_toolbar = FindToolbar(self)
         self.format_toolbar = FormatToolbar(self)
         self.macro_toolbar = MacroToolbar(self)
-        self.widget_toolbar = WidgetToolbar(self)
 
         self.addToolBar(self.main_toolbar)
         self.addToolBar(self.find_toolbar)
         self.addToolBarBreak()
         self.addToolBar(self.format_toolbar)
         self.addToolBar(self.macro_toolbar)
-        self.addToolBar(self.widget_toolbar)
 
     def _update_action_toggles(self):
         """Updates the toggle menu check states"""
@@ -212,9 +209,6 @@ class MainWindow(QMainWindow):
 
         self.main_window_actions.toggle_macro_toolbar.setChecked(
                 self.macro_toolbar.isVisible())
-
-        self.main_window_actions.toggle_widget_toolbar.setChecked(
-                self.widget_toolbar.isVisible())
 
         self.main_window_actions.toggle_format_toolbar.setChecked(
                 self.format_toolbar.isVisible())
@@ -467,12 +461,6 @@ class MainWindow(QMainWindow):
         """Macro toolbar toggle event handler"""
 
         self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
-                            toggled)
-
-    def on_toggle_widget_toolbar(self, toggled):
-        """Widget toolbar toggle event handler"""
-
-        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar",
                             toggled)
 
     def on_toggle_format_toolbar(self, toggled):

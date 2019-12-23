@@ -35,8 +35,8 @@ class Settings:
 
     # Names of widgets with persistant states
     widget_names = ["main_window", "main_toolbar", "find_toolbar",
-                    "format_toolbar", "macro_toolbar", "widget_toolbar",
-                    "entry_line", "main_splitter"]
+                    "format_toolbar", "macro_toolbar", "entry_line",
+                    "main_splitter"]
 
     # Shape of initial grid (rows, columns, tables)
     shape = 1000, 100, 3

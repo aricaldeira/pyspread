@@ -290,12 +290,6 @@ class MainWindowActions(AttrDict):
                                            statustip='Show/hide the macro '
                                                      'toolbar')
 
-        self.toggle_widget_toolbar = \
-            Action(self.parent, "Widget toolbar",
-                   self.parent.on_toggle_widget_toolbar,
-                   checkable=True,
-                   statustip='Show/hide the widget toolbar')
-
         self.toggle_format_toolbar = \
             Action(self.parent, "Format toolbar",
                    self.parent.on_toggle_format_toolbar,
