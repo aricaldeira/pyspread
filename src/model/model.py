@@ -50,6 +50,7 @@ import sys
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
 
+import src.lib.charts as charts
 from src.lib.typechecks import isslice, isstring
 from src.lib.selection import Selection
 
@@ -1266,7 +1267,7 @@ class CodeArray(DataArray):
 
         base_keys = ['cStringIO', 'KeyValueStore', 'UnRedo',
                      'isgenerator', 'isstring', 'bz2', 'base64',
-                     '__package__', 're', '__doc__', 'QPixmap',
+                     '__package__', 're', '__doc__', 'QPixmap', 'charts',
                      'CellAttributes', 'product', 'ast', '__builtins__',
                      '__file__', 'sys', 'isslice', '__name__', 'QImage',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',

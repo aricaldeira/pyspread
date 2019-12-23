@@ -181,6 +181,13 @@ class PysReader:
             attrs = {"renderer": "image"}
             self.code_array.cell_attributes.append((selection, tab, attrs))
 
+        if "charts.ChartFigure(" in code:
+            # We have a matplotlib figure
+            selection = Selection([], [], [], [], [(key[0], key[1])])
+            tab = key[2]
+            attrs = {"renderer": "matplotlib"}
+            self.code_array.cell_attributes.append((selection, tab, attrs))
+
         return code
 
     def _pys2code(self, line):
@@ -194,7 +201,7 @@ class PysReader:
         else:
             self.code_array.dict_grid[key] = ast.literal_eval(code)
 
-    def _attr_convert_1_2(self, key, value):
+    def _attr_convert_1to2(self, key, value):
         """Converts key, value attribute pair from v1.0 to v2.0"""
 
         color_attrs = ["bordercolor_bottom", "bordercolor_right", "bgcolor",
@@ -255,7 +262,7 @@ class PysReader:
 
                 # Convert old wx color values and merged cells
                 if self.version <= 1.0:
-                    key_, value_ = self._attr_convert_1_2(key, value)
+                    key_, value_ = self._attr_convert_1to2(key, value)
 
                     if key_ is None and value_ is not None:
                         # We have a merged cell
