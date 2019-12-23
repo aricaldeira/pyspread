@@ -20,6 +20,9 @@
 
 """
 Grid selection representation
+==============================
+
+* :class:`Selection`: Represents grid selection independently from PyQt
 
 """
 from builtins import zip

@@ -41,10 +41,7 @@ from builtins import str, map, object
 
 import ast
 from base64 import b64decode, b85encode
-import bz2
 from collections import OrderedDict
-
-from PyQt5.QtGui import QImage
 
 from src.lib.selection import Selection
 
@@ -75,7 +72,7 @@ wx2qt_fontstyles = {
 
 
 class PysReader:
-    """Reads pys file into a code_array"""
+    """Reads pys v2.0 file into a code_array"""
 
     def __init__(self, pys_file, code_array):
         self.pys_file = pys_file
@@ -106,6 +103,20 @@ class PysReader:
             elif state is not None:
                 self._section2reader[state](line)
             yield line
+
+    # Decorators
+
+    def version_handler(method):
+        """Chooses method`_10` of method if version < 2.0"""
+
+        def new_method(self, *args, **kwargs):
+            if self.version <= 1.0:
+                method10 = getattr(self, method.__name__+"_10")
+                method10(*args, **kwargs)
+            else:
+                method(self, *args, **kwargs)
+
+        return new_method
 
     # Helpers
 
@@ -190,16 +201,21 @@ class PysReader:
 
         return code
 
+    def _pys2code_10(self, line):
+        """Updates code in pys code_array - for save file version 1.0"""
+
+        row, col, tab, code = self._split_tidy(line, maxsplit=3)
+        key = self._get_key(row, col, tab)
+
+        self.code_array.dict_grid[key] = str(self._code_convert_1_2(key, code))
+
+    @version_handler
     def _pys2code(self, line):
         """Updates code in pys code_array"""
 
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
-        if self.version <= 1.0:
-            self.code_array.dict_grid[key] = str(self._code_convert_1_2(key,
-                                                                        code))
-        else:
-            self.code_array.dict_grid[key] = ast.literal_eval(code)
+        self.code_array.dict_grid[key] = ast.literal_eval(code)
 
     def _attr_convert_1to2(self, key, value):
         """Converts key, value attribute pair from v1.0 to v2.0"""
@@ -237,8 +253,8 @@ class PysReader:
 
         return key, value
 
-    def _pys2attributes(self, line):
-        """Updates attributes in code_array"""
+    def _pys2attributes_10(self, line):
+        """Updates attributes in code_array - for save file version 1.0"""
 
         splitline = self._split_tidy(line)
 
@@ -248,8 +264,8 @@ class PysReader:
         tab = int(splitline[5])
 
         attrs = {}
-        if self.version <= 1.0:
-            old_merged_cells = {}
+
+        old_merged_cells = {}
 
         for col, ele in enumerate(splitline[6:]):
             if not (col % 2):
@@ -261,28 +277,49 @@ class PysReader:
                 value = ast.literal_eval(ele)
 
                 # Convert old wx color values and merged cells
-                if self.version <= 1.0:
-                    key_, value_ = self._attr_convert_1to2(key, value)
+                key_, value_ = self._attr_convert_1to2(key, value)
 
-                    if key_ is None and value_ is not None:
-                        # We have a merged cell
-                        old_merged_cells[value_[:2]] = value_
-                    try:
-                        attrs.pop("merge_area")
-                    except KeyError:
-                        pass
-                    attrs[key_] = value_
-                else:
-                    attrs[key] = value
+                if key_ is None and value_ is not None:
+                    # We have a merged cell
+                    old_merged_cells[value_[:2]] = value_
+                try:
+                    attrs.pop("merge_area")
+                except KeyError:
+                    pass
+                attrs[key_] = value_
 
         self.code_array.cell_attributes.append((selection, tab, attrs))
 
-        if self.version <= 1.0:
-            for key in old_merged_cells:
-                selection = Selection([], [], [], [], [key])
-                attrs = {"merge_area": old_merged_cells[key]}
-                self.code_array.cell_attributes.append((selection, tab, attrs))
-            old_merged_cells.clear()
+        for key in old_merged_cells:
+            selection = Selection([], [], [], [], [key])
+            attrs = {"merge_area": old_merged_cells[key]}
+            self.code_array.cell_attributes.append((selection, tab, attrs))
+        old_merged_cells.clear()
+
+    @version_handler
+    def _pys2attributes(self, line):
+        """Updates attributes in code_array"""
+
+        splitline = self._split_tidy(line)
+
+        selection_data = list(map(ast.literal_eval, splitline[:5]))
+        selection = Selection(*selection_data)
+
+        tab = int(splitline[5])
+
+        attrs = {}
+
+        for col, ele in enumerate(splitline[6:]):
+            if not (col % 2):
+                # Odd entries are keys
+                key = ast.literal_eval(ele)
+
+            else:
+                # Even cols are values
+                value = ast.literal_eval(ele)
+                attrs[key] = value
+
+        self.code_array.cell_attributes.append((selection, tab, attrs))
 
     def _pys2row_heights(self, line):
         """Updates row_heights in code_array"""

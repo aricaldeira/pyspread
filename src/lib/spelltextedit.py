@@ -120,8 +120,8 @@ from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
 
 
 def format(color, style=''):
-    """Return a QTextCharFormat with the given attributes.
-    """
+    """Return a QTextCharFormat with the given attributes."""
+
     _color = QColor()
     _color.setNamedColor(color)
 
