@@ -255,11 +255,16 @@ class PysReader:
 
                 # Convert old wx color values and merged cells
                 if self.version <= 1.0:
-                    key, value = self._attr_convert_1_2(key, value)
+                    key_, value_ = self._attr_convert_1_2(key, value)
 
-                    if key is None and value is not None:
+                    if key_ is None and value_ is not None:
                         # We have a merged cell
-                        old_merged_cells[value[:2]] = value
+                        old_merged_cells[value_[:2]] = value_
+                    try:
+                        attrs.pop("merge_area")
+                    except KeyError:
+                        pass
+                    attrs[key_] = value_
                 else:
                     attrs[key] = value
 
