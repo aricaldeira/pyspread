@@ -44,6 +44,7 @@ from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 from src import VERSION, APP_NAME
+from src.cli import ArgumentParser
 from src.settings import Settings
 from src.icons import Icon, IconPath
 from src.grid import Grid
@@ -70,6 +71,8 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 class MainWindow(QMainWindow):
     """Pyspread main window
 
+    :application: QApplication
+    :args: Command line arguments object from argparse
     :unit_test: If True then the application runs in unit_test mode
     :type unit_test: bool, defaults to False
 
@@ -77,7 +80,7 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application, unit_test=False):
+    def __init__(self, application, args, unit_test=False):
         super().__init__()
 
         self._loading = True
@@ -585,8 +588,11 @@ class MainWindow(QMainWindow):
 
 
 def main():
+    parser = ArgumentParser()
+    args = parser.parse_args()
+
     app = QApplication(sys.argv)
-    main_window = MainWindow(app)
+    main_window = MainWindow(app, args)
 
     app.exec_()
 
