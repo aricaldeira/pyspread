@@ -26,31 +26,13 @@
 
 """
 
-import argparse
+from argparse import ArgumentParser
 
 from src import APP_NAME, VERSION
 
-# Usage:
-# pyspread - Launches pyspread with standard size grid
-# pyspread <infile> - also opens infile
-# pyspread -k --key <key> - uses key instead of settings key
-# pyspread -d --dimensions <rows> <columns> <tables> - custom size grid
-# pyspread -u --updatetimeinterval <time> -
-#                    periodic updates enabled and time update interval
-# pyspread -v - display version string
 
-
-class ArgumentParser(argparse.ArgumentParser):
-    """Parser for the command line
-
-    Usage
-    -----
-
-    pyspread - Launches pyspread with standard size grid
-    pyspread <infile> - Launches pyspread and opens infile
-    pyspread --version - display version string
-
-    """
+class ArgumentParser(ArgumentParser):
+    """Parser for the command line"""
 
     def __init__(self):
 
@@ -61,5 +43,5 @@ class ArgumentParser(argparse.ArgumentParser):
         super().__init__(prog=APP_NAME, description=description)
 
         self.add_argument('--version', action='version', version=VERSION)
-        self.add_argument('file', nargs='?', default=None,
+        self.add_argument('file', nargs='*',
                           help='open pyspread file in pys or pysu format')

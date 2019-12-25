@@ -34,6 +34,7 @@
 """
 
 import os
+from pathlib import Path
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRect
@@ -118,6 +119,12 @@ class MainWindow(QMainWindow):
 
         self._loading = False
         self._previous_window_state = self.windowState()
+
+        # Open initial file if provided by the command line
+        if args.file:
+            filepath = Path(" ".join(args.file))  # Handle paths with spaces
+            self.workflows.filepath_open(filepath)
+            self.workflows.update_main_window_title()
 
     def _init_window(self):
         """Initialize main window components"""

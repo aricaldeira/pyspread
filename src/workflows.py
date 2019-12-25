@@ -107,7 +107,8 @@ class Workflows:
           is executed.
 
         If no changes are present then `func` is directly executed.
-        After executing `func`, :func:`reset_changed_since_save` is called.
+        After executing `func`, :func:`reset_changed_since_save` and
+        `update_main_window_title` are called.
 
         """
 
@@ -128,6 +129,7 @@ class Workflows:
             except TypeError:
                 func(self)  # No args accepted
             self.reset_changed_since_save()
+            self.update_main_window_title()
 
         return function_wrapper
 
@@ -137,10 +139,12 @@ class Workflows:
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
 
+    def update_main_window_title(self):
+        """Change the main window title to reflect the current file name"""
+
         # Get the current filepath
         filepath = self.main_window.settings.last_file_input_path
 
-        # Change the main window title
         window_title = "{filename} - pyspread".format(filename=filepath.name)
         self.main_window.setWindowTitle(window_title)
 
@@ -179,7 +183,7 @@ class Workflows:
         # Exit safe mode
         self.main_window.safe_mode = False
 
-    def _filepath_open(self, filepath):
+    def filepath_open(self, filepath):
         """Workflow for opening a file if a filepath is known"""
 
         code_array = self.main_window.grid.model.code_array
@@ -279,13 +283,13 @@ class Workflows:
                 return  # Cancel pressed
             filepath = Path(dial.file_path).with_suffix(dial.suffix)
 
-        self._filepath_open(filepath)
+        self.filepath_open(filepath)
 
     @handle_changed_since_save
     def file_open_recent(self, filepath):
         """File open recent workflow"""
 
-        self._filepath_open(Path(filepath))
+        self.filepath_open(Path(filepath))
 
     def sign_file(self, filepath):
         """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
