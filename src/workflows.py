@@ -53,6 +53,7 @@ from src.commands import CommandSetGridSize
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
+from src.dialogs import CsvImportDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -414,6 +415,12 @@ class Workflows:
             fp = fp.with_suffix(dial.suffix)
 
         self._save(fp)
+
+    def file_import(self):
+        """Import files"""
+
+        csv_dlg = CsvImportDialog(self.main_window)
+        csv_dlg.show()
 
     @handle_changed_since_save
     def file_quit(self):

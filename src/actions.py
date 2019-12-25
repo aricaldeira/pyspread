@@ -113,7 +113,7 @@ class MainWindowActions(AttrDict):
                               statustip='Save spreadsheet to a new file')
 
         self.imprt = Action(self.parent, "&Import",
-                            self.parent.on_nothing,
+                            self.parent.workflows.file_import,
                             icon=Icon.imprt,
                             statustip='Import a file and paste it into the '
                                       'current grid')

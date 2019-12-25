@@ -35,11 +35,14 @@
  * :class:`ImageFileOpenDialog`
  * :class:`FindDialog`
  * :class:`ChartDialog`
+ * :class:`CsvImportDialog`
 
 """
 
 from dataclasses import dataclass
+import encodings
 from functools import partial
+import pkgutil
 
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
@@ -781,3 +784,73 @@ class ChartDialog(QDialog):
         button_box.rejected.connect(self.reject)
         button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
         return button_box
+
+
+class CsvImportDialog(QDialog):
+    """Modal dialog for importing csv files"""
+
+    csv_params = [
+        ["encodings", tuple, "Encoding", "CSV file encoding."],
+        ["dialects", tuple, "Dialect",
+         "To make it easier to specify the format of input and output "
+         "records, specific formatting parameters are grouped together "
+         "into dialects.\n'excel': Defines the usual properties of an "
+         "Excel-generated CSV file.\n'sniffer': Deduces the format of a "
+         "CSV file\n'excel-tab': Defines the usual "
+         "properties of an Excel-generated TAB-delimited file."],
+        ["delimiter", str, "Delimiter",
+         "A one-character string used to separate fields."],
+        ["doublequote", bool, "Doublequote",
+         "Controls how instances of quotechar appearing inside a "
+         "field should be themselves be quoted. When True, the character "
+         "is doubled. When False, the escapechar is used as a prefix to "
+         "the quotechar."],
+        ["escapechar", str, "Escape character",
+         "A one-character string used by "
+         "the writer to escape the delimiter if quoting is set to "
+         "QUOTE_NONE and the quotechar if doublequote is False. On "
+         "reading, the escapechar removes any special meaning from the "
+         "following character."],
+        ["quotechar", str, "Quote character",
+         "A one-character string used to quote fields containing special "
+         "characters, such as the delimiter or quotechar, or which "
+         "contain new-line characters."],
+        ["quoting", int, "Quoting style",
+         "Controls when quotes should be recognised."],
+        ["self.has_header", bool, "Header present",
+         "Analyze the CSV file and treat the first row as strings if it "
+         "appears to be a series of column headers."],
+        ["skipinitialspace", bool, "Skip initial space",
+         "When True, whitespace immediately following the delimiter is "
+         "ignored."],
+    ]
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        print(self.encodings)
+
+    @property
+    def encodings(self):
+        """Provides all available encodings in the system"""
+
+        all_encodings = set()
+
+        for _, modname, _ in pkgutil.iter_modules(
+                encodings.__path__, encodings.__name__ + '.',
+        ):
+            try:
+                mod = __import__(modname, fromlist=[str('__trash')])
+            except (ImportError, LookupError):
+                # A few encodings are platform specific: mcbs, cp65001
+                # print('skip {}'.format(modname))
+                pass
+
+            try:
+                all_encodings.add(mod.getregentry().name)
+            except AttributeError as e:
+                # the `aliases` module doensn't actually provide a codec
+                # print('skip {}'.format(modname))
+                if 'regentry' not in str(e):
+                    raise
+        return sorted(all_encodings)

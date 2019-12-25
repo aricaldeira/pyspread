@@ -52,7 +52,10 @@ class TestActions:
 
         self.app = QApplication([])
 
-        self.main_window = MainWindow(self.app, unit_test=True)
+        class Args:
+            file = None
+
+        self.main_window = MainWindow(self.app, Args(), unit_test=True)
 
     def teardown_method(self):
         """Sets up a basic pyspread instance as self.app"""
