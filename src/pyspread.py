@@ -121,9 +121,8 @@ class MainWindow(QMainWindow):
         self._previous_window_state = self.windowState()
 
         # Open initial file if provided by the command line
-        if args.file:
-            filepath = Path(" ".join(args.file))  # Handle paths with spaces
-            self.workflows.filepath_open(filepath)
+        if args.file is not None:
+            self.workflows.filepath_open(args.file)
             self.workflows.update_main_window_title()
 
     def _init_window(self):

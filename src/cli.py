@@ -26,9 +26,20 @@
 
 """
 
-from argparse import ArgumentParser
+from argparse import Action, ArgumentParser
+from pathlib import Path
 
 from src import APP_NAME, VERSION
+
+
+class PathAction(Action):
+    """Action that handles paths with spaces and provides a pathlib Path"""
+
+    def __call__(self, parser, namespace, values):
+        if values:
+            setattr(namespace, self.dest, Path(" ".join(values)))
+        else:
+            setattr(namespace, self.dest, None)
 
 
 class ArgumentParser(ArgumentParser):
@@ -40,8 +51,11 @@ class ArgumentParser(ArgumentParser):
                       "based on and written in the programming language " \
                       "Python."
 
-        super().__init__(prog=APP_NAME, description=description)
+        # Override usage because of the PathAction fix for paths with spaces
+        usage = "{} [-h] [--version] [file]".format(APP_NAME)
+
+        super().__init__(prog=APP_NAME, description=description, usage=usage)
 
         self.add_argument('--version', action='version', version=VERSION)
-        self.add_argument('file', nargs='*',
+        self.add_argument('file', action=PathAction, nargs="*",
                           help='open pyspread file in pys or pysu format')
