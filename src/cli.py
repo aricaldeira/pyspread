@@ -35,7 +35,7 @@ from src import APP_NAME, VERSION
 class PathAction(Action):
     """Action that handles paths with spaces and provides a pathlib Path"""
 
-    def __call__(self, parser, namespace, values):
+    def __call__(self, parser, namespace, values, option_string=None):
         if values:
             setattr(namespace, self.dest, Path(" ".join(values)))
         else:
