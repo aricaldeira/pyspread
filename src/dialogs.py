@@ -49,7 +49,9 @@ from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
 from PyQt5.QtWidgets import QCheckBox, QGridLayout, QLayout, QHBoxLayout
 from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
+from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtGui import QIntValidator, QImageWriter
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 try:
     from matplotlib.figure import Figure
@@ -57,11 +59,12 @@ try:
 except ImportError:
     Figure = None
 
-from src.lib.spelltextedit import SpellTextEdit
-from src.lib.testlib import unit_test_dialog_override
 from src.actions import ChartDialogActions
 from src.toolbar import ChartTemplatesToolBar
 from src.icons import PYSPREAD_PATH
+from src.lib.spelltextedit import SpellTextEdit
+from src.lib.testlib import unit_test_dialog_override
+from src.lib.csv import sniff, csv_reader, typehandlers
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
@@ -979,7 +982,6 @@ class CsvParameterGroupBox(QGroupBox):
             except AttributeError:
                 value = None
             if value is not None:
-                print(parameter, value)
                 widget = self.csv_parameter2widget[parameter]
                 if hasattr(widget, "setCurrentText"):
                     try:
@@ -992,6 +994,55 @@ class CsvParameterGroupBox(QGroupBox):
                     widget.setText(value)
                 else:
                     raise AttributeError("{} unsupported".format(widget))
+
+
+class CsvTable(QTableView):
+    """Table for previewing csv file content"""
+
+    no_rows = 9
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.model = QStandardItemModel(self)
+        self.setModel(self.model)
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.verticalHeader().hide()
+
+    def add_choice_row(self, length):
+        """Adds row with comboboxes for digest choice"""
+
+        class TypeCombo(QComboBox):
+            def __init__(self):
+                super().__init__()
+
+                for typehandler in typehandlers:
+                    self.addItem(typehandler)
+
+        item_row = map(QStandardItem, [''] * length)
+        self.comboboxes = [TypeCombo() for _ in range(length)]
+        self.model.appendRow(item_row)
+        for i, combobox in enumerate(self.comboboxes):
+            self.setIndexWidget(self.model.index(0, i), combobox)
+
+    def fill(self, filepath, dialect, digest_types=None):
+        """Fills the csv table with values from the csv file"""
+
+        self.model.clear()
+
+        if hasattr(dialect, 'hasheader') and dialect.hasheader:
+            self.verticalHeader().show()
+        else:
+            self.verticalHeader().hide()
+
+        for i, row in enumerate(csv_reader(filepath, dialect, digest_types)):
+            if i >= self.no_rows:
+                break
+            elif i == 0:
+                self.add_choice_row(len(row))
+
+            item_row = map(QStandardItem, map(str, row))
+            self.model.appendRow(item_row)
 
 
 class CsvImportDialog(QDialog):
@@ -1013,7 +1064,7 @@ class CsvImportDialog(QDialog):
         self.setWindowTitle(self.title)
 
         self.parameter_groupbox = CsvParameterGroupBox(self)
-        self.csv_table = QTableView(self)
+        self.csv_table = CsvTable(self)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.parameter_groupbox)
@@ -1022,21 +1073,10 @@ class CsvImportDialog(QDialog):
 
         self.setLayout(layout)
 
-        self.parameter_groupbox.set_csvdialect(self.sniff_dialect())
+        dialect = sniff(filepath, self.sniff_size)
+        self.parameter_groupbox.set_csvdialect(dialect)
 
-    def sniff_dialect(self):
-        """Sniffs dialect from csv file"""
-
-        with open(self.filepath, newline='') as csvfile:
-            csv_str = csvfile.read(self.sniff_size)
-
-        dialect = csv.Sniffer().sniff(csv_str)
-        setattr(dialect, "hasheader", csv.Sniffer().has_header(csv_str))
-
-        return dialect
-
-    def fill_csv_table(self):
-        """Fills the csv table with values from the csv file"""
+        self.csv_table.fill(filepath, dialect)
 
     def create_buttonbox(self):
         """Returns a QDialogButtonBox with Ok and Cancel"""
