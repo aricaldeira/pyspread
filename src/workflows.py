@@ -419,7 +419,7 @@ class Workflows:
     def file_import(self):
         """Import files"""
 
-        csv_dlg = CsvImportDialog(self.main_window)
+        csv_dlg = CsvImportDialog(self.main_window, Path("/home/mn/tmp/big.csv"))
         csv_dlg.show()
 
     @handle_changed_since_save
