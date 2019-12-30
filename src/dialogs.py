@@ -1132,4 +1132,9 @@ class CsvImportDialog(QDialog):
     def accept(self):
         """Button event handler, starts csv import"""
 
-        raise NotImplementedError
+        sniffed_dialect = sniff(self.filepath, self.sniff_size)
+        dialect = self.parameter_groupbox.adjust_csvdialect(sniffed_dialect)
+        digest_types = self.csv_table.get_digest_types()
+
+        self.csv_reader = csv_reader(self.filepath, dialect, digest_types)
+        super().accept()

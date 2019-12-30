@@ -109,6 +109,8 @@ def csv_reader(filepath, dialect, digest_types=None):
 # Type conversion functions
 
 def convert(string, digest_type):
+    """Main type conversion functgion for csv import"""
+
     if digest_type is None:
         digest_type = 'repr'
 

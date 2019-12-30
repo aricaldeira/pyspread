@@ -419,8 +419,30 @@ class Workflows:
     def file_import(self):
         """Import files"""
 
-        csv_dlg = CsvImportDialog(self.main_window, Path("/home/mn/tmp/big.csv"))
-        csv_dlg.show()
+        filepath = Path("/home/mn/tmp/big.csv")
+
+        csv_dlg = CsvImportDialog(self.main_window, filepath)
+
+        if csv_dlg.exec():
+            # Dialog accepted, now fill the grid
+
+            row, column, table = current = self.main_window.grid.current
+            model = self.main_window.grid.model
+            rows, columns, tables = model.shape
+
+            description_tpl = "Import from csv file {} at cell {}"
+            description = description_tpl.format(filepath, current)
+
+            for i, line in enumerate(csv_dlg.csv_reader):
+                if row + i >= rows:
+                    break
+                for j, ele in enumerate(line):
+                    if column + j >= columns:
+                        break
+                    index = model.index(row + i, column + j)
+                    command = CommandSetCellCode(ele, model, index,
+                                                 description)
+                    self.main_window.undo_stack.push(command)
 
     @handle_changed_since_save
     def file_quit(self):
