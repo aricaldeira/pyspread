@@ -64,7 +64,7 @@ from src.toolbar import ChartTemplatesToolBar
 from src.icons import PYSPREAD_PATH
 from src.lib.spelltextedit import SpellTextEdit
 from src.lib.testlib import unit_test_dialog_override
-from src.lib.csv import sniff, csv_reader, typehandlers
+from src.lib.csv import sniff, csv_reader, get_header, typehandlers, convert
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
@@ -950,28 +950,31 @@ class CsvParameterGroupBox(QGroupBox):
 
         self.setLayout(hbox_layout)
 
-    def get_csvdialect(self):
-        """Get csv dialect from widget settings
+    def adjust_csvdialect(self, dialect):
+        """Adjusts csv dialect from widget settings
 
         Note that the dialect has two extra attributes encoding and hasheader
 
         """
 
-        class Dialect(csv.Dialect):
-            def __init__(self, parent):
-                for parameter in parent.csv_parameter2widget:
-                    widget = parent.csv_parameter2widget[parameter]
-                    if hasattr(widget, "currentText"):
-                        value = widget.currentText()
-                    elif hasattr(widget, "checked"):
-                        value = widget.checked()
-                    elif hasattr(widget, "text"):
-                        value = widget.text()
-                    else:
-                        raise AttributeError("{} unsupported".format(widget))
-                    setattr(self, parameter, value)
+        for parameter in self.csv_parameter2widget:
+            widget = self.csv_parameter2widget[parameter]
+            if hasattr(widget, "currentText"):
+                value = widget.currentText()
+            elif hasattr(widget, "isChecked"):
+                value = widget.isChecked()
+            elif hasattr(widget, "text"):
+                value = widget.text()
+            else:
+                raise AttributeError("{} unsupported".format(widget))
 
-        return Dialect(self)
+            # Convert strings to csv constants
+            if parameter == "quoting" and isinstance(value, str):
+                value = getattr(csv, value)
+
+            setattr(dialect, parameter, value)
+
+        return dialect
 
     def set_csvdialect(self, dialect):
         """Update widgets from given csv dialect"""
@@ -1030,19 +1033,37 @@ class CsvTable(QTableView):
 
         self.model.clear()
 
+        self.verticalHeader().hide()
+
         if hasattr(dialect, 'hasheader') and dialect.hasheader:
-            self.verticalHeader().show()
+            header = get_header(filepath, dialect)
+            self.model.setHorizontalHeaderLabels(header)
+            self.horizontalHeader().show()
         else:
-            self.verticalHeader().hide()
+            self.horizontalHeader().hide()
 
         for i, row in enumerate(csv_reader(filepath, dialect, digest_types)):
             if i >= self.no_rows:
                 break
             elif i == 0:
                 self.add_choice_row(len(row))
-
-            item_row = map(QStandardItem, map(str, row))
+            if digest_types is None:
+                item_row = map(QStandardItem, map(str, row))
+            else:
+                codes = (convert(ele, t) for ele, t in zip(row, digest_types))
+                item_row = map(QStandardItem, codes)
             self.model.appendRow(item_row)
+
+    def get_digest_types(self):
+        """Returns list of digest types from comboboxes"""
+
+        return [cbox.currentText() for cbox in self.comboboxes]
+
+    def update_comboboxes(self, digest_types):
+        """Updates the cono boxes to show digest_types"""
+
+        for combobox, digest_type in zip(self.comboboxes, digest_types):
+            combobox.setCurrentText(digest_type)
 
 
 class CsvImportDialog(QDialog):
@@ -1073,17 +1094,42 @@ class CsvImportDialog(QDialog):
 
         self.setLayout(layout)
 
-        dialect = sniff(filepath, self.sniff_size)
-        self.parameter_groupbox.set_csvdialect(dialect)
-
-        self.csv_table.fill(filepath, dialect)
+        self.reset()
 
     def create_buttonbox(self):
         """Returns a QDialogButtonBox with Ok and Cancel"""
 
         button_box = QDialogButtonBox(QDialogButtonBox.Reset
+                                      | QDialogButtonBox.Apply
                                       | QDialogButtonBox.Ok
                                       | QDialogButtonBox.Cancel)
+
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
+        button_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset)
+        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+
         return button_box
+
+    # Button event handlers
+
+    def reset(self):
+        """Button event handler, resets parameter_groupbox and csv_table"""
+
+        dialect = sniff(self.filepath, self.sniff_size)
+        self.parameter_groupbox.set_csvdialect(dialect)
+        self.csv_table.fill(self.filepath, dialect)
+
+    def apply(self):
+        """Button event handler, applies parameters to csv_table"""
+
+        sniffed_dialect = sniff(self.filepath, self.sniff_size)
+        dialect = self.parameter_groupbox.adjust_csvdialect(sniffed_dialect)
+        digest_types = self.csv_table.get_digest_types()
+        self.csv_table.fill(self.filepath, dialect, digest_types)
+        self.csv_table.update_comboboxes(digest_types)
+
+    def accept(self):
+        """Button event handler, starts csv import"""
+
+        raise NotImplementedError
