@@ -39,11 +39,11 @@ from shutil import move
 import sys
 from tempfile import NamedTemporaryFile
 
-from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer
-from PyQt5.QtGui import QImage as BasicQImage
-from PyQt5.QtGui import QTextDocument, QImage
+from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer, QRect, QSize
+from PyQt5.QtGui import QTextDocument, QImage, QPainter
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
-from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtWidgets import QInputDialog, QStyleOptionViewItem
+from PyQt5.QtSvg import QSvgGenerator
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -57,6 +57,7 @@ from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
 from src.dialogs import CsvFileImportDialog, CsvImportDialog, CsvExportDialog
 from src.dialogs import CsvExportAreaDialog, CsvFileExportDialog
+from src.dialogs import SvgExportAreaDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -517,7 +518,24 @@ class Workflows:
             return
 
     def file_export(self):
-        """Export csv files"""
+        """Export csv and svg files"""
+
+        # Get filepath from user
+        dial = CsvFileExportDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+        filepath = Path(dial.file_path)
+
+        if "CSV" in dial.selected_filter:
+            self._csv_export(filepath)
+        elif "SVG" in dial.selected_filter:
+            # Extend filepath suffix if needed
+            if filepath.suffix != dial.suffix:
+                filepath = filepath.with_suffix(dial.suffix)
+            self._svg_export(filepath)
+
+    def _csv_export(self, filepath):
+        """Export to csv file filepath"""
 
         # Get area for csv export
         csv_area = CsvExportAreaDialog(self.main_window,
@@ -535,18 +553,85 @@ class Workflows:
         if not csv_dlg.exec():
             return
 
-        # Get filepath from user
-        dial = CsvFileExportDialog(self.main_window)
-        if not dial.file_path:
-            return  # Cancel pressed
-        filepath = Path(dial.file_path)
-
         try:
             with open(filepath, "w", newline='') as csvfile:
                 writer = csv.writer(csvfile, dialect=csv_dlg.dialect)
                 writer.writerows(csv_data)
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
+
+    def _svg_export(self, filepath):
+        """Export to svg file filepath"""
+
+        grid = self.main_window.grid
+
+        generator = QSvgGenerator()
+        generator.setFileName(str(filepath))
+
+        # Get area for svg export
+        svg_area = SvgExportAreaDialog(self.main_window, grid).area
+        if svg_area is None:
+            return
+
+        top, left, bottom, right = svg_area
+        top = min(grid.model.shape[0] - 1, top)
+        bottom = min(grid.model.shape[0] - 1, bottom)
+        left = min(grid.model.shape[1] - 1, left)
+        right = min(grid.model.shape[1] - 1, right)
+
+        rows = range(top, bottom + 1)
+        columns = range(left, right + 1)
+
+        total_width = 0
+        total_height = 0
+
+        for row in rows:
+            total_height += grid.rowHeight(row)
+        for column in columns:
+            total_width += grid.columnWidth(column)
+
+        generator.setSize(QSize(total_width, total_height))
+
+        paint_rect = QRect(0, 0, total_width, total_height)
+        generator.setViewBox(paint_rect)
+
+        painter = QPainter(generator)
+        painter.setClipRect(paint_rect)
+
+        option = QStyleOptionViewItem()
+
+        x_offset = grid.columnViewportPosition(0)
+        y_offset = grid.rowViewportPosition(0)
+
+        code_array = grid.model.code_array
+        cell_attributes = code_array.cell_attributes
+
+        for row in rows:
+            for column in columns:
+                key = row, column, grid.table
+                merging_cell = cell_attributes.get_merging_cell(key)
+                if merging_cell is None \
+                   or merging_cell[0] == row and merging_cell[1] == column:
+
+                    idx = grid.model.index(row, column)
+                    visual_rect = grid.visualRect(idx)
+                    x = max(0, visual_rect.x() - x_offset)
+                    y = max(0, visual_rect.y() - y_offset)
+                    width = visual_rect.width()
+                    if visual_rect.x() - x_offset < 0:
+                        width += visual_rect.x() - x_offset
+                    height = visual_rect.height()
+                    if visual_rect.y() - y_offset < 0:
+                        height += visual_rect.y() - y_offset
+
+                    option.rect = QRect(x, y, width, height)
+                    painter.setClipRect(option.rect)
+
+                    option.text = code_array(key)
+                    option.widget = grid
+
+                    grid.itemDelegate().paint(painter, option, idx)
+        painter.end()
 
     @handle_changed_since_save
     def file_quit(self):
@@ -627,7 +712,7 @@ class Workflows:
             clipboard.setText(repr(data))
 
         elif renderer == "image":
-            if isinstance(data, BasicQImage):
+            if isinstance(data, QImage):
                 clipboard.setImage(data)
             else:
                 # We may have an svg image here

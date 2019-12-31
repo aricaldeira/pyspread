@@ -340,26 +340,35 @@ class MainWindow(QMainWindow):
         x_offset = self.grid.columnViewportPosition(0)
         y_offset = self.grid.rowViewportPosition(0)
 
-        code_array = self.grid.model.code_array
+        grid = self.grid
+        code_array = grid.model.code_array
         cell_attributes = code_array.cell_attributes
 
         for row in rows:
             for column in columns:
-                idx = self.grid.model.index(row, column)
-                visual_rect = self.grid.visualRect(idx)
-                option.rect = QRect(visual_rect.x() - x_offset,
-                                    visual_rect.y() - y_offset,
-                                    visual_rect.width(), visual_rect.height())
-
-                key = row, column, self.grid.table
-                option.text = code_array(key)
-                option.widget = self.grid
-
+                key = row, column, grid.table
                 merging_cell = cell_attributes.get_merging_cell(key)
                 if merging_cell is None \
                    or merging_cell[0] == row and merging_cell[1] == column:
+
+                    idx = grid.model.index(row, column)
+                    visual_rect = grid.visualRect(idx)
+                    x = max(0, visual_rect.x() - x_offset)
+                    y = max(0, visual_rect.y() - y_offset)
+                    width = visual_rect.width()
+                    if visual_rect.x() - x_offset < 0:
+                        width += visual_rect.x() - x_offset
+                    height = visual_rect.height()
+                    if visual_rect.y() - y_offset < 0:
+                        height += visual_rect.y() - y_offset
+
+                    option.rect = QRect(x, y, width, height)
                     painter.setClipRect(option.rect)
-                    self.grid.itemDelegate().paint(painter, option, idx)
+
+                    option.text = code_array(key)
+                    option.widget = grid
+
+                    grid.itemDelegate().paint(painter, option, idx)
 
         painter.restore()
 

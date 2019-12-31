@@ -345,21 +345,15 @@ class PrintAreaDialog(DataEntryDialog):
 
 
 class CsvExportAreaDialog(PrintAreaDialog):
-    """Modal dialog for entering csv export area
-
-    Initially, this dialog is filled with the selection bounding box
-    if present or with the visible area of <= 1 cell is selected.
-
-    Parameters
-    ----------
-    * parent: QWidget
-    \tParent window
-    * shape: 3-tuple of Integer
-    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
-
-    """
+    """Modal dialog for entering csv export area"""
 
     groupbox_title = "CSV export area"
+
+
+class SvgExportAreaDialog(PrintAreaDialog):
+    """Modal dialog for entering svg export area"""
+
+    groupbox_title = "SVG export area"
 
 
 class PreferencesDialog(DataEntryDialog):
@@ -572,13 +566,17 @@ class CsvFileExportDialog(FileDialogBase):
     title = "Export data"
     filters_list = [
         "CSV file (*.*)",
+        "SVG file (*.svg)",
     ]
 
     @property
     def suffix(self):
-        """Do not offer suffix for filepath"""
+        """Suffix for filepath"""
 
-        return
+        if self.filters_list.index(self.selected_filter):
+            return ".svg"
+        else:
+            return
 
     def show_dialog(self):
         """Present dialog and update values"""
