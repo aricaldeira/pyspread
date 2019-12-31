@@ -293,9 +293,10 @@ class PrintAreaDialog(DataEntryDialog):
 
     """
 
+    groupbox_title = "Print area"
+    labels = ["Top", "Left", "Bottom", "Right"]
+
     def __init__(self, parent, grid, title="Print settings"):
-        groupbox_title = "Print area"
-        labels = ["Top", "Left", "Bottom", "Right"]
 
         self.shape = grid.model.shape
 
@@ -316,8 +317,8 @@ class PrintAreaDialog(DataEntryDialog):
         initial_values = bb_top, bb_left, bb_bottom, bb_right
 
         validators = [row_validator, column_validator] * 2
-        super().__init__(parent, title, labels, initial_values, groupbox_title,
-                         validators)
+        super().__init__(parent, title, self.labels, initial_values,
+                         self.groupbox_title, validators)
 
     @property
     def area(self):
@@ -338,6 +339,24 @@ class PrintAreaDialog(DataEntryDialog):
                 return tuple(data)
             except ValueError:
                 return
+
+
+class CsvExportAreaDialog(PrintAreaDialog):
+    """Modal dialog for entering csv export area
+
+    Initially, this dialog is filled with the selection bounding box
+    if present or with the visible area of <= 1 cell is selected.
+
+    Parameters
+    ----------
+    * parent: QWidget
+    \tParent window
+    * shape: 3-tuple of Integer
+    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
+
+    """
+
+    groupbox_title = "CSV export area"
 
 
 class PreferencesDialog(DataEntryDialog):
@@ -1015,7 +1034,7 @@ class CsvParameterGroupBox(QGroupBox):
                 value = getattr(dialect, parameter)
             except AttributeError:
                 value = None
-            print(parameter, value)
+
             if value is not None:
                 widget = self.csv_parameter2widget[parameter]
                 if hasattr(widget, "setCurrentText"):
@@ -1214,10 +1233,14 @@ class CsvExportDialog(QDialog):
 
     title = "CSV export"
 
-    def __init__(self, parent):
+    def __init__(self, parent, csv_area):
         super().__init__(parent)
 
         self.parent = parent
+
+        self.csv_area = csv_area
+
+        self.dialect = self.default_dialect
 
         self.setWindowTitle(self.title)
 
@@ -1253,7 +1276,7 @@ class CsvExportDialog(QDialog):
     def apply(self):
         """Button event handler, applies parameters to csv_preview"""
 
-        self.csv_preview.setText("Test")
+        self.csv_preview.setPlainText("Test")
 
     def accept(self):
         """Button event handler, starts csv import"""

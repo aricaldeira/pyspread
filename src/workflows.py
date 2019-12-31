@@ -55,6 +55,7 @@ from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
 from src.dialogs import CsvFileImportDialog, CsvImportDialog, CsvExportDialog
+from src.dialogs import CsvExportAreaDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -516,10 +517,20 @@ class Workflows:
     def file_export(self):
         """Export csv files"""
 
-        csv_dlg = CsvExportDialog(self.main_window)
+        # Get area for csv export
+        csv_area = CsvExportAreaDialog(self.main_window,
+                                       self.main_window.grid).area
+        if csv_area is None:
+            return
+
+        csv_dlg = CsvExportDialog(self.main_window, csv_area)
 
         if not csv_dlg.exec():
             return
+
+        dialect = csv_dlg.dialect
+
+
 
     @handle_changed_since_save
     def file_quit(self):
