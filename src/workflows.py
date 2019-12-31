@@ -502,8 +502,8 @@ class Workflows:
 
                                 if command is None:
                                     command = cmd
-                                elif not command.mergeWith(cmd):
-                                    return
+                                else:
+                                    command.mergeWith(cmd)
                     except ValueError as error:
                         msg = str(error)
                         self.main_window.statusBar().showMessage(msg)
