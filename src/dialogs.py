@@ -1042,17 +1042,23 @@ class CsvTable(QTableView):
         else:
             self.horizontalHeader().hide()
 
-        for i, row in enumerate(csv_reader(filepath, dialect, digest_types)):
-            if i >= self.no_rows:
-                break
-            elif i == 0:
-                self.add_choice_row(len(row))
-            if digest_types is None:
-                item_row = map(QStandardItem, map(str, row))
-            else:
-                codes = (convert(ele, t) for ele, t in zip(row, digest_types))
-                item_row = map(QStandardItem, codes)
-            self.model.appendRow(item_row)
+        try:
+            with open(filepath, newline='') as csvfile:
+                for i, row in enumerate(csv_reader(csvfile, dialect,
+                                                   digest_types)):
+                    if i >= self.no_rows:
+                        break
+                    elif i == 0:
+                        self.add_choice_row(len(row))
+                    if digest_types is None:
+                        item_row = map(QStandardItem, map(str, row))
+                    else:
+                        codes = (convert(ele, t)
+                                 for ele, t in zip(row, digest_types))
+                        item_row = map(QStandardItem, codes)
+                    self.model.appendRow(item_row)
+        except OSError:
+            return
 
     def get_digest_types(self):
         """Returns list of digest types from comboboxes"""
@@ -1136,5 +1142,6 @@ class CsvImportDialog(QDialog):
         dialect = self.parameter_groupbox.adjust_csvdialect(sniffed_dialect)
         digest_types = self.csv_table.get_digest_types()
 
-        self.csv_reader = csv_reader(self.filepath, dialect, digest_types)
+        self.dialect = dialect
+        self.digest_types = digest_types
         super().accept()

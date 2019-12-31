@@ -31,6 +31,7 @@ from contextlib import contextmanager
 from copy import deepcopy
 from itertools import cycle
 import io
+from itertools import takewhile, repeat
 import os.path
 from pathlib import Path
 from shutil import move
@@ -58,6 +59,7 @@ from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
 from src.lib.typechecks import is_svg
+from src.lib.csv import csv_reader
 
 
 class Workflows:
@@ -170,8 +172,6 @@ class Workflows:
             self.main_window.statusBar().showMessage(msg)
             return
 
-        self.main_window.grid.current = 0, 0, 0
-
         # Reset grid
         self.main_window.grid.model.reset()
 
@@ -181,19 +181,31 @@ class Workflows:
         # Select upper left cell because initial selection behaves strange
         self.main_window.grid.reset_selection()
 
+        # Set current cell to upper left corner
+        self.main_window.grid.current = 0, 0, 0
+
         # Exit safe mode
         self.main_window.safe_mode = False
 
-    def filepath_open(self, filepath):
-        """Workflow for opening a file if a filepath is known"""
+    def _get_filesize(self, filepath):
+        """Returns the filesize"""
 
-        code_array = self.main_window.grid.model.code_array
         try:
             filesize = os.path.getsize(filepath)
         except OSError as err:
             msg_tpl = "Error opening file {filepath}: {err}."
             msg = msg_tpl.format(filepath=filepath, err=err)
             self.main_window.statusBar().showMessage(msg)
+            return
+        return filesize
+
+    def filepath_open(self, filepath):
+        """Workflow for opening a file if a filepath is known"""
+
+        code_array = self.main_window.grid.model.code_array
+
+        filesize = self._get_filesize(filepath)
+        if filesize is None:
             return
 
         # Reset grid
@@ -419,30 +431,75 @@ class Workflows:
     def file_import(self):
         """Import files"""
 
+        def rawincount(filepath):
+            """Counts lines of file"""
+
+            with open(filepath, 'rb') as f:
+                bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024)
+                                                 for _ in repeat(None)))
+                return sum(buf.count(b'\n') for buf in bufgen)
+
         filepath = Path("/home/mn/tmp/big.csv")
 
         csv_dlg = CsvImportDialog(self.main_window, filepath)
 
-        if csv_dlg.exec():
-            # Dialog accepted, now fill the grid
+        if not csv_dlg.exec():
+            return
 
-            row, column, table = current = self.main_window.grid.current
-            model = self.main_window.grid.model
-            rows, columns, tables = model.shape
+        # Dialog accepted, now fill the grid
 
-            description_tpl = "Import from csv file {} at cell {}"
-            description = description_tpl.format(filepath, current)
+        row, column, table = current = self.main_window.grid.current
+        model = self.main_window.grid.model
+        rows, columns, tables = model.shape
 
-            for i, line in enumerate(csv_dlg.csv_reader):
-                if row + i >= rows:
-                    break
-                for j, ele in enumerate(line):
-                    if column + j >= columns:
-                        break
-                    index = model.index(row + i, column + j)
-                    command = CommandSetCellCode(ele, model, index,
-                                                 description)
+        description_tpl = "Import from csv file {} at cell {}"
+        description = description_tpl.format(filepath, current)
+
+        try:
+            filelines = rawincount(filepath)
+        except OSError as error:
+            self.main_window.statusBar().showMessage(str(error))
+            return
+
+        command = None
+
+        try:
+            with open(filepath, newline='') as csvfile:
+                title = "csv import progress"
+                label = "Importing {}...".format(filepath.name)
+                with self.progress_dialog(title, label,
+                                          filelines) as progress_dialog:
+                    try:
+                        reader = csv_reader(csvfile, csv_dlg.dialect,
+                                            csv_dlg.digest_types)
+                        for i, line in enumerate(reader):
+                            if row + i >= rows:
+                                break
+                            if i % 100 == 0:
+                                progress_dialog.setValue(i)
+                                self.main_window.application.processEvents()
+                                if progress_dialog.wasCanceled():
+                                    return
+
+                            for j, ele in enumerate(line):
+                                if column + j >= columns:
+                                    break
+                                index = model.index(row + i, column + j)
+                                cmd = CommandSetCellCode(ele, model, index,
+                                                         description)
+
+                                if command is None:
+                                    command = cmd
+                                elif not command.mergeWith(cmd):
+                                    return
+                    except ValueError as error:
+                        msg = str(error)
+                        self.main_window.statusBar().showMessage(msg)
+                        return
+
                     self.main_window.undo_stack.push(command)
+        except OSError:
+            return
 
     @handle_changed_since_save
     def file_quit(self):

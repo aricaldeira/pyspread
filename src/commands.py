@@ -117,13 +117,15 @@ class CommandSetCellCode(QUndoCommand):
         return True
 
     def redo(self):
-        for index, new_code in zip(self.indices, self.new_codes):
-            self.model.setData(index, new_code, Qt.EditRole, raw=True)
+        with self.model.main_window.entry_line.disable_highlighter():
+            for index, new_code in zip(self.indices, self.new_codes):
+                self.model.setData(index, new_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
-        for index, old_code in zip(self.indices, self.old_codes):
-            self.model.setData(index, old_code, Qt.EditRole, raw=True)
+        with self.model.main_window.entry_line.disable_highlighter():
+            for index, old_code in zip(self.indices, self.old_codes):
+                self.model.setData(index, old_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 

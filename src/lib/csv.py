@@ -77,13 +77,13 @@ def get_header(filepath, dialect):
     return header
 
 
-def csv_reader(filepath, dialect, digest_types=None):
+def csv_reader(csvfile, dialect, digest_types=None):
     """Generator of digested values from csv file in filepath
 
     Parameters
     ----------
-    filepath:String
-    \tFile path of csv file to read
+    csvfile:filelike
+    \tCsv file to read
     dialect: Object
     \tCsv dialect
     digest_types: tuple of types
@@ -91,19 +91,15 @@ def csv_reader(filepath, dialect, digest_types=None):
 
     """
 
-    try:
-        with open(filepath, newline='') as csvfile:
-            csvreader = csv.reader(csvfile, dialect=dialect)
+    csvreader = csv.reader(csvfile, dialect=dialect)
 
-            if hasattr(dialect, "hasheader") and dialect.hasheader:
-                # Ignore first line
-                for line in csvreader:
-                    break
+    if hasattr(dialect, "hasheader") and dialect.hasheader:
+        # Ignore first line
+        for line in csvreader:
+            break
 
-            for line in csvreader:
-                yield line
-    except OSError:
-        return
+    for line in csvreader:
+        yield line
 
 
 # Type conversion functions

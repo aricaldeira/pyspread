@@ -1748,8 +1748,12 @@ class GridCellDelegate(QStyledItemDelegate):
            and source is self.editor \
            and event.modifiers() == Qt.ControlModifier \
            and event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            self.grid.model.setData(self.grid.currentIndex(),
-                                    quote(source.text()), Qt.EditRole)
+
+            code = quote(source.text())
+            index = self.grid.currentIndex()
+            description = "Quote code for cell {}".format(index)
+            cmd = CommandSetCellCode(code, self.grid.model, index, description)
+            self.main_window.undo_stack.push(cmd)
         return QWidget.eventFilter(self, source, event)
 
     def setEditorData(self, editor, index):

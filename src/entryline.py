@@ -18,6 +18,7 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+from contextlib import contextmanager
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QTextOption
@@ -41,6 +42,15 @@ class Entryline(SpellTextEdit):
         # self.setWordWrapMode(QTextOption.NoWrap)
 
         self.highlighter.setDocument(self.document())
+
+    @contextmanager
+    def disable_highlighter(self):
+        """Disables highlighter"""
+
+        doc = self.highlighter.document()
+        self.highlighter.setDocument(None)
+        yield
+        self.highlighter.setDocument(doc)
 
     def keyPressEvent(self, event):
         """Key press event filter"""
