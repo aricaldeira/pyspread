@@ -54,7 +54,7 @@ from src.commands import CommandSetGridSize
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
-from src.dialogs import CsvFileImportDialog, CsvImportDialog
+from src.dialogs import CsvFileImportDialog, CsvImportDialog, CsvExportDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -426,7 +426,7 @@ class Workflows:
         self._save(fp)
 
     def file_import(self):
-        """Import files"""
+        """Import csv files"""
 
         def rawincount(filepath):
             """Counts lines of file"""
@@ -511,6 +511,14 @@ class Workflows:
 
                     self.main_window.undo_stack.push(command)
         except OSError:
+            return
+
+    def file_export(self):
+        """Export csv files"""
+
+        csv_dlg = CsvExportDialog(self.main_window)
+
+        if not csv_dlg.exec():
             return
 
     @handle_changed_since_save

@@ -119,7 +119,7 @@ class MainWindowActions(AttrDict):
                                       'current grid')
 
         self.export = Action(self.parent, "&Export",
-                             self.parent.on_nothing,
+                             self.parent.workflows.file_export,
                              icon=Icon.export,
                              statustip="Export selection to a file")
 

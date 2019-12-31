@@ -50,7 +50,7 @@ from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
 from PyQt5.QtWidgets import QCheckBox, QGridLayout, QLayout, QHBoxLayout
 from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
-from PyQt5.QtWidgets import QAbstractItemView
+from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit
 from PyQt5.QtGui import QIntValidator, QImageWriter
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
@@ -1015,13 +1015,17 @@ class CsvParameterGroupBox(QGroupBox):
                 value = getattr(dialect, parameter)
             except AttributeError:
                 value = None
+            print(parameter, value)
             if value is not None:
                 widget = self.csv_parameter2widget[parameter]
                 if hasattr(widget, "setCurrentText"):
                     try:
                         widget.setCurrentText(value)
                     except TypeError:
-                        pass
+                        try:
+                            widget.setCurrentIndex(value)
+                        except TypeError:
+                            pass
                 elif hasattr(widget, "setChecked"):
                     widget.setChecked(bool(value))
                 elif hasattr(widget, "setText"):
@@ -1138,7 +1142,7 @@ class CsvImportDialog(QDialog):
         self.reset()
 
     def create_buttonbox(self):
-        """Returns a QDialogButtonBox with Ok and Cancel"""
+        """Returns a QDialogButtonBox"""
 
         button_box = QDialogButtonBox(QDialogButtonBox.Reset
                                       | QDialogButtonBox.Apply
@@ -1199,3 +1203,76 @@ class CsvImportDialog(QDialog):
         self.dialect = dialect
         self.digest_types = digest_types
         super().accept()
+
+
+class CsvExportDialog(QDialog):
+    """Modal dialog for exporting csv files
+
+    :filepath: pathlib.Path to csv file
+
+    """
+
+    title = "CSV export"
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.parent = parent
+
+        self.setWindowTitle(self.title)
+
+        self.parameter_groupbox = CsvParameterGroupBox(self)
+        self.csv_preview = QPlainTextEdit(self)
+        self.csv_preview.setReadOnly(True)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.parameter_groupbox)
+        layout.addWidget(self.csv_preview)
+        layout.addWidget(self.create_buttonbox())
+
+        self.setLayout(layout)
+
+        self.reset()
+
+    @property
+    def default_dialect(self):
+        """Default dialect for export based on excel-tab"""
+
+        dialect = csv.excel_tab
+        dialect.encoding = "utf-8"
+        dialect.hasheader = False
+
+        return dialect
+
+    def reset(self):
+        """Button event handler, resets parameter_groupbox and csv_preview"""
+
+        self.parameter_groupbox.set_csvdialect(self.default_dialect)
+        self.csv_preview.clear()
+
+    def apply(self):
+        """Button event handler, applies parameters to csv_preview"""
+
+        self.csv_preview.setText("Test")
+
+    def accept(self):
+        """Button event handler, starts csv import"""
+
+        adjust_csvdialect = self.parameter_groupbox.adjust_csvdialect
+        self.dialect = adjust_csvdialect(self.default_dialect)
+        super().accept()
+
+    def create_buttonbox(self):
+        """Returns a QDialogButtonBox"""
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Reset
+                                      | QDialogButtonBox.Apply
+                                      | QDialogButtonBox.Ok
+                                      | QDialogButtonBox.Cancel)
+
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        button_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset)
+        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+
+        return button_box
