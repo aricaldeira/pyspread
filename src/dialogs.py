@@ -483,6 +483,7 @@ class FileSaveDialog(FileDialogBase):
 
     def show_dialog(self):
         """Present dialog and update values"""
+
         path = self.main_window.settings.last_file_output_path
         self.file_path, self.selected_filter = \
             QFileDialog.getSaveFileName(self.main_window, self.title,
@@ -511,6 +512,24 @@ class ImageFileOpenDialog(FileDialogBase):
                                         self.title,
                                         str(path),
                                         self.name_filter)
+
+
+class CsvFileImportDialog(FileDialogBase):
+    """Modal dialog for importing csv files"""
+
+    title = "Import data"
+    filters_list = [
+        "CSV file (*.*)",
+    ]
+
+    def show_dialog(self):
+        """Present dialog and update values"""
+
+        path = self.main_window.settings.last_file_input_path
+        self.file_path, self.selected_filter = \
+            QFileDialog.getOpenFileName(self.main_window, self.title,
+                                        str(path), self.filters,
+                                        self.selected_filter)
 
 
 @dataclass
@@ -1007,6 +1026,8 @@ class CsvTable(QTableView):
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.comboboxes = []
+
         self.model = QStandardItemModel(self)
         self.setModel(self.model)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -1084,6 +1105,8 @@ class CsvImportDialog(QDialog):
     def __init__(self, parent, filepath):
         super().__init__(parent)
 
+        self.parent = parent
+
         self.filepath = filepath
 
         self.sniff_size = parent.settings.sniff_size
@@ -1129,8 +1152,13 @@ class CsvImportDialog(QDialog):
     def apply(self):
         """Button event handler, applies parameters to csv_table"""
 
-        sniffed_dialect = sniff(self.filepath, self.sniff_size)
-        dialect = self.parameter_groupbox.adjust_csvdialect(sniffed_dialect)
+        sniff_dialect = sniff(self.filepath, self.sniff_size)
+        try:
+            dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
+        except AttributeError as error:
+            self.parent.statusBar().showMessage(str(error))
+            return
+
         digest_types = self.csv_table.get_digest_types()
         self.csv_table.fill(self.filepath, dialect, digest_types)
         self.csv_table.update_comboboxes(digest_types)
@@ -1138,8 +1166,14 @@ class CsvImportDialog(QDialog):
     def accept(self):
         """Button event handler, starts csv import"""
 
-        sniffed_dialect = sniff(self.filepath, self.sniff_size)
-        dialect = self.parameter_groupbox.adjust_csvdialect(sniffed_dialect)
+        sniff_dialect = sniff(self.filepath, self.sniff_size)
+        try:
+            dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
+        except AttributeError as error:
+            self.parent.statusBar().showMessage(str(error))
+            self.reject()
+            return
+
         digest_types = self.csv_table.get_digest_types()
 
         self.dialect = dialect

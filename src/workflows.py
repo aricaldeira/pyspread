@@ -54,7 +54,7 @@ from src.commands import CommandSetGridSize
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
-from src.dialogs import CsvImportDialog
+from src.dialogs import CsvFileImportDialog, CsvImportDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -439,7 +439,16 @@ class Workflows:
                                                  for _ in repeat(None)))
                 return sum(buf.count(b'\n') for buf in bufgen)
 
-        filepath = Path("/home/mn/tmp/big.csv")
+        if self.main_window.unit_test:
+            # We are in a unit test and use the unit test filepath
+            filepath = self.main_window.unit_test_data
+
+        else:
+            # Get filepath from user
+            dial = CsvFileImportDialog(self.main_window)
+            if not dial.file_path:
+                return  # Cancel pressed
+            filepath = Path(dial.file_path).with_suffix(dial.suffix)
 
         csv_dlg = CsvImportDialog(self.main_window, filepath)
 
