@@ -563,48 +563,82 @@ class Workflows:
     def _svg_export(self, filepath):
         """Export to svg file filepath"""
 
+        with self.standard_zoom():
+            grid = self.main_window.grid
+
+            generator = QSvgGenerator()
+            generator.setFileName(str(filepath))
+
+            # Get area for svg export
+            svg_area = SvgExportAreaDialog(self.main_window, grid).area
+            if svg_area is None:
+                return
+
+            rows = self.get_paint_rows(svg_area)
+            columns = self.get_paint_columns(svg_area)
+            total_height = self.get_total_height(svg_area)
+            total_width = self.get_total_width(svg_area)
+
+            generator.setSize(QSize(total_width, total_height))
+            paint_rect = QRect(0, 0, total_width, total_height)
+            generator.setViewBox(paint_rect)
+            option = QStyleOptionViewItem()
+
+            painter = QPainter(generator)
+
+            self.paint(painter, option, paint_rect, rows, columns)
+
+    @contextmanager
+    def standard_zoom(self):
+        """Decorator for tasks that have to take place in standard zoom"""
+
+        zoom = self.main_window.grid.zoom
+        self.main_window.grid.zoom = 1.0
+        yield
+        self.main_window.grid.zoom = zoom
+
+    def get_paint_rows(self, area):
+        """Iterator of rows to paint"""
+
+        rows = self.main_window.grid.model.shape[0]
+        top, _, bottom, _ = area
+        top = max(0, min(rows - 1, top))
+        bottom = max(0, min(rows - 1, bottom))
+
+        return range(top, bottom + 1)
+
+    def get_paint_columns(self, area):
+        """Iterator of columns to paint"""
+
+        columns = self.main_window.grid.model.shape[1]
+        _, left, _, right = area
+        left = max(0, min(columns - 1, left))
+        right = max(0, min(columns - 1, right))
+
+        return range(left, right + 1)
+
+    def get_total_height(self, area):
+        """Total height of paint_rows"""
+
         grid = self.main_window.grid
+        return sum(grid.rowHeight(row) for row in self.get_paint_rows(area))
 
-        generator = QSvgGenerator()
-        generator.setFileName(str(filepath))
+    def get_total_width(self, area):
+        """Total height of paint_columns"""
 
-        # Get area for svg export
-        svg_area = SvgExportAreaDialog(self.main_window, grid).area
-        if svg_area is None:
-            return
+        grid = self.main_window.grid
+        return sum(grid.columnWidth(column)
+                   for column in self.get_paint_columns(area))
 
-        top, left, bottom, right = svg_area
-        top = min(grid.model.shape[0] - 1, top)
-        bottom = min(grid.model.shape[0] - 1, bottom)
-        left = min(grid.model.shape[1] - 1, left)
-        right = min(grid.model.shape[1] - 1, right)
+    def paint(self, painter, option, paint_rect, rows, columns):
+        """Grid paint workflow for printing and svg export"""
 
-        rows = range(top, bottom + 1)
-        columns = range(left, right + 1)
-
-        total_width = 0
-        total_height = 0
-
-        for row in rows:
-            total_height += grid.rowHeight(row)
-        for column in columns:
-            total_width += grid.columnWidth(column)
-
-        generator.setSize(QSize(total_width, total_height))
-
-        paint_rect = QRect(0, 0, total_width, total_height)
-        generator.setViewBox(paint_rect)
-
-        painter = QPainter(generator)
-        painter.setClipRect(paint_rect)
-
-        option = QStyleOptionViewItem()
+        grid = self.main_window.grid
+        code_array = grid.model.code_array
+        cell_attributes = code_array.cell_attributes
 
         x_offset = grid.columnViewportPosition(0)
         y_offset = grid.rowViewportPosition(0)
-
-        code_array = grid.model.code_array
-        cell_attributes = code_array.cell_attributes
 
         for row in rows:
             for column in columns:

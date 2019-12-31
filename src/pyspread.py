@@ -304,75 +304,36 @@ class MainWindow(QMainWindow):
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
 
-        painter.setViewport(self.grid.rect())
-        painter.setWindow(self.grid.rect())
+        with self.workflows.standard_zoom():
+            painter.setViewport(self.grid.rect())
+            painter.setWindow(self.grid.rect())
 
-        top, left, bottom, right = self.print_area
+            rows = self.workflows.get_paint_rows(self.print_area)
+            columns = self.workflows.get_paint_columns(self.print_area)
+            total_height = self.workflows.get_total_height(self.print_area)
+            total_width = self.workflows.get_total_width(self.print_area)
 
-        rows = range(top, bottom + 1)
-        columns = range(left, right + 1)
+            area = printer.paperRect()
+            left, top, right, bottom = \
+                printer.getPageMargins(QPrinter.DevicePixel)
 
-        total_width = 0
-        total_height = 0
+            clip_rect = QRect(area.x()+left, area.y()+top,
+                              area.width()-left-right,
+                              area.height()-top-bottom)
+            painter.setClipRect(clip_rect)
 
-        for row in rows:
-            total_height += self.grid.rowHeight(row)
-        for column in columns:
-            total_width += self.grid.columnWidth(column)
+            xscale = (area.width() - 2*left - 2*right) / total_width
+            yscale = (area.height() - 2*top - 2*bottom) / total_height
 
-        area = printer.paperRect()
-        left, top, right, bottom = printer.getPageMargins(QPrinter.DevicePixel)
+            scale = min(xscale, yscale)
+            painter.save()
 
-        clip_rect = QRect(area.x()+left, area.y()+top,
-                          area.width()-left-right, area.height()-top-bottom)
-        painter.setClipRect(clip_rect)
+            painter.scale(scale, scale)
+            painter.translate((-area.x() + left) / scale,
+                              (-area.y() + top) / scale)
 
-        xscale = (area.width() - 2*left - 2*right) / total_width
-        yscale = (area.height() - 2*top - 2*bottom) / total_height
-
-        scale = min(xscale, yscale)
-        painter.save()
-
-        painter.scale(scale, scale)
-        painter.translate((-area.x() + left) / scale,
-                          (-area.y() + top) / scale)
-
-        x_offset = self.grid.columnViewportPosition(0)
-        y_offset = self.grid.rowViewportPosition(0)
-
-        grid = self.grid
-        code_array = grid.model.code_array
-        cell_attributes = code_array.cell_attributes
-
-        for row in rows:
-            for column in columns:
-                key = row, column, grid.table
-                merging_cell = cell_attributes.get_merging_cell(key)
-                if merging_cell is None \
-                   or merging_cell[0] == row and merging_cell[1] == column:
-
-                    idx = grid.model.index(row, column)
-                    visual_rect = grid.visualRect(idx)
-                    x = max(0, visual_rect.x() - x_offset)
-                    y = max(0, visual_rect.y() - y_offset)
-                    width = visual_rect.width()
-                    if visual_rect.x() - x_offset < 0:
-                        width += visual_rect.x() - x_offset
-                    height = visual_rect.height()
-                    if visual_rect.y() - y_offset < 0:
-                        height += visual_rect.y() - y_offset
-
-                    option.rect = QRect(x, y, width, height)
-                    painter.setClipRect(option.rect)
-
-                    option.text = code_array(key)
-                    option.widget = grid
-
-                    grid.itemDelegate().paint(painter, option, idx)
-
-        painter.restore()
-
-        painter.end()
+            self.workflows.paint(painter, option, clip_rect, rows, columns)
+            painter.restore()
 
     def on_nothing(self):
         """Dummy action that does nothing"""
