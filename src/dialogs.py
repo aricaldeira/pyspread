@@ -29,6 +29,7 @@
  * :class:`DataEntryDialog`
  * :class:`GridShapeDialog`
  * :class:`PrintAreaDialog`
+ * :class:`CsvExportAreaDialog`
  * (:class:`FileDialogBase`)
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
@@ -37,12 +38,14 @@
  * :class:`FindDialog`
  * :class:`ChartDialog`
  * :class:`CsvImportDialog`
+ * :class:`CsvExportDialog`
 
 """
 
 import csv
 from dataclasses import dataclass
 from functools import partial
+import io
 
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
@@ -559,6 +562,30 @@ class CsvFileImportDialog(FileDialogBase):
         path = self.main_window.settings.last_file_input_path
         self.file_path, self.selected_filter = \
             QFileDialog.getOpenFileName(self.main_window, self.title,
+                                        str(path), self.filters,
+                                        self.filters_list[0])
+
+
+class CsvFileExportDialog(FileDialogBase):
+    """Modal dialog for exporting csv files"""
+
+    title = "Export data"
+    filters_list = [
+        "CSV file (*.*)",
+    ]
+
+    @property
+    def suffix(self):
+        """Do not offer suffix for filepath"""
+
+        return
+
+    def show_dialog(self):
+        """Present dialog and update values"""
+
+        path = self.main_window.settings.last_file_output_path
+        self.file_path, self.selected_filter = \
+            QFileDialog.getSaveFileName(self.main_window, self.title,
                                         str(path), self.filters,
                                         self.filters_list[0])
 
@@ -1232,6 +1259,7 @@ class CsvExportDialog(QDialog):
     """
 
     title = "CSV export"
+    maxrows = 10
 
     def __init__(self, parent, csv_area):
         super().__init__(parent)
@@ -1261,7 +1289,7 @@ class CsvExportDialog(QDialog):
     def default_dialect(self):
         """Default dialect for export based on excel-tab"""
 
-        dialect = csv.excel_tab
+        dialect = csv.excel
         dialect.encoding = "utf-8"
         dialect.hasheader = False
 
@@ -1276,7 +1304,22 @@ class CsvExportDialog(QDialog):
     def apply(self):
         """Button event handler, applies parameters to csv_preview"""
 
-        self.csv_preview.setPlainText("Test")
+        top, left, bottom, right = self.csv_area
+        table = self.parent.grid.table
+
+        bottom = min(bottom-top, self.maxrows-1) + top
+
+        code_array = self.parent.grid.model.code_array
+        csv_data = code_array[top: bottom + 1, left: right + 1, table]
+
+        adjust_csvdialect = self.parameter_groupbox.adjust_csvdialect
+        dialect = adjust_csvdialect(self.default_dialect)
+
+        str_io = io.StringIO()
+        writer = csv.writer(str_io, dialect=dialect)
+        writer.writerows(csv_data)
+
+        self.csv_preview.setPlainText(str_io.getvalue())
 
     def accept(self):
         """Button event handler, starts csv import"""

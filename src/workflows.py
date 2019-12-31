@@ -29,6 +29,7 @@ from base64 import b85encode
 import bz2
 from contextlib import contextmanager
 from copy import deepcopy
+import csv
 from itertools import cycle
 import io
 from itertools import takewhile, repeat
@@ -55,7 +56,7 @@ from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog, FindDialog, ReplaceDialog
 from src.dialogs import CsvFileImportDialog, CsvImportDialog, CsvExportDialog
-from src.dialogs import CsvExportAreaDialog
+from src.dialogs import CsvExportAreaDialog, CsvFileExportDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
@@ -511,7 +512,8 @@ class Workflows:
                         return
 
                     self.main_window.undo_stack.push(command)
-        except OSError:
+        except OSError as error:
+            self.main_window.statusBar().showMessage(str(error))
             return
 
     def file_export(self):
@@ -523,14 +525,28 @@ class Workflows:
         if csv_area is None:
             return
 
+        top, left, bottom, right = csv_area
+        code_array = self.main_window.grid.model.code_array
+        table = self.main_window.grid.table
+        csv_data = code_array[top: bottom + 1, left: right + 1, table]
+
         csv_dlg = CsvExportDialog(self.main_window, csv_area)
 
         if not csv_dlg.exec():
             return
 
-        dialect = csv_dlg.dialect
+        # Get filepath from user
+        dial = CsvFileExportDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+        filepath = Path(dial.file_path)
 
-
+        try:
+            with open(filepath, "w", newline='') as csvfile:
+                writer = csv.writer(csvfile, dialect=csv_dlg.dialect)
+                writer.writerows(csv_data)
+        except OSError as error:
+            self.main_window.statusBar().showMessage(str(error))
 
     @handle_changed_since_save
     def file_quit(self):
