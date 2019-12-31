@@ -59,7 +59,7 @@ from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.selection import Selection
 from src.lib.typechecks import is_svg
-from src.lib.csv import csv_reader
+from src.lib.csv import csv_reader, convert
 
 
 class Workflows:
@@ -67,7 +67,7 @@ class Workflows:
         self.main_window = main_window
 
     @contextmanager
-    def progress_dialog(self, title, label, maximum, min_duration=3000):
+    def progress_dialog(self, title, label, maximum):
         """:class:`~contextlib.contextmanager` that displays a progress dialog
         """
 
@@ -76,14 +76,11 @@ class Workflows:
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setLabelText(label)
         progress_dialog.setMaximum(maximum)
-        progress_dialog.setMinimumDuration(min_duration)
-        if not self.main_window.unit_test:
-            progress_dialog.show()
-        progress_dialog.setValue(0)
 
         yield progress_dialog
 
         progress_dialog.setValue(maximum)
+        progress_dialog.close()
 
     @contextmanager
     def disable_entryline_updates(self):
@@ -448,7 +445,7 @@ class Workflows:
             dial = CsvFileImportDialog(self.main_window)
             if not dial.file_path:
                 return  # Cancel pressed
-            filepath = Path(dial.file_path).with_suffix(dial.suffix)
+            filepath = Path(dial.file_path)
 
         csv_dlg = CsvImportDialog(self.main_window, filepath)
 
@@ -493,8 +490,14 @@ class Workflows:
                             for j, ele in enumerate(line):
                                 if column + j >= columns:
                                     break
+
+                                if csv_dlg.digest_types is None:
+                                    code = str(ele)
+                                else:
+                                    code = convert(ele,
+                                                   csv_dlg.digest_types[j])
                                 index = model.index(row + i, column + j)
-                                cmd = CommandSetCellCode(ele, model, index,
+                                cmd = CommandSetCellCode(code, model, index,
                                                          description)
 
                                 if command is None:

@@ -51,11 +51,8 @@ def sniff(filepath, sniff_size):
 
     """
 
-    try:
-        with open(filepath, newline='') as csvfile:
-            csv_str = csvfile.read(sniff_size)
-    except IOError:
-        return
+    with open(filepath, newline='') as csvfile:
+        csv_str = csvfile.read(sniff_size)
 
     dialect = csv.Sniffer().sniff(csv_str)
     setattr(dialect, "hasheader", csv.Sniffer().has_header(csv_str))
@@ -63,17 +60,15 @@ def sniff(filepath, sniff_size):
     return dialect
 
 
-def get_header(filepath, dialect):
+def get_header(csvfile, dialect):
     """Returns List of first line items of file filepath"""
 
-    try:
-        with open(filepath, newline='') as csvfile:
-            csvreader = csv.reader(csvfile, dialect=dialect)
-            for header in csvreader:
-                break
-    except OSError:
-        return
+    csvfile.seek(0)
+    csvreader = csv.reader(csvfile, dialect=dialect)
+    for header in csvreader:
+        break
 
+    csvfile.seek(0)
     return header
 
 

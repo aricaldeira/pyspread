@@ -33,6 +33,7 @@
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
  * :class:`ImageFileOpenDialog`
+ * :class:`CsvFileImportDialog`
  * :class:`FindDialog`
  * :class:`ChartDialog`
  * :class:`CsvImportDialog`
@@ -420,7 +421,7 @@ class CellKeyDialog(DataEntryDialog):
 class FileDialogBase:
     """Base class for modal file dialogs
 
-    The choosen filename is stored in the filepath attribute
+    The choosen filename is stored in the file_path attribute
     The choosen name filter is stored in the chosen_filter attribute
     If the dialog is aborted then both filepath and chosen_filter are None
 
@@ -441,10 +442,13 @@ class FileDialogBase:
     @property
     def filters(self):
         """Formatted filters for qt"""
+
         return ";;".join(self.filters_list)
 
     @property
     def suffix(self):
+        """Suffix for filepath"""
+
         if self.filters_list.index(self.selected_filter):
             return ".pys"
         else:
@@ -459,6 +463,7 @@ class FileDialogBase:
 
     def show_dialog(self):
         """Sublasses must overload this method"""
+
         raise Exception("show_dialog() - Needs method overload")
 
 
@@ -469,6 +474,7 @@ class FileOpenDialog(FileDialogBase):
 
     def show_dialog(self):
         """Present dialog and update values"""
+
         path = self.main_window.settings.last_file_input_path
         self.file_path, self.selected_filter = \
             QFileDialog.getOpenFileName(self.main_window, self.title,
@@ -522,6 +528,12 @@ class CsvFileImportDialog(FileDialogBase):
         "CSV file (*.*)",
     ]
 
+    @property
+    def suffix(self):
+        """Do not offer suffix for filepath"""
+
+        return
+
     def show_dialog(self):
         """Present dialog and update values"""
 
@@ -529,7 +541,7 @@ class CsvFileImportDialog(FileDialogBase):
         self.file_path, self.selected_filter = \
             QFileDialog.getOpenFileName(self.main_window, self.title,
                                         str(path), self.filters,
-                                        self.selected_filter)
+                                        self.filters_list[0])
 
 
 @dataclass
@@ -1056,15 +1068,15 @@ class CsvTable(QTableView):
 
         self.verticalHeader().hide()
 
-        if hasattr(dialect, 'hasheader') and dialect.hasheader:
-            header = get_header(filepath, dialect)
-            self.model.setHorizontalHeaderLabels(header)
-            self.horizontalHeader().show()
-        else:
-            self.horizontalHeader().hide()
-
         try:
             with open(filepath, newline='') as csvfile:
+                if hasattr(dialect, 'hasheader') and dialect.hasheader:
+                    header = get_header(csvfile, dialect)
+                    self.model.setHorizontalHeaderLabels(header)
+                    self.horizontalHeader().show()
+                else:
+                    self.horizontalHeader().hide()
+
                 for i, row in enumerate(csv_reader(csvfile, dialect,
                                                    digest_types)):
                     if i >= self.no_rows:
@@ -1145,14 +1157,22 @@ class CsvImportDialog(QDialog):
     def reset(self):
         """Button event handler, resets parameter_groupbox and csv_table"""
 
-        dialect = sniff(self.filepath, self.sniff_size)
+        try:
+            dialect = sniff(self.filepath, self.sniff_size)
+        except OSError as error:
+            self.parent.statusBar().showMessage(str(error))
+            return
         self.parameter_groupbox.set_csvdialect(dialect)
         self.csv_table.fill(self.filepath, dialect)
 
     def apply(self):
         """Button event handler, applies parameters to csv_table"""
 
-        sniff_dialect = sniff(self.filepath, self.sniff_size)
+        try:
+            sniff_dialect = sniff(self.filepath, self.sniff_size)
+        except OSError as error:
+            self.parent.statusBar().showMessage(str(error))
+            return
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
