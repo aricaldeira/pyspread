@@ -520,6 +520,9 @@ class MainWindow(QMainWindow):
         lock_action.setChecked(attributes["locked"])
         self.entry_line.setReadOnly(attributes["locked"])
 
+        button_action = self.main_window_actions.button_cell
+        button_action.setChecked(attributes["button_cell"] is not False)
+
         rotation = "rotate_{angle}".format(angle=int(attributes["angle"]))
         widgets.rotate_button.set_current_action(rotation)
         widgets.rotate_button.set_menu_checked(rotation)
