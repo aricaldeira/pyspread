@@ -135,6 +135,7 @@ class IconPath:
 
     freeze = ACTION_PATH / 'format-freeze.svg'
     lock = ACTION_PATH / 'format-lock.svg'
+    button = ACTION_PATH / 'format-button.svg'
     merge_cells = ACTION_PATH / 'format-merge-cells.svg'
 
     # Macro menu icons

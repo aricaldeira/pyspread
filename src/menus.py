@@ -191,7 +191,12 @@ class FormatMenu(QMenu):
 
         self.addAction(actions.freeze_cell)
         self.addAction(actions.lock_cell)
+        self.addAction(actions.button_cell)
+
+        self.addSeparator()
+
         self.addAction(actions.merge_cells)
+
         self.addSeparator()
 
         self.rotation_submenu = self.addMenu('Rotation')

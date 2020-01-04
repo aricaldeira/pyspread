@@ -18,9 +18,30 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt
+"""
+
+
+**Widgets**
+
+ * :class:`MultiStateBitmapButton`
+ * :class:`RotationButton`
+ * :class:`JustificationButton`
+ * :class:`RendererButton`
+ * :class:`AlignmentButton`
+ * :class:`ColorButton`
+ * :class:`TextColorButton`
+ * :class:`LineColorButton`
+ * :class:`BackgroundColorButton`
+ * :class:`FontChoiceCombo`
+ * :class:`Widgets`
+ * :class:`FindEditor`
+ * :class:`CellButton`
+
+"""
+
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex
 from PyQt5.QtWidgets import QToolButton, QColorDialog, QFontComboBox, QComboBox
-from PyQt5.QtWidgets import QSizePolicy, QLineEdit
+from PyQt5.QtWidgets import QSizePolicy, QLineEdit, QPushButton
 from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
 from src.actions import Action
@@ -28,7 +49,7 @@ from src.icons import Icon
 
 
 class MultiStateBitmapButton(QToolButton):
-    """QPushbutton that cycles through arbitrary states
+    """QToolButton that cycles through arbitrary states
 
     The states are defined by an iterable of QIcons
 
@@ -513,3 +534,30 @@ class FindEditor(QLineEdit):
         """Find in results toggle event handler"""
 
         self.results = toggled
+
+
+class CellButton(QPushButton):
+    """Button that is used for button cells in the grid
+
+    :text: str: Button text
+    :grid: QTableView
+    :key: 3-tuple of int: row, column, table
+
+    """
+
+    def __init__(self, text, grid, key):
+        super().__init__(text, grid)
+
+        self.grid = grid
+        self.key = key  # Key of button cell
+
+        self.clicked.connect(self.on_clicked)
+
+    def on_clicked(self):
+        """Clicked event handler, executes cell code"""
+
+        code = self.grid.model.code_array(self.key)
+        result = self.grid.model.code_array._eval_cell(self.key, code)
+        self.grid.model.code_array.frozen_cache[repr(self.key)] = result
+        self.grid.model.code_array.result_cache.clear()
+        self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())

@@ -483,6 +483,13 @@ class MainWindowActions(AttrDict):
                                 statustip='Lock cell so that its code '
                                           'cannot be changed')
 
+        self.button_cell = Action(self.parent, "Button cell",
+                                  self.parent.grid.on_button_cell_pressed,
+                                  icon=Icon.button,
+                                  checkable=True,
+                                  statustip='Make cell a button cell that is '
+                                            'executed only when pressed')
+
         self.merge_cells = Action(self.parent, "Merge cells",
                                   self.parent.grid.on_merge_pressed,
                                   icon=Icon.merge_cells,

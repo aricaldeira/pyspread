@@ -38,6 +38,7 @@ import numpy
 from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar, QWidget
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView, QFontDialog
+from PyQt5.QtWidgets import QInputDialog, QLineEdit
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QPainter, QPalette
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
@@ -65,6 +66,7 @@ from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
 from src.menus import GridContextMenu, TableChoiceContextMenu
 from src.menus import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
+from src.widgets import CellButton
 
 
 class Grid(QTableView):
@@ -438,11 +440,7 @@ class Grid(QTableView):
 
         Does neither emit dataChanged nor clear _attr_cache or _table_cache.
 
-        Parameters
-        ----------
-
-        * key: 3-tuple of int
-        \trow, column, table tuple
+        :key: 3-tuple of int: row, column, table
 
         """
 
@@ -890,6 +888,26 @@ class Grid(QTableView):
             description = "Thaw cell {}".format(self.current)
             command = CommandThawCell(self.model, self.current, description)
         self.main_window.undo_stack.push(command)
+
+    def on_button_cell_pressed(self, toggled):
+        """Button cell event handler"""
+
+        current_attr = self.model.code_array.cell_attributes[self.current]
+
+        if toggled:
+            # Get button text from user
+            text, accept = QInputDialog.getText(self.main_window,
+                                                "Make button cell",
+                                                "Button text:",
+                                                QLineEdit.Normal, "")
+            if accept and text:
+                current_attr["button_cell"] = text
+                button = CellButton(text, self, self.current)
+                self.setIndexWidget(self.currentIndex(), button)
+        else:
+            # Remove button
+            current_attr["button_cell"] = False
+            self.setIndexWidget(self.currentIndex(), None)
 
     def on_merge_pressed(self):
         """Merge cells button pressed event handler"""
@@ -1717,7 +1735,7 @@ class GridCellDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         """Overloads QStyledItemDelegate
 
-        Disables editor in frozen cells
+        Disables editor in locked cells
         Switches to chart dialog in chart cells
 
         """

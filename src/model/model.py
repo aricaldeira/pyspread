@@ -1083,8 +1083,11 @@ class CodeArray(DataArray):
     def __getitem__(self, key):
         """Returns _eval_cell"""
 
-        # Frozen cell handling
         if all(type(k) is not slice for k in key):
+            # Button cell handling
+            if self.cell_attributes[key]["button_cell"] is not False:
+                return
+            # Frozen cell handling
             frozen_res = self.cell_attributes[key]["frozen"]
             if frozen_res:
                 if repr(key) in self.frozen_cache:
