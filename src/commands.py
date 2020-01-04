@@ -41,6 +41,7 @@ from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QUndoCommand
 
 from src.lib.selection import Selection
+from src.widgets import CellButton
 
 
 class CommandSetGridSize(QUndoCommand):
@@ -521,3 +522,48 @@ class CommandSetCellRenderer(QUndoCommand):
         self.model.code_array.cell_attributes.pop()
         self.entry_line.highlighter.setDocument(self.old_highlighter_document)
         self.model.dataChanged.emit(self.index, self.index)
+
+
+class CommandMakeButtonCell(QUndoCommand):
+    """Makes a button cell"""
+
+    def __init__(self, grid, text, index, description):
+        super().__init__(description)
+        self.grid = grid
+        self.text = text
+        self.index = index
+        self.key = self.index.row(), self.index.column(), self.grid.table
+
+    def redo(self):
+        attr = self.grid.model.code_array.cell_attributes[self.key]
+        attr["button_cell"] = self.text
+        button = CellButton(self.text, self.grid, self.key)
+        self.grid.setIndexWidget(self.index, button)
+
+    def undo(self):
+        attr = self.grid.model.code_array.cell_attributes[self.key]
+        attr["button_cell"] = False
+        self.grid.setIndexWidget(self.index, None)
+
+
+class CommandRemoveButtonCell(QUndoCommand):
+    """Removes a button cell"""
+
+    def __init__(self, grid, index, description):
+        super().__init__(description)
+        self.grid = grid
+        self.text = None
+        self.index = index
+        self.key = self.index.row(), self.index.column(), self.grid.table
+
+    def redo(self):
+        attr = self.grid.model.code_array.cell_attributes[self.key]
+        self.text = attr["button_cell"]
+        attr["button_cell"] = False
+        self.grid.setIndexWidget(self.index, None)
+
+    def undo(self):
+        attr = self.grid.model.code_array.cell_attributes[self.key]
+        attr["button_cell"] = self.text
+        button = CellButton(self.text, self.grid, self.key)
+        self.grid.setIndexWidget(self.index, button)

@@ -58,6 +58,7 @@ from src.commands import CommandInsertTable, CommandDeleteTable
 from src.commands import CommandDeleteColumns, CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowsHeight
 from src.commands import CommandSetColumnsWidth, CommandSetCellTextAlignment
+from src.commands import CommandMakeButtonCell, CommandRemoveButtonCell
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -66,7 +67,6 @@ from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
 from src.menus import GridContextMenu, TableChoiceContextMenu
 from src.menus import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
-from src.widgets import CellButton
 
 
 class Grid(QTableView):
@@ -893,6 +893,10 @@ class Grid(QTableView):
         """Button cell event handler"""
 
         current_attr = self.model.code_array.cell_attributes[self.current]
+        if not toggled and current_attr["button_cell"] is False \
+           or toggled and current_attr["button_cell"] is not False:
+            # Something is not syncronized in the menu
+            return
 
         if toggled:
             # Get button text from user
@@ -901,13 +905,18 @@ class Grid(QTableView):
                                                 "Button text:",
                                                 QLineEdit.Normal, "")
             if accept and text:
-                current_attr["button_cell"] = text
-                button = CellButton(text, self, self.current)
-                self.setIndexWidget(self.currentIndex(), button)
+                description_tpl = "Make cell {} a button cell"
+                description = description_tpl.format(self.current)
+                command = CommandMakeButtonCell(self, text,
+                                                self.currentIndex(),
+                                                description)
+                self.main_window.undo_stack.push(command)
         else:
-            # Remove button
-            current_attr["button_cell"] = False
-            self.setIndexWidget(self.currentIndex(), None)
+            description_tpl = "Make cell {} a non-button cell"
+            description = description_tpl.format(self.current)
+            command = CommandRemoveButtonCell(self, self.currentIndex(),
+                                              description)
+            self.main_window.undo_stack.push(command)
 
     def on_merge_pressed(self):
         """Merge cells button pressed event handler"""
