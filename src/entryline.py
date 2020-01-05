@@ -55,7 +55,8 @@ class Entryline(SpellTextEdit):
     def keyPressEvent(self, event):
         """Key press event filter"""
 
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if event.key() in (Qt.Key_Enter, Qt.Key_Return) \
+           and not event.modifiers() == Qt.ShiftModifier:
             self.store_data()
             self.main_window.grid.row += 1
         elif event.key() == Qt.Key_Tab:
