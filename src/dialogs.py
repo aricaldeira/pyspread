@@ -39,6 +39,9 @@
  * :class:`ChartDialog`
  * :class:`CsvImportDialog`
  * :class:`CsvExportDialog`
+ * (:class:`HelpDialogBase`)
+ * :class:`TutorialDialog`
+ * :class:`ManualDialog`
 
 """
 
@@ -47,14 +50,14 @@ from dataclasses import dataclass
 from functools import partial
 import io
 
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, QUrl
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
 from PyQt5.QtWidgets import QCheckBox, QGridLayout, QLayout, QHBoxLayout
 from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
 from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit
-from PyQt5.QtGui import QIntValidator, QImageWriter
+from PyQt5.QtGui import QIntValidator, QImageWriter, QTextDocument
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 try:
@@ -69,6 +72,7 @@ from src.icons import PYSPREAD_PATH
 from src.lib.spelltextedit import SpellTextEdit
 from src.lib.testlib import unit_test_dialog_override
 from src.lib.csv import sniff, csv_reader, get_header, typehandlers, convert
+from src.settings import TUTORIAL_PATH, MANUAL_PATH
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
@@ -1340,3 +1344,45 @@ class CsvExportDialog(QDialog):
         button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
 
         return button_box
+
+
+class HelpDialogBase(QDialog):
+    """Dialog for browsing HTML help files"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        browser = QTextBrowser(self)
+
+        url = QUrl(str(self.path))
+
+        browser.setSource(url)
+        browser.document().setMetaInformation(QTextDocument.DocumentUrl,
+                                              self.baseurl)
+
+        paths = browser.searchPaths()
+        paths.append(str(self.baseurl))
+        browser.setSearchPaths(paths)
+        layout = QHBoxLayout()
+        layout.addWidget(browser)
+        self.setLayout(layout)
+
+#        browser.document().setTextWidth(browser.viewport().size().width())
+#        docSize = browser.document().size().toSize()
+
+        browser.setMinimumWidth(900)
+        browser.setMinimumHeight(600)
+
+
+class TutorialDialog(HelpDialogBase):
+    """Dialog for browsing the pyspread manual"""
+
+    path = TUTORIAL_PATH
+    baseurl = str(path.parent) + '/'
+
+
+class ManualDialog(HelpDialogBase):
+    """Dialog for browsing the pyspread manual"""
+
+    path = MANUAL_PATH
+    baseurl = str(path.parent) + '/'

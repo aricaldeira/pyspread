@@ -19,12 +19,18 @@
 # --------------------------------------------------------------------
 
 
+from os.path import abspath, dirname, join
 from pathlib import Path
 
 from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QToolBar
 
 from src import VERSION, APP_NAME
+
+
+PYSPREAD_PATH = Path(abspath(join(dirname(__file__), "..")))
+TUTORIAL_PATH = PYSPREAD_PATH / "share/doc/tutorial.html"
+MANUAL_PATH = PYSPREAD_PATH / "share/doc/manual/manual.html"
 
 
 class Settings:

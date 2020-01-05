@@ -21,12 +21,15 @@
 
 """
 
+
+pyspread
+========
+
 - Main Python spreadsheet application
 - Run this script to start the application.
 
 **Provides**
 
-* Commandlineparser: Gets command line options and parameters
 * MainApplication: Initial command line operations and application launch
 * :class:`MainWindow`: Main windows class
 
@@ -34,7 +37,6 @@
 """
 
 import os
-from pathlib import Path
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRect
@@ -55,8 +57,8 @@ from src.toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
 from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
-from src.dialogs import ApproveWarningDialog, PreferencesDialog
-from src.dialogs import PrintAreaDialog
+from src.dialogs import ApproveWarningDialog, PreferencesDialog, ManualDialog
+from src.dialogs import TutorialDialog, PrintAreaDialog
 from src.installer import DependenciesDialog
 from src.panels import MacroPanel
 from src.lib.hashing import genkey
@@ -462,6 +464,18 @@ class MainWindow(QMainWindow):
         """Macro panel toggle event handler"""
 
         self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
+
+    def on_manual(self):
+        """Show manual browser"""
+
+        dialog = ManualDialog(self)
+        dialog.show()
+
+    def on_tutorial(self):
+        """Show tutorial browser"""
+
+        dialog = TutorialDialog(self)
+        dialog.show()
 
     def on_about(self):
         """Show about message box"""

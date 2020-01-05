@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Advanced Topics | pyspread</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="apple-touch-icon" href="../images/pyspread.png"/>
+  <link rel="shortcut icon" href="../images/pyspread.png"/>
+
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../static/css/code_highlight.css"/>
+  <link rel="stylesheet" href="../static/css/pyspread.2019.css"/>
+
+</head>
+<body>
+
+
+
+    <div class="container main">
+
+
+
+
+
+        <div class="row no-gutters">
+            <div class="col-md-11">
+                <h1 class="manual">Advanced Topics</h1>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-light dropdown-toggle"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        ><i class="fa fa-arrow-up"></i>&nbsp;Index
+                </button>
+                <div class="dropdown-menu">
+
+
+
+
+                        <a class="dropdown-item" href="overview.html">&nbsp;&nbsp;Overview</a>
+
+
+
+
+                        <a class="dropdown-item" href="basic_concepts.html">&nbsp;&nbsp;Basic Concepts</a>
+
+
+
+
+                        <a class="dropdown-item" href="workspace.html">&nbsp;&nbsp;The Workspace</a>
+
+
+
+
+                        <a class="dropdown-item" href="file_menu.html">&nbsp;&nbsp;File actions</a>
+
+
+
+
+                        <a class="dropdown-item" href="edit_menu.html">&nbsp;&nbsp;Edit actions</a>
+
+
+
+
+                        <a class="dropdown-item" href="view_menu.html">&nbsp;&nbsp;View Actions</a>
+
+
+
+
+                        <a class="dropdown-item" href="format_menu.html">&nbsp;&nbsp;Format actions</a>
+
+
+
+
+                        <a class="dropdown-item" href="macro_menu.html">&nbsp;&nbsp;Macro Actions</a>
+
+
+
+
+                        <a class="dropdown-item" href="advanced_topics.html">&#8658;&nbsp;Advanced Topics</a>
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <h2 id="cyclic-references">Cyclic references</h2>
+
+<p>Cyclic references are possible in pyspread. However, recursion depth is limited. Pyspread shows an error when the maximum recursion depth is exceeded. It is strongly advisable to only use cyclic references when either a frozen or a button cell interrupts the cycle. Otherwise, cyclic calculations may lock up pyspread.</p>
+
+<h2 id="result-stability">Result stability</h2>
+
+<p>Result stability is not guaranteed when redefining global variables because execution order may be changed. This happens for when in large spreadsheets the result cache is full and cell results that are purged from the cache are re-evaluated.</p>
+
+<h2 id="security-annoyance-when-approving-files-in-read-only-folders">Security annoyance when approving files in read only folders</h2>
+
+<p>If a pys file is situated in a folder without write and file creation access, the signature file cannot be created. Therefore, the file has to approved each time it is opened.</p>
+
+<h2 id="handling-large-amounts-of-data">Handling large amounts of data</h2>
+
+<p>While the pyspread main grid may be large, filling many cells may consume considerable amounts of memory. When handling large amounts of data, data should be loaded into one cell. This approach saves memory, Therefore, load all your data in a numpy array that is situated within a cell and work from there.</p>
+
+<h2 id="substituting-pivot-tables">Substituting pivot tables</h2>
+
+<p>In the examples directory, a Pivot table replacement is shown using list comprehensions.</p>
+
+<h2 id="memory-consumption-for-sheets-with-many-matplotlib-charts">Memory consumption for sheets with many matplotlib charts</h2>
+
+<p>If there are hundreds of charts in a spreadsheet then pyspread can consume considerable amounts of memory. This is most obvious when printing or when creating PDF files.</p>
+
+
+
+        <div class="row">
+            <div class="col-md-1">
+
+                    <a href="macro_menu.html" class="btn btn-light">&#8610;&nbsp;Macro Actions</a>
+
+            </div>
+            <div class="col-md-10"></div>
+            <div class="col-md-1">
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <footer>
+        <div class="container">
+            <!--<p><small><a href="https://gitlab.com/pyspread/pyspread.gitlab.io/blob/master/manual/advanced_topics.md">Edit this page: manual/advanced_topics.md</a></small></p>-->
+            <p>&copy; Martin Manns and the pyspread team</p>
+        </div>
+    </footer>
+</body>
+</html>

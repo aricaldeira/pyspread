@@ -722,22 +722,16 @@ class MainWindowActions(AttrDict):
     def create_help_actions(self):
         """actions for Help menu"""
 
-        self.first_steps = Action(self.parent, "First steps...",
-                                  self.parent.on_nothing,
-                                  icon=Icon.help,
-                                  shortcut='F1',
-                                  statustip='Display the first steps document '
-                                            'with an overview of pyspread')
+        self.manual = Action(self.parent, "Manual...",
+                             self.parent.on_manual,
+                             icon=Icon.help,
+                             shortcut='F1',
+                             statustip='Display the pyspread manual')
 
         self.tutorial = Action(self.parent, "Tutorial...",
-                               self.parent.on_nothing,
+                               self.parent.on_tutorial,
                                icon=Icon.tutorial,
                                statustip='Display a pyspread tutorial')
-
-        self.faq = Action(self.parent, "FAQ...",
-                          self.parent.on_nothing,
-                          icon=Icon.faq,
-                          statustip='Display frequently asked questions')
 
         self.dependencies = Action(self.parent, "Dependencies...",
                                    self.parent.on_dependencies,

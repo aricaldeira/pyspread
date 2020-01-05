@@ -247,9 +247,8 @@ class HelpMenu(QMenu):
     def __init__(self, parent, actions):
         super().__init__('&Help', parent)
 
-        self.addAction(actions.first_steps)
+        self.addAction(actions.manual)
         self.addAction(actions.tutorial)
-        self.addAction(actions.faq)
         self.addSeparator()
         self.addAction(actions.dependencies)
         self.addSeparator()

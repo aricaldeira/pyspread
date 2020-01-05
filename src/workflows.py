@@ -479,6 +479,9 @@ class Workflows:
                 with self.progress_dialog(title, label,
                                           filelines) as progress_dialog:
                     try:
+                        # Enter safe mode
+                        self.main_window.safe_mode = True
+
                         reader = csv_reader(csvfile, csv_dlg.dialect,
                                             csv_dlg.digest_types)
                         for i, line in enumerate(reader):
