@@ -4,6 +4,25 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+
+1.99.0.1
+--------
+
+New functionality:
+ * Command line interface
+ * Basic help system
+ * Button cell functionality
+ * svg file export
+ * csv file export
+ * csv file import
+
+Missing features:
+ * Better help browser dialog
+
+Known issues:
+ * Figures and images are printed in low resolution
+ * Operations in large grids take too long
+
 1.99.0.0
 --------
 
