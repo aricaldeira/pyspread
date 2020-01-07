@@ -276,6 +276,9 @@ class Selection(object):
 
             return target_list
 
+        if number == 0:
+            return
+
         self.block_tl = build_tuple_list(self.block_tl, point, number, axis)
 
         self.block_br = build_tuple_list(self.block_br, point, number, axis)
