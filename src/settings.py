@@ -30,7 +30,7 @@ from src import VERSION, APP_NAME
 
 PYSPREAD_PATH = Path(abspath(join(dirname(__file__), "..")))
 TUTORIAL_PATH = PYSPREAD_PATH / "share/doc/tutorial.html"
-MANUAL_PATH = PYSPREAD_PATH / "share/doc/manual/manual.html"
+MANUAL_PATH = PYSPREAD_PATH / "share/doc/manual/overview.html"
 
 
 class Settings:

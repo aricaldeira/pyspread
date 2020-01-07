@@ -57,8 +57,9 @@ from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
 from PyQt5.QtWidgets import QCheckBox, QGridLayout, QLayout, QHBoxLayout
 from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
 from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit
-from PyQt5.QtGui import QIntValidator, QImageWriter, QTextDocument
+from PyQt5.QtGui import QIntValidator, QImageWriter
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWebKitWidgets import QWebView
 
 try:
     from matplotlib.figure import Figure
@@ -1352,31 +1353,23 @@ class HelpDialogBase(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
 
-        browser = QTextBrowser(self)
+        browser = QWebView()
 
-        url = QUrl(str(self.path))
+        url = QUrl('file://' + str(self.path))
 
-        browser.setSource(url)
-        browser.document().setMetaInformation(QTextDocument.DocumentUrl,
-                                              self.baseurl)
+        browser.load(url)
 
-        paths = browser.searchPaths()
-        paths.append(str(self.baseurl))
-        browser.setSearchPaths(paths)
         layout = QHBoxLayout()
         layout.addWidget(browser)
         self.setLayout(layout)
 
-#        browser.document().setTextWidth(browser.viewport().size().width())
-#        docSize = browser.document().size().toSize()
-
-        browser.setMinimumWidth(900)
-        browser.setMinimumHeight(600)
+        self.setWindowTitle(self.title)
 
 
 class TutorialDialog(HelpDialogBase):
     """Dialog for browsing the pyspread manual"""
 
+    title = "pyspread tutorial"
     path = TUTORIAL_PATH
     baseurl = str(path.parent) + '/'
 
@@ -1384,5 +1377,6 @@ class TutorialDialog(HelpDialogBase):
 class ManualDialog(HelpDialogBase):
     """Dialog for browsing the pyspread manual"""
 
+    title = "pyspread manual"
     path = MANUAL_PATH
     baseurl = str(path.parent) + '/'

@@ -4,6 +4,13 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.0.2
+--------
+
+New Dependencies:
+ * Mandatory: Python3.7+, PyQt5, PyQt5.Svg, PyQt5.QtWebKit
+ * Optional: matplotlib, pyenchant
+ * For building the apidocs with Sphinx see apidics/requirements.txt
 
 1.99.0.1
 --------
