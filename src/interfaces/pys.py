@@ -88,6 +88,10 @@ class PysReader:
             "[macros]\n": self._pys2macros,
         }
 
+        # When converting old versions, cell attributes are rquired that
+        # take place after the cell attribute readout
+        self.cell_attributes_postfixes = []
+
     def __iter__(self):
         """Iterates over self.pys_file, replacing everything in code_array"""
 
@@ -103,6 +107,10 @@ class PysReader:
             elif state is not None:
                 self._section2reader[state](line)
             yield line
+
+        # Apply cell attributes post fixes
+        for cell_attribute in self.cell_attributes_postfixes:
+            self.code_array.cell_attributes.append(cell_attribute)
 
     # Decorators
 
@@ -190,14 +198,14 @@ class PysReader:
             selection = Selection([], [], [], [], [(key[0], key[1])])
             tab = key[2]
             attrs = {"renderer": "image"}
-            self.code_array.cell_attributes.append((selection, tab, attrs))
+            self.cell_attributes_postfixes.append((selection, tab, attrs))
 
-        if "charts.ChartFigure(" in code:
+        elif "charts.ChartFigure(" in code:
             # We have a matplotlib figure
             selection = Selection([], [], [], [], [(key[0], key[1])])
             tab = key[2]
             attrs = {"renderer": "matplotlib"}
-            self.code_array.cell_attributes.append((selection, tab, attrs))
+            self.cell_attributes_postfixes.append((selection, tab, attrs))
 
         return code
 
