@@ -12,6 +12,9 @@ New Dependencies:
  * Optional: matplotlib, pyenchant
  * For building the apidocs with Sphinx see apidics/requirements.txt
 
+New functionality:
+ * Macro editor now converts tabs into 4 spaces
+
 1.99.0.1
 --------
 
