@@ -114,7 +114,8 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QEvent, QRegExp
 from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
-                         QTextCharFormat, QTextCursor, QColor, QFont)
+                         QTextCharFormat, QTextCursor, QColor, QFont,
+                         QFontMetricsF, QKeyEvent)
 from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
                              QPlainTextEdit)
 
@@ -156,15 +157,28 @@ class SpellTextEdit(QPlainTextEdit):
     # the menu runs from the top to the bottom of the screen and spills over
     # into a second column.
     max_suggestions = 20
+    spaces_per_tab = 4
 
     def __init__(self, parent=None):
 
         super().__init__()
 
+        # If a <Tab> is present then it should be of width 4
+        _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
+        self.setTabStopDistance(_distance * self.spaces_per_tab)
+
         # Start with a default dictionary based on the current locale.
         self.highlighter = PythonEnchantHighlighter(self.document())
         if enchant is not None:
             self.highlighter.setDict(enchant.Dict())
+
+    def keyPressEvent(self, event):
+        """Overide to change tab into spaces_per_tab spaces"""
+
+        if event.key() == Qt.Key_Tab:
+            self.insertPlainText(" " * self.spaces_per_tab)
+        else:
+            super().keyPressEvent(event)
 
     def contextMenuEvent(self, event):
         """Custom context menu handler to add a spelling suggestions submenu"""
@@ -533,6 +547,7 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
 
         if enchant is not None and self.enable_enchant:
             self.highlightBlock_enchant(text)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
