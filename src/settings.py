@@ -66,7 +66,7 @@ class Settings:
     file_history = []
 
     # Maximum length of code, for which the netry line enables highlighting
-    highlighter_limit = 10000
+    highlighter_limit = 1000000
 
     # The state of the border choice button
     border_choice = "All borders"

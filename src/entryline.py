@@ -39,9 +39,8 @@ class Entryline(SpellTextEdit):
         self.setMinimumHeight(min_height)
 
         self.setWordWrapMode(QTextOption.WrapAnywhere)
-        # self.setWordWrapMode(QTextOption.NoWrap)
 
-        self.highlighter.setDocument(self.document())
+        # self.highlighter.setDocument(self.document())
 
     @contextmanager
     def disable_highlighter(self):
@@ -80,3 +79,24 @@ class Entryline(SpellTextEdit):
         """Spell check toggle event handler"""
 
         self.highlighter.enable_enchant = True if signal else False
+
+    def setPlainText(self, text):
+        """Overides setPlainText
+
+        Additionally shows busy cursor and disables highlighter on long texts,
+        and omits identical replace.
+
+        """
+
+        is_long = (text is not None
+                   and len(text) > self.main_window.settings.highlighter_limit)
+
+        if text == self.toPlainText():
+            return
+
+        if is_long:
+            with self.main_window.workflows.busy_cursor():
+                self.highlighter.setDocument(None)
+                super().setPlainText(text)
+        else:
+            super().setPlainText(text)

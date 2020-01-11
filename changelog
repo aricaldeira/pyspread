@@ -14,6 +14,8 @@ New Dependencies:
 
 New functionality:
  * Macro editor now converts tabs into 4 spaces
+ * Speed up of entry line
+ * Long code text in entry line now displays busy cursor
 
 1.99.0.1
 --------

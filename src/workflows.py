@@ -87,8 +87,7 @@ class Workflows:
 
     @contextmanager
     def disable_entryline_updates(self):
-        """Context manager for temporarily disabling the
-
+        """:class:`~contextlib.contextmanager` that temporarily disables the
         :class:`entryline.Entryline`
 
         """
@@ -96,6 +95,14 @@ class Workflows:
         self.main_window.entry_line.setUpdatesEnabled(False)
         yield
         self.main_window.entry_line.setUpdatesEnabled(True)
+
+    @contextmanager
+    def busy_cursor(self):
+        """:class:`~contextlib.contextmanager` that displays a busy cursor"""
+
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        yield
+        QApplication.restoreOverrideCursor()
 
     def handle_changed_since_save(func, *args, **kwargs):
         """Decorator to handle changes since last saving the document

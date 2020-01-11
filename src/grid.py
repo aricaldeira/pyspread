@@ -367,11 +367,6 @@ class Grid(QTableView):
 
         code = self.model.code_array(self.current)
 
-        # Disable highlighter for large code
-        if code is not None \
-           and len(code) > self.main_window.settings.highlighter_limit:
-            self.main_window.entry_line.highlighter.setDocument(None)
-
         self.main_window.entry_line.setPlainText(code)
 
         if not self.main_window.settings.changed_since_save:

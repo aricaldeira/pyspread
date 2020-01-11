@@ -115,7 +115,7 @@ from PyQt5.Qt import Qt
 from PyQt5.QtCore import QEvent, QRegExp
 from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
                          QTextCharFormat, QTextCursor, QColor, QFont,
-                         QFontMetricsF, QKeyEvent)
+                         QFontMetricsF)
 from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
                              QPlainTextEdit)
 
