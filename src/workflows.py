@@ -957,14 +957,25 @@ class Workflows:
 
         """
 
-        code = (r'_load_img(bz2.decompress(base64.b85decode(' +
-                repr(b85encode(bz2.compress(image_data))) +
-                ')))'
-                r' if exec("'
-                r'def _load_img(data): qimg = QImage(); '
-                r'QImage.loadFromData(qimg, data); '
-                r'return qimg\n'
-                r'") is None else None')
+        def gen_chunk(string, length):
+            for i in range(0, len(string), length):
+                yield string[i:i+length]
+
+        repr_image_data = repr(b85encode(bz2.compress(image_data)))
+        newline = "'\n+b'"
+
+        image_data_str = newline.join(gen_chunk(repr_image_data, 8000))
+
+        code_lines = [
+            "data = bz2.decompress(base64.b85decode(",
+            image_data_str,
+            "))",
+            "qimg = QImage()",
+            "QImage.loadFromData(qimg, data)",
+            "qimg",
+        ]
+
+        code = "\n".join(code_lines)
 
         model = self.main_window.grid.model
         description = "Insert image into cell {}".format(index)
