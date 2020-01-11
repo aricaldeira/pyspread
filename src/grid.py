@@ -32,6 +32,7 @@
 
 from ast import literal_eval
 from contextlib import contextmanager
+from math import isclose
 
 import numpy
 
@@ -40,7 +41,7 @@ from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView, QFontDialog
 from PyQt5.QtWidgets import QInputDialog, QLineEdit
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QPainter, QPalette
-from PyQt5.QtGui import QImage as BasicQImage
+from PyQt5.QtGui import QImage as BasicQImage, QTextOption
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
@@ -1516,6 +1517,17 @@ class GridCellDelegate(QStyledItemDelegate):
         style = option.widget.style()
 
         doc = QTextDocument()
+
+        font = self.grid.model.data(index, role=Qt.FontRole)
+        doc.setDefaultFont(font)
+
+        alignment = self.grid.model.data(index, role=Qt.TextAlignmentRole)
+        doc.setDefaultTextOption(QTextOption(alignment))
+
+        bg_color = self.grid.model.data(index, role=Qt.BackgroundColorRole)
+        css = "background-color: {bg_color};".format(bg_color=bg_color)
+        doc.setDefaultStyleSheet(css)
+
         doc.setHtml(option.text)
         doc.setTextWidth(option.rect.width())
 
@@ -1750,7 +1762,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         key = index.row(), index.column(), self.grid.table
         angle = self.cell_attributes[key]["angle"]
-        if abs(angle) < 0.001:
+        if isclose(angle, 0):
             # No rotation --> call the base class paint method
             self.__paint(painter, option, index)
         else:
