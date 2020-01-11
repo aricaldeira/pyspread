@@ -65,6 +65,9 @@ class Settings:
     # Maximum number of files in file history
     file_history = []
 
+    # Maximum length of code, for which the netry line enables highlighting
+    highlighter_limit = 10000
+
     # The state of the border choice button
     border_choice = "All borders"
 

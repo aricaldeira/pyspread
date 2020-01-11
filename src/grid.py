@@ -366,6 +366,12 @@ class Grid(QTableView):
         """Event handler for data changes"""
 
         code = self.model.code_array(self.current)
+
+        # Disable highlighter for large code
+        if code is not None \
+           and len(code) > self.main_window.settings.highlighter_limit:
+            self.main_window.entry_line.highlighter.setDocument(None)
+
         self.main_window.entry_line.setPlainText(code)
 
         if not self.main_window.settings.changed_since_save:
@@ -576,9 +582,15 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set text renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
+        document = entry_line.document()
+
+        # Disable highlighter to speed things up
+        highlighter_limit = self.main_window.settings.highlighter_limit
+        if len(document.toRawText()) > highlighter_limit:
+            document = None
+
         command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         entry_line.document(),
-                                         self.currentIndex(),
+                                         document, self.currentIndex(),
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
@@ -601,9 +613,15 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set markup renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
+        document = entry_line.document()
+
+        # Disable highlighter to speed things up
+        highlighter_limit = self.main_window.settings.highlighter_limit
+        if len(document.toRawText()) > highlighter_limit:
+            document = None
+
         command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         entry_line.document(),
-                                         self.currentIndex(),
+                                         document, self.currentIndex(),
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
@@ -614,9 +632,15 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set matplotlib renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
+        document = entry_line.document()
+
+        # Disable highlighter to speed things up
+        highlighter_limit = self.main_window.settings.highlighter_limit
+        if len(document.toRawText()) > highlighter_limit:
+            document = None
+
         command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         entry_line.document(),
-                                         self.currentIndex(),
+                                         document, self.currentIndex(),
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
