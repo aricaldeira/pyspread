@@ -1537,6 +1537,9 @@ class GridCellDelegate(QStyledItemDelegate):
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
+        text_color = self.grid.model.data(index, role=Qt.TextColorRole)
+        ctx.palette.setColor(QPalette.Text, text_color)
+
         painter.save()
         painter.translate(option.rect.topLeft())
         painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
