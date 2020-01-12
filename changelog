@@ -7,15 +7,18 @@ Note: This changelog does not comprise development of pyspread for Python2
 1.99.0.2
 --------
 
-New Dependencies:
+New Dependency PyQt5.QtWebKit.
+
+Dependencies now are:
  * Mandatory: Python3.7+, PyQt5, PyQt5.Svg, PyQt5.QtWebKit
- * Optional: matplotlib, pyenchant
- * For building the apidocs with Sphinx see apidics/requirements.txt
+ * Recommended: matplotlib, pyenchant
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
 
 New functionality:
  * Macro editor now converts tabs into 4 spaces
  * Speed up of entry line
  * Long code text in entry line now displays busy cursor
+ * Markup is now rendered using cell font, alignment and colors
 
 1.99.0.1
 --------
