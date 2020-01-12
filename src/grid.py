@@ -906,7 +906,8 @@ class Grid(QTableView):
         # Add button cells for current table
         code_array = self.model.code_array
         for selection, table, attr in code_array.cell_attributes:
-            if table == self.table and 'button_cell' in attr:
+            if table == self.table and 'button_cell' in attr \
+               and attr['button_cell']:
                 row, column = selection.get_bbox()[0]
                 index = self.model.index(row, column, QModelIndex())
                 text = attr['button_cell']
@@ -1918,5 +1919,5 @@ class TableChoice(QTabBar):
                 self.grid.update_zoom()
 
         self.grid.update_index_widgets()
-
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.grid.gui_update()
