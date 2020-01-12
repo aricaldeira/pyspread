@@ -479,8 +479,9 @@ class PysWriter(object):
 
             attr_dict_list = []
             for key in attr_dict:
-                attr_dict_list.append(key)
-                attr_dict_list.append(attr_dict[key])
+                if key is not None:
+                    attr_dict_list.append(key)
+                    attr_dict_list.append(attr_dict[key])
 
             line_list = list(map(repr, sel_list + tab_list + attr_dict_list))
 

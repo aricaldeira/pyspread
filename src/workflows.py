@@ -209,14 +209,18 @@ class Workflows:
     def filepath_open(self, filepath):
         """Workflow for opening a file if a filepath is known"""
 
-        code_array = self.main_window.grid.model.code_array
+        grid = self.main_window.grid
+        code_array = grid.model.code_array
 
         filesize = self._get_filesize(filepath)
         if filesize is None:
             return
 
         # Reset grid
-        self.main_window.grid.model.reset()
+        grid.model.reset()
+
+        # Reset macro editor
+        self.main_window.macro_panel.macro_editor.clear()
 
         # Is the file signed properly ?
         self.main_window.safe_mode = True
@@ -252,11 +256,11 @@ class Workflows:
                             progress_dialog.setValue(infile.tell())
                             self.main_window.application.processEvents()
                             if progress_dialog.wasCanceled():
-                                self.main_window.grid.model.reset()
+                                grid.model.reset()
                                 self.main_window.safe_mode = False
                                 break
                     except ValueError as error:
-                        self.main_window.grid.model.reset()
+                        grid.model.reset()
                         self.main_window.statusBar().showMessage(str(error))
                         return
         except OSError as err:
@@ -264,17 +268,20 @@ class Workflows:
             msg = msg_tpl.format(filepath=filepath, err=err)
             self.main_window.statusBar().showMessage(msg)
             # Reset grid
-            self.main_window.grid.model.reset()
+            grid.model.reset()
             return
         # Explicitly set the grid shape
-        shape = self.main_window.grid.model.code_array.shape
-        self.main_window.grid.model.shape = shape
+        shape = code_array.shape
+        grid.model.shape = shape
 
         # Update the cell spans because this is unsupported by the model
-        self.main_window.grid.update_cell_spans()
+        grid.update_cell_spans()
+
+        # Update index widgets
+        grid.update_index_widgets()
 
         # Select upper left cell because initial selection behaves strangely
-        self.main_window.grid.reset_selection()
+        grid.reset_selection()
 
         # Change the main window last input directory state
         self.main_window.settings.last_file_input_path = filepath

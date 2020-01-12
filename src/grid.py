@@ -68,6 +68,7 @@ from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
 from src.menus import GridContextMenu, TableChoiceContextMenu
 from src.menus import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
+from src.widgets import CellButton
 
 
 class Grid(QTableView):
@@ -84,6 +85,8 @@ class Grid(QTableView):
         self.setModel(self.model)
 
         self.table_choice = TableChoice(self, dimensions[2])
+
+        self.widget_indices = []  # Store each index with an indexWidget here
 
         # Signals
         self.model.dataChanged.connect(self.on_data_changed)
@@ -892,6 +895,25 @@ class Grid(QTableView):
             except TypeError:
                 pass
 
+    def update_index_widgets(self):
+        """Remove old index widgets from model data"""
+
+        # Remove old button cells
+        for index in self.widget_indices:
+            self.setIndexWidget(index, None)
+        self.widget_indices.clear()
+
+        # Add button cells for current table
+        code_array = self.model.code_array
+        for selection, table, attr in code_array.cell_attributes:
+            if table == self.table and 'button_cell' in attr:
+                row, column = selection.get_bbox()[0]
+                index = self.model.index(row, column, QModelIndex())
+                text = attr['button_cell']
+                button = CellButton(text, self, (row, column, table))
+                self.setIndexWidget(index, button)
+                self.widget_indices.append(index)
+
     def on_freeze_pressed(self, toggled):
         """Freeze cell event handler"""
 
@@ -1394,7 +1416,6 @@ class GridTableModel(QAbstractTableModel):
             # We have a selection and no single cell
             for idx in index:
                 self.dataChanged.emit(idx, idx)
-
             return True
 
     def flags(self, index):
@@ -1895,4 +1916,7 @@ class TableChoice(QTabBar):
             with self.grid.undo_resizing_column():
                 self.grid.update_cell_spans()
                 self.grid.update_zoom()
+
+        self.grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
