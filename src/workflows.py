@@ -84,6 +84,7 @@ class Workflows:
 
         progress_dialog.setValue(maximum)
         progress_dialog.close()
+        progress_dialog.deleteLater()
 
     @contextmanager
     def disable_entryline_updates(self):
@@ -262,6 +263,8 @@ class Workflows:
                     except ValueError as error:
                         grid.model.reset()
                         self.main_window.statusBar().showMessage(str(error))
+                        progress_dialog.close()
+                        progress_dialog.delete_later()
                         return
         except OSError as err:
             msg_tpl = "Error opening file {filepath}: {err}."
@@ -689,7 +692,7 @@ class Workflows:
         """Program exit workflow"""
 
         self.main_window.settings.save()
-        sys.exit()
+        self.main_window.application.quit()
 
     # Edit menu
 

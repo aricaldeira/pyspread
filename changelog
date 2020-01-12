@@ -19,6 +19,11 @@ New functionality:
  * Speed up of entry line
  * Long code text in entry line now displays busy cursor
  * Markup is now rendered using cell font, alignment and colors
+ * Toolbars are now sorted similar to menus
+ * Help browser improved
+
+Bug fixes:
+ * Button cells now behave as intended and can be opened correctly from pys
 
 1.99.0.1
 --------
