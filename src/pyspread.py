@@ -202,15 +202,15 @@ class MainWindow(QMainWindow):
         """Initialize the main window toolbars"""
 
         self.main_toolbar = MainToolBar(self)
+        self.macro_toolbar = MacroToolbar(self)
         self.find_toolbar = FindToolbar(self)
         self.format_toolbar = FormatToolbar(self)
-        self.macro_toolbar = MacroToolbar(self)
 
         self.addToolBar(self.main_toolbar)
+        self.addToolBar(self.macro_toolbar)
         self.addToolBar(self.find_toolbar)
         self.addToolBarBreak()
         self.addToolBar(self.format_toolbar)
-        self.addToolBar(self.macro_toolbar)
 
     def _update_action_toggles(self):
         """Updates the toggle menu check states"""

@@ -101,17 +101,20 @@ class MainToolBar(ToolBarBase):
         self.addAction(actions.open)
         self.addAction(actions.save)
         self.addAction(actions.export)
+
+        self.addSeparator()
+
+        self.addAction(actions.print)
+
         self.addSeparator()
 
         self.addAction(actions.undo)
+        undo_button = self.widgetForAction(actions.undo)
+        undo_view = QUndoView(self.main_window.undo_stack)
+        add_toolbutton_widget(undo_button, undo_view)
+
         self.addAction(actions.redo)
-        self.addSeparator()
 
-        self.addAction(actions.toggle_spell_checker)
-        self.addSeparator()
-
-        self.addAction(actions.find)
-        self.addAction(actions.replace)
         self.addSeparator()
 
         self.addAction(actions.cut)
@@ -119,16 +122,29 @@ class MainToolBar(ToolBarBase):
         self.addAction(actions.copy_results)
         self.addAction(actions.paste)
         self.addAction(actions.paste)
+
         self.addSeparator()
 
-        self.addAction(actions.freeze_cell)
-        self.addSeparator()
+        self.addAction(actions.toggle_spell_checker)
 
-        self.addAction(actions.print)
+        self.addWidget(self.get_manager_button())
 
-        undo_button = self.widgetForAction(actions.undo)
-        undo_view = QUndoView(self.main_window.undo_stack)
-        add_toolbutton_widget(undo_button, undo_view)
+
+class MacroToolbar(ToolBarBase):
+    """The macro toolbar for pyspread"""
+
+    def __init__(self, main_window):
+        super().__init__("Macro toolbar", main_window)
+
+        self.setObjectName("Macro toolbar")
+        self._create_toolbar(main_window.main_window_actions)
+
+    def _create_toolbar(self, actions):
+        """Fills the macro toolbar with QActions"""
+
+        self.addAction(actions.insert_image)
+        if matplotlib_figure is not None:
+            self.addAction(actions.insert_chart)
 
         self.addWidget(self.get_manager_button())
 
@@ -149,7 +165,10 @@ class FindToolbar(ToolBarBase):
         self.find_editor = FindEditor(self)
 
         self.add_widget(self.find_editor)
+
+        self.addAction(actions.find)
         self.addAction(actions.replace)
+
         self.addWidget(self.get_manager_button())
 
 
@@ -179,6 +198,15 @@ class FormatToolbar(ToolBarBase):
         self.addSeparator()
 
         self.add_widget(self.main_window.widgets.renderer_button)
+
+        self.addSeparator()
+
+        self.addAction(actions.freeze_cell)
+        self.addAction(actions.lock_cell)
+        self.addAction(actions.button_cell)
+
+        self.addSeparator()
+
         self.addAction(actions.merge_cells)
 
         self.addSeparator()
@@ -228,25 +256,6 @@ class FormatToolbar(ToolBarBase):
         self.addAction(actions.paste_format)
 
         self.addSeparator()
-
-        self.addWidget(self.get_manager_button())
-
-
-class MacroToolbar(ToolBarBase):
-    """The macro toolbar for pyspread"""
-
-    def __init__(self, main_window):
-        super().__init__("Macro toolbar", main_window)
-
-        self.setObjectName("Macro toolbar")
-        self._create_toolbar(main_window.main_window_actions)
-
-    def _create_toolbar(self, actions):
-        """Fills the macro toolbar with QActions"""
-
-        self.addAction(actions.insert_image)
-        if matplotlib_figure is not None:
-            self.addAction(actions.insert_chart)
 
         self.addWidget(self.get_manager_button())
 
