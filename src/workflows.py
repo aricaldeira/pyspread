@@ -264,7 +264,6 @@ class Workflows:
                         grid.model.reset()
                         self.main_window.statusBar().showMessage(str(error))
                         progress_dialog.close()
-                        progress_dialog.delete_later()
                         return
         except OSError as err:
             msg_tpl = "Error opening file {filepath}: {err}."

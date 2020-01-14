@@ -24,6 +24,8 @@ New functionality:
 
 Bug fixes:
  * Button cells now behave as intended and can be opened correctly from pys
+ * pyspread now quits correctly
+ * Progress dialog now closes more reliably
 
 1.99.0.1
 --------
