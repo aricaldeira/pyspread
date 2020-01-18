@@ -27,8 +27,8 @@ from PyQt5.QtWidgets import QToolBar
 
 from src import VERSION, APP_NAME
 
-
-PYSPREAD_PATH = Path(abspath(join(dirname(__file__), "..")))
+PYSPREAD_DIRNAME = abspath(join(dirname(__file__), ".."))
+PYSPREAD_PATH = Path(PYSPREAD_DIRNAME)
 TUTORIAL_PATH = PYSPREAD_PATH / "share/doc/tutorial.html"
 MANUAL_PATH = PYSPREAD_PATH / "share/doc/manual/overview.html"
 
