@@ -1468,7 +1468,8 @@ class GridCellDelegate(QStyledItemDelegate):
     def _paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
-        zoom = self.grid.zoom
+        borderwidth_bottom = self.cell_attributes[key]["borderwidth_bottom"]
+        borderwidth_right = self.cell_attributes[key]["borderwidth_right"]
 
         border_bottom = (x, y + height, x + width, y + height)
         border_right = (x + width, y, x + width, y + height)
@@ -1483,15 +1484,10 @@ class GridCellDelegate(QStyledItemDelegate):
         else:
             bordercolor_right = QColor(*cell_attributes["bordercolor_right"])
 
-        borderwidth_bottom = self.cell_attributes[key]["borderwidth_bottom"]
-        borderwidth_right = self.cell_attributes[key]["borderwidth_right"]
-
-        painter.setPen(QPen(QBrush(bordercolor_bottom),
-                            borderwidth_bottom * zoom))
+        painter.setPen(QPen(QBrush(bordercolor_bottom), borderwidth_bottom))
         painter.drawLine(*border_bottom)
 
-        painter.setPen(QPen(QBrush(bordercolor_right),
-                            borderwidth_right * zoom))
+        painter.setPen(QPen(QBrush(bordercolor_right), borderwidth_right))
         painter.drawLine(*border_right)
 
     def _paint_border_lines(self, rect, painter, index):
@@ -1505,8 +1501,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        x = rect.x() - 1
-        y = rect.y() - 1
+        x = rect.x()
+        y = rect.y()
         width = rect.width()
         height = rect.height()
 
