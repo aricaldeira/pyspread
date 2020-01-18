@@ -32,6 +32,7 @@
 
 from ast import literal_eval
 from contextlib import contextmanager
+from io import BytesIO
 from math import isclose
 
 import numpy
@@ -62,7 +63,7 @@ from src.commands import CommandSetColumnsWidth, CommandSetCellTextAlignment
 from src.commands import CommandMakeButtonCell, CommandRemoveButtonCell
 from src.model.model import CodeArray
 from src.lib.selection import Selection
-from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
+from src.lib.string_helpers import quote, wrap_text, get_svg_size
 from src.lib.qimage2ndarray import array2qimage
 from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
@@ -1645,32 +1646,35 @@ class GridCellDelegate(QStyledItemDelegate):
         if isinstance(qimage, BasicQImage):
             img_width, img_height = qimage.width(), qimage.height()
         else:
-            key = index.row(), index.column(), self.grid.table
-            res = self.code_array[key]
-            if res is None:
+            if qimage is None:
                 return
             try:
-                svg_bytes = bytes(res)
+                svg_bytes = bytes(qimage)
             except TypeError:
                 try:
-                    svg_bytes = bytes(res, encoding='utf-8')
+                    svg_bytes = bytes(qimage, encoding='utf-8')
                 except TypeError:
                     return
 
             if not is_svg(svg_bytes):
                 return
-            else:
-                svg_aspect = get_svg_aspect(svg_bytes)
-                rect_aspect = rect.width() / rect.height()
-                if svg_aspect > rect_aspect:
-                    img_width = rect.width()
-                    img_height = int(rect.width() / svg_aspect)
-                else:
-                    img_width = int(rect.height() * svg_aspect)
-                    img_height = rect.height()
 
-                qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
-                qimage.from_svg_bytes(svg_bytes)
+            svg_width, svg_height = get_svg_size(svg_bytes)
+            svg_aspect = svg_width / svg_height
+            rect_aspect = rect.width() / rect.height()
+
+            rect_width = rect.width() * self.grid.zoom
+            rect_height = rect.height() * self.grid.zoom
+
+            if svg_aspect > rect_aspect:
+                # svg is wider than rect --> shrink height
+                img_width = rect_width
+                img_height = rect_width / svg_aspect
+            else:
+                img_width = rect_height * svg_aspect
+                img_height = rect_height
+            qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
+            qimage.from_svg_bytes(svg_bytes)
 
         img_rect = self._get_aligned_image_rect(option, index,
                                                 img_width, img_height)
@@ -1681,16 +1685,21 @@ class GridCellDelegate(QStyledItemDelegate):
         justification = self.cell_attributes[key]["justification"]
 
         if justification == "justify_fill":
-            qimage = qimage.scaled(rect.width(), rect.height(),
+            qimage = qimage.scaled(img_width, img_height,
                                    Qt.IgnoreAspectRatio,
                                    Qt.SmoothTransformation)
-            painter.drawImage(rect.x(), rect.y(), qimage)
-            return
+        else:
+            qimage = qimage.scaled(img_width, img_height,
+                                   Qt.KeepAspectRatio,
+                                   Qt.SmoothTransformation)
 
-        qimage = qimage.scaled(rect.width(), rect.height(),
-                               Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-        painter.drawImage(img_rect.x(), img_rect.y(), qimage)
+        painter.save()
+        scale_x = img_rect.width() / img_width
+        scale_y = img_rect.height() / img_height
+        painter.translate(img_rect.x(), img_rect.y())
+        painter.scale(scale_x, scale_y)
+        painter.drawImage(0, 0, qimage)
+        painter.restore()
 
     def _render_matplotlib(self, painter, option, index):
         """Matplotlib renderer"""
@@ -1705,19 +1714,12 @@ class GridCellDelegate(QStyledItemDelegate):
         if not isinstance(figure, matplotlib.figure.Figure):
             return
 
-        dpi = figure.get_dpi()
-        width, height = figure.get_size_inches()
-        width *= dpi
-        height *= dpi
+        # Save SVG in a fake file object.
+        filelike = BytesIO()
+        figure.savefig(filelike, format="svg")
+        svg_str = filelike.getvalue().decode()
 
-        rect = self._get_aligned_image_rect(option, index, width, height)
-        if rect is None:
-            return
-
-        image = QImage(rect.width(), rect.height(), QImage.Format_RGBA8888)
-        image.from_matplotlib(figure)
-
-        painter.drawImage(rect.x(), rect.y(), image)
+        self._render_qimage(painter, option, index, qimage=svg_str)
 
     def __paint(self, painter, option, index):
         """Calls the overloaded paint function or creates html delegate"""
