@@ -855,6 +855,8 @@ class Workflows:
         description_tpl = "Paste clipboard to {}"
         description = description_tpl.format(selection)
 
+        command = None
+
         paste_gen = (line.split("\t") for line in data.split("\n"))
         for row, line in enumerate(cycle(paste_gen)):
             paste_row = row + top
@@ -869,11 +871,15 @@ class Workflows:
                                             QModelIndex())
                         # Preserve line breaks
                         value = value.replace("\u000C", "\n")
-                        command = CommandSetCellCode(value, model, index,
-                                                     description)
-                        undo_stack.push(command)
+                        cmd = CommandSetCellCode(value, model, index,
+                                                 description)
+                        if command is None:
+                            command = cmd
+                        else:
+                            command.mergeWith(cmd)
                 else:
                     break
+        undo_stack.push(command)
 
     def _paste_to_current(self, data):
         """Pastes data into grid starting from the current cell"""
@@ -925,7 +931,8 @@ class Workflows:
             self.main_window.settings.changed_since_save = True
 
             if grid.has_selection():
-                self._paste_to_selection(grid.selection, data)
+                with self.busy_cursor():
+                    self._paste_to_selection(grid.selection, data)
             else:
                 self._paste_to_current(data)
 
