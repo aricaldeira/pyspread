@@ -893,6 +893,8 @@ class Workflows:
         description_tpl = "Paste clipboard starting from cell {}"
         description = description_tpl.format(current)
 
+        command = None
+
         paste_gen = (line.split("\t") for line in data.split("\n"))
         for row, line in enumerate(paste_gen):
             paste_row = row + top
@@ -904,11 +906,14 @@ class Workflows:
                     index = model.index(paste_row, paste_column, QModelIndex())
                     # Preserve line breaks
                     value = value.replace("\u000C", "\n")
-                    command = CommandSetCellCode(value, model, index,
-                                                 description)
-                    undo_stack.push(command)
+                    cmd = CommandSetCellCode(value, model, index, description)
+                    if command is None:
+                        command = cmd
+                    else:
+                        command.mergeWith(cmd)
                 else:
                     break
+        undo_stack.push(command)
 
     def edit_paste(self):
         """Edit -> Paste workflow
@@ -930,11 +935,11 @@ class Workflows:
             # Change the main window filepath state
             self.main_window.settings.changed_since_save = True
 
-            if grid.has_selection():
-                with self.busy_cursor():
+            with self.busy_cursor():
+                if grid.has_selection():
                     self._paste_to_selection(grid.selection, data)
-            else:
-                self._paste_to_current(data)
+                else:
+                    self._paste_to_current(data)
 
     def _paste_svg(self, svg, index):
         """Pastes svg image into cell
