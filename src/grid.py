@@ -1124,10 +1124,9 @@ class GridHeaderView(QHeaderView):
         unzoomed_rect = QRect(rect.x()/self.grid.zoom, rect.y()/self.grid.zoom,
                               rect.width()/self.grid.zoom,
                               rect.height()/self.grid.zoom)
-        painter.save()
-        painter.scale(self.grid.zoom, self.grid.zoom)
-        super().paintSection(painter, unzoomed_rect, logicalIndex)
-        painter.restore()
+        with self.grid.main_window.workflows.painter_save(painter):
+            painter.scale(self.grid.zoom, self.grid.zoom)
+            super().paintSection(painter, unzoomed_rect, logicalIndex)
 
     def contextMenuEvent(self, event):
         """Overrides contextMenuEvent
@@ -1563,12 +1562,10 @@ class GridCellDelegate(QStyledItemDelegate):
         text_color = self.grid.model.data(index, role=Qt.TextColorRole)
         ctx.palette.setColor(QPalette.Text, text_color)
 
-        painter.save()
-        painter.translate(option.rect.topLeft())
-        painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
-        doc.documentLayout().draw(painter, ctx)
-
-        painter.restore()
+        with self.main_window.workflows.painter_save(painter):
+            painter.translate(option.rect.topLeft())
+            painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
+            doc.documentLayout().draw(painter, ctx)
 
     def _get_aligned_image_rect(self, option, index,
                                 image_width, image_height):
@@ -1693,13 +1690,12 @@ class GridCellDelegate(QStyledItemDelegate):
                                    Qt.KeepAspectRatio,
                                    Qt.SmoothTransformation)
 
-        painter.save()
-        scale_x = img_rect.width() / img_width
-        scale_y = img_rect.height() / img_height
-        painter.translate(img_rect.x(), img_rect.y())
-        painter.scale(scale_x, scale_y)
-        painter.drawImage(0, 0, qimage)
-        painter.restore()
+        with self.main_window.workflows.painter_save(painter):
+            scale_x = img_rect.width() / img_width
+            scale_y = img_rect.height() / img_height
+            painter.translate(img_rect.x(), img_rect.y())
+            painter.scale(scale_x, scale_y)
+            painter.drawImage(0, 0, qimage)
 
     def _render_matplotlib(self, painter, option, index):
         """Matplotlib renderer"""
@@ -1762,16 +1758,14 @@ class GridCellDelegate(QStyledItemDelegate):
 
         optionCopy = QStyleOptionViewItem(option)
         rectCenter = QPointF(QRectF(option.rect).center())
-        painter.save()
-        painter.translate(rectCenter.x(), rectCenter.y())
-        painter.rotate(angle)
-        painter.translate(-rectCenter.x(), -rectCenter.y())
-        optionCopy.rect = painter.worldTransform().mapRect(option.rect)
+        with self.main_window.workflows.painter_save(painter):
+            painter.translate(rectCenter.x(), rectCenter.y())
+            painter.rotate(angle)
+            painter.translate(-rectCenter.x(), -rectCenter.y())
+            optionCopy.rect = painter.worldTransform().mapRect(option.rect)
 
-        # Call the base class paint method
-        self.__paint(painter, optionCopy, index)
-
-        painter.restore()
+            # Call the base class paint method
+            self.__paint(painter, optionCopy, index)
 
     def paint(self, painter, option, index):
         """Overloads QStyledItemDelegate to add cell border painting"""
@@ -1784,20 +1778,17 @@ class GridCellDelegate(QStyledItemDelegate):
                               rect.width() / zoom,
                               rect.height() / zoom)
         option.rect = unzoomed_rect
-        painter.save()
-        painter.scale(zoom, zoom)
+        with self.main_window.workflows.painter_save(painter):
+            painter.scale(zoom, zoom)
+            key = index.row(), index.column(), self.grid.table
+            angle = self.cell_attributes[key]["angle"]
+            if isclose(angle, 0):
+                # No rotation --> call the base class paint method
+                self.__paint(painter, option, index)
+            else:
+                self._rotated_paint(painter, option, index, angle)
 
-        key = index.row(), index.column(), self.grid.table
-        angle = self.cell_attributes[key]["angle"]
-        if isclose(angle, 0):
-            # No rotation --> call the base class paint method
-            self.__paint(painter, option, index)
-        else:
-            self._rotated_paint(painter, option, index, angle)
-
-        self._paint_border_lines(option.rect, painter, index)
-
-        painter.restore()
+            self._paint_border_lines(option.rect, painter, index)
 
     def createEditor(self, parent, option, index):
         """Overloads QStyledItemDelegate

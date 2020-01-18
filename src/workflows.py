@@ -582,7 +582,7 @@ class Workflows:
     def _svg_export(self, filepath):
         """Export to svg file filepath"""
 
-        with self.standard_zoom():
+        with self.print_zoom():
             grid = self.main_window.grid
 
             generator = QSvgGenerator()
@@ -608,13 +608,19 @@ class Workflows:
             self.paint(painter, option, paint_rect, rows, columns)
 
     @contextmanager
-    def standard_zoom(self):
+    def painter_save(self, painter):
+        painter.save()
+        yield
+        painter.restore()
+
+    @contextmanager
+    def print_zoom(self, zoom=1.0):
         """Decorator for tasks that have to take place in standard zoom"""
 
-        zoom = self.main_window.grid.zoom
-        self.main_window.grid.zoom = 1.0
-        yield
+        __zoom = self.main_window.grid.zoom
         self.main_window.grid.zoom = zoom
+        yield
+        self.main_window.grid.zoom = __zoom
 
     def get_paint_rows(self, area):
         """Iterator of rows to paint"""
@@ -684,7 +690,6 @@ class Workflows:
                     option.widget = grid
 
                     grid.itemDelegate().paint(painter, option, idx)
-        painter.end()
 
     @handle_changed_since_save
     def file_quit(self):

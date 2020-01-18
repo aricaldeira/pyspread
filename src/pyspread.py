@@ -306,7 +306,10 @@ class MainWindow(QMainWindow):
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
 
-        with self.workflows.standard_zoom():
+        screen_dpi = self.application.primaryScreen().physicalDotsPerInch()
+        print_zoom = printer.resolution() / screen_dpi
+
+        with self.workflows.print_zoom(zoom=print_zoom):
             painter.setViewport(self.grid.rect())
             painter.setWindow(self.grid.rect())
 
@@ -328,14 +331,12 @@ class MainWindow(QMainWindow):
             yscale = (area.height() - 2*top - 2*bottom) / total_height
 
             scale = min(xscale, yscale)
-            painter.save()
 
-            painter.scale(scale, scale)
-            painter.translate((-area.x() + left) / scale,
-                              (-area.y() + top) / scale)
-
-            self.workflows.paint(painter, option, clip_rect, rows, columns)
-            painter.restore()
+            with self.workflows.painter_save(painter):
+                painter.scale(scale, scale)
+                painter.translate((-area.x() + left) / scale,
+                                  (-area.y() + top) / scale)
+                self.workflows.paint(painter, option, clip_rect, rows, columns)
 
     def on_nothing(self):
         """Dummy action that does nothing"""
