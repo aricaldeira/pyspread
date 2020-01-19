@@ -36,10 +36,10 @@ from itertools import takewhile, repeat
 import os.path
 from pathlib import Path
 from shutil import move
-import sys
 from tempfile import NamedTemporaryFile
 
-from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer, QRect, QSize
+from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF
+from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QTextDocument, QImage, QPainter
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 from PyQt5.QtWidgets import QInputDialog, QStyleOptionViewItem
@@ -599,19 +599,13 @@ class Workflows:
             total_width = self.get_total_width(svg_area)
 
             generator.setSize(QSize(total_width, total_height))
-            paint_rect = QRect(0, 0, total_width, total_height)
+            paint_rect = QRectF(0, 0, total_width, total_height)
             generator.setViewBox(paint_rect)
             option = QStyleOptionViewItem()
 
             painter = QPainter(generator)
 
             self.paint(painter, option, paint_rect, rows, columns)
-
-    @contextmanager
-    def painter_save(self, painter):
-        painter.save()
-        yield
-        painter.restore()
 
     @contextmanager
     def print_zoom(self, zoom=1.0):
@@ -684,7 +678,8 @@ class Workflows:
                         height += visual_rect.y() - y_offset
 
                     option.rect = QRect(x, y, width, height)
-                    painter.setClipRect(option.rect)
+                    option.rectf = QRectF(x, y, width, height)
+                    # painter.setClipRect(option.rectf)
 
                     option.text = code_array(key)
                     option.widget = grid

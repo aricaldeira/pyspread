@@ -115,8 +115,8 @@ class Grid(QTableView):
 
         self.setShowGrid(False)
 
-        delegate = GridCellDelegate(main_window, self.model.code_array)
-        self.setItemDelegate(delegate)
+        self.delegate = GridCellDelegate(main_window, self.model.code_array)
+        self.setItemDelegate(self.delegate)
 
         # Select upper left cell because initial selection behaves strange
         self.reset_selection()
@@ -1121,10 +1121,11 @@ class GridHeaderView(QHeaderView):
     def paintSection(self, painter, rect, logicalIndex):
         """Overrides paintSection, which supports zoom"""
 
-        unzoomed_rect = QRect(rect.x()/self.grid.zoom, rect.y()/self.grid.zoom,
+        unzoomed_rect = QRect(0, 0,
                               rect.width()/self.grid.zoom,
                               rect.height()/self.grid.zoom)
-        with self.grid.main_window.workflows.painter_save(painter):
+        with self.grid.delegate.painter_save(painter):
+            painter.translate(rect.x(), rect.y())
             painter.scale(self.grid.zoom, self.grid.zoom)
             super().paintSection(painter, unzoomed_rect, logicalIndex)
 
@@ -1465,6 +1466,12 @@ class GridCellDelegate(QStyledItemDelegate):
     def grid(self):
         return self.main_window.grid
 
+    @contextmanager
+    def painter_save(self, painter):
+        painter.save()
+        yield
+        painter.restore()
+
     def _paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
@@ -1490,7 +1497,7 @@ class GridCellDelegate(QStyledItemDelegate):
         painter.setPen(QPen(QBrush(bordercolor_right), borderwidth_right))
         painter.drawLine(*border_right)
 
-    def _paint_border_lines(self, rect, painter, index):
+    def _paint_border_lines(self, rectf, painter, index):
         """Paint border lines around the cell
 
         First, bottom and right border lines are painted.
@@ -1501,10 +1508,10 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        x = rect.x()
-        y = rect.y()
-        width = rect.width()
-        height = rect.height()
+        x = rectf.x()
+        y = rectf.y()
+        width = rectf.width()
+        height = rectf.height()
 
         row = index.row()
         column = index.column()
@@ -1558,7 +1565,7 @@ class GridCellDelegate(QStyledItemDelegate):
         text_color = self.grid.model.data(index, role=Qt.TextColorRole)
         ctx.palette.setColor(QPalette.Text, text_color)
 
-        with self.main_window.workflows.painter_save(painter):
+        with self.painter_save(painter):
             painter.translate(option.rect.topLeft())
             painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
             doc.documentLayout().draw(painter, ctx)
@@ -1686,7 +1693,7 @@ class GridCellDelegate(QStyledItemDelegate):
                                    Qt.KeepAspectRatio,
                                    Qt.SmoothTransformation)
 
-        with self.main_window.workflows.painter_save(painter):
+        with self.painter_save(painter):
             scale_x = img_rect.width() / img_width
             scale_y = img_rect.height() / img_height
             painter.translate(img_rect.x(), img_rect.y())
@@ -1754,7 +1761,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         optionCopy = QStyleOptionViewItem(option)
         rectCenter = QPointF(QRectF(option.rect).center())
-        with self.main_window.workflows.painter_save(painter):
+        with self.painter_save(painter):
             painter.translate(rectCenter.x(), rectCenter.y())
             painter.rotate(angle)
             painter.translate(-rectCenter.x(), -rectCenter.y())
@@ -1766,15 +1773,24 @@ class GridCellDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         """Overloads QStyledItemDelegate to add cell border painting"""
 
+        def get_unzoomed_rect_args(rect, zoom):
+            x = rect.x() / zoom
+            y = rect.y() / zoom
+            width = rect.width() / zoom
+            height = rect.height() / zoom
+            return x, y, width, height
+
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
 
         zoom = self.grid.zoom
-        rect = option.rect
-        unzoomed_rect = QRect(rect.x() / zoom, rect.y() / zoom,
-                              rect.width() / zoom,
-                              rect.height() / zoom)
-        option.rect = unzoomed_rect
-        with self.main_window.workflows.painter_save(painter):
+
+        option.rect = QRect(*get_unzoomed_rect_args(option.rect, zoom))
+        if hasattr(option, "rectf"):
+            rectf = QRectF(*get_unzoomed_rect_args(option.rectf, zoom))
+        else:
+            rectf = option.rect
+
+        with self.painter_save(painter):
             painter.scale(zoom, zoom)
             key = index.row(), index.column(), self.grid.table
             angle = self.cell_attributes[key]["angle"]
@@ -1784,7 +1800,7 @@ class GridCellDelegate(QStyledItemDelegate):
             else:
                 self._rotated_paint(painter, option, index, angle)
 
-            self._paint_border_lines(option.rect, painter, index)
+            self._paint_border_lines(rectf, painter, index)
 
     def createEditor(self, parent, option, index):
         """Overloads QStyledItemDelegate

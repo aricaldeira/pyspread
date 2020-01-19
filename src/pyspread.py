@@ -39,7 +39,7 @@ pyspread
 import os
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRect
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgWidget
@@ -322,9 +322,9 @@ class MainWindow(QMainWindow):
             left, top, right, bottom = \
                 printer.getPageMargins(QPrinter.DevicePixel)
 
-            clip_rect = QRect(area.x()+left, area.y()+top,
-                              area.width()-left-right,
-                              area.height()-top-bottom)
+            clip_rect = QRectF(area.x()+left, area.y()+top,
+                               area.width()-left-right,
+                               area.height()-top-bottom)
             painter.setClipRect(clip_rect)
 
             xscale = (area.width() - 2*left - 2*right) / total_width
@@ -332,7 +332,7 @@ class MainWindow(QMainWindow):
 
             scale = min(xscale, yscale)
 
-            with self.workflows.painter_save(painter):
+            with self.grid.delegate.painter_save(painter):
                 painter.scale(scale, scale)
                 painter.translate((-area.x() + left) / scale,
                                   (-area.y() + top) / scale)
