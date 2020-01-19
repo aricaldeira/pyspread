@@ -1460,6 +1460,7 @@ class GridCellNavigator:
     """Find neighbors of a cell"""
 
     def __init__(self, main_window, key):
+        self.main_window = main_window
         self.code_array = main_window.grid.model.code_array
         self.row, self.column, self.table = self.key = key
 
@@ -1476,16 +1477,24 @@ class GridCellNavigator:
         return self.code_array.cell_attributes[self.key]["borderwidth_right"]
 
     @property
-    def bordercolor_bottom(self):
+    def border_qcolor_bottom(self):
         """Color of bottom border line"""
 
-        return self.code_array.cell_attributes[self.key]["bordercolor_bottom"]
+        color = self.code_array.cell_attributes[self.key]["bordercolor_bottom"]
+        if color is None:
+            return self.main_window.grid.palette().color(QPalette.Mid)
+        else:
+            return QColor(*color)
 
     @property
-    def bordercolor_right(self):
+    def border_qcolor_right(self):
         """Color of right border line"""
 
-        return self.code_array.cell_attributes[self.key]["bordercolor_right"]
+        color = self.code_array.cell_attributes[self.key]["bordercolor_right"]
+        if color is None:
+            return self.main_window.grid.palette().color(QPalette.Mid)
+        else:
+            return QColor(*color)
 
     @property
     def merge_area(self):
@@ -1496,7 +1505,7 @@ class GridCellNavigator:
     def _merging_key(self, *key):
         """Merging cell if key is merged else key"""
 
-        merging_key = self.code_array.get_merging_cell(key)
+        merging_key = self.code_array.cell_attributes.get_merging_cell(key)
         return key if merging_key is None else merging_key
 
     def above_keys(self):
@@ -1586,103 +1595,96 @@ class GridCellDelegate(QStyledItemDelegate):
     def _paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
-        row, column, table = key
-        cell_attributes = self.cell_attributes
-        ca = cell_attributes[key]
+        cell = GridCellNavigator(self.main_window, key)
 
-        borderwidth_bottom = ca["borderwidth_bottom"]
-        borderwidth_right = ca["borderwidth_right"]
-
-        border_bottom = [x - .5,
-                         y + height - .5,
-                         x + width - .5,
-                         y + height - .5]
-        border_right = [x + width - .5,
-                        y - .5,
-                        x + width - .5,
-                        y + height - .5]
-
-        if ca["bordercolor_bottom"] is None:
-            bordercolor_bottom = self.grid.palette().color(QPalette.Mid)
-        else:
-            bordercolor_bottom = QColor(*ca["bordercolor_bottom"])
-        if ca["bordercolor_right"] is None:
-            bordercolor_right = self.grid.palette().color(QPalette.Mid)
-        else:
-            bordercolor_right = QColor(*ca["bordercolor_right"])
+        borderline_bottom = [x - .5,
+                             y + height - .5,
+                             x + width - .5,
+                             y + height - .5]
+        borderline_right = [x + width - .5,
+                            y - .5,
+                            x + width - .5,
+                            y + height - .5]
 
         # Check, which line is the thickest at each edge
-        # and shorten line accordingly
+        # Shorten line accordingly
 
-        # TODO: For merged cells, all upper lower, left and bottom cells
-        # must be evaluated
-
-        # Top left edge:
-        # Bottom and right line of upper left cell
-        ulkey = row - 1, column - 1, table
-        bw_bottom_ulcell = cell_attributes[ulkey]["borderwidth_bottom"]
-        bw_right_ulcell = cell_attributes[ulkey]["borderwidth_right"]
+        above_left_cell = GridCellNavigator(self.main_window,
+                                            cell.above_left_key())
+        above_cells = [GridCellNavigator(self.main_window, key)
+                       for key in cell.above_keys()]
+        above_right_cell = GridCellNavigator(self.main_window,
+                                             cell.above_right_key())
+        right_cells = [GridCellNavigator(self.main_window, key)
+                       for key in cell.right_keys()]
+#        below_right_cell = GridCellNavigator(self.main_window,
+#                                             cell.below_right_key())
+        below_cells = [GridCellNavigator(self.main_window, key)
+                       for key in cell.below_keys()]
+        below_left_cell = GridCellNavigator(self.main_window,
+                                            cell.below_left_key())
+        left_cells = [GridCellNavigator(self.main_window, key)
+                      for key in cell.left_keys()]
 
         # Lower left edge:
-        # Bottom line of left cell and right line of lower left cell
-        leftkey = row, column - 1, table
-        lowleftkey = row + 1, column - 1, table
-        bw_bottom_leftcell = cell_attributes[leftkey]["borderwidth_bottom"]
-        bw_right_lowleftcell = cell_attributes[lowleftkey]["borderwidth_right"]
-        max_bw_ll = max(bw_bottom_leftcell, bw_right_lowleftcell)
-        if max_bw_ll > borderwidth_bottom:
-            border_bottom[0] += max_bw_ll / 2
+        # Bottom lines of left cells and right line of below left cell
 
-        bw_right_leftcell = cell_attributes[leftkey]["borderwidth_right"]
+        lower_left_edge_width = max([c.borderwidth_bottom for c in left_cells]
+                                    + [below_left_cell.borderwidth_right])
+        if lower_left_edge_width > cell.borderwidth_bottom:
+            borderline_bottom[0] += lower_left_edge_width / 2
 
         # Lower right edge:
-        # Right line of lower cell and bottom line of right cell
-        lowkey = row + 1, column, table
-        rightkey = row, column + 1, table
-        bw_right_lowcell = cell_attributes[lowkey]["borderwidth_right"]
-        bw_bottom_rightcell = cell_attributes[rightkey]["borderwidth_bottom"]
-        max_bw_lr = max(bw_right_lowcell, bw_bottom_rightcell,
-                        borderwidth_bottom, borderwidth_right)
-        if max_bw_lr > borderwidth_bottom:
-            border_bottom[2] -= max_bw_lr / 2
+        # Right lines of below cells and bottom lines of right cells
 
-        if max_bw_lr > borderwidth_right:
-            border_right[3] -= max_bw_lr / 2
+        lower_right_edge_width = \
+            max([c.borderwidth_right for c in below_cells]
+                + [c.borderwidth_bottom for c in right_cells])
+
+        if lower_right_edge_width > cell.borderwidth_bottom:
+            borderline_bottom[2] -= lower_right_edge_width / 2
+
+        if lower_right_edge_width > cell.borderwidth_right:
+            borderline_right[3] -= lower_right_edge_width / 2
 
         # Top right edge:
-        # Bottom line of upper right cell and right line of upper cell
-        urkey = row - 1, column + 1, table
-        upkey = row - 1, column, table
-        bw_bottom_uprightcell = cell_attributes[urkey]["borderwidth_bottom"]
-        bw_right_upcell = cell_attributes[upkey]["borderwidth_right"]
-        max_bw_tr = max(bw_bottom_uprightcell, bw_right_upcell)
-        if max_bw_tr > borderwidth_right:
-            border_right[1] += max_bw_tr / 2
+        # Right lines of above cells and bottom line of above right cell
 
-        bw_bottom_upcell = cell_attributes[upkey]["borderwidth_bottom"]
+        top_right_edge_width = max([c.borderwidth_right for c in above_cells]
+                                   + [above_right_cell.borderwidth_bottom])
+        if top_right_edge_width > cell.borderwidth_bottom:
+            borderline_right[1] += top_right_edge_width / 2
 
-        painter.setPen(QPen(QBrush(bordercolor_bottom), borderwidth_bottom))
-        bottom_border_line = QLineF(*border_bottom)
-        painter.drawLine(bottom_border_line)
+        # Draw lines if their width is not 0
 
-        painter.setPen(QPen(QBrush(bordercolor_right), borderwidth_right))
-        right_border_line = QLineF(*border_right)
+        if cell.borderwidth_bottom:
+            painter.setPen(QPen(QBrush(cell.border_qcolor_bottom),
+                                cell.borderwidth_bottom))
+            bottom_border_line = QLineF(*borderline_bottom)
+            painter.drawLine(bottom_border_line)
 
-        painter.drawLine(right_border_line)
+        if cell.borderwidth_right:
+            painter.setPen(QPen(QBrush(cell.border_qcolor_right),
+                                cell.borderwidth_right))
+            right_border_line = QLineF(*borderline_right)
+            painter.drawLine(right_border_line)
 
         # Inner rect
-        irect_x = x - .5 + max(bw_right_ulcell,
-                               bw_right_leftcell,
-                               bw_right_lowleftcell) / 2
-        irect_y = y - .5 + max(bw_bottom_ulcell,
-                               bw_bottom_upcell,
-                               bw_bottom_uprightcell) / 2
-        irect_width = x + width - 1 - irect_x - max(bw_right_upcell,
-                                                    borderwidth_right,
-                                                    bw_right_lowcell) / 2
-        irect_height = y + height - 1 - irect_y - max(bw_bottom_leftcell,
-                                                      borderwidth_bottom,
-                                                      bw_bottom_rightcell) / 2
+        irect_x = x - .5 + max(above_left_cell.borderwidth_right,
+                               *[c.borderwidth_right for c in left_cells],
+                               below_left_cell.borderwidth_right) / 2
+        irect_y = y - .5 + max(above_left_cell.borderwidth_bottom,
+                               *[c.borderwidth_bottom for c in above_cells],
+                               above_right_cell.borderwidth_bottom) / 2
+        irect_width = (x + width - 1 - irect_x
+                       - max(above_cells[-1].borderwidth_right,
+                             cell.borderwidth_right,
+                             below_cells[-1].borderwidth_right) / 2)
+        irect_height = (y + height - 1 - irect_y
+                        - max(left_cells[-1].borderwidth_bottom,
+                              cell.borderwidth_bottom,
+                              right_cells[-1].borderwidth_bottom) / 2)
+
         return irect_x, irect_y, irect_width, irect_height
 
     def _paint_border_lines(self, width, height, painter, index):
