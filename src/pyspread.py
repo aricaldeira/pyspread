@@ -327,8 +327,8 @@ class MainWindow(QMainWindow):
                                area.height()-top-bottom)
             painter.setClipRect(clip_rect)
 
-            xscale = (area.width() - 2*left - 2*right) / total_width
-            yscale = (area.height() - 2*top - 2*bottom) / total_height
+            xscale = (area.width() - 2*left - 2*right) / max(1, total_width)
+            yscale = (area.height() - 2*top - 2*bottom) / max(1, total_height)
 
             scale = min(xscale, yscale)
 
