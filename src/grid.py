@@ -25,8 +25,10 @@
 * :class:`Grid`: QTableView of the main grid
 * :class:`GridTableModel`: QAbstractTableModel linking the view to code_array
   backend
-* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and
+* :class:`GridCellNavigator`: Find neighbors of a cell
+* :class:`GridCellDelegate`: QStyledItemDelegate handling custom painting and
   editors
+* :class:`TableChoice`: The TabBar below the main grid
 
 """
 
@@ -1454,6 +1456,114 @@ class GridTableModel(QAbstractTableModel):
             self.code_array.reload_modules()
 
 
+class GridCellNavigator:
+    """Find neighbors of a cell"""
+
+    def __init__(self, main_window, key):
+        self.code_array = main_window.grid.model.code_array
+        self.row, self.column, self.table = self.key = key
+
+    @property
+    def borderwidth_bottom(self):
+        """Width of bottom border line"""
+
+        return self.code_array.cell_attributes[self.key]["borderwidth_bottom"]
+
+    @property
+    def borderwidth_right(self):
+        """Width of right border line"""
+
+        return self.code_array.cell_attributes[self.key]["borderwidth_right"]
+
+    @property
+    def bordercolor_bottom(self):
+        """Color of bottom border line"""
+
+        return self.code_array.cell_attributes[self.key]["bordercolor_bottom"]
+
+    @property
+    def bordercolor_right(self):
+        """Color of right border line"""
+
+        return self.code_array.cell_attributes[self.key]["bordercolor_right"]
+
+    @property
+    def merge_area(self):
+        """Merge area of the key cell"""
+
+        return self.code_array.cell_attributes[self.key]["merge_area"]
+
+    def _merging_key(self, *key):
+        """Merging cell if key is merged else key"""
+
+        merging_key = self.code_array.get_merging_cell(key)
+        return key if merging_key is None else merging_key
+
+    def above_keys(self):
+        """Key list of neighboring cells above the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row - 1, self.column, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(self.row - 1, col, self.table)
+                    for col in range(left, right + 1)]
+
+    def below_keys(self):
+        """Key list of neighboring cells below the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row + 1, self.column, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(self.row + 1, col, self.table)
+                    for col in range(left, right + 1)]
+
+    def left_keys(self):
+        """Key list of neighboring cells left of the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row, self.column - 1, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(row, self.column - 1, self.table)
+                    for row in range(top, bottom + 1)]
+
+    def right_keys(self):
+        """Key list of neighboring cells right of the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row, self.column + 1, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(row, self.column + 1, self.table)
+                    for row in range(top, bottom + 1)]
+
+    def above_left_key(self):
+        """Key of neighboring cell above left of the key cell"""
+
+        return self._merging_key(self.row - 1, self.column - 1, self.table)
+
+    def above_right_key(self):
+        """Key of neighboring cell above right of the key cell"""
+
+        return self._merging_key(self.row - 1, self.column + 1, self.table)
+
+    def below_left_key(self):
+        """Key of neighboring cell below left of the key cell"""
+
+        return self._merging_key(self.row + 1, self.column - 1, self.table)
+
+    def below_right_key(self):
+        """Key of neighboring cell below right of the key cell"""
+
+        return self._merging_key(self.row + 1, self.column + 1, self.table)
+
+
 class GridCellDelegate(QStyledItemDelegate):
 
     def __init__(self, main_window, code_array):
@@ -1503,6 +1613,9 @@ class GridCellDelegate(QStyledItemDelegate):
 
         # Check, which line is the thickest at each edge
         # and shorten line accordingly
+
+        # TODO: For merged cells, all upper lower, left and bottom cells
+        # must be evaluated
 
         # Top left edge:
         # Bottom and right line of upper left cell
