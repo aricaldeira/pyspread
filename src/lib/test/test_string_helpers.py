@@ -28,7 +28,7 @@ Unit tests for string_helpers.py
 """
 
 import py.test as pytest
-from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
+from src.lib.string_helpers import quote, wrap_text, get_svg_size
 
 
 param_test_quote = [
@@ -139,8 +139,7 @@ SVG_1 = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 """
 
 
-def test_get_svg_aspect():
-    """Unit test for get_svg_aspect"""
+def test_get_svg_size():
+    """Unit test for get_svg_size"""
 
-    epsilon = 1.0e-10
-    assert abs(get_svg_aspect(SVG_1) - epsilon)
+    assert get_svg_size(SVG_1) == (218, 218)
