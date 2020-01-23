@@ -37,6 +37,8 @@ from PyQt5.QtWidgets import QApplication
 
 from src.pyspread import MainWindow
 
+app = QApplication([])
+
 
 class TestActions:
     """Unit tests for  file actions
@@ -49,17 +51,10 @@ class TestActions:
     def setup_method(self):
         """Sets up a basic pyspread instance"""
 
-        self.app = QApplication([])
-
         class Args:
             file = None
 
-        self.main_window = MainWindow(self.app, Args(), unit_test=True)
-
-    def teardown_method(self):
-        """Sets up a basic pyspread instance as self.app"""
-
-        self.app.quit()
+        self.main_window = MainWindow(app, Args(), unit_test=True)
 
     param_test_file_new = [
         ((1, 1, 1), (1, 1, 1)),
