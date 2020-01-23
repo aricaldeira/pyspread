@@ -10,7 +10,7 @@ Note: This changelog does not comprise development of pyspread for Python2
 New Dependency PyQt5.QtWebKit.
 
 Dependencies now are:
- * Mandatory: Python3.7+, PyQt5, PyQt5.Svg, PyQt5.QtWebKit
+ * Mandatory: Python3.7+, PyQt5, PyQt5.Svg, PyQt5.QtWebEngine
  * Recommended: matplotlib, pyenchant
  * For building the apidocs with Sphinx see apidocs/requirements.txt
 

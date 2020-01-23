@@ -28,7 +28,6 @@ Unit tests for actions in pyspread
 """
 
 from contextlib import contextmanager
-from os import chmod
 from pathlib import Path
 
 import py.test as pytest

@@ -59,7 +59,7 @@ from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
 from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit
 from PyQt5.QtGui import QIntValidator, QImageWriter
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWebKitWidgets import QWebView
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 try:
     from matplotlib.figure import Figure
@@ -1353,7 +1353,7 @@ class HelpDialogBase(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
 
-        browser = QWebView()
+        browser = QWebEngineView()
 
         url = QUrl('file://' + str(self.path))
 
