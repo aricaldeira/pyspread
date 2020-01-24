@@ -197,6 +197,18 @@ class Workflows:
         # Select upper left cell because initial selection behaves strange
         self.main_window.grid.reset_selection()
 
+        # Update the cell spans because this is unsupported by the model
+        self.main_window.grid.update_cell_spans()
+
+        # Update index widgets
+        self.main_window.grid.update_index_widgets()
+
+        # Change the main window filepath state
+        self.main_window.settings.changed_since_save = False
+
+        # Update macro editor
+        self.main_window.macro_panel.update()
+
         # Exit safe mode
         self.main_window.safe_mode = False
 
