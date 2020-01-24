@@ -338,12 +338,6 @@ class MainWindow(QMainWindow):
                                   (-area.y() + top) / scale)
                 self.workflows.paint(painter, option, clip_rect, rows, columns)
 
-    def on_nothing(self):
-        """Dummy action that does nothing"""
-
-        sender = self.sender()
-        print("on_nothing > ", sender.text(), sender)
-
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
 
@@ -374,7 +368,6 @@ class MainWindow(QMainWindow):
         data = PreferencesDialog(self).data
 
         if data is not None:
-            print(data)
             max_file_history_changed = \
                 self.settings.max_file_history != data['max_file_history']
 
