@@ -28,8 +28,10 @@
 
 from argparse import Action, ArgumentParser
 from pathlib import Path
+import sys
 
 from src import APP_NAME, VERSION
+from src.installer import REQUIRED_DEPENDENCIES
 
 
 class PathAction(Action):
@@ -47,6 +49,8 @@ class ArgumentParser(ArgumentParser):
 
     def __init__(self):
 
+        self.check_mandatory_dependencies()
+
         description = "pyspread is a non-traditional spreadsheet that is " \
                       "based on and written in the programming language " \
                       "Python."
@@ -59,3 +63,23 @@ class ArgumentParser(ArgumentParser):
         self.add_argument('--version', action='version', version=VERSION)
         self.add_argument('file', action=PathAction, nargs="*",
                           help='open pyspread file in pys or pysu format')
+
+    def check_mandatory_dependencies(self):
+        """Checks mandatory dependencies and exits if they are not met"""
+
+        for module in REQUIRED_DEPENDENCIES:
+            if not module.is_installed():
+                msg_tpl = "Required module {} not found."
+                msg = msg_tpl.format(module.name)
+                self.dependency_error(msg)
+            elif module.version < module.required_version:
+                msg_tpl = "Module {} has version {} but {} is required."
+                msg = msg_tpl.format(module.name, module.version,
+                                     module.required_version)
+                self.dependency_error(msg)
+
+    def dependency_error(self, message):
+        """Print dependency error message and quit"""
+
+        sys.stderr.write('error: {}\n'.format(message))
+        sys.exit(2)

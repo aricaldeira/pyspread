@@ -10,7 +10,7 @@ Note: This changelog does not comprise development of pyspread for Python2
 New Dependency PyQt5.QtWebKit.
 
 Dependencies now are:
- * Mandatory: Python3.7+, PyQt5, PyQt5.Svg, PyQt5.QtWebEngine
+ * Mandatory: Python (≥ 3.7), PyQt5 (≥ 5.10), PyQt5.Svg (≥ 5.10), PyQt5.QtWebEngine (≥ 5.10)
  * Recommended: matplotlib, pyenchant
  * For building the apidocs with Sphinx see apidocs/requirements.txt
 
@@ -19,6 +19,7 @@ New functionality:
  * Speed up of entry line
  * Long code text in entry line now displays busy cursor
  * Markup is now rendered using cell font, alignment and colors
+ * Required dependencies are checked during startup
  * Toolbars are now sorted similar to menus
  * Help browser improved
 

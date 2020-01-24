@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 import os
+from packaging import version
 from pkg_resources import get_distribution, DistributionNotFound
 
 from PyQt5.QtCore import QProcess, QSize
@@ -21,11 +22,11 @@ class Module:
     required_version: str  # The minimum version number that is required
 
     @property
-    def version(self) -> str:
+    def version(self) -> version:
         """Currently installed version number, False if not installed"""
 
         try:
-            return get_distribution(self.name).version
+            return version.parse(get_distribution(self.name).version)
         except DistributionNotFound:
             return False
 
@@ -34,8 +35,20 @@ class Module:
 
         return bool(self.version)
 
-# The required dependencies numpy and pyqt5 are not mentioned because
-#  pyspread does not launch without them.
+# Required dependencies
+# ---------------------
+
+# Required dependencies are checked by the cli
+
+
+REQUIRED_DEPENDENCIES = [
+    Module(name="numpy",
+           description="Fundamental package for scientific computing",
+           required_version=version.parse("1.1")),
+    Module(name="PyQt5",
+           description="Python bindings for the Qt application framework",
+           required_version=version.parse("5.10")),
+]
 
 # Optional dependencies
 # ---------------------
@@ -44,11 +57,14 @@ class Module:
 OPTIONAL_DEPENDENCIES = [
     Module(name="matplotlib",
            description="Create charts",
-           required_version="1.1.1"),
+           required_version=version.parse("1.1.1")),
     Module(name="pyenchant",
            description="Spell checker",
-           required_version="1.1"),
+           required_version=version.parse("1.1")),
 ]
+
+PIP_MODULE = Module(name="pip", description="pip installer",
+                    required_version=version.parse("17.0"))
 
 # Not yet implemented modules
 #    Module(name="xlrd",
@@ -102,8 +118,9 @@ class DependenciesDialog(QDialog):
             item = QTreeWidgetItem()
             item.setText(self.column.name, module.name)
             version = module.version if module.version else "not installed"
-            item.setText(self.column.version, version)
-            item.setText(self.column.required_version, module.required_version)
+            item.setText(self.column.version, str(version))
+            item.setText(self.column.required_version,
+                         str(module.required_version))
             item.setText(self.column.description, module.description)
             self.tree.addTopLevelItem(item)
 
@@ -115,8 +132,7 @@ class DependenciesDialog(QDialog):
                 color = "#F3FFBB"
                 butt = QToolButton()
                 butt.setText("Install")
-                butt.setEnabled(Module(name="pip", description="pip installer",
-                                       required_version="17.0").is_installed())
+                butt.setEnabled(PIP_MODULE.is_installed())
                 self.tree.setItemWidget(item, self.column.button, butt)
                 self.buttGroup.addButton(butt, idx)
 
