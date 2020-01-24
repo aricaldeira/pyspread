@@ -40,7 +40,7 @@ from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QTextDocument, QImage, QPainter
+from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 from PyQt5.QtWidgets import QInputDialog, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgGenerator
@@ -676,6 +676,9 @@ class Workflows:
         x_offset = grid.columnViewportPosition(0)
         y_offset = grid.rowViewportPosition(0)
 
+        max_width = 0
+        max_height = 0
+
         for row in rows:
             for column in columns:
                 key = row, column, grid.table
@@ -696,12 +699,18 @@ class Workflows:
 
                     option.rect = QRect(x, y, width, height)
                     option.rectf = QRectF(x, y, width, height)
+
+                    max_width = max(max_width, x + width)
+                    max_height = max(max_height, y + height)
                     # painter.setClipRect(option.rectf)
 
                     option.text = code_array(key)
                     option.widget = grid
 
                     grid.itemDelegate().paint(painter, option, idx)
+
+        painter.setPen(QPen(QBrush(Qt.black), 10))
+        painter.drawRect(QRectF(x_offset, y_offset, max_width, max_height))
 
     @handle_changed_since_save
     def file_quit(self):
