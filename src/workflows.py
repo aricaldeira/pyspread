@@ -182,6 +182,9 @@ class Workflows:
             self.main_window.statusBar().showMessage(msg)
             return
 
+        # Set current cell to upper left corner
+        self.main_window.grid.current = 0, 0, 0
+
         # Reset grid
         self.main_window.grid.model.reset()
 
@@ -193,9 +196,6 @@ class Workflows:
 
         # Select upper left cell because initial selection behaves strange
         self.main_window.grid.reset_selection()
-
-        # Set current cell to upper left corner
-        self.main_window.grid.current = 0, 0, 0
 
         # Exit safe mode
         self.main_window.safe_mode = False

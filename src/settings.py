@@ -129,8 +129,9 @@ class Settings:
         # Do not store the actual filename. Otherwise, after saving and closing
         # File -> Save would overwrite the last saved file.
 
-        settings.setValue("last_file_input_path",
-                          self.last_file_input_path.parent)
+        if self.last_file_input_path is not None:
+            settings.setValue("last_file_input_path",
+                              self.last_file_input_path.parent)
         if self.last_file_output_path is not None:
             settings.setValue("last_file_output_path",
                               self.last_file_output_path.parent)
