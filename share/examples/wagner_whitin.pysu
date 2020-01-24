@@ -116,7 +116,6 @@
 11	7	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 16	13	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 4	14	0	'123'
-2	3	0	'fractions = __import__("fractions")'
 7	18	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 8	13	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 5	21	0	'S[X,Y-1,Z] + 1'
@@ -184,7 +183,7 @@
 16	15	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 4	8	0	'52'
 9	0	0	'S[X-1, Y, Z] + 1'
-2	1	0	'vr = fractions.Fraction("0.24")'
+2	1	0	'vr = Fraction("0.24")'
 24	20	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 7	12	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
 12	20	0	'S[X,Y-1,Z]+vr*(S[5,Y,0]-S[X,0,0])*S[4,Y,0]'
@@ -371,19 +370,19 @@
 [(5, 0)]	[(30, 23)]	[]	[]	[]	0	'bordercolor_bottom'	(0, 0, 0)	'borderwidth_bottom'	1
 [(6, 0)]	[(31, 23)]	[]	[]	[]	0	'borderwidth_right'	1	'bordercolor_bottom'	(0, 0, 0)	'borderwidth_bottom'	1	'bordercolor_right'	(0, 0, 0)
 [(6, -1)]	[(31, 22)]	[]	[]	[]	0	'borderwidth_right'	1	'bordercolor_right'	(0, 0, 0)
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'vertical_align'	'align_center'	'justification'	'justify_center'	None	(0, 0, 0, 4)
+[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'vertical_align'	'align_center'	'justification'	'justify_center'
 []	[]	[]	[]	[(2, 0)]	0	'renderer'	'markup'
 [(1, 0)]	[(2, 0)]	[]	[]	[]	0	'textfont'	'Serif'
 []	[]	[]	[]	[(2, 3)]	0	'textcolor'	(255, 255, 255)
 []	[]	[]	[]	[(0, 0)]	0	'fontweight'	75	'textfont'	'Liberation Serif'	'fontstyle'	0
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	None	None	'locked'	False
-[(0, 0)]	[(0, 3)]	[]	[]	[]	0	None	(0, 0, 0, 3)	'locked'	True
+[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'locked'	False
+[(0, 0)]	[(0, 3)]	[]	[]	[]	0	'locked'	True
 []	[]	[]	[]	[(0, 0)]	0	'textfont'	'Inconsolata'	'locked'	False
-[(0, 0)]	[(0, 3)]	[]	[]	[]	0	None	None	'locked'	False
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	None	(0, 0, 0, 4)	'locked'	True
+[(0, 0)]	[(0, 3)]	[]	[]	[]	0	'locked'	False
+[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'locked'	True
 []	[]	[]	[]	[(0, 0)]	0	'pointsize'	24	'textfont'	'Junicode'	'locked'	False
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	None	None	'locked'	False
-[(0, 0)]	[(0, 9)]	[]	[]	[]	0	None	(0, 0, 0, 9)	'locked'	True
+[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'locked'	False
+[(0, 0)]	[(0, 9)]	[]	[]	[]	0	'locked'	True
 []	[]	[]	[]	[(0, 0)]	0	'merge_area'	(0, 0, 0, 9)	'locked'	False
 []	[]	[]	[]	[(0, 1)]	0	'justification'	'justify_right'
 []	[]	[]	[]	[(0, 0)]	0	'justification'	'justify_left'
@@ -465,3 +464,4 @@
 23	0	79.91001977928403
 13	0	79.91001977928403
 [macros]
+from fractions import Fraction
