@@ -67,6 +67,15 @@ class ArgumentParser(ArgumentParser):
     def check_mandatory_dependencies(self):
         """Checks mandatory dependencies and exits if they are not met"""
 
+        # Check Python version
+        major = sys.version_info.major
+        minor = sys.version_info.minor
+        micro = sys.version_info.micro
+        if major < 3 or major == 3 and minor < 7:
+            msg_tpl = "Python has version {}.{}.{} but ≥ 3.7 is required."
+            msg = msg_tpl.format(major, minor, micro)
+            self.dependency_error(msg)
+
         for module in REQUIRED_DEPENDENCIES:
             if not module.is_installed():
                 msg_tpl = "Required module {} not found."
