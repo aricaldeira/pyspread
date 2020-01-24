@@ -1676,11 +1676,11 @@ class GridCellDelegate(QStyledItemDelegate):
         irect_y = y - .5 + max(above_left_cell.borderwidth_bottom,
                                *[c.borderwidth_bottom for c in above_cells],
                                above_right_cell.borderwidth_bottom) / 2
-        irect_width = (x + width - 1 - irect_x
+        irect_width = (x + width - irect_x
                        - max(above_cells[-1].borderwidth_right,
                              cell.borderwidth_right,
                              below_cells[-1].borderwidth_right) / 2)
-        irect_height = (y + height - 1 - irect_y
+        irect_height = (y + height - irect_y
                         - max(left_cells[-1].borderwidth_bottom,
                               cell.borderwidth_bottom,
                               right_cells[-1].borderwidth_bottom) / 2)
