@@ -164,7 +164,12 @@ class SpellTextEdit(QPlainTextEdit):
         super().__init__()
 
         # If a <Tab> is present then it should be of width 4
-        _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
+        try:
+            _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
+        except AttributeError:
+            # PyQt5 version < 5.11
+            _distance = QFontMetricsF(self.font()).boundingRect(" ").width()
+
         self.setTabStopDistance(_distance * self.spaces_per_tab)
 
         # Start with a default dictionary based on the current locale.
