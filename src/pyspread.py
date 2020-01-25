@@ -43,7 +43,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
+from PyQt5.QtGui import QColor, QFont, QPalette, QPainter, QBrush, QPen
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 from src import VERSION, APP_NAME
@@ -309,37 +309,42 @@ class MainWindow(QMainWindow):
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
 
-        screen_dpi = self.application.primaryScreen().physicalDotsPerInch()
-        print_zoom = printer.resolution() / screen_dpi
+        page_rect = printer.pageRect()
 
-        with self.workflows.print_zoom(zoom=print_zoom):
-            painter.setViewport(self.grid.rect())
-            painter.setWindow(self.grid.rect())
+        rows = list(self.workflows.get_paint_rows(self.print_area))
+        columns = list(self.workflows.get_paint_columns(self.print_area))
+        if not rows or not columns:
+            return
 
-            rows = self.workflows.get_paint_rows(self.print_area)
-            columns = self.workflows.get_paint_columns(self.print_area)
-            total_height = self.workflows.get_total_height(self.print_area)
-            total_width = self.workflows.get_total_width(self.print_area)
+        zeroidx = self.grid.model.index(0, 0)
+        zeroidx_rect = self.grid.visualRect(zeroidx)
 
-            area = printer.paperRect()
-            left, top, right, bottom = \
-                printer.getPageMargins(QPrinter.DevicePixel)
+        minidx = self.grid.model.index(min(rows), min(columns))
+        minidx_rect = self.grid.visualRect(minidx)
 
-            clip_rect = QRectF(area.x()+left, area.y()+top,
-                               area.width()-left-right,
-                               area.height()-top-bottom)
-            painter.setClipRect(clip_rect)
+        maxidx = self.grid.model.index(max(rows), max(columns))
+        maxidx_rect = self.grid.visualRect(maxidx)
 
-            xscale = (area.width() - 2*left - 2*right) / max(1, total_width)
-            yscale = (area.height() - 2*top - 2*bottom) / max(1, total_height)
+        grid_width = maxidx_rect.x() + maxidx_rect.width() - minidx_rect.x()
+        grid_height = maxidx_rect.y() + maxidx_rect.height() - minidx_rect.y()
+        grid_rect = QRectF(minidx_rect.x() - zeroidx_rect.x(),
+                           minidx_rect.y() - zeroidx_rect.y(),
+                           grid_width, grid_height)
 
-            scale = min(xscale, yscale)
+        print_zoom = min(page_rect.width() / grid_width,
+                         page_rect.height() / grid_height)
 
-            with self.grid.delegate.painter_save(painter):
-                painter.scale(scale, scale)
-                painter.translate((-area.x() + left) / scale,
-                                  (-area.y() + top) / scale)
-                self.workflows.paint(painter, option, clip_rect, rows, columns)
+        with self.grid.delegate.painter_save(painter):
+            with self.workflows.print_zoom(print_zoom):
+                # Translate so that the grid starts at upper left paper edge
+                painter.translate(zeroidx_rect.x() - minidx_rect.x(),
+                                  zeroidx_rect.y() - minidx_rect.y())
+
+                # Draw grid cells
+                self.workflows.paint(painter, option, grid_rect, rows, columns)
+
+                painter.setPen(QPen(QBrush(Qt.gray), 2))
+                painter.drawRect(grid_rect)
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""

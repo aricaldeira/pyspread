@@ -40,7 +40,7 @@ from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
+from PyQt5.QtGui import QTextDocument, QImage, QPainter
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 from PyQt5.QtWidgets import QInputDialog, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgGenerator
@@ -642,6 +642,10 @@ class Workflows:
         top, _, bottom, _ = area
         top = max(0, min(rows - 1, top))
         bottom = max(0, min(rows - 1, bottom))
+        if top == -1:
+            top = 0
+        if bottom == -1:
+            bottom = self.main_window.grid.model.shape[0]
 
         return range(top, bottom + 1)
 
@@ -652,6 +656,10 @@ class Workflows:
         _, left, _, right = area
         left = max(0, min(columns - 1, left))
         right = max(0, min(columns - 1, right))
+        if left == -1:
+            left = 0
+        if right == -1:
+            right = self.main_window.grid.model.shape[1]
 
         return range(left, right + 1)
 
@@ -710,9 +718,6 @@ class Workflows:
                     option.widget = grid
 
                     grid.itemDelegate().paint(painter, option, idx)
-
-        painter.setPen(QPen(QBrush(Qt.black), 10))
-        painter.drawRect(QRectF(x_offset, y_offset, max_width, max_height))
 
     @handle_changed_since_save
     def file_quit(self):
