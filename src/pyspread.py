@@ -331,11 +331,11 @@ class MainWindow(QMainWindow):
                            minidx_rect.y() - zeroidx_rect.y(),
                            grid_width, grid_height)
 
-        print_zoom = min(page_rect.width() / grid_width,
-                         page_rect.height() / grid_height)
+        self.settings.print_zoom = min(page_rect.width() / grid_width,
+                                       page_rect.height() / grid_height)
 
         with self.grid.delegate.painter_save(painter):
-            painter.scale(print_zoom, print_zoom)
+            painter.scale(self.settings.print_zoom, self.settings.print_zoom)
 
             # Translate so that the grid starts at upper left paper edge
             painter.translate(zeroidx_rect.x() - minidx_rect.x(),
@@ -346,6 +346,8 @@ class MainWindow(QMainWindow):
 
             painter.setPen(QPen(QBrush(Qt.gray), 2))
             painter.drawRect(grid_rect)
+
+        self.settings.print_zoom = None
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""

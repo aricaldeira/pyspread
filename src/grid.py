@@ -1845,6 +1845,10 @@ class GridCellDelegate(QStyledItemDelegate):
             else:
                 img_width = rect_height * svg_aspect
                 img_height = rect_height
+
+            if self.main_window.settings.print_zoom is not None:
+                img_width *= self.main_window.settings.print_zoom
+                img_height *= self.main_window.settings.print_zoom
             qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
             qimage.from_svg_bytes(svg_bytes)
 
