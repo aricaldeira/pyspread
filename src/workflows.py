@@ -155,7 +155,7 @@ class Workflows:
 
         # Get the current filepath
         filepath = self.main_window.settings.last_file_input_path
-        if filepath is None:
+        if filepath == Path.home():
             title = "pyspread"
         else:
             title = "{filename} - pyspread".format(filename=filepath.name)
@@ -189,7 +189,7 @@ class Workflows:
         self.main_window.grid.model.reset()
 
         # Delete old filepath
-        self.main_window.settings.last_file_input_path = None
+        self.main_window.settings.last_file_input_path = Path.home()
 
         # Set new shape
         self.main_window.grid.model.shape = shape
