@@ -335,16 +335,17 @@ class MainWindow(QMainWindow):
                          page_rect.height() / grid_height)
 
         with self.grid.delegate.painter_save(painter):
-            with self.workflows.print_zoom(print_zoom):
-                # Translate so that the grid starts at upper left paper edge
-                painter.translate(zeroidx_rect.x() - minidx_rect.x(),
-                                  zeroidx_rect.y() - minidx_rect.y())
+            painter.scale(print_zoom, print_zoom)
 
-                # Draw grid cells
-                self.workflows.paint(painter, option, grid_rect, rows, columns)
+            # Translate so that the grid starts at upper left paper edge
+            painter.translate(zeroidx_rect.x() - minidx_rect.x(),
+                              zeroidx_rect.y() - minidx_rect.y())
 
-                painter.setPen(QPen(QBrush(Qt.gray), 2))
-                painter.drawRect(grid_rect)
+            # Draw grid cells
+            self.workflows.paint(painter, option, grid_rect, rows, columns)
+
+            painter.setPen(QPen(QBrush(Qt.gray), 2))
+            painter.drawRect(grid_rect)
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
