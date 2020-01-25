@@ -42,7 +42,7 @@
  * (:class:`HelpDialogBase`)
  * :class:`TutorialDialog`
  * :class:`ManualDialog`
-
+ * :class:`PrintPreviewDialog`
 """
 
 import csv
@@ -51,15 +51,17 @@ from functools import partial
 import io
 
 from PyQt5.QtCore import Qt, QPoint, QUrl
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
 from PyQt5.QtWidgets import QCheckBox, QGridLayout, QLayout, QHBoxLayout
 from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
-from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit
+from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit, QToolBar
 from PyQt5.QtGui import QIntValidator, QImageWriter
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtPrintSupport import QPrintPreviewDialog, QPrintPreviewWidget
 
 try:
     from matplotlib.figure import Figure
@@ -1380,3 +1382,28 @@ class ManualDialog(HelpDialogBase):
     title = "pyspread manual"
     path = MANUAL_PATH
     baseurl = str(path.parent) + '/'
+
+
+class PrintPreviewDialog(QPrintPreviewDialog):
+    """Adds Mouse wheel functionality"""
+
+    def __init__(self, printer):
+        super().__init__(printer)
+        self.toolbar = self.findChildren(QToolBar)[0]
+        self.actions = self.toolbar.actions()
+        self.widget = self.findChildren(QPrintPreviewWidget)[0]
+        self.combo_zoom = self.toolbar.widgetForAction(self.actions[3])
+
+    def wheelEvent(self, event):
+        """Overrides mouse wheel event handler"""
+
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ControlModifier:
+            if event.angleDelta().y() > 0:
+                zoom_factor = self.widget.zoomFactor() / 1.1
+            else:
+                zoom_factor = self.widget.zoomFactor() * 1.1
+            self.widget.setZoomFactor(zoom_factor)
+            self.combo_zoom.setCurrentText(str(round(zoom_factor*100, 1))+"%")
+        else:
+            super().wheelEvent(event)

@@ -44,7 +44,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont, QPalette, QPainter, QBrush, QPen
-from PyQt5.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 from src import VERSION, APP_NAME
 from src.cli import ArgumentParser
@@ -58,7 +58,7 @@ from src.actions import MainWindowActions
 from src.workflows import Workflows
 from src.widgets import Widgets
 from src.dialogs import ApproveWarningDialog, PreferencesDialog, ManualDialog
-from src.dialogs import TutorialDialog, PrintAreaDialog
+from src.dialogs import TutorialDialog, PrintAreaDialog, PrintPreviewDialog
 from src.installer import DependenciesDialog
 from src.panels import MacroPanel
 from src.lib.hashing import genkey
@@ -299,7 +299,8 @@ class MainWindow(QMainWindow):
             return
 
         # Create print preview dialog
-        dialog = QPrintPreviewDialog(printer)
+        dialog = PrintPreviewDialog(printer)
+
         dialog.paintRequested.connect(self.on_paint_request)
         dialog.exec_()
 
@@ -308,6 +309,8 @@ class MainWindow(QMainWindow):
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
+        painter.setRenderHints(QPainter.SmoothPixmapTransform
+                               | QPainter.SmoothPixmapTransform)
 
         page_rect = printer.pageRect()
 
