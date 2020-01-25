@@ -314,6 +314,8 @@ class Workflows:
         # Add to file history
         self.main_window.settings.add_to_file_history(filepath.as_posix())
 
+        return filepath
+
     @handle_changed_since_save
     def file_open(self):
         """File open workflow"""

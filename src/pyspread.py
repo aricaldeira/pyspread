@@ -124,8 +124,11 @@ class MainWindow(QMainWindow):
 
         # Open initial file if provided by the command line
         if args.file is not None:
-            self.workflows.filepath_open(args.file)
-            self.workflows.update_main_window_title()
+            if self.workflows.filepath_open(args.file):
+                self.workflows.update_main_window_title()
+            else:
+                msg = "File '{}' could not be opened.".format(args.file)
+                self.statusBar().showMessage(msg)
 
     def _init_window(self):
         """Initialize main window components"""
