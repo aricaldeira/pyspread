@@ -43,7 +43,10 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QTextDocument, QImage, QPainter
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 from PyQt5.QtWidgets import QInputDialog, QStyleOptionViewItem
-from PyQt5.QtSvg import QSvgGenerator
+try:
+    from PyQt5.QtSvg import QSvgGenerator
+except ModuleNotFoundError:
+    QSvgGenerator = None
 
 try:
     import matplotlib.figure as matplotlib_figure

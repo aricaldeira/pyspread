@@ -86,6 +86,11 @@ class ArgumentParser(ArgumentParser):
                 msg = msg_tpl.format(module.name, module.version,
                                      module.required_version)
                 self.dependency_error(msg)
+        try:
+            import PyQt5.QtSvg
+        except ModuleNotFoundError:
+            msg = "Required module PyQt5.QtSvg not found."
+            self.dependency_error(msg)
 
     def dependency_error(self, message):
         """Print dependency error message and quit"""

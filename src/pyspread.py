@@ -42,7 +42,6 @@ import sys
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
-from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont, QPalette, QPainter, QBrush, QPen
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
