@@ -92,6 +92,12 @@ class ArgumentParser(ArgumentParser):
             msg = "Required module PyQt5.QtSvg not found."
             self.dependency_error(msg)
 
+        try:
+            import PyQt5.QtWebEngineWidgets
+        except ModuleNotFoundError:
+            msg = "Required module PyQt5.QtWebEngineWidgets not found."
+            self.dependency_error(msg)
+
     def dependency_error(self, message):
         """Print dependency error message and quit"""
 

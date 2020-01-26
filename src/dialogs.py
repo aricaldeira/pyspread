@@ -60,7 +60,10 @@ from PyQt5.QtWidgets import QPushButton, QWidget, QComboBox, QTableView
 from PyQt5.QtWidgets import QAbstractItemView, QPlainTextEdit, QToolBar
 from PyQt5.QtGui import QIntValidator, QImageWriter
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEngineView
+except ModuleNotFoundError:
+    QWebEngineView = None
 from PyQt5.QtPrintSupport import QPrintPreviewDialog, QPrintPreviewWidget
 
 try:
