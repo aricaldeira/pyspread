@@ -2,15 +2,20 @@
 
 from dataclasses import dataclass
 import os
-from packaging import version
-from pkg_resources import get_distribution, DistributionNotFound
 
+from pkg_resources import get_distribution, DistributionNotFound
 from PyQt5.QtCore import QProcess, QSize
 from PyQt5.QtGui import QColor, QTextCursor
 from PyQt5.QtWidgets import QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout
 from PyQt5.QtWidgets import QTreeWidgetItem, QToolButton, QGroupBox
 from PyQt5.QtWidgets import QTreeWidget, QCheckBox, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QPlainTextEdit
+
+try:
+    from packaging import version
+except ImportError:
+    # We fall back to local library to emove the dependency
+    from src.lib.packaging import version
 
 from src.lib.attrdict import AttrDict
 
@@ -117,7 +122,7 @@ class DependenciesDialog(QDialog):
         for idx, module in enumerate(OPTIONAL_DEPENDENCIES):
             item = QTreeWidgetItem()
             item.setText(self.column.name, module.name)
-            version = module.version if module.version else "not installed"
+            version = module.version if module.version else "Not installed"
             item.setText(self.column.version, str(version))
             item.setText(self.column.required_version,
                          str(module.required_version))

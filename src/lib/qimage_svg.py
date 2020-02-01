@@ -29,7 +29,7 @@ from io import StringIO
 from PyQt5.QtGui import QImage, QPainter
 try:
     from PyQt5.QtSvg import QSvgRenderer
-except ModuleNotFoundError:
+except ImportError:
     QSvgRenderer = None
 
 try:

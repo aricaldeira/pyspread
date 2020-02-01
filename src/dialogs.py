@@ -62,7 +62,7 @@ from PyQt5.QtGui import QIntValidator, QImageWriter
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 try:
     from PyQt5.QtWebEngineWidgets import QWebEngineView
-except ModuleNotFoundError:
+except ImportError:
     QWebEngineView = None
 from PyQt5.QtPrintSupport import QPrintPreviewDialog, QPrintPreviewWidget
 
@@ -776,7 +776,7 @@ class ChartDialog(QDialog):
 
     def __init__(self, parent):
         if Figure is None:
-            raise ModuleNotFoundError
+            raise ImportError
 
         super().__init__(parent)
 

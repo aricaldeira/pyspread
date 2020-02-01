@@ -44,7 +44,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack, QStyleOptionViewItem
 try:
     from PyQt5.QtSvg import QSvgWidget
-except ModuleNotFoundError:
+except ImportError:
     QSvgWidget = None
 from PyQt5.QtGui import QColor, QFont, QPalette, QPainter, QBrush, QPen
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog

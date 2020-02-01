@@ -88,13 +88,13 @@ class ArgumentParser(ArgumentParser):
                 self.dependency_error(msg)
         try:
             import PyQt5.QtSvg
-        except ModuleNotFoundError:
+        except ImportError:
             msg = "Required module PyQt5.QtSvg not found."
             self.dependency_error(msg)
 
         try:
             import PyQt5.QtWebEngineWidgets
-        except ModuleNotFoundError:
+        except ImportError:
             msg = "Required module PyQt5.QtWebEngineWidgets not found."
             self.dependency_error(msg)
 

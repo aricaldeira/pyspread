@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 from PyQt5.QtWidgets import QInputDialog, QStyleOptionViewItem
 try:
     from PyQt5.QtSvg import QSvgGenerator
-except ModuleNotFoundError:
+except ImportError:
     QSvgGenerator = None
 
 try:
