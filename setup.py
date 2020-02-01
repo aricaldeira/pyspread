@@ -64,7 +64,7 @@ setup(
         "Documentation": "https://pyspread.gitlab.io/docs.html",
         "Source Code": "https://gitlab.com/pyspread/pyspread",
     },
-    requires=['numpy (>=1.1)', 'PyQt5 (>=5.11.3)'],
+    requires=['numpy (>=1.1)', 'PyQt5 (>=5.10)'],
     extras_require={
         'matplotlib': ['matplotlib (>=1.1.1)'],
         'pyenchant': ['pyenchant (>=1.1)'],
