@@ -88,7 +88,9 @@
 
 
 """
+
 import sys
+from warnings import warn
 
 try:
     import enchant
@@ -175,7 +177,12 @@ class SpellTextEdit(QPlainTextEdit):
         # Start with a default dictionary based on the current locale.
         self.highlighter = PythonEnchantHighlighter(self.document())
         if enchant is not None:
-            self.highlighter.setDict(enchant.Dict())
+            try:
+                self.highlighter.setDict(enchant.Dict())
+            except Exception as err:
+                # There are some weird enchant issues on different platforms.
+                # One of those has occured.
+                warn(str(err), ImportWarning)
 
     def keyPressEvent(self, event):
         """Overide to change tab into spaces_per_tab spaces"""
