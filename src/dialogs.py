@@ -46,7 +46,11 @@
 """
 
 import csv
-from dataclasses import dataclass
+try:
+    from dataclasses import dataclass
+except ImportError:
+    # Python 3.6 compatibility
+    from src.lib.dataclasses import dataclass
 from functools import partial
 import io
 

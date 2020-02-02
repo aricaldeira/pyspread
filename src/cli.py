@@ -71,8 +71,8 @@ class ArgumentParser(ArgumentParser):
         major = sys.version_info.major
         minor = sys.version_info.minor
         micro = sys.version_info.micro
-        if major < 3 or major == 3 and minor < 7:
-            msg_tpl = "Python has version {}.{}.{} but ≥ 3.7 is required."
+        if major < 3 or major == 3 and minor < 6:
+            msg_tpl = "Python has version {}.{}.{} but ≥ 3.6 is required."
             msg = msg_tpl.format(major, minor, micro)
             self.dependency_error(msg)
 

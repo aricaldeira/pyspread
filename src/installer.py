@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
+try:
+    from dataclasses import dataclass
+except ImportError:
+    # Python 3.6 compatibility
+    from src.lib.dataclasses import dataclass
 import os
 
 from pkg_resources import get_distribution, DistributionNotFound
