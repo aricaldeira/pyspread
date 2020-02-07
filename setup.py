@@ -24,7 +24,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 
-from src import VERSION
+from pyspread import VERSION
 
 
 class PyTest(TestCommand):
