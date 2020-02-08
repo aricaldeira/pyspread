@@ -56,14 +56,7 @@ try:
 except ImportError:
     matplotlib = None
 
-from commands \
-    import (CommandSetCellCode, CommandSetCellFormat, CommandFreezeCell,
-            CommandThawCell, CommandInsertRows, CommandInsertColumns,
-            CommandDeleteRows, CommandInsertTable, CommandDeleteTable,
-            CommandDeleteColumns, CommandSetCellMerge, CommandSetCellRenderer,
-            CommandSetRowsHeight, CommandSetColumnsWidth,
-            CommandSetCellTextAlignment, CommandMakeButtonCell,
-            CommandRemoveButtonCell)
+import commands
 from model.model import CodeArray
 from lib.selection import Selection
 from lib.string_helpers import quote, wrap_text, get_svg_size
@@ -403,8 +396,8 @@ class Grid(QTableView):
             rows = [row]
 
         description = "Resize rows {} to {}".format(rows, new_height)
-        command = CommandSetRowsHeight(self, rows, self.table, old_height,
-                                       new_height, description)
+        command = commands.SetRowsHeight(self, rows, self.table, old_height,
+                                         new_height, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
@@ -420,8 +413,8 @@ class Grid(QTableView):
             columns = [column]
 
         description = "Resize columns {} to {}".format(columns, new_width)
-        command = CommandSetColumnsWidth(self, columns, self.table, old_width,
-                                         new_width, description)
+        command = commands.SetColumnsWidth(self, columns, self.table,
+                                           old_width, new_width, description)
         self.main_window.undo_stack.push(command)
 
     def on_zoom_in(self):
@@ -506,9 +499,9 @@ class Grid(QTableView):
             attr = self.selection, self.table, attr_dict
             idx_string = self._selected_idx_to_str(self.selected_idx)
             description = "Set font {} for indices {}".format(font, idx_string)
-            command = CommandSetCellFormat(attr, self.model,
-                                           self.currentIndex(),
-                                           self.selected_idx, description)
+            command = commands.SetCellFormat(attr, self.model,
+                                             self.currentIndex(),
+                                             self.selected_idx, description)
             self.main_window.undo_stack.push(command)
 
     def on_font(self):
@@ -518,8 +511,8 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"textfont": font}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font {} for indices {}".format(font, idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_font_size(self):
@@ -529,8 +522,8 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"pointsize": size}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font size {} for cells {}".format(size, idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_bold_pressed(self, toggled):
@@ -541,8 +534,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font weight {} for cells {}".format(fontweight,
                                                                idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_italics_pressed(self, toggled):
@@ -553,8 +546,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font style {} for cells {}".format(fontstyle,
                                                               idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_underline_pressed(self, toggled):
@@ -564,8 +557,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font underline {} for cells {}".format(toggled,
                                                                   idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_strikethrough_pressed(self, toggled):
@@ -575,8 +568,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set font strikethrough {} for cells {}"
         description = description_tpl.format(toggled, idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_text_renderer_pressed(self, toggled):
@@ -593,9 +586,9 @@ class Grid(QTableView):
         if len(document.toRawText()) > highlighter_limit:
             document = None
 
-        command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         document, self.currentIndex(),
-                                         self.selected_idx, description)
+        command = commands.SetCellRenderer(attr, self.model, entry_line,
+                                           document, self.currentIndex(),
+                                           self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_image_renderer_pressed(self, toggled):
@@ -605,9 +598,9 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set image renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
-        command = CommandSetCellRenderer(attr, self.model, entry_line, None,
-                                         self.currentIndex(),
-                                         self.selected_idx, description)
+        command = commands.SetCellRenderer(attr, self.model, entry_line, None,
+                                           self.currentIndex(),
+                                           self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_markup_renderer_pressed(self, toggled):
@@ -624,9 +617,9 @@ class Grid(QTableView):
         if len(document.toRawText()) > highlighter_limit:
             document = None
 
-        command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         document, self.currentIndex(),
-                                         self.selected_idx, description)
+        command = commands.SetCellRenderer(attr, self.model, entry_line,
+                                           document, self.currentIndex(),
+                                           self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_matplotlib_renderer_pressed(self, toggled):
@@ -643,9 +636,9 @@ class Grid(QTableView):
         if len(document.toRawText()) > highlighter_limit:
             document = None
 
-        command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         document, self.currentIndex(),
-                                         self.selected_idx, description)
+        command = commands.SetCellRenderer(attr, self.model, entry_line,
+                                           document, self.currentIndex(),
+                                           self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_lock_pressed(self, toggled):
@@ -655,8 +648,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set locked state to {} for cells {}".format(toggled,
                                                                    idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_rotate_0(self, toggled):
@@ -665,9 +658,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"angle": 0.0}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 0° for cells {}".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_rotate_90(self, toggled):
@@ -677,9 +670,9 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 90° for cells {}".format(
                 idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_rotate_180(self, toggled):
@@ -689,9 +682,9 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 180° for cells {}".format(
                 idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_rotate_270(self, toggled):
@@ -701,9 +694,9 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 270° for cells {}".format(
                 idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_justify_left(self, toggled):
@@ -712,9 +705,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"justification": "justify_left"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} left".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_justify_fill(self, toggled):
@@ -723,9 +716,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"justification": "justify_fill"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} filled".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commandsSetCellTextAlignment(attr, self.model,
+                                               self.currentIndex(),
+                                               self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_justify_center(self, toggled):
@@ -734,9 +727,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"justification": "justify_center"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} centered".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_justify_right(self, toggled):
@@ -745,9 +738,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"justification": "justify_right"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} right".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_align_top(self, toggled):
@@ -756,9 +749,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"vertical_align": "align_top"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Align cells {} to top".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_align_middle(self, toggled):
@@ -767,9 +760,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"vertical_align": "align_center"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Align cells {} to center".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_align_bottom(self, toggled):
@@ -778,9 +771,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"vertical_align": "align_bottom"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Align cells {} to bottom".format(idx_string)
-        command = CommandSetCellTextAlignment(attr, self.model,
-                                              self.currentIndex(),
-                                              self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_border_choice(self, event):
@@ -798,8 +791,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set text color to {} for cells {}"
         description = description_tpl.format(text_color_rgb, idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_line_color(self):
@@ -822,13 +815,13 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set line color {} for cells {}"
         description = description_tpl.format(line_color_rgb, idx_string)
-        command = CommandSetCellFormat(attr_bottom, self.model,
-                                       self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr_bottom, self.model,
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
-        command = CommandSetCellFormat(attr_right, self.model,
-                                       self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr_right, self.model,
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_background_color(self):
@@ -841,8 +834,8 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set cell background color to {} for cells {}"
         description = description_tpl.format(bg_color_rgb, idx_string)
-        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_borderwidth(self):
@@ -864,13 +857,13 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set border width to {} for cells {}"
         description = description_tpl.format(width, idx_string)
-        command = CommandSetCellFormat(attr_bottom, self.model,
-                                       self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr_bottom, self.model,
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
-        command = CommandSetCellFormat(attr_right, self.model,
-                                       self.currentIndex(),
-                                       self.selected_idx, description)
+        command = commands.SetCellFormat(attr_right, self.model,
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def update_cell_spans(self):
@@ -930,11 +923,12 @@ class Grid(QTableView):
         if toggled:
             # We have an non-frozen cell that has to be frozen
             description = "Freeze cell {}".format(self.current)
-            command = CommandFreezeCell(self.model, self.current, description)
+            command = commands.FreezeCell(self.model, self.current,
+                                          description)
         else:
             # We have an frozen cell that has to be unfrozen
             description = "Thaw cell {}".format(self.current)
-            command = CommandThawCell(self.model, self.current, description)
+            command = commands.ThawCell(self.model, self.current, description)
         self.main_window.undo_stack.push(command)
 
     def on_button_cell_pressed(self, toggled):
@@ -955,15 +949,15 @@ class Grid(QTableView):
             if accept and text:
                 description_tpl = "Make cell {} a button cell"
                 description = description_tpl.format(self.current)
-                command = CommandMakeButtonCell(self, text,
-                                                self.currentIndex(),
-                                                description)
+                command = commands.MakeButtonCell(self, text,
+                                                  self.currentIndex(),
+                                                  description)
                 self.main_window.undo_stack.push(command)
         else:
             description_tpl = "Make cell {} a non-button cell"
             description = description_tpl.format(self.current)
-            command = CommandRemoveButtonCell(self, self.currentIndex(),
-                                              description)
+            command = commands.RemoveButtonCell(self, self.currentIndex(),
+                                                description)
             self.main_window.undo_stack.push(command)
 
     def on_merge_pressed(self):
@@ -990,8 +984,8 @@ class Grid(QTableView):
             return
 
         description = description_tpl.format((top, left))
-        command = CommandSetCellMerge(attr, self.model, self.currentIndex(),
-                                      self.selected_idx, description)
+        command = commands.SetCellMerge(attr, self.model, self.currentIndex(),
+                                        self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
         self.current = top, left
@@ -1008,8 +1002,8 @@ class Grid(QTableView):
             code = self.model.code_array((row, column, self.table))
             quoted_code = quote(code)
             index = self.model.index(row, column, QModelIndex())
-            command = CommandSetCellCode(quoted_code, self.model, index,
-                                         description)
+            command = commands.SetCellCode(quoted_code, self.model, index,
+                                           description)
             self.main_window.undo_stack.push(command)
 
     def on_insert_rows(self):
@@ -1025,8 +1019,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Insert {} rows above row {}"
         description = description_tpl.format(count, top)
-        command = CommandInsertRows(self.main_window.grid, self.model,
-                                    index, top, count, description)
+        command = commands.InsertRows(self.main_window.grid, self.model,
+                                      index, top, count, description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_rows(self):
@@ -1042,8 +1036,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Delete {} rows starting from row {}"
         description = description_tpl.format(count, top)
-        command = CommandDeleteRows(self.main_window.grid, self.model,
-                                    index, top, count, description)
+        command = commands.DeleteRows(self.main_window.grid, self.model,
+                                      index, top, count, description)
         self.main_window.undo_stack.push(command)
 
     def on_insert_columns(self):
@@ -1059,8 +1053,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Insert {} columns left of column {}"
         description = description_tpl.format(count, self.column)
-        command = CommandInsertColumns(self.main_window.grid, self.model,
-                                       index, left, count, description)
+        command = commands.InsertColumns(self.main_window.grid, self.model,
+                                         index, left, count, description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_columns(self):
@@ -1076,24 +1070,24 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Delete {} columns starting from column {}"
         description = description_tpl.format(count, self.column)
-        command = CommandDeleteColumns(self.main_window.grid, self.model,
-                                       index, left, count, description)
+        command = commands.DeleteColumns(self.main_window.grid, self.model,
+                                         index, left, count, description)
         self.main_window.undo_stack.push(command)
 
     def on_insert_table(self):
         """Insert table event handler"""
 
         description = "Insert table in front of table {}".format(self.table)
-        command = CommandInsertTable(self.main_window.grid, self.model,
-                                     self.table, description)
+        command = commands.InsertTable(self.main_window.grid, self.model,
+                                       self.table, description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_table(self):
         """Delete table event handler"""
 
         description = "Delete table {}".format(self.table)
-        command = CommandDeleteTable(self.main_window.grid, self.model,
-                                     self.table, description)
+        command = commands.DeleteTable(self.main_window.grid, self.model,
+                                       self.table, description)
         self.main_window.undo_stack.push(command)
 
 
@@ -2037,7 +2031,8 @@ class GridCellDelegate(QStyledItemDelegate):
             code = quote(source.text())
             index = self.grid.currentIndex()
             description = "Quote code for cell {}".format(index)
-            cmd = CommandSetCellCode(code, self.grid.model, index, description)
+            cmd = commands.SetCellCode(code, self.grid.model, index,
+                                       description)
             self.main_window.undo_stack.push(cmd)
         return QWidget.eventFilter(self, source, event)
 
@@ -2051,7 +2046,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         description = "Set code for cell {}".format(model.current(index))
-        command = CommandSetCellCode(editor.text(), model, index, description)
+        command = commands.SetCellCode(editor.text(), model, index,
+                                       description)
         self.main_window.undo_stack.push(command)
 
     def updateEditorGeometry(self, editor, option, index):

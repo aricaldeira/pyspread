@@ -23,14 +23,14 @@ Pyspread undoable commands
 
 **Provides**
 
-* :class:`CommandSetGridSize`
-* :class:`CommandSetCellCode`
-* :class:`CommandSetCellFormat`
-* :class:`CommandSetCellMerge`
-* :class:`CommandSetCellRenderer`
-* :class:`CommandSetCellTextAlignment`
-* :class:`CommandSetColumnWidth`
-* :class:`CommandSetRowHeight`
+* :class:`SetGridSize`
+* :class:`SetCellCode`
+* :class:`SetCellFormat`
+* :class:`SetCellMerge`
+* :class:`SetCellRenderer`
+* :class:`SetCellTextAlignment`
+* :class:`SetColumnWidth`
+* :class:`SetRowHeight`
 
 
 """
@@ -44,7 +44,7 @@ from lib.selection import Selection
 from widgets import CellButton
 
 
-class CommandSetGridSize(QUndoCommand):
+class SetGridSize(QUndoCommand):
     """Sets size of grid"""
 
     def __init__(self, grid, old_shape, new_shape, description):
@@ -94,7 +94,7 @@ class CommandSetGridSize(QUndoCommand):
             model.setData(index, code, Qt.EditRole, raw=True, table=table)
 
 
-class CommandSetCellCode(QUndoCommand):
+class SetCellCode(QUndoCommand):
     """Sets cell code in grid"""
 
     def __init__(self, code, model, index, description):
@@ -130,7 +130,7 @@ class CommandSetCellCode(QUndoCommand):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
-class CommandSetRowsHeight(QUndoCommand):
+class SetRowsHeight(QUndoCommand):
     """Sets rows height in grid"""
 
     def __init__(self, grid, rows, table, old_height, new_height, description):
@@ -174,7 +174,7 @@ class CommandSetRowsHeight(QUndoCommand):
                     self.grid.setRowHeight(row, self.old_height)
 
 
-class CommandSetColumnsWidth(QUndoCommand):
+class SetColumnsWidth(QUndoCommand):
     """Sets column width in grid"""
 
     def __init__(self, grid, columns, table, old_width, new_width,
@@ -219,7 +219,7 @@ class CommandSetColumnsWidth(QUndoCommand):
                     self.grid.setColumnWidth(column, self.old_width)
 
 
-class CommandInsertRows(QUndoCommand):
+class InsertRows(QUndoCommand):
     """Inserts grid rows"""
 
     def __init__(self, grid, model, index, row, count, description):
@@ -242,7 +242,7 @@ class CommandInsertRows(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
-class CommandDeleteRows(QUndoCommand):
+class DeleteRows(QUndoCommand):
     """Deletes grid rows"""
 
     def __init__(self, grid, model, index, row, count, description):
@@ -280,7 +280,7 @@ class CommandDeleteRows(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
-class CommandInsertColumns(QUndoCommand):
+class InsertColumns(QUndoCommand):
     """Inserts grid columns"""
 
     def __init__(self, grid, model, index, column, count, description):
@@ -304,7 +304,7 @@ class CommandInsertColumns(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
-class CommandDeleteColumns(QUndoCommand):
+class DeleteColumns(QUndoCommand):
     """Deletes grid columns"""
 
     def __init__(self, grid, model, index, column, count, description):
@@ -344,7 +344,7 @@ class CommandDeleteColumns(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
-class CommandInsertTable(QUndoCommand):
+class InsertTable(QUndoCommand):
     """Inserts table"""
 
     def __init__(self, grid, model, table, description):
@@ -366,7 +366,7 @@ class CommandInsertTable(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
-class CommandDeleteTable(QUndoCommand):
+class DeleteTable(QUndoCommand):
     """Deletes table"""
 
     def __init__(self, grid, model, table, description):
@@ -407,7 +407,7 @@ class CommandDeleteTable(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
-class CommandSetCellFormat(QUndoCommand):
+class SetCellFormat(QUndoCommand):
     """Sets cell format in grid"""
 
     def __init__(self, attr, model, index, selected_idx, description):
@@ -427,7 +427,7 @@ class CommandSetCellFormat(QUndoCommand):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
-class CommandSetCellMerge(CommandSetCellFormat):
+class SetCellMerge(SetCellFormat):
     """Sets cell merges in grid"""
 
     def redo(self):
@@ -441,7 +441,7 @@ class CommandSetCellMerge(CommandSetCellFormat):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
-class CommandSetCellTextAlignment(CommandSetCellFormat):
+class SetCellTextAlignment(SetCellFormat):
     """Sets cell text alignment in grid"""
 
     def redo(self):
@@ -449,7 +449,7 @@ class CommandSetCellTextAlignment(CommandSetCellFormat):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
-class CommandFreezeCell(QUndoCommand):
+class FreezeCell(QUndoCommand):
     """Freezes cell in grid"""
 
     def __init__(self, model, current, description):
@@ -477,7 +477,7 @@ class CommandFreezeCell(QUndoCommand):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
-class CommandThawCell(CommandFreezeCell):
+class ThawCell(FreezeCell):
     """Thaw (unfreezes) cell in grid"""
 
     def redo(self):
@@ -498,7 +498,7 @@ class CommandThawCell(CommandFreezeCell):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
-class CommandSetCellRenderer(QUndoCommand):
+class SetCellRenderer(QUndoCommand):
     """Sets cell renderer in grid"""
 
     def __init__(self, attr, model, entry_line, highlighter_document,
@@ -524,7 +524,7 @@ class CommandSetCellRenderer(QUndoCommand):
         self.model.dataChanged.emit(self.index, self.index)
 
 
-class CommandMakeButtonCell(QUndoCommand):
+class MakeButtonCell(QUndoCommand):
     """Makes a button cell"""
 
     def __init__(self, grid, text, index, description):
@@ -564,7 +564,7 @@ class CommandMakeButtonCell(QUndoCommand):
         self.grid.model.dataChanged.emit(self.index, self.index)
 
 
-class CommandRemoveButtonCell(QUndoCommand):
+class RemoveButtonCell(QUndoCommand):
     """Removes a button cell"""
 
     def __init__(self, grid, index, description):

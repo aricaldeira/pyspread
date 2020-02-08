@@ -54,8 +54,7 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from commands \
-    import CommandSetCellCode, CommandSetCellFormat, CommandSetGridSize
+import commands
 from dialogs \
     import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
             FileSaveDialog, ImageFileOpenDialog, ChartDialog, CellKeyDialog,
@@ -542,8 +541,8 @@ class Workflows:
                                     code = convert(ele,
                                                    csv_dlg.digest_types[j])
                                 index = model.index(row + i, column + j)
-                                cmd = CommandSetCellCode(code, model, index,
-                                                         description)
+                                cmd = commands.SetCellCode(code, model, index,
+                                                           description)
 
                                 if command is None:
                                     command = cmd
@@ -746,7 +745,7 @@ class Workflows:
             if not grid.model.code_array.cell_attributes[key]['locked']:
                 # Pop item
                 index = model.index(row, column, QModelIndex())
-                command = CommandSetCellCode(None, model, index, description)
+                command = commands.SetCellCode(None, model, index, description)
                 self.main_window.undo_stack.push(command)
 
     def edit_cut(self):
@@ -910,8 +909,8 @@ class Workflows:
                                             QModelIndex())
                         # Preserve line breaks
                         value = value.replace("\u000C", "\n")
-                        cmd = CommandSetCellCode(value, model, index,
-                                                 description)
+                        cmd = commands.SetCellCode(value, model, index,
+                                                   description)
                         if command is None:
                             command = cmd
                         else:
@@ -945,7 +944,8 @@ class Workflows:
                     index = model.index(paste_row, paste_column, QModelIndex())
                     # Preserve line breaks
                     value = value.replace("\u000C", "\n")
-                    cmd = CommandSetCellCode(value, model, index, description)
+                    cmd = commands.SetCellCode(value, model, index,
+                                               description)
                     if command is None:
                         command = cmd
                     else:
@@ -1002,7 +1002,7 @@ class Workflows:
 
         self.main_window.grid.on_image_renderer_pressed(True)
         with self.disable_entryline_updates():
-            command = CommandSetCellCode(code, model, index, description)
+            command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
     def _paste_image(self, image_data, index):
@@ -1042,7 +1042,7 @@ class Workflows:
 
         self.main_window.grid.on_image_renderer_pressed(True)
         with self.disable_entryline_updates():
-            command = CommandSetCellCode(code, model, index, description)
+            command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
     def edit_paste_as(self):
@@ -1097,7 +1097,7 @@ class Workflows:
         elif item == "text/html" and mime_data.hasHtml():
             # HTML content
             html = mime_data.html()
-            command = CommandSetCellCode(html, model, index, description)
+            command = commands.SetCellCode(html, model, index, description)
             self.main_window.undo_stack.push(command)
             grid.on_markup_renderer_pressed(True)
 
@@ -1105,7 +1105,7 @@ class Workflows:
             # Normal code
             code = clipboard.text()
             if code:
-                command = CommandSetCellCode(code, model, index, description)
+                command = commands.SetCellCode(code, model, index, description)
                 self.main_window.undo_stack.push(command)
 
         else:
@@ -1222,7 +1222,7 @@ class Workflows:
             description = description_tpl.format(old=old_code, new=new_code,
                                                  key=next_match)
             index = model.index(*next_match[:2])
-            command = CommandSetCellCode(new_code, model, index, description)
+            command = commands.SetCellCode(new_code, model, index, description)
             self.main_window.undo_stack.push(command)
 
             self.main_window.grid.current = next_match
@@ -1268,7 +1268,7 @@ class Workflows:
         description = "Resize grid to {}".format(shape)
 
         with self.disable_entryline_updates():
-            command = CommandSetGridSize(grid, old_shape, shape, description)
+            command = commands.SetGridSize(grid, old_shape, shape, description)
             self.main_window.undo_stack.push(command)
 
         # Select upper left cell because initial selection behaves strangely
@@ -1375,9 +1375,9 @@ class Workflows:
                 for key in shifted_selection.cell_generator(model.shape):
                     selected_idx.append(model.index(*key))
 
-                command = CommandSetCellFormat(new_cell_attribute, model,
-                                               grid.currentIndex(),
-                                               selected_idx, description)
+                command = commands.SetCellFormat(new_cell_attribute, model,
+                                                 grid.currentIndex(),
+                                                 selected_idx, description)
                 self.main_window.undo_stack.push(command)
 
     # Macro menu
@@ -1431,5 +1431,5 @@ class Workflows:
 
             model = self.main_window.grid.model
             description = "Insert chart into cell {}".format(index)
-            command = CommandSetCellCode(code, model, index, description)
+            command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
