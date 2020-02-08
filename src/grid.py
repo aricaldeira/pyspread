@@ -1813,7 +1813,19 @@ class GridCellDelegate(QStyledItemDelegate):
         if qimage is None:
             qimage = index.data(Qt.DecorationRole)
 
-        rect = option.rect
+        row, column = index.row(), index.column()
+        row_span = self.grid.rowSpan(row, column)
+        column_span = self.grid.columnSpan(row, column)
+        if row_span == column_span == 1:
+            rect = option.rect
+        else:
+            height = 0
+            width = 0
+            for __row in range(row, row + row_span + 1):
+                height += self.grid.rowHeight(__row)
+            for __column in range(column, column + column_span + 1):
+                width += self.grid.columnWidth(__column)
+            rect = QRect(option.rect.x(), option.rect.y(), width, height)
 
         if isinstance(qimage, BasicQImage):
             img_width, img_height = qimage.width(), qimage.height()
@@ -1835,8 +1847,8 @@ class GridCellDelegate(QStyledItemDelegate):
             svg_aspect = svg_width / svg_height
             rect_aspect = rect.width() / rect.height()
 
-            rect_width = rect.width() * self.grid.zoom
-            rect_height = rect.height() * self.grid.zoom
+            rect_width = rect.width() * 2.0
+            rect_height = rect.height() * 2.0
 
             if svg_aspect > rect_aspect:
                 # svg is wider than rect --> shrink height
@@ -1847,8 +1859,8 @@ class GridCellDelegate(QStyledItemDelegate):
                 img_height = rect_height
 
             if self.main_window.settings.print_zoom is not None:
-                img_width *= self.main_window.settings.print_zoom * 4
-                img_height *= self.main_window.settings.print_zoom * 4
+                img_width *= self.main_window.settings.print_zoom
+                img_height *= self.main_window.settings.print_zoom
             qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
             qimage.from_svg_bytes(svg_bytes)
 
