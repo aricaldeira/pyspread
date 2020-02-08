@@ -42,7 +42,6 @@ import py.test as pytest
 import numpy
 
 pyspread_path = abspath(join(dirname(__file__) + "/../.."))
-assert '/home/mn/prog/pyspread/pyspread' == pyspread_path
 sys.path.insert(0, pyspread_path)
 
 from model.model \
