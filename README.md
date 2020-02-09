@@ -29,7 +29,7 @@ apt install pyspread
 
 Get the prerequisites:
 - Python (>=3.6)
-- PyQt5 (>=5.10) (must include PyQtSvg, should include QtWebEngine)
+- PyQt5 (>=5.10) (must include PyQtSvg)
 - numpy (>=1.1)
 
 and if needed the suggested modules:

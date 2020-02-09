@@ -49,6 +49,7 @@ setup(
     extras_require={
         'matplotlib': ['matplotlib (>=1.1.1)'],
         'pyenchant': ['pyenchant (>=1.1)'],
+        'pip': ['pip (>=18)'],
     },
     classifiers=[
         'Development Status :: 3 - Alpha',

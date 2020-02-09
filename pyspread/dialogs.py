@@ -53,7 +53,7 @@ except ImportError:
 from functools import partial
 import io
 
-from PyQt5.QtCore import Qt, QPoint, QUrl
+from PyQt5.QtCore import Qt, QPoint, QSize
 from PyQt5.QtWidgets \
     import (QApplication, QMessageBox, QFileDialog, QDialog, QLineEdit, QLabel,
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
@@ -61,11 +61,9 @@ from PyQt5.QtWidgets \
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
             QPlainTextEdit, QToolBar)
 from PyQt5.QtGui \
-    import QIntValidator, QImageWriter, QStandardItemModel, QStandardItem
-try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView
-except ImportError:
-    QWebEngineView = None
+    import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
+            QTextDocument)
+
 from PyQt5.QtPrintSupport import QPrintPreviewDialog, QPrintPreviewWidget
 
 try:
@@ -77,10 +75,11 @@ except ImportError:
 from actions import ChartDialogActions
 from toolbar import ChartTemplatesToolBar
 from icons import PYSPREAD_PATH
+from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
+from lib.markdown2 import markdown
 from lib.spelltextedit import SpellTextEdit
 from lib.testlib import unit_test_dialog_override
-from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
-from settings import TUTORIAL_PATH, MANUAL_PATH
+from settings import DOC_PATH, TUTORIAL_PATH, MANUAL_PATH
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
@@ -1360,17 +1359,31 @@ class HelpDialogBase(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
 
-        browser = QWebEngineView()
+        editor = QTextBrowser(self)
+        editor.setReadOnly(True)
+        editor.setOpenExternalLinks(True)
 
-        url = QUrl('file://' + str(self.path))
+        document = editor.document()
 
-        browser.load(url)
+        print('file://' + str(DOC_PATH) + "/")
+
+        document.setMetaInformation(QTextDocument.DocumentUrl,
+                                    'file://' + str(DOC_PATH) + "/")
+
+        with open(self.path) as helpfile:
+            help_text = helpfile.read()
+
+        help_html = markdown(help_text, extras=['metadata'])
+        editor.setHtml(help_html)
 
         layout = QHBoxLayout()
-        layout.addWidget(browser)
+        layout.addWidget(editor)
         self.setLayout(layout)
 
         self.setWindowTitle(self.title)
+
+    def sizeHint(self):
+        return QSize(900, 800)
 
 
 class TutorialDialog(HelpDialogBase):
