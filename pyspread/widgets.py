@@ -40,8 +40,9 @@
 """
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex
-from PyQt5.QtWidgets import QToolButton, QColorDialog, QFontComboBox, QComboBox
-from PyQt5.QtWidgets import QSizePolicy, QLineEdit, QPushButton
+from PyQt5.QtWidgets \
+    import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
+            QLineEdit, QPushButton)
 from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
 from actions import Action
