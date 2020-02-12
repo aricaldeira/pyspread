@@ -8,19 +8,17 @@ title: The Workspace
 ## Starting and exiting pyspread
 
 ### On Linux or *nix systems, type
-```bash
-$ pyspread
-```
+
+`$ pyspread`
+
 from the command prompt. If you want to run *pyspread* without installation then cd into the pyspread directory and type
-```bash
-$ pyspread.sh
-```
+
+`$ pyspread.sh`
 
 ### On Windows, type
 
-```bash
-> pyspread.bat
-```
+`> pyspread.bat`
+
 in the command line or launch the file via the Windows Explorer (click or double click)
 
 You can exit pyspread by closing the main window or by selecting `File -> Quit` from the menu.
@@ -38,7 +36,7 @@ The main window comprises the following components (see Figure):
 - Table choice
 - Statusbar
 
-[*pyspread* main window]("../images/screenshot_main_window.png"){class="img-fluid"}
+![pyspread main window](images/screenshot_main_window.png)
 
 ## Title bar
 
@@ -89,7 +87,7 @@ Be careful when selecting all cells in a large table. Operations may take consid
 Macros can be edited from within the macro editor. The editor allows editing a
 text file that is executed when the spreadsheet is opened or when its content is updated.
 
-<img src="../images/screenshot_macros.png" class="img-fluid">
+![Macro editor](images/screenshot_macros.png)
 
 The Apply button executes the macro code. Output (including exceptions) are shown in the lower part of the macro editor.
 
@@ -103,15 +101,4 @@ Tables can be switched using the table choice. On right click, a context menu fo
 
 ## Statusbar
 
-Status and error messages may appear in the Statusbar. Safe mode is indicated with an attention icon ⚠.
-
-## Menus and Actions
-
- - [File actions](file_menu.html)
- - [Edit actions](edit_menu.html)
- - [View actions](view_menu.html)
- - [Format actions](format_menu.html)
- - [Macro actions](macro_menu.html)
- - [Charts](charts.html)
-
-
+Status and error messages may appear in the Statusbar. Safe mode is indicated with an attention icon `⚠`.

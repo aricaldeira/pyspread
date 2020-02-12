@@ -3,12 +3,13 @@ layout: default
 title: Tutorial
 ---
 
-Tutorial
-===============
+pyspread tutorial
+=================
 
 
 
 Run pyspread with
+
 ```bash
 $ pyspread
 ```

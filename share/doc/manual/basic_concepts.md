@@ -5,6 +5,8 @@ parent: ../
 title: Basic Concepts
 ---
 
+# Basic concepts
+
 ## Python code as cell language
 
 *pyspread* executes Python code in each cell. This is similar to typing into the Python shell. Normal cells are only executed when required e.g. for displaying results. **Execution order between cells is not guaranteed to be stable** and may differ for different versions of Python.
@@ -140,4 +142,3 @@ Never approve foreign pys-files unless you have thoroughly checked each cell. Ea
 * Execution of certain operations cannot be interrupted or terminated if slow. An example is creating very large integers. A counter-example is a for loop. Such long running code may block *pyspread*. This may look like pyspread had crashed.
 * Maximum recursion depth is limited. Its value is a trade off between handling complex cell dependencies and time until stopping when cyclic dependencies are present. The former may lead to Exceptions. The latter may slow down *pyspread*.
 * Python2 code from pyspread <=1.1.3 is not automatically converted to Python3 code when opening the pys/pysu file.
-* Some cell content is rendered in too low resolution - especially when printing.

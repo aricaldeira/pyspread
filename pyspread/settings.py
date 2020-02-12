@@ -30,8 +30,8 @@ from __init__ import VERSION, APP_NAME
 PYSPREAD_DIRNAME = abspath(join(dirname(__file__), ".."))
 PYSPREAD_PATH = Path(PYSPREAD_DIRNAME)
 DOC_PATH = PYSPREAD_PATH / "share/doc"
-TUTORIAL_PATH = DOC_PATH / "tutorial.md"
-MANUAL_PATH = DOC_PATH / "manual/overview.md"
+TUTORIAL_PATH = DOC_PATH / "tutorial"
+MANUAL_PATH = DOC_PATH / "manual"
 
 
 class Settings:

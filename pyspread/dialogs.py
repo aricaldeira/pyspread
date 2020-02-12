@@ -1358,7 +1358,7 @@ class TutorialDialog(QDialog):
     """Dialog for browsing the pyspread manual"""
 
     title = "pyspread tutorial"
-    path = TUTORIAL_PATH
+    path = TUTORIAL_PATH / 'tutorial.md'
     baseurl = str(path.parent) + '/'
 
     def __init__(self, parent):
@@ -1388,9 +1388,8 @@ class TutorialDialog(QDialog):
         """Update content of browser"""
 
         document = self.browser.document()
-        print('file://' + str(DOC_PATH) + "/")
         document.setMetaInformation(QTextDocument.DocumentUrl,
-                                    'file://' + str(DOC_PATH) + "/")
+                                    'file://' + str(TUTORIAL_PATH) + "/")
         with open(self.path) as helpfile:
             help_text = helpfile.read()
 
@@ -1403,8 +1402,8 @@ class TutorialDialog(QDialog):
         return QSize(1000, 800)
 
 
-class ManualHeader:
-    """Header strings for manual"""
+class ManualNavigator:
+    """Navigation markdown text generator for manual"""
 
     filename2title = {
         "overview.md": "Overview",
@@ -1415,7 +1414,6 @@ class ManualHeader:
         "view_menu.md": "View",
         "format_menu.md": "Format",
         "macro_menu.md": "Macro",
-        "charts.md": "Charts",
         "advanced_topics.md": "Advanced topics",
     }
 
@@ -1423,8 +1421,7 @@ class ManualHeader:
         self.path = path
 
     def __str__(self):
-        return " | ".join(self.md_title(fn) for fn in self.filename2title) + \
-               "\n \n -------"
+        return " | ".join(self.md_title(fn) for fn in self.filename2title)
 
     def md_title(self, filename):
         """Returns title for filename in markdown.
@@ -1446,8 +1443,8 @@ class ManualDialog(QDialog):
     """Dialog for browsing the pyspread manual"""
 
     title = "pyspread manual"
-    path = MANUAL_PATH
-    baseurl = str(path.parent) + '/'
+    path = MANUAL_PATH / 'overview.md'
+    baseurl = str(MANUAL_PATH) + '/'
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -1478,21 +1475,32 @@ class ManualDialog(QDialog):
         """Update content of browser"""
 
         document = self.browser.document()
-        print('file://' + self.baseurl)
         document.setMetaInformation(QTextDocument.DocumentUrl,
                                     'file://' + self.baseurl + "/")
 
-        header_text = str(ManualHeader(self.path)) + '\n \n'
+        header_text = str(ManualNavigator(self.path)) + '\n \n-----------'
         header_html = markdown(header_text)
+
+        footer_text = '-----------\n' + str(ManualNavigator(self.path))
+        footer_html = markdown(footer_text)
 
         with open(self.path) as helpfile:
             help_text = helpfile.read()
 
-        help_html = header_html + markdown(help_text, extras=['metadata'])
+        help_html = "".join([header_html,
+                             markdown(help_text, extras=['metadata',
+                                                         'code-friendly',
+                                                         'fenced-code-blocks',
+                                                         'tables']),
+                             footer_html])
         self.browser.setHtml(help_html)
 
     def on_update(self, url):
-        self.path = Path(url.path())
+        """Replaces html url with markdown file and adds proper path"""
+
+        self.path = MANUAL_PATH / url.path()
+        if self.path.suffix == ".html":
+            self.path = self.path.with_suffix(".md")
         self.update_content()
 
     # Overrides
