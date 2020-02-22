@@ -52,7 +52,6 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from functools import partial
 import io
-from pathlib import Path
 
 from PyQt5.QtCore import Qt, QPoint, QSize
 from PyQt5.QtWidgets \
@@ -80,7 +79,7 @@ from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
 from lib.markdown2 import markdown
 from lib.spelltextedit import SpellTextEdit
 from lib.testlib import unit_test_dialog_override
-from settings import DOC_PATH, TUTORIAL_PATH, MANUAL_PATH
+from settings import TUTORIAL_PATH, MANUAL_PATH
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
@@ -1355,7 +1354,7 @@ class CsvExportDialog(QDialog):
 
 
 class TutorialDialog(QDialog):
-    """Dialog for browsing the pyspread manual"""
+    """Dialog for browsing the pyspread tutorial"""
 
     title = "pyspread tutorial"
     path = TUTORIAL_PATH / 'tutorial.md'
