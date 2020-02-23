@@ -40,7 +40,7 @@ from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore \
     import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize
-from PyQt5.QtGui import QTextDocument, QImage, QPainter
+from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets \
     import (QApplication, QProgressDialog, QMessageBox, QInputDialog,
             QStyleOptionViewItem)
@@ -629,6 +629,8 @@ class Workflows:
 
             self.paint(painter, option, paint_rect, rows, columns)
 
+            painter.end()
+
     @contextmanager
     def print_zoom(self, zoom=1.0):
         """Decorator for tasks that have to take place in standard zoom"""
@@ -721,6 +723,10 @@ class Workflows:
                     option.widget = grid
 
                     grid.itemDelegate().paint(painter, option, idx)
+
+        # Draw outer boundary rect
+        painter.setPen(QPen(QBrush(Qt.gray), 2))
+        painter.drawRect(paint_rect)
 
     @handle_changed_since_save
     def file_quit(self):

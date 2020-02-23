@@ -46,7 +46,7 @@ try:
     from PyQt5.QtSvg import QSvgWidget
 except ImportError:
     QSvgWidget = None
-from PyQt5.QtGui import QColor, QFont, QPalette, QPainter, QBrush, QPen
+from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 from __init__ import VERSION, APP_NAME
@@ -348,9 +348,6 @@ class MainWindow(QMainWindow):
 
             # Draw grid cells
             self.workflows.paint(painter, option, grid_rect, rows, columns)
-
-            painter.setPen(QPen(QBrush(Qt.gray), 2))
-            painter.drawRect(grid_rect)
 
         self.settings.print_zoom = None
 
