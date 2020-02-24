@@ -67,10 +67,10 @@ class SetGridSize(QUndoCommand):
         code_array = model.code_array
 
         rows, columns, tables = self.new_shape
-        shape_selection = Selection([(0, 0)], [(rows, columns)], [], [], [])
+        shapeselection = Selection([(0, 0)], [(rows-1, columns-1)], [], [], [])
 
         for row, column, table in code_array.keys():
-            if not (table < tables and (row, column) in shape_selection):
+            if not (table < tables and (row, column) in shapeselection):
                 # Code outside grid shape. Delete it and store cell data
                 key = row, column, table
                 self.deleted_cells[key] = code_array.pop(key)
