@@ -1760,15 +1760,16 @@ class GridCellDelegate(QStyledItemDelegate):
 
             """
 
-            inner_aspect = inner_width / inner_height
-            outer_aspect = outer_width / outer_height
+            if inner_width and inner_height and outer_width and outer_height:
+                inner_aspect = inner_width / inner_height
+                outer_aspect = outer_width / outer_height
 
-            if outer_aspect < inner_aspect:
-                inner_width *= outer_width / inner_width
-                inner_height = inner_width / inner_aspect
-            else:
-                inner_height *= outer_height / inner_height
-                inner_width = inner_height * inner_aspect
+                if outer_aspect < inner_aspect:
+                    inner_width *= outer_width / inner_width
+                    inner_height = inner_width / inner_aspect
+                else:
+                    inner_height *= outer_height / inner_height
+                    inner_width = inner_height * inner_aspect
 
             return inner_width, inner_height
 
@@ -1839,8 +1840,14 @@ class GridCellDelegate(QStyledItemDelegate):
                 return
 
             svg_width, svg_height = get_svg_size(svg_bytes)
-            svg_aspect = svg_width / svg_height
-            rect_aspect = rect.width() / rect.height()
+            try:
+                svg_aspect = svg_width / svg_height
+            except ZeroDivisionError:
+                svg_aspect = 1
+            try:
+                rect_aspect = rect.width() / rect.height()
+            except ZeroDivisionError:
+                rect_aspect = 1
 
             rect_width = rect.width() * 2.0
             rect_height = rect.height() * 2.0
@@ -1877,8 +1884,14 @@ class GridCellDelegate(QStyledItemDelegate):
                                    Qt.SmoothTransformation)
 
         with self.painter_save(painter):
-            scale_x = img_rect.width() / img_width
-            scale_y = img_rect.height() / img_height
+            try:
+                scale_x = img_rect.width() / img_width
+            except ZeroDivisionError:
+                scale_x = 1
+            try:
+                scale_y = img_rect.height() / img_height
+            except ZeroDivisionError:
+                scale_y = 1
             painter.translate(img_rect.x(), img_rect.y())
             painter.scale(scale_x, scale_y)
             painter.drawImage(0, 0, qimage)
