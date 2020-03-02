@@ -716,9 +716,9 @@ class Grid(QTableView):
         attr = self.selection, self.table, {"justification": "justify_fill"}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} filled".format(idx_string)
-        command = commandsSetCellTextAlignment(attr, self.model,
-                                               self.currentIndex(),
-                                               self.selected_idx, description)
+        command = commands.SetCellTextAlignment(attr, self.model,
+                                                self.currentIndex(),
+                                                self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_justify_center(self, toggled):
