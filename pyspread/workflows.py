@@ -200,8 +200,11 @@ class Workflows:
         # Select upper left cell because initial selection behaves strange
         self.main_window.grid.reset_selection()
 
-        # Update the cell spans because this is unsupported by the model
-        self.main_window.grid.update_cell_spans()
+        # Update cell spans and zoom because this is unsupported by the model
+        with self.main_window.grid.undo_resizing_row():
+            with self.main_window.grid.undo_resizing_column():
+                self.main_window.grid.update_cell_spans()
+                self.main_window.grid.update_zoom()
 
         # Update index widgets
         self.main_window.grid.update_index_widgets()
@@ -296,8 +299,11 @@ class Workflows:
         shape = code_array.shape
         grid.model.shape = shape
 
-        # Update the cell spans because this is unsupported by the model
-        grid.update_cell_spans()
+        # Update cell spans and zoom because this is unsupported by the model
+        with self.main_window.grid.undo_resizing_row():
+            with self.main_window.grid.undo_resizing_column():
+                self.main_window.grid.update_cell_spans()
+                self.main_window.grid.update_zoom()
 
         # Update index widgets
         grid.update_index_widgets()
