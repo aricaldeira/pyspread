@@ -20,11 +20,13 @@
 
 from contextlib import contextmanager
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QTextOption
+from PyQt5.QtWidgets import QWidget
 
 import commands
 from lib.spelltextedit import SpellTextEdit
+from lib.string_helpers import quote
 
 
 class Entryline(SpellTextEdit):
@@ -40,7 +42,32 @@ class Entryline(SpellTextEdit):
 
         self.setWordWrapMode(QTextOption.WrapAnywhere)
 
+        self.installEventFilter(self)
+
         # self.highlighter.setDocument(self.document())
+
+    # Overrides
+
+    def eventFilter(self, source, event):
+        """Quotes editor content for <Ctrl>+<Enter> and <Ctrl>+<Return>
+
+        Overrides SpellTextEdit default shortcut. Counts as undoable action.
+
+        """
+
+        if event.type() == QEvent.ShortcutOverride \
+           and event.modifiers() == Qt.ControlModifier \
+           and source == self \
+           and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+
+            code = quote(source.toPlainText())
+            index = self.main_window.grid.currentIndex()
+            description = "Quote code for cell {}".format(index)
+            cmd = commands.SetCellCode(code, self.main_window.grid.model,
+                                       index, description)
+            self.main_window.undo_stack.push(cmd)
+
+        return QWidget.eventFilter(self, source, event)
 
     @contextmanager
     def disable_highlighter(self):
