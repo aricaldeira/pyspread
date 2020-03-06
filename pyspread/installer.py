@@ -7,7 +7,10 @@ except ImportError:
     from lib.dataclasses import dataclass
 import os
 
-from pkg_resources import get_distribution, DistributionNotFound
+try:
+    from pkg_resources import get_distribution, DistributionNotFound
+except ImportError:
+    get_distribution = None
 from PyQt5.QtCore import QProcess, QSize
 from PyQt5.QtGui import QColor, QTextCursor
 from PyQt5.QtWidgets import QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout
@@ -34,6 +37,8 @@ class Module:
     def version(self) -> version:
         """Currently installed version number, False if not installed"""
 
+        if get_distribution is None:
+            return
         try:
             return version.parse(get_distribution(self.name).version)
         except DistributionNotFound:
