@@ -41,7 +41,7 @@ try:
     from matplotlib.sankey import Sankey
     from matplotlib import dates
 except ImportError:
-    matplotlib = None
+    Figure = Sankey = dates = None
 
 
 def fig2x(figure, format):
