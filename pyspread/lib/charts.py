@@ -36,9 +36,12 @@ from io import StringIO
 import datetime
 from collections import OrderedDict
 
-from matplotlib.figure import Figure
-from matplotlib.sankey import Sankey
-from matplotlib import dates
+try:
+    from matplotlib.figure import Figure
+    from matplotlib.sankey import Sankey
+    from matplotlib import dates
+except ImportError:
+    matplotlib = None
 
 
 def fig2x(figure, format):
