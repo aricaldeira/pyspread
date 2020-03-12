@@ -1,2 +1,2 @@
 set PYTHONPATH=%PYTHONPATH%;.
-pyspread\pyspread.py
+python pyspread\pyspread.py
