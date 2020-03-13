@@ -7,6 +7,26 @@ title: Advanced Topics
 
 # Advanced Topics
 
+## Conditional formatting
+
+For conditionally formatting the background color of a cell, enter
+```
+def color(value, condition_func, X, Y, Z):
+    if condition_func(value):
+        color = 255, 0, 0
+    else:
+        color = None
+
+    S.cell_attributes[X,Y,Z]["bgcolor"] = color
+
+    return value
+```
+into the macro panel and
+```
+color(5, lambda x: x>4, X, Y, Z)
+```
+into a cell.
+If you change the first parameter in the cell's function from 5 into 1 then the background color changes back to white.
 
 ## Cyclic references
 
