@@ -36,7 +36,9 @@ and if needed the suggested modules:
 - matplotlib (>=1.1.1)
 - pyenchant (>=1.1)
 - pip (>=18)
-- pkg_resources (>=44.0)
+
+Should the package pkg_resources be missing in your setup (e.g. on Ubuntu),
+then you may need to reinstall pip for Python3.
 
 #### On Debian unstable:
 
