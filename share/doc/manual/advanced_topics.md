@@ -5,12 +5,10 @@ parent: ../
 title: Advanced Topics
 ---
 
-# Advanced Topics
-
 ## Conditional formatting
 
 For conditionally formatting the background color of a cell, enter
-```
+```python
 def color(value, condition_func, X, Y, Z):
     if condition_func(value):
         color = 255, 0, 0
