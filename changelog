@@ -39,8 +39,10 @@ Bug fixes:
  * Undo grid resize fixed
  * SVG export fixed
  * Printing resolution improved
- * pyspread.bat fixed
+ * Windows batch file pyspread.bat fixed
  * requirements.txt added
+ * <Ctrl> + <Enter> now quotes content while in entry line 
+ * Missing optional packages breakage fixed
 
 1.99.0.2
 --------
