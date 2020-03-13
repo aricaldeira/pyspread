@@ -24,16 +24,19 @@ from setuptools import setup, find_packages
 
 from pyspread import VERSION
 
+with open("README.md", "r") as readme_file:
+    long_description = readme_file.read()
 
 setup(
     name='pyspread',
     version=VERSION,
     author='Martin Manns',
     author_email='mmanns@gmx.net',
-    description='Python spreadsheet',
-    long_description='Pyspread is a non-traditional spreadsheet application'
+    description='Pyspread is a non-traditional spreadsheet application'
     ' that is based on and written in the programming language Python.',
-    url='https://pyspread.gitlab.io/',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://pyspread.gitlab.io",
     project_urls={
         "Bug Tracker": "https://gitlab.com/pyspread/pyspread/issues",
         "Documentation": "https://pyspread.gitlab.io/docs.html",
@@ -53,7 +56,7 @@ setup(
         'pip': ['pip (>=18)'],
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: X11 Applications :: Qt',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: End Users/Desktop',
@@ -68,6 +71,5 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Topic :: Office/Business :: Financial :: Spreadsheet',
         'Topic :: Scientific/Engineering',
-        'Development Status :: 4 - Beta',
     ],
 )
