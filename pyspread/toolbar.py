@@ -78,7 +78,7 @@ class ToolBarBase(QToolBar):
         button.setText("Add/remove toolbar icons")
         button.setMenu(ToolbarManagerMenu(self))
         button.setIcon(Icon.menu_manager)
-        button.setFixedWidth(button.height()/3)
+        button.setFixedWidth(int(button.height()/3))
         button.setPopupMode(QToolButton.InstantPopup)
 
         return button

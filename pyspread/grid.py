@@ -1106,15 +1106,15 @@ class GridHeaderView(QHeaderView):
         """Overrides sizeHint, which supports zoom"""
 
         unzoomed_size = super().sizeHint()
-        return QSize(unzoomed_size.width() * self.grid.zoom,
-                     unzoomed_size.height() * self.grid.zoom)
+        return QSize(int(unzoomed_size.width() * self.grid.zoom),
+                     int(unzoomed_size.height() * self.grid.zoom))
 
     def sectionSizeHint(self, logicalIndex):
         """Overrides sectionSizeHint, which supports zoom"""
 
         unzoomed_size = super().sectionSizeHint(logicalIndex)
-        return QSize(unzoomed_size.width() * self.grid.zoom,
-                     unzoomed_size.height() * self.grid.zoom)
+        return QSize(int(unzoomed_size.width() * self.grid.zoom),
+                     int(unzoomed_size.height() * self.grid.zoom))
 
     def paintSection(self, painter, rect, logicalIndex):
         """Overrides paintSection, which supports zoom"""
@@ -1149,8 +1149,8 @@ class GridHeaderView(QHeaderView):
 
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
-                self.setDefaultSectionSize(self.default_section_size
-                                           * self.grid.zoom)
+                self.setDefaultSectionSize(int(self.default_section_size
+                                               * self.grid.zoom))
 
                 if self.orientation() == Qt.Horizontal:
                     section_sizes = self.grid.column_widths
