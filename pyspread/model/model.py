@@ -1184,7 +1184,10 @@ class CodeArray(DataArray):
                 return numpy.array([_f for _f in val if _f])
 
         # Set up environment for evaluation
-        from matplotlib.figure import Figure  # Needs to be imported here
+        try:
+            from matplotlib.figure import Figure  # Needs to be imported here
+        except ImportError:
+            Figure = None
         env_dict = {'X': key[0], 'Y': key[1], 'Z': key[2], 'bz2': bz2,
                     'base64': base64, 'nn': nn, 'Figure': Figure,
                     'R': key[0], 'C': key[1], 'T': key[2], 'S': self}
