@@ -98,5 +98,4 @@ class ArgumentParser(ArgumentParser):
     def dependency_error(self, message):
         """Print dependency error message and quit"""
 
-        sys.stderr.write('error: {}\n'.format(message))
-        sys.exit(2)
+        sys.stderr.write('warning: {}\n'.format(message))
