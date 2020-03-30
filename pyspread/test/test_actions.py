@@ -25,61 +25,63 @@ test_actions
 
 Unit tests for actions in pyspread
 
+TO BE REMOVED
+
 """
 
-from contextlib import contextmanager
-from os.path import abspath, dirname, join
-from pathlib import Path
-import sys
-
-import py.test as pytest
-
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
-
-pyspread_path = abspath(join(dirname(__file__) + "/.."))
-sys.path.insert(0, pyspread_path)
-from ..pyspread import MainWindow
-sys.path.pop(0)
-
-
-class TestActions:
-    """Unit tests for  file actions
-
-    The tests launch a hidden application instance and check if the
-    actions behave as they should from a user perspective.
-
-    """
-
-    def setup_method(self):
-        """Sets up a basic pyspread instance"""
-
-        class Args:
-            file = None
-
-        self.app = QApplication([])
-
-        self.main_window = MainWindow(self.app, Args(), unit_test=True)
-
-    def teardown_method(self):
-        self.main_window.close()
-        self.app.quit()
-
-    param_test_file_new = [
-        ((1, 1, 1), (1, 1, 1)),
-        ((0, 0, 0), (1000, 100, 3)),
-        ((9999999999, 0, 0), (1000, 100, 3)),
-        ((1000000, 10000, 10), (1000000, 10000, 10)),
-        ((1000, 100, 3), (1000, 100, 3)),
-    ]
-
-    @pytest.mark.parametrize("shape, res", param_test_file_new)
-    def test_file_new(self, shape, res):
-        """Unit test for File -> New"""
-
-        self.main_window.unit_test_data = shape
-        self.main_window.main_window_actions.new.trigger()
-        assert self.main_window.grid.model.shape == res
+#from contextlib import contextmanager
+#from os.path import abspath, dirname, join
+#from pathlib import Path
+#import sys
+#
+#import py.test as pytest
+#
+#from PyQt5.QtCore import Qt
+#from PyQt5.QtWidgets import QApplication
+#
+#pyspread_path = abspath(join(dirname(__file__) + "/.."))
+#sys.path.insert(0, pyspread_path)
+#from ..pyspread import MainWindow
+#sys.path.pop(0)
+#
+#
+#class TestActions:
+#    """Unit tests for  file actions
+#
+#    The tests launch a hidden application instance and check if the
+#    actions behave as they should from a user perspective.
+#
+#    """
+#
+#    def setup_method(self):
+#        """Sets up a basic pyspread instance"""
+#
+#        class Args:
+#            file = None
+#
+#        self.app = QApplication([])
+#
+#        self.main_window = MainWindow(self.app, Args(), unit_test=True)
+#
+#    def teardown_method(self):
+#        self.main_window.close()
+#        self.app.quit()
+#
+#    param_test_file_new = [
+#        ((1, 1, 1), (1, 1, 1)),
+#        ((0, 0, 0), (1000, 100, 3)),
+#        ((9999999999, 0, 0), (1000, 100, 3)),
+#        ((1000000, 10000, 10), (1000000, 10000, 10)),
+#        ((1000, 100, 3), (1000, 100, 3)),
+#    ]
+#
+#    @pytest.mark.parametrize("shape, res", param_test_file_new)
+#    def test_file_new(self, shape, res):
+#        """Unit test for File -> New"""
+#
+#        self.main_window.unit_test_data = shape
+#        self.main_window.main_window_actions.new.trigger()
+#        assert self.main_window.grid.model.shape == res
 
 #    param_test_file_open = [
 #        ("test.pysu", True, False, "fig"),
