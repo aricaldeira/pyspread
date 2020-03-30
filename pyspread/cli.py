@@ -77,7 +77,10 @@ class ArgumentParser(ArgumentParser):
             self.dependency_error(msg)
 
         for module in REQUIRED_DEPENDENCIES:
-            if not module.is_installed():
+            if module.is_installed() is None:
+                # pkg_resources module is missing, no dependency checks
+                pass
+            elif not module.is_installed():
                 msg_tpl = "Required module {} not found."
                 msg = msg_tpl.format(module.name)
                 self.dependency_error(msg)

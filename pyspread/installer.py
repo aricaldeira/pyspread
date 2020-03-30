@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import QPlainTextEdit
 try:
     from packaging import version
 except ImportError:
-    # We fall back to local library to emove the dependency
+    # We fall back to local library to remove the dependency
     from lib.packaging import version
 
 from lib.attrdict import AttrDict
@@ -47,7 +47,9 @@ class Module:
     def is_installed(self) -> bool:
         """True if the module is installed"""
 
-        return bool(self.version)
+        version = self.version
+
+        return bool(version) if version is not None else None
 
 # Required dependencies
 # ---------------------
@@ -141,6 +143,9 @@ class DependenciesDialog(QDialog):
             if module.is_installed():
                 color = "#DBFEAC"
                 status = "Installed"
+            elif module.is_installed() is None:
+                color = "#666666"
+                status = "pkg_resources is missing"
             else:
                 status = "Not installed"
                 color = "#F3FFBB"
