@@ -17,7 +17,7 @@ test:
   - py.test-3
 
 test_experimental:
-  image: debian_experimental
+  image: debian/experimental
   variables:
     QT_QPA_PLATFORM: "offscreen"
   script:
