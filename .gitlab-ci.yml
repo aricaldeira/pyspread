@@ -8,7 +8,8 @@ stages:
   - test
   - pages
 
-test:
+test_debian_testing:
+  image: debian:testing
   variables:
     QT_QPA_PLATFORM: "offscreen"
   script:
@@ -16,8 +17,17 @@ test:
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3
 
-test_experimental:
-  image: debian:sid
+test_debian_unstable:
+  image: debian:unstable
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
+  script:
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
+  - py.test-3  
+  
+test_debian_experimental:
+  image: debian:experimental
   variables:
     QT_QPA_PLATFORM: "offscreen"
   script:
