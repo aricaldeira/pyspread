@@ -1355,7 +1355,7 @@ class GridTableModel(QAbstractTableModel):
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key]["bgcolor"]
                 if bg_color_rgb is None:
-                    bg_color = self.grid.palette().color(QPalette.Base)
+                    bg_color = QColor(255, 255, 255)
                 else:
                     bg_color = QColor(*bg_color_rgb)
             return bg_color
