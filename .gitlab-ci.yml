@@ -16,6 +16,15 @@ test:
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3
 
+test_experimental:
+  image: debian_experimental
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
+  script:
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
+  - py.test-3  
+  
 pages:
   script:
   - pip3 install -r apidocs/requirements.txt
