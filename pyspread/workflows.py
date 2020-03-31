@@ -329,16 +329,11 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        if self.main_window.unit_test:
-            # We are in a unit test and use the unit test filepath
-            filepath = self.main_window.unit_test_data
-
-        else:
-            # Get filepath from user
-            dial = FileOpenDialog(self.main_window)
-            if not dial.file_path:
-                return  # Cancel pressed
-            filepath = Path(dial.file_path).with_suffix(dial.suffix)
+        # Get filepath from user
+        dial = FileOpenDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+        filepath = Path(dial.file_path).with_suffix(dial.suffix)
 
         self.filepath_open(filepath)
 
@@ -483,16 +478,11 @@ class Workflows:
                                                  for _ in repeat(None)))
                 return sum(buf.count(b'\n') for buf in bufgen)
 
-        if self.main_window.unit_test:
-            # We are in a unit test and use the unit test filepath
-            filepath = self.main_window.unit_test_data
-
-        else:
-            # Get filepath from user
-            dial = CsvFileImportDialog(self.main_window)
-            if not dial.file_path:
-                return  # Cancel pressed
-            filepath = Path(dial.file_path)
+        # Get filepath from user
+        dial = CsvFileImportDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+        filepath = Path(dial.file_path)
 
         csv_dlg = CsvImportDialog(self.main_window, filepath)
 

@@ -1231,7 +1231,7 @@ class GridTableModel(QAbstractTableModel):
     def current(self, index):
         """Tuple of row, column, table of given index"""
 
-        return index.row(), index.column(), self.grid.table
+        return index.row(), index.column(), self.main_window.grid.table
 
     def code(self, index):
         """Code in index"""

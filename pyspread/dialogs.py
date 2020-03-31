@@ -78,7 +78,6 @@ from icons import PYSPREAD_PATH
 from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
 from lib.markdown2 import markdown
 from lib.spelltextedit import SpellTextEdit
-from lib.testlib import unit_test_dialog_override
 from settings import TUTORIAL_PATH, MANUAL_PATH
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
@@ -276,7 +275,6 @@ class GridShapeDialog(DataEntryDialog):
                          validators)
 
     @property
-    @unit_test_dialog_override
     def shape(self):
         """Executes the dialog and returns an int tuple rows, columns, tables
 
