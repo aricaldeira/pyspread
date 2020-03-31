@@ -77,13 +77,13 @@ class MainWindow(QMainWindow):
     """Pyspread main window
 
     :application: QApplication
-    :args: Command line arguments object from argparse
+    :filepath:`str`: filepath for inital file to be opened, defaults to None
 
     """
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application, args):
+    def __init__(self, application, filepath=None):
         super().__init__()
 
         self._loading = True
@@ -108,8 +108,6 @@ class MainWindow(QMainWindow):
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
-        self.show()
-
         self._update_action_toggles()
 
         # Update the GUI so that everything matches the model
@@ -121,11 +119,11 @@ class MainWindow(QMainWindow):
         self._previous_window_state = self.windowState()
 
         # Open initial file if provided by the command line
-        if args.file is not None:
-            if self.workflows.filepath_open(args.file):
+        if filepath is not None:
+            if self.workflows.filepath_open(filepath):
                 self.workflows.update_main_window_title()
             else:
-                msg = "File '{}' could not be opened.".format(args.file)
+                msg = "File '{}' could not be opened.".format(filepath)
                 self.statusBar().showMessage(msg)
 
     def _init_window(self):
@@ -588,7 +586,9 @@ def main():
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
-    main_window = MainWindow(app, args)
+    main_window = MainWindow(app, args.file)
+
+    main_window.show()
 
     app.exec_()
 

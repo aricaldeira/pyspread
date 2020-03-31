@@ -74,7 +74,7 @@ class ArgumentParser(ArgumentParser):
         if major < 3 or major == 3 and minor < 6:
             msg_tpl = "Python has version {}.{}.{} but ≥ 3.6 is required."
             msg = msg_tpl.format(major, minor, micro)
-            self.dependency_error(msg)
+            self.dependency_warning(msg)
 
         for module in REQUIRED_DEPENDENCIES:
             if module.is_installed() is None:
@@ -83,19 +83,19 @@ class ArgumentParser(ArgumentParser):
             elif not module.is_installed():
                 msg_tpl = "Required module {} not found."
                 msg = msg_tpl.format(module.name)
-                self.dependency_error(msg)
+                self.dependency_warning(msg)
             elif module.version < module.required_version:
                 msg_tpl = "Module {} has version {} but {} is required."
                 msg = msg_tpl.format(module.name, module.version,
                                      module.required_version)
-                self.dependency_error(msg)
+                self.dependency_warning(msg)
         try:
             import PyQt5.QtSvg
         except ImportError:
             msg = "Required module PyQt5.QtSvg not found."
-            self.dependency_error(msg)
+            self.dependency_warning(msg)
 
-    def dependency_error(self, message):
-        """Print dependency error message"""
+    def dependency_warning(self, message):
+        """Print warning message"""
 
-        sys.stderr.write('warning: {}\n'.format(message))
+        sys.stdout.write('warning: {}\n'.format(message))
