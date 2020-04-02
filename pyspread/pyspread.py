@@ -83,11 +83,10 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application, filepath=None):
+    def __init__(self, filepath=None):
         super().__init__()
 
         self._loading = True
-        self.application = application
 
         self.settings = Settings(self)
         self.workflows = Workflows(self)
@@ -586,7 +585,7 @@ def main():
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
-    main_window = MainWindow(app, args.file)
+    main_window = MainWindow(args.file)
 
     main_window.show()
 

@@ -64,7 +64,7 @@ from dialogs \
 from interfaces.pys import PysReader, PysWriter
 from lib.hashing import sign, verify
 from lib.selection import Selection
-from lib.typechecks import is_svg
+from lib.typechecks import is_svg, check_shape_validity
 from lib.csv import csv_reader, convert
 
 
@@ -168,21 +168,15 @@ class Workflows:
     def file_new(self):
         """File new workflow"""
 
-        maxshape = self.main_window.settings.maxshape
-
         # Get grid shape from user
         old_shape = self.main_window.grid.model.code_array.shape
         shape = GridShapeDialog(self.main_window, old_shape).shape
-        if shape is None:
-            # Abort changes because the dialog has been canceled
-            return
-        elif any(ax == 0 for ax in shape):
-            msg = "Invalid grid shape {}.".format(shape)
-            self.main_window.statusBar().showMessage(msg)
-            return
-        elif any(ax > axmax for axmax, ax in zip(maxshape, shape)):
-            msg = "Grid shape {} exceeds {}.".format(shape, maxshape)
-            self.main_window.statusBar().showMessage(msg)
+
+        # Check if shape is valid
+        try:
+            check_shape_validity(shape, self.main_window.settings.maxshape)
+        except ValueError as err:
+            self.main_window.statusBar().showMessage('Error: ' + str(err))
             return
 
         # Set current cell to upper left corner
@@ -266,7 +260,7 @@ class Workflows:
             fopen = bz2.open
 
         # Process events before showing the modal progress dialog
-        self.main_window.application.processEvents()
+        QApplication.instance().processEvents()
 
         # Load file into grid
         try:
@@ -278,7 +272,7 @@ class Workflows:
                     try:
                         for line in PysReader(infile, code_array):
                             progress_dialog.setValue(infile.tell())
-                            self.main_window.application.processEvents()
+                            QApplication.instance().processEvents()
                             if progress_dialog.wasCanceled():
                                 grid.model.reset()
                                 self.main_window.safe_mode = False
@@ -391,7 +385,7 @@ class Workflows:
         code_array = self.main_window.grid.model.code_array
 
         # Process events before showing the modal progress dialog
-        self.main_window.application.processEvents()
+        QApplication.instance().processEvents()
 
         # Save grid to temporary file
         with NamedTemporaryFile(delete=False) as tempfile:
@@ -407,7 +401,7 @@ class Workflows:
                             line = bz2.compress(line)
                         tempfile.write(line)
                         progress_dialog.setValue(i)
-                        self.main_window.application.processEvents()
+                        QApplication.instance().processEvents()
                         if progress_dialog.wasCanceled():
                             tempfile.delete = True  # Delete incomplete tmpfile
                             return
@@ -523,7 +517,7 @@ class Workflows:
                                 break
                             if i % 100 == 0:
                                 progress_dialog.setValue(i)
-                                self.main_window.application.processEvents()
+                                QApplication.instance().processEvents()
                                 if progress_dialog.wasCanceled():
                                     return
 
@@ -729,7 +723,7 @@ class Workflows:
         """Program exit workflow"""
 
         self.main_window.settings.save()
-        self.main_window.application.quit()
+        QApplication.instance().quit()
 
     # Edit menu
 
@@ -1247,22 +1241,16 @@ class Workflows:
 
         grid = self.main_window.grid
 
-        maxshape = self.main_window.settings.maxshape
-
         # Get grid shape from user
         old_shape = grid.model.code_array.shape
         title = "Resize grid"
         shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
-        if shape is None:
-            # Abort changes because the dialog has been canceled
-            return
-        elif any(ax == 0 for ax in shape):
-            msg = "Invalid grid shape {}.".format(shape)
-            self.main_window.statusBar().showMessage(msg)
-            return
-        elif any(ax > axmax for axmax, ax in zip(maxshape, shape)):
-            msg = "Grid shape {} exceeds {}.".format(shape, maxshape)
-            self.main_window.statusBar().showMessage(msg)
+
+        # Check if shape is valid
+        try:
+            check_shape_validity(shape, self.main_window.settings.maxshape)
+        except ValueError as err:
+            self.main_window.statusBar().showMessage('Error: ' + str(err))
             return
 
         self.main_window.grid.current = 0, 0, 0

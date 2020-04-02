@@ -27,7 +27,7 @@ Unit tests for string_helpers.py
 
 """
 
-import py.test as pytest
+import pytest
 from ..string_helpers import quote, wrap_text, get_svg_size
 
 

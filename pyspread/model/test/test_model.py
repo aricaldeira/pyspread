@@ -38,7 +38,7 @@ import math  # Yes, it is required
 from os.path import abspath, dirname, join
 import sys
 
-import py.test as pytest
+import pytest
 import numpy
 
 pyspread_path = abspath(join(dirname(__file__) + "/../.."))

@@ -62,7 +62,7 @@ from lib.selection import Selection
 from lib.string_helpers import quote, wrap_text, get_svg_size
 from lib.qimage2ndarray import array2qimage
 from lib.qimage_svg import QImageSvg
-from lib.typechecks import is_svg
+from lib.typechecks import is_svg, check_shape_validity
 from menus \
     import (GridContextMenu, TableChoiceContextMenu,
             HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
@@ -1223,6 +1223,8 @@ class GridTableModel(QAbstractTableModel):
     @shape.setter
     def shape(self, value):
         """Sets the shape in the code array and adjusts the table_choice"""
+
+        check_shape_validity(value, self.main_window.settings.maxshape)
 
         with self.model_reset():
             self.code_array.shape = value

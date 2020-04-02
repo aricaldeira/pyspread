@@ -64,3 +64,37 @@ def is_svg(svg_bytes):
     svg.close()
 
     return tag == '{http://www.w3.org/2000/svg}svg'
+
+
+def check_shape_validity(shape, maxshape):
+    """Checks if shape is valid
+
+    Returns True if yes, raises a ValueError otherwise.
+
+    :param shape: shape for grid to be checked
+    :type shape: tuple
+    :param maxshape: maximum shape for grid
+    :type maxshape: tuple
+
+    """
+
+    try:
+        iter(shape)
+    except TypeError:
+        # not iterable
+        raise ValueError("{} is not iterable".format(shape))
+
+    try:
+        if len(shape) != 3:
+            raise ValueError("len({}) != 3".format(shape))
+    except TypeError:
+        # no length
+        raise ValueError("{} has no length".format(shape))
+
+    if any(ax == 0 for ax in shape):
+        raise ValueError("Elements {} equals 0".format(shape))
+
+    if any(ax > axmax for axmax, ax in zip(maxshape, shape)):
+        raise ValueError("Grid shape {} exceeds {}.".format(shape, maxshape))
+
+    return True
