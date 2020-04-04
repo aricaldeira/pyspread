@@ -44,9 +44,10 @@ import numpy
 pyspread_path = abspath(join(dirname(__file__) + "/../.."))
 sys.path.insert(0, pyspread_path)
 
-from model.model \
-    import KeyValueStore, CellAttributes, DictGrid, DataArray, CodeArray
+from model.model import (KeyValueStore, CellAttributes, DictGrid, DataArray,
+                         CodeArray , DefaultCellAttributeDict)
 
+from lib.attrdict import AttrDict
 from lib.selection import Selection
 sys.path.pop(0)
 
@@ -88,7 +89,7 @@ class TestCellAttributes(object):
 
         selection = Selection([], [], [], [], [(23, 12)])
         table = 0
-        attr = {"angle": 0.2}
+        attr = AttrDict([("angle", 0.2)])
 
         self.cell_attr.append((selection, table, attr))
 
@@ -101,8 +102,8 @@ class TestCellAttributes(object):
         selection_1 = Selection([(2, 2)], [(4, 5)], [55], [55, 66], [(34, 56)])
         selection_2 = Selection([], [], [], [], [(32, 53), (34, 56)])
 
-        self.cell_attr.append((selection_1, 0, {"testattr": 3}))
-        self.cell_attr.append((selection_2, 0, {"testattr": 2}))
+        self.cell_attr.append((selection_1, 0, AttrDict([("testattr", 3)])))
+        self.cell_attr.append((selection_2, 0, AttrDict([("testattr", 2)])))
 
         assert self.cell_attr[32, 53, 0]["testattr"] == 2
         assert self.cell_attr[2, 2, 0]["testattr"] == 3
@@ -114,9 +115,12 @@ class TestCellAttributes(object):
         selection_2 = Selection([(3, 2)], [(9, 9)], [], [], [])
         selection_3 = Selection([(2, 2)], [(9, 9)], [], [], [])
 
-        self.cell_attr.append((selection_1, 0, {"merge_area": (2, 2, 5, 5)}))
-        self.cell_attr.append((selection_2, 0, {"merge_area": (3, 2, 9, 9)}))
-        self.cell_attr.append((selection_3, 1, {"merge_area": (2, 2, 9, 9)}))
+        self.cell_attr.append((selection_1, 0,
+                               AttrDict([("merge_area", (2, 2, 5, 5))])))
+        self.cell_attr.append((selection_2, 0,
+                               AttrDict([("merge_area", (3, 2, 9, 9))])))
+        self.cell_attr.append((selection_3, 1,
+                               AttrDict([("merge_area", (2, 2, 9, 9))])))
 
         # Cell 1. 1, 0 is not merged
         assert self.cell_attr.get_merging_cell((1, 1, 0)) is None
@@ -265,7 +269,7 @@ class TestDataArray(object):
 
         row, col, tab = src
 
-        val = {"angle": 0.2}
+        val = AttrDict([("angle", 0.2)])
 
         attrs = [(Selection([], [], [], [], [(row, col)]), tab, val)]
         self.data_array.cell_attributes[:] = attrs
@@ -275,7 +279,7 @@ class TestDataArray(object):
             for key in val:
                 # Should be at default value
                 cell_attributes = self.data_array.cell_attributes
-                default_ca = cell_attributes.default_cell_attributes[key]
+                default_ca = cell_attributes.DefaultCellAttributeDict()[key]
                 assert cell_attributes[src][key] == default_ca
         else:
             for key in val:
