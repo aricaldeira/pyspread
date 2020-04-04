@@ -103,6 +103,14 @@ class Grid(QTableView):
         self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
         self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
 
+        self.verticalHeader().setDefaultSectionSize(
+                self.main_window.settings.default_row_size)
+        self.horizontalHeader().setDefaultSectionSize(
+                self.main_window.settings.default_column_size)
+
+        self.verticalHeader().setMinimumSectionSize(0.0)
+        self.horizontalHeader().setMinimumSectionSize(0.0)
+
         self.setCornerButtonEnabled(False)
 
         self._zoom = 1.0  # Initial zoom level for the grid
