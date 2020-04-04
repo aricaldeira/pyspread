@@ -259,10 +259,16 @@ class Grid(QTableView):
 
     @zoom.setter
     def zoom(self, zoom):
-        """Updates _zoom property and zoom visualization of the grid"""
+        """Updates _zoom property and zoom visualization of the grid
 
-        self._zoom = zoom
-        self.update_zoom()
+        Does nothing if not between minimum and maximum of settings.zoom_levels
+
+        """
+
+        zoom_levels = self.main_window.settings.zoom_levels
+        if min(zoom_levels) <= zoom <= max(zoom_levels):
+            self._zoom = zoom
+            self.update_zoom()
 
     # Overrides
 

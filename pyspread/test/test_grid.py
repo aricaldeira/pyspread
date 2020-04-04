@@ -63,6 +63,8 @@ class TestGrid:
 
     @pytest.mark.parametrize("row, res", param_test_row)
     def test_row(self, row, res, monkeypatch):
+        """Unit test for row getter and setter"""
+
         monkeypatch.setattr(self.grid, "row", row)
         assert self.grid.row == res
 
@@ -71,6 +73,8 @@ class TestGrid:
 
     @pytest.mark.parametrize("column, res", param_test_column)
     def test_column(self, column, res, monkeypatch):
+        """Unit test for column getter and setter"""
+
         monkeypatch.setattr(self.grid, "column", column)
         assert self.grid.column == res
 
@@ -78,12 +82,16 @@ class TestGrid:
 
     @pytest.mark.parametrize("table, res", param_test_table)
     def test_table(self, table, res, monkeypatch):
+        """Unit test for table getter and setter"""
+
         monkeypatch.setattr(self.grid, "table", table)
         assert self.grid.table == res
 
     @pytest.mark.parametrize("row, row_res", param_test_row)
     @pytest.mark.parametrize("column, column_res", param_test_column)
     def test_current2(self, row, row_res, column, column_res, monkeypatch):
+        """Unit test for current getter and setter with 2 parameters"""
+
         monkeypatch.setattr(self.grid, "current", (row, column))
         assert self.grid.current == (row_res, column_res, 0)
 
@@ -92,8 +100,20 @@ class TestGrid:
     @pytest.mark.parametrize("table, table_res", param_test_table)
     def test_current3(self, row, row_res, column, column_res, table, table_res,
                       monkeypatch):
+        """Unit test for current getter and setter with 3 parameters"""
+
         monkeypatch.setattr(self.grid, "current", (row, column, table))
         assert self.grid.current == (row_res, column_res, table_res)
+
+    param_test_zoom = [(1.0, 1.0), (2.0, 2.0), (8.0, 8.0), (0.0, 1.0),
+                       (100.0, 1.0), (-1.0, 1.0)]
+
+    @pytest.mark.parametrize("zoom, zoom_res", param_test_zoom)
+    def test_zoom(self, zoom, zoom_res, monkeypatch):
+        """Unit test for zoom getter and setter"""
+
+        monkeypatch.setattr(self.grid, "zoom", zoom)
+        assert self.grid.zoom == zoom_res
 
 
 class TestGridHeaderView:
