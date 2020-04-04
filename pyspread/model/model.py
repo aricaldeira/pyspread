@@ -113,7 +113,6 @@ class CellAttributes(list):
         self.reverse = None
         self.sort = None
 
-    default_cell_attributes = DefaultCellAttributeDict()
     # Cache for __getattr__ maps key to tuple of len and attr_dict
 
     _attr_cache = AttrDict()

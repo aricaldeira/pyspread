@@ -58,7 +58,7 @@ except ImportError:
     matplotlib = None
 
 import commands
-from model.model import CodeArray
+from model.model import CodeArray, DefaultCellAttributeDict
 from lib.attrdict import AttrDict
 from lib.selection import Selection
 from lib.string_helpers import quote, wrap_text, get_svg_size
@@ -112,6 +112,12 @@ class Grid(QTableView):
 
         self.verticalHeader().setMinimumSectionSize(0)
         self.horizontalHeader().setMinimumSectionSize(0)
+
+        # Palette adjustment for cases in  which the Base color is not white
+        palette = self.palette()
+        palette.setColor(QPalette.Base,
+                         QColor(*DefaultCellAttributeDict().bgcolor))
+        self.setPalette(palette)
 
         self.setCornerButtonEnabled(False)
 
