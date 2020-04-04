@@ -116,7 +116,7 @@ class CellAttributes(list):
     default_cell_attributes = DefaultCellAttributeDict()
     # Cache for __getattr__ maps key to tuple of len and attr_dict
 
-    _attr_cache = {}
+    _attr_cache = AttrDict()
     _table_cache = {}
 
     def append(self, value):
@@ -155,10 +155,11 @@ class CellAttributes(list):
 
         row, col, tab = key
 
-        result_dict = copy(self.default_cell_attributes)
+        result_dict = DefaultCellAttributeDict()
 
         try:
             for selection, attr_dict in self._table_cache[tab]:
+                assert isinstance(attr_dict, AttrDict)
                 if (row, col) in selection:
                     result_dict.update(attr_dict)
         except KeyError:

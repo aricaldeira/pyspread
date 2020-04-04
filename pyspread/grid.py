@@ -373,7 +373,7 @@ class Grid(QTableView):
         """
 
         cell_attributes = self.model.code_array.cell_attributes
-        merge_area = cell_attributes[self.current]["merge_area"]
+        merge_area = cell_attributes[self.current].merge_area
 
         if merge_area is None:
             merge_sel = Selection([], [], [], [], [])
@@ -469,7 +469,7 @@ class Grid(QTableView):
 
         """
 
-        if self.model.code_array.cell_attributes[key]["frozen"]:
+        if self.model.code_array.cell_attributes[key].frozen:
             code = self.model.code_array(key)
             result = self.model.code_array._eval_cell(key, code)
             self.model.code_array.frozen_cache[repr(key)] = result
@@ -512,12 +512,12 @@ class Grid(QTableView):
         font, ok = QFontDialog().getFont(font, self.main_window)
         if ok:
             attr_dict = AttrDict()
-            attr_dict["textfont"] = font.family()
-            attr_dict["pointsize"] = font.pointSizeF()
-            attr_dict["fontweight"] = font.weight()
-            attr_dict["fontstyle"] = font.style()
-            attr_dict["underline"] = font.underline()
-            attr_dict["strikethrough"] = font.strikeOut()
+            attr_dict.textfont = font.family()
+            attr_dict.pointsize = font.pointSizeF()
+            attr_dict.fontweight = font.weight()
+            attr_dict.fontstyle = font.style()
+            attr_dict.underline = font.underline()
+            attr_dict.strikethrough = font.strikeOut()
             attr = self.selection, self.table, attr_dict
             idx_string = self._selected_idx_to_str(self.selected_idx)
             description = "Set font {} for indices {}".format(font, idx_string)
@@ -912,12 +912,12 @@ class Grid(QTableView):
         for selection, table, attrs in self.model.code_array.cell_attributes:
             if table == self.table:
                 try:
-                    if attrs["merge_area"] is None:
+                    if attrs.merge_area is None:
                         bbox = self.selection.get_grid_bbox(self.model.shape)
                         (top, left), (_, _) = bbox
                         spans[(top, left)] = None
                     else:
-                        top, left, bottom, right = attrs["merge_area"]
+                        top, left, bottom, right = attrs.merge_area
                         spans[(top, left)] = bottom, right
                 except (KeyError, TypeError):
                     pass
@@ -953,7 +953,7 @@ class Grid(QTableView):
         """Freeze cell event handler"""
 
         current_attr = self.model.code_array.cell_attributes[self.current]
-        if current_attr["frozen"] == toggled:
+        if current_attr.frozen == toggled:
             return  # Something is wrong with the GUI update
 
         if toggled:
@@ -971,8 +971,8 @@ class Grid(QTableView):
         """Button cell event handler"""
 
         current_attr = self.model.code_array.cell_attributes[self.current]
-        if not toggled and current_attr["button_cell"] is False \
-           or toggled and current_attr["button_cell"] is not False:
+        if not toggled and current_attr.button_cell is False \
+           or toggled and current_attr.button_cell is not False:
             # Something is not syncronized in the menu
             return
 
@@ -1331,18 +1331,18 @@ class GridTableModel(QAbstractTableModel):
 
         attr = self.code_array.cell_attributes[key]
         font = QFont()
-        if attr["textfont"] is not None:
-            font.setFamily(attr["textfont"])
-        if attr["pointsize"] is not None:
-            font.setPointSizeF(attr["pointsize"])
-        if attr["fontweight"] is not None:
-            font.setWeight(attr["fontweight"])
-        if attr["fontstyle"] is not None:
-            font.setStyle(attr["fontstyle"])
-        if attr["underline"] is not None:
-            font.setUnderline(attr["underline"])
-        if attr["strikethrough"] is not None:
-            font.setStrikeOut(attr["strikethrough"])
+        if attr.textfont is not None:
+            font.setFamily(attr.textfont)
+        if attr.pointsize is not None:
+            font.setPointSizeF(attr.pointsize)
+        if attr.fontweight is not None:
+            font.setWeight(attr.fontweight)
+        if attr.fontstyle is not None:
+            font.setStyle(attr.fontstyle)
+        if attr.underline is not None:
+            font.setUnderline(attr.underline)
+        if attr.strikethrough is not None:
+            font.setStrikeOut(attr.strikethrough)
         return font
 
     def data(self, index, role=Qt.DisplayRole):
@@ -1359,7 +1359,7 @@ class GridTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             value = self.code_array[key]
-            renderer = self.code_array.cell_attributes[key]["renderer"]
+            renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image" or value is None:
                 return ""
             else:
@@ -1373,7 +1373,7 @@ class GridTableModel(QAbstractTableModel):
                 return wrap_text(safe_str(value))
 
         if role == Qt.DecorationRole:
-            renderer = self.code_array.cell_attributes[key]["renderer"]
+            renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image":
                 value = self.code_array[key]
                 if isinstance(value, QImage):
@@ -1387,11 +1387,11 @@ class GridTableModel(QAbstractTableModel):
 
         if role == Qt.BackgroundColorRole:
             if self.main_window.settings.show_frozen \
-               and self.code_array.cell_attributes[key]["frozen"]:
+               and self.code_array.cell_attributes[key].frozen:
                 pattern_rgb = self.grid.palette().highlight().color()
                 bg_color = QBrush(pattern_rgb, Qt.BDiagPattern)
             else:
-                bg_color_rgb = self.code_array.cell_attributes[key]["bgcolor"]
+                bg_color_rgb = self.code_array.cell_attributes[key].bgcolor
                 if bg_color_rgb is None:
                     bg_color = QColor(255, 255, 255)
                 else:
@@ -1399,7 +1399,7 @@ class GridTableModel(QAbstractTableModel):
             return bg_color
 
         if role == Qt.TextColorRole:
-            text_color_rgb = self.code_array.cell_attributes[key]["textcolor"]
+            text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
                 return self.grid.palette().color(QPalette.Text)
             else:
@@ -1419,8 +1419,8 @@ class GridTableModel(QAbstractTableModel):
                 "align_bottom": Qt.AlignBottom,
             }
             attr = self.code_array.cell_attributes[key]
-            alignment = pys2qt[attr["vertical_align"]]
-            justification = pys2qt[attr["justification"]]
+            alignment = pys2qt[attr.vertical_align]
+            justification = pys2qt[attr.justification]
             alignment |= justification
             return alignment
 
@@ -1501,19 +1501,19 @@ class GridCellNavigator:
     def borderwidth_bottom(self):
         """Width of bottom border line"""
 
-        return self.code_array.cell_attributes[self.key]["borderwidth_bottom"]
+        return self.code_array.cell_attributes[self.key].borderwidth_bottom
 
     @property
     def borderwidth_right(self):
         """Width of right border line"""
 
-        return self.code_array.cell_attributes[self.key]["borderwidth_right"]
+        return self.code_array.cell_attributes[self.key].borderwidth_right
 
     @property
     def border_qcolor_bottom(self):
         """Color of bottom border line"""
 
-        color = self.code_array.cell_attributes[self.key]["bordercolor_bottom"]
+        color = self.code_array.cell_attributes[self.key].bordercolor_bottom
         if color is None:
             return self.main_window.grid.palette().color(QPalette.Mid)
         else:
@@ -1523,7 +1523,7 @@ class GridCellNavigator:
     def border_qcolor_right(self):
         """Color of right border line"""
 
-        color = self.code_array.cell_attributes[self.key]["bordercolor_right"]
+        color = self.code_array.cell_attributes[self.key].bordercolor_right
         if color is None:
             return self.main_window.grid.palette().color(QPalette.Mid)
         else:
@@ -1533,7 +1533,7 @@ class GridCellNavigator:
     def merge_area(self):
         """Merge area of the key cell"""
 
-        return self.code_array.cell_attributes[self.key]["merge_area"]
+        return self.code_array.cell_attributes[self.key].merge_area
 
     def _merging_key(self, *key):
         """Merging cell if key is merged else key"""
@@ -1813,8 +1813,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
         key = index.row(), index.column(), self.grid.table
 
-        justification = self.cell_attributes[key]["justification"]
-        vertical_align = self.cell_attributes[key]["vertical_align"]
+        justification = self.cell_attributes[key].justification
+        vertical_align = self.cell_attributes[key].vertical_align
 
         if justification == "justify_fill":
             return option.rect
@@ -1910,7 +1910,7 @@ class GridCellDelegate(QStyledItemDelegate):
             return
 
         key = index.row(), index.column(), self.grid.table
-        justification = self.cell_attributes[key]["justification"]
+        justification = self.cell_attributes[key].justification
 
         if justification == "justify_fill":
             qimage = qimage.scaled(img_width, img_height,
@@ -1958,7 +1958,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """Calls the overloaded paint function or creates html delegate"""
 
         key = index.row(), index.column(), self.grid.table
-        renderer = self.cell_attributes[key]["renderer"]
+        renderer = self.cell_attributes[key].renderer
 
         if renderer == "text":
             super(GridCellDelegate, self).paint(painter, option, index)
@@ -1976,7 +1976,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """Overloads SizeHint"""
 
         key = index.row(), index.column(), self.grid.table
-        if not self.cell_attributes[key]["renderer"] == "markup":
+        if not self.cell_attributes[key].renderer == "markup":
             return super(GridCellDelegate, self).sizeHint(option, index)
 
         # HTML
@@ -2030,7 +2030,7 @@ class GridCellDelegate(QStyledItemDelegate):
             painter.translate(x, y)
             painter.scale(zoom, zoom)
             key = index.row(), index.column(), self.grid.table
-            angle = self.cell_attributes[key]["angle"]
+            angle = self.cell_attributes[key].angle
 
             ix, iy, iw, ih = self._paint_border_lines(rectf.width(),
                                                       rectf.height(),
@@ -2054,10 +2054,10 @@ class GridCellDelegate(QStyledItemDelegate):
 
         key = index.row(), index.column(), self.grid.table
 
-        if self.cell_attributes[key]["locked"]:
+        if self.cell_attributes[key].locked:
             return
 
-        if self.cell_attributes[key]["renderer"] == "matplotlib":
+        if self.cell_attributes[key].renderer == "matplotlib":
             self.main_window.workflows.macro_insert_chart()
             return
 
