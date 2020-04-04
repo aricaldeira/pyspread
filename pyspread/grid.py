@@ -147,8 +147,7 @@ class Grid(QTableView):
     def row(self, value):
         """Sets current row to value"""
 
-        if 0 <= value < self.model.shape[0]:
-            self.current = value, self.column
+        self.current = value, self.column
 
     @property
     def column(self):
@@ -160,8 +159,7 @@ class Grid(QTableView):
     def column(self, value):
         """Sets current column to value"""
 
-        if 0 <= value < self.model.shape[1]:
-            self.current = self.row, value
+        self.current = self.row, value
 
     @property
     def table(self):
@@ -186,16 +184,21 @@ class Grid(QTableView):
     def current(self, value):
         """Sets the current index to row, column and if given table"""
 
-        if len(value) == 2:
-            row, column = value
-
-        elif len(value) == 3:
-            row, column, self.table = value
-
-        else:
+        if len(value) not in (2, 3):
             msg = "Current cell must be defined with a tuple " + \
                   "(row, column) or (rol, column, table)."
             raise ValueError(msg)
+
+        row, column, *table_list = value
+
+        if not 0 <= row < self.model.shape[0]:
+            row = self.row
+
+        if not 0 <= column < self.model.shape[1]:
+            column = self.column
+
+        if table_list:
+            self.table = table_list[0]
 
         index = self.model.index(row, column, QModelIndex())
         self.setCurrentIndex(index)

@@ -81,6 +81,20 @@ class TestGrid:
         monkeypatch.setattr(self.grid, "table", table)
         assert self.grid.table == res
 
+    @pytest.mark.parametrize("row, row_res", param_test_row)
+    @pytest.mark.parametrize("column, column_res", param_test_column)
+    def test_current2(self, row, row_res, column, column_res, monkeypatch):
+        monkeypatch.setattr(self.grid, "current", (row, column))
+        assert self.grid.current == (row_res, column_res, 0)
+
+    @pytest.mark.parametrize("row, row_res", param_test_row)
+    @pytest.mark.parametrize("column, column_res", param_test_column)
+    @pytest.mark.parametrize("table, table_res", param_test_table)
+    def test_current3(self, row, row_res, column, column_res, table, table_res,
+                      monkeypatch):
+        monkeypatch.setattr(self.grid, "current", (row, column, table))
+        assert self.grid.current == (row_res, column_res, table_res)
+
 
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""
