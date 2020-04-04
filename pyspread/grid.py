@@ -147,7 +147,8 @@ class Grid(QTableView):
     def row(self, value):
         """Sets current row to value"""
 
-        self.current = value, self.column
+        if 0 <= value < self.model.shape[0]:
+            self.current = value, self.column
 
     @property
     def column(self):
@@ -159,7 +160,8 @@ class Grid(QTableView):
     def column(self, value):
         """Sets current column to value"""
 
-        self.current = self.row, value
+        if 0 <= value < self.model.shape[1]:
+            self.current = self.row, value
 
     @property
     def table(self):
@@ -171,7 +173,8 @@ class Grid(QTableView):
     def table(self, value):
         """Sets current table"""
 
-        self.table_choice.table = value
+        if 0 <= value < self.model.shape[2]:
+            self.table_choice.table = value
 
     @property
     def current(self):

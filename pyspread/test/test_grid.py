@@ -29,13 +29,11 @@ Unit tests for grid.py
 
 from contextlib import contextmanager
 from os.path import abspath, dirname, join
-from pathlib import Path
 import sys
 
 import pytest
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
 LIBPATH = abspath(PYSPREADPATH + "/lib")
@@ -58,8 +56,41 @@ main_window = MainWindow()
 class TestGrid:
     """Unit tests for Grid in grid.py"""
 
+    grid = main_window.grid
+
+    param_test_row = [(0, 0), (1, 1), (100, 100), (1000, 0), (10000, 0),
+                      (-1, 0)]
+
+    @pytest.mark.parametrize("row, res", param_test_row)
+    def test_row(self, row, res):
+        old_row = self.grid.row
+        self.grid.row = row
+        assert self.grid.row == res
+        self.grid.row = old_row
+
+    param_test_column = [(0, 0), (1, 1), (100, 0), (1000, 0), (10000, 0),
+                         (-1, 0)]
+
+    @pytest.mark.parametrize("column, res", param_test_column)
+    def test_column(self, column, res):
+        old_column = self.grid.column
+        self.grid.column = column
+        assert self.grid.column == res
+        self.grid.column = old_column
+
+    param_test_table = [(0, 0), (1, 1), (3, 0), (-1, 0)]
+
+    @pytest.mark.parametrize("table, res", param_test_table)
+    def test_table(self, table, res):
+        old_table = self.grid.table
+        self.grid.table = table
+        assert self.grid.table == res
+        self.grid.table = old_table
+
+
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""
+
 
 class TestGridTableModel:
     """Unit tests for GridTableModel in grid.py"""
