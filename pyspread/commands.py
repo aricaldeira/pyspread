@@ -40,6 +40,7 @@ from copy import copy
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QUndoCommand
 
+from lib.attrdict import AttrDict
 from lib.selection import Selection
 from widgets import CellButton
 
@@ -467,7 +468,7 @@ class FreezeCell(QUndoCommand):
 
         # Set the frozen state
         selection = Selection([], [], [], [], [(row, column)])
-        attr = selection, table, {"frozen": True}
+        attr = selection, table, AttrDict([("frozen", True)])
         self.model.setData([], attr, Qt.DecorationRole)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -488,7 +489,7 @@ class ThawCell(FreezeCell):
 
         # Remove the frozen state
         selection = Selection([], [], [], [], [(row, column)])
-        attr = selection, table, {"frozen": False}
+        attr = selection, table, AttrDict([("frozen", False)])
         self.model.setData([], attr, Qt.DecorationRole)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -537,7 +538,7 @@ class MakeButtonCell(QUndoCommand):
     def redo(self):
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
-        ca = selection, table, {"button_cell": self.text}
+        ca = selection, table, AttrDict([("button_cell", self.text)])
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
@@ -554,7 +555,7 @@ class MakeButtonCell(QUndoCommand):
 
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
-        ca = selection, table, {"button_cell": False}
+        ca = selection, table, AttrDict([("button_cell", False)])
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
@@ -578,10 +579,10 @@ class RemoveButtonCell(QUndoCommand):
         if self.index not in self.grid.widget_indices:
             return
         attr = self.grid.model.code_array.cell_attributes[self.key]
-        self.text = attr["button_cell"]
+        self.text = attr.button_cell
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
-        ca = selection, table, {"button_cell": False}
+        ca = selection, table, AttrDict([("button_cell", False)])
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
@@ -593,7 +594,7 @@ class RemoveButtonCell(QUndoCommand):
     def undo(self):
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
-        ca = selection, table, {"button_cell": self.text}
+        ca = selection, table, AttrDict([("button_cell", self.text)])
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:

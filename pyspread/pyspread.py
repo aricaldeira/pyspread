@@ -511,39 +511,39 @@ class MainWindow(QMainWindow):
         widgets = self.widgets
         menubar = self.menuBar()
 
-        is_bold = attributes["fontweight"] == QFont.Bold
+        is_bold = attributes.fontweight == QFont.Bold
         self.main_window_actions.bold.setChecked(is_bold)
 
-        is_italic = attributes["fontstyle"] == QFont.StyleItalic
+        is_italic = attributes.fontstyle == QFont.StyleItalic
         self.main_window_actions.italics.setChecked(is_italic)
 
         underline_action = self.main_window_actions.underline
-        underline_action.setChecked(attributes["underline"])
+        underline_action.setChecked(attributes.underline)
 
         strikethrough_action = self.main_window_actions.strikethrough
-        strikethrough_action.setChecked(attributes["strikethrough"])
+        strikethrough_action.setChecked(attributes.strikethrough)
 
-        renderer = attributes["renderer"]
+        renderer = attributes.renderer
         widgets.renderer_button.set_current_action(renderer)
         widgets.renderer_button.set_menu_checked(renderer)
 
         freeze_action = self.main_window_actions.freeze_cell
-        freeze_action.setChecked(attributes["frozen"])
+        freeze_action.setChecked(attributes.frozen)
 
         lock_action = self.main_window_actions.lock_cell
-        lock_action.setChecked(attributes["locked"])
-        self.entry_line.setReadOnly(attributes["locked"])
+        lock_action.setChecked(attributes.locked)
+        self.entry_line.setReadOnly(attributes.locked)
 
         button_action = self.main_window_actions.button_cell
-        button_action.setChecked(attributes["button_cell"] is not False)
+        button_action.setChecked(attributes.button_cell is not False)
 
-        rotation = "rotate_{angle}".format(angle=int(attributes["angle"]))
+        rotation = "rotate_{angle}".format(angle=int(attributes.angle))
         widgets.rotate_button.set_current_action(rotation)
         widgets.rotate_button.set_menu_checked(rotation)
-        widgets.justify_button.set_current_action(attributes["justification"])
-        widgets.justify_button.set_menu_checked(attributes["justification"])
-        widgets.align_button.set_current_action(attributes["vertical_align"])
-        widgets.align_button.set_menu_checked(attributes["vertical_align"])
+        widgets.justify_button.set_current_action(attributes.justification)
+        widgets.justify_button.set_menu_checked(attributes.justification)
+        widgets.align_button.set_current_action(attributes.vertical_align)
+        widgets.align_button.set_menu_checked(attributes.vertical_align)
 
         border_action = self.main_window_actions.border_group.checkedAction()
         if border_action is not None:
@@ -558,26 +558,26 @@ class MainWindow(QMainWindow):
             menubar.format_menu.line_width_submenu.setIcon(icon)
             self.format_toolbar.line_width_button.setIcon(icon)
 
-        if attributes["textcolor"] is None:
+        if attributes.textcolor is None:
             text_color = self.grid.palette().color(QPalette.Text)
         else:
-            text_color = QColor(*attributes["textcolor"])
+            text_color = QColor(*attributes.textcolor)
         widgets.text_color_button.color = text_color
 
-        if attributes["bgcolor"] is None:
+        if attributes.bgcolor is None:
             bgcolor = self.grid.palette().color(QPalette.Base)
         else:
-            bgcolor = QColor(*attributes["bgcolor"])
+            bgcolor = QColor(*attributes.bgcolor)
         widgets.background_color_button.color = bgcolor
 
-        if attributes["textfont"] is None:
+        if attributes.textfont is None:
             widgets.font_combo.font = QFont().family()
         else:
-            widgets.font_combo.font = attributes["textfont"]
-        widgets.font_size_combo.size = attributes["pointsize"]
+            widgets.font_combo.font = attributes.textfont
+        widgets.font_size_combo.size = attributes.pointsize
 
         merge_cells_action = self.main_window_actions.merge_cells
-        merge_cells_action.setChecked(attributes["merge_area"] is not None)
+        merge_cells_action.setChecked(attributes.merge_area is not None)
 
 
 def main():

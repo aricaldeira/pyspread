@@ -918,11 +918,7 @@ class Grid(QTableView):
         for selection, table, attrs in self.model.code_array.cell_attributes:
             if table == self.table:
                 try:
-                    if attrs.merge_area is None:
-                        bbox = self.selection.get_grid_bbox(self.model.shape)
-                        (top, left), (_, _) = bbox
-                        spans[(top, left)] = None
-                    else:
+                    if "merge_area" in attrs and attrs.merge_area is not None:
                         top, left, bottom, right = attrs.merge_area
                         spans[(top, left)] = bottom, right
                 except (KeyError, TypeError):
@@ -1456,6 +1452,7 @@ class GridTableModel(QAbstractTableModel):
             return True
 
         if role == Qt.DecorationRole or role == Qt.TextAlignmentRole:
+            assert isinstance(value[2], AttrDict)
             self.code_array.cell_attributes.append(value)
             # We have a selection and no single cell
             for idx in index:

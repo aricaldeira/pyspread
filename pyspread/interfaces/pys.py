@@ -43,6 +43,7 @@ import ast
 from base64 import b64decode, b85encode
 from collections import OrderedDict
 
+from lib.attrdict import AttrDict
 from lib.selection import Selection
 
 
@@ -197,14 +198,14 @@ class PysReader:
 
             selection = Selection([], [], [], [], [(key[0], key[1])])
             tab = key[2]
-            attrs = {"renderer": "image"}
+            attrs = AttrDict([("renderer", "image")])
             self.cell_attributes_postfixes.append((selection, tab, attrs))
 
         elif "charts.ChartFigure(" in code:
             # We have a matplotlib figure
             selection = Selection([], [], [], [], [(key[0], key[1])])
             tab = key[2]
-            attrs = {"renderer": "matplotlib"}
+            attrs = AttrDict([("renderer", "matplotlib")])
             self.cell_attributes_postfixes.append((selection, tab, attrs))
 
         return code
@@ -271,7 +272,7 @@ class PysReader:
 
         tab = int(splitline[5])
 
-        attrs = {}
+        attrs = AttrDict()
 
         old_merged_cells = {}
 
@@ -300,7 +301,7 @@ class PysReader:
 
         for key in old_merged_cells:
             selection = Selection([], [], [], [], [key])
-            attrs = {"merge_area": old_merged_cells[key]}
+            attrs = AttrDict([("merge_area", old_merged_cells[key])])
             self.code_array.cell_attributes.append((selection, tab, attrs))
         old_merged_cells.clear()
 
@@ -315,7 +316,7 @@ class PysReader:
 
         tab = int(splitline[5])
 
-        attrs = {}
+        attrs = AttrDict()
 
         for col, ele in enumerate(splitline[6:]):
             if not (col % 2):

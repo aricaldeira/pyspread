@@ -793,7 +793,7 @@ class Workflows:
         clipboard = QApplication.clipboard()
 
         # Get renderer for current cell
-        renderer = grid.model.code_array.cell_attributes[current]["renderer"]
+        renderer = grid.model.code_array.cell_attributes[current].renderer
 
         if renderer == "text":
             clipboard.setText(repr(data))

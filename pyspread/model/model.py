@@ -117,6 +117,7 @@ class CellAttributes(list):
 
     _attr_cache = AttrDict()
     _table_cache = {}
+    DefaultCellAttributeDict = DefaultCellAttributeDict
 
     def append(self, value):
         """append that clears caches"""
@@ -154,10 +155,11 @@ class CellAttributes(list):
 
         row, col, tab = key
 
-        result_dict = DefaultCellAttributeDict()
+        result_dict = self.DefaultCellAttributeDict()
 
         try:
             for selection, attr_dict in self._table_cache[tab]:
+                from lib.attrdict import AttrDict
                 assert isinstance(attr_dict, AttrDict)
                 if (row, col) in selection:
                     result_dict.update(attr_dict)
