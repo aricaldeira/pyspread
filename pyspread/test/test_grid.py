@@ -62,30 +62,24 @@ class TestGrid:
                       (-1, 0)]
 
     @pytest.mark.parametrize("row, res", param_test_row)
-    def test_row(self, row, res):
-        old_row = self.grid.row
-        self.grid.row = row
+    def test_row(self, row, res, monkeypatch):
+        monkeypatch.setattr(self.grid, "row", row)
         assert self.grid.row == res
-        self.grid.row = old_row
 
     param_test_column = [(0, 0), (1, 1), (100, 0), (1000, 0), (10000, 0),
                          (-1, 0)]
 
     @pytest.mark.parametrize("column, res", param_test_column)
-    def test_column(self, column, res):
-        old_column = self.grid.column
-        self.grid.column = column
+    def test_column(self, column, res, monkeypatch):
+        monkeypatch.setattr(self.grid, "column", column)
         assert self.grid.column == res
-        self.grid.column = old_column
 
     param_test_table = [(0, 0), (1, 1), (3, 0), (-1, 0)]
 
     @pytest.mark.parametrize("table, res", param_test_table)
-    def test_table(self, table, res):
-        old_table = self.grid.table
-        self.grid.table = table
+    def test_table(self, table, res, monkeypatch):
+        monkeypatch.setattr(self.grid, "table", table)
         assert self.grid.table == res
-        self.grid.table = old_table
 
 
 class TestGridHeaderView:
