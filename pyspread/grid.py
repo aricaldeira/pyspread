@@ -36,6 +36,7 @@ from ast import literal_eval
 from contextlib import contextmanager
 from io import BytesIO
 from math import isclose
+from typing import Sequence
 
 import numpy
 
@@ -58,6 +59,7 @@ except ImportError:
 
 import commands
 from model.model import CodeArray
+from lib.attrdict import AttrDict
 from lib.selection import Selection
 from lib.string_helpers import quote, wrap_text, get_svg_size
 from lib.qimage2ndarray import array2qimage
@@ -104,12 +106,12 @@ class Grid(QTableView):
         self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
 
         self.verticalHeader().setDefaultSectionSize(
-                self.main_window.settings.default_row_size)
+                self.main_window.settings.default_row_height)
         self.horizontalHeader().setDefaultSectionSize(
-                self.main_window.settings.default_column_size)
+                self.main_window.settings.default_column_width)
 
-        self.verticalHeader().setMinimumSectionSize(0.0)
-        self.horizontalHeader().setMinimumSectionSize(0.0)
+        self.verticalHeader().setMinimumSectionSize(0)
+        self.horizontalHeader().setMinimumSectionSize(0)
 
         self.setCornerButtonEnabled(False)
 
@@ -152,7 +154,7 @@ class Grid(QTableView):
         return self.currentIndex().row()
 
     @row.setter
-    def row(self, value):
+    def row(self, value: int):
         """Sets current row to value"""
 
         self.current = value, self.column
@@ -164,7 +166,7 @@ class Grid(QTableView):
         return self.currentIndex().column()
 
     @column.setter
-    def column(self, value):
+    def column(self, value: int):
         """Sets current column to value"""
 
         self.current = self.row, value
@@ -176,7 +178,7 @@ class Grid(QTableView):
         return self.table_choice.table
 
     @table.setter
-    def table(self, value):
+    def table(self, value: int):
         """Sets current table"""
 
         if 0 <= value < self.model.shape[2]:
@@ -189,7 +191,7 @@ class Grid(QTableView):
         return self.row, self.column, self.table
 
     @current.setter
-    def current(self, value):
+    def current(self, value: Sequence[int]):
         """Sets the current index to row, column and if given table"""
 
         if len(value) not in (2, 3):
@@ -266,7 +268,7 @@ class Grid(QTableView):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, zoom):
+    def zoom(self, zoom: float):
         """Updates _zoom property and zoom visualization of the grid
 
         Does nothing if not between minimum and maximum of settings.zoom_levels
@@ -509,7 +511,7 @@ class Grid(QTableView):
         font = self.model.font(self.current)
         font, ok = QFontDialog().getFont(font, self.main_window)
         if ok:
-            attr_dict = {}
+            attr_dict = AttrDict()
             attr_dict["textfont"] = font.family()
             attr_dict["pointsize"] = font.pointSizeF()
             attr_dict["fontweight"] = font.weight()
@@ -528,7 +530,7 @@ class Grid(QTableView):
         """Font change event handler"""
 
         font = self.main_window.widgets.font_combo.font
-        attr = self.selection, self.table, {"textfont": font}
+        attr = self.selection, self.table, AttrDict([("textfont", font)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font {} for indices {}".format(font, idx_string)
         command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
@@ -539,7 +541,7 @@ class Grid(QTableView):
         """Font size change event handler"""
 
         size = self.main_window.widgets.font_size_combo.size
-        attr = self.selection, self.table, {"pointsize": size}
+        attr = self.selection, self.table, AttrDict([("pointsize", size)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font size {} for cells {}".format(size, idx_string)
         command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
@@ -550,7 +552,8 @@ class Grid(QTableView):
         """Bold button pressed event handler"""
 
         fontweight = QFont.Bold if toggled else QFont.Normal
-        attr = self.selection, self.table, {"fontweight": fontweight}
+        attr_dict = AttrDict([("fontweight", fontweight)])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font weight {} for cells {}".format(fontweight,
                                                                idx_string)
@@ -562,7 +565,7 @@ class Grid(QTableView):
         """Italics button pressed event handler"""
 
         fontstyle = QFont.StyleItalic if toggled else QFont.StyleNormal
-        attr = self.selection, self.table, {"fontstyle": fontstyle}
+        attr = self.selection, self.table, AttrDict([("fontstyle", fontstyle)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font style {} for cells {}".format(fontstyle,
                                                               idx_string)
@@ -573,7 +576,7 @@ class Grid(QTableView):
     def on_underline_pressed(self, toggled):
         """Underline button pressed event handler"""
 
-        attr = self.selection, self.table, {"underline": toggled}
+        attr = self.selection, self.table, AttrDict([("underline", toggled)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font underline {} for cells {}".format(toggled,
                                                                   idx_string)
@@ -584,7 +587,8 @@ class Grid(QTableView):
     def on_strikethrough_pressed(self, toggled):
         """Strikethrough button pressed event handler"""
 
-        attr = self.selection, self.table, {"strikethrough": toggled}
+        attr_dict = AttrDict([("strikethrough", toggled)])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set font strikethrough {} for cells {}"
         description = description_tpl.format(toggled, idx_string)
@@ -595,7 +599,7 @@ class Grid(QTableView):
     def on_text_renderer_pressed(self, toggled):
         """Text renderer button pressed event handler"""
 
-        attr = self.selection, self.table, {"renderer": "text"}
+        attr = self.selection, self.table, AttrDict([("renderer", "text")])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set text renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
@@ -614,7 +618,7 @@ class Grid(QTableView):
     def on_image_renderer_pressed(self, toggled):
         """Image renderer button pressed event handler"""
 
-        attr = self.selection, self.table, {"renderer": "image"}
+        attr = self.selection, self.table, AttrDict([("renderer", "image")])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set image renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
@@ -626,7 +630,7 @@ class Grid(QTableView):
     def on_markup_renderer_pressed(self, toggled):
         """Markup renderer button pressed event handler"""
 
-        attr = self.selection, self.table, {"renderer": "markup"}
+        attr = self.selection, self.table, AttrDict([("renderer", "markup")])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set markup renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
@@ -645,7 +649,8 @@ class Grid(QTableView):
     def on_matplotlib_renderer_pressed(self, toggled):
         """Matplotlib renderer button pressed event handler"""
 
-        attr = self.selection, self.table, {"renderer": "matplotlib"}
+        attr_dict = AttrDict([("renderer", "matplotlib")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set matplotlib renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
@@ -664,7 +669,7 @@ class Grid(QTableView):
     def on_lock_pressed(self, toggled):
         """Lock button pressed event handler"""
 
-        attr = self.selection, self.table, {"locked": toggled}
+        attr = self.selection, self.table, AttrDict([("locked", toggled)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set locked state to {} for cells {}".format(toggled,
                                                                    idx_string)
@@ -675,7 +680,7 @@ class Grid(QTableView):
     def on_rotate_0(self, toggled):
         """Set cell rotation to 0° left button pressed event handler"""
 
-        attr = self.selection, self.table, {"angle": 0.0}
+        attr = self.selection, self.table, AttrDict([("angle", 0.0)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 0° for cells {}".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -686,7 +691,7 @@ class Grid(QTableView):
     def on_rotate_90(self, toggled):
         """Set cell rotation to 90° left button pressed event handler"""
 
-        attr = self.selection, self.table, {"angle": 90.0}
+        attr = self.selection, self.table, AttrDict([("angle", 90.0)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 90° for cells {}".format(
                 idx_string)
@@ -698,7 +703,7 @@ class Grid(QTableView):
     def on_rotate_180(self, toggled):
         """Set cell rotation to 180° left button pressed event handler"""
 
-        attr = self.selection, self.table, {"angle": 180.0}
+        attr = self.selection, self.table, AttrDict([("angle", 180.0)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 180° for cells {}".format(
                 idx_string)
@@ -710,7 +715,7 @@ class Grid(QTableView):
     def on_rotate_270(self, toggled):
         """Set cell rotation to 270° left button pressed event handler"""
 
-        attr = self.selection, self.table, {"angle": 270.0}
+        attr = self.selection, self.table, AttrDict([("angle", 270.0)])
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set cell rotation to 270° for cells {}".format(
                 idx_string)
@@ -722,7 +727,8 @@ class Grid(QTableView):
     def on_justify_left(self, toggled):
         """Justify left button pressed event handler"""
 
-        attr = self.selection, self.table, {"justification": "justify_left"}
+        attr_dict = AttrDict([("justification", "justify_left")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} left".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -733,7 +739,8 @@ class Grid(QTableView):
     def on_justify_fill(self, toggled):
         """Justify fill button pressed event handler"""
 
-        attr = self.selection, self.table, {"justification": "justify_fill"}
+        attr_dict = AttrDict([("justification", "justify_fill")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} filled".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -744,7 +751,8 @@ class Grid(QTableView):
     def on_justify_center(self, toggled):
         """Justify center button pressed event handler"""
 
-        attr = self.selection, self.table, {"justification": "justify_center"}
+        attr_dict = AttrDict([("justification", "justify_center")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} centered".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -755,7 +763,8 @@ class Grid(QTableView):
     def on_justify_right(self, toggled):
         """Justify right button pressed event handler"""
 
-        attr = self.selection, self.table, {"justification": "justify_right"}
+        attr_dict = AttrDict([("justification", "justify_right")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Justify cells {} right".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -766,7 +775,8 @@ class Grid(QTableView):
     def on_align_top(self, toggled):
         """Align top button pressed event handler"""
 
-        attr = self.selection, self.table, {"vertical_align": "align_top"}
+        attr_dict = AttrDict([("vertical_align", "align_top")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Align cells {} to top".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -777,7 +787,8 @@ class Grid(QTableView):
     def on_align_middle(self, toggled):
         """Align centere button pressed event handler"""
 
-        attr = self.selection, self.table, {"vertical_align": "align_center"}
+        attr_dict = AttrDict([("vertical_align", "align_center")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Align cells {} to center".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -788,7 +799,8 @@ class Grid(QTableView):
     def on_align_bottom(self, toggled):
         """Align bottom button pressed event handler"""
 
-        attr = self.selection, self.table, {"vertical_align": "align_bottom"}
+        attr_dict = AttrDict([("vertical_align", "align_bottom")])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Align cells {} to bottom".format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
@@ -807,7 +819,8 @@ class Grid(QTableView):
 
         text_color = self.main_window.widgets.text_color_button.color
         text_color_rgb = text_color.getRgb()
-        attr = self.selection, self.table, {"textcolor": text_color_rgb}
+        attr_dict = AttrDict([("textcolor", text_color_rgb)])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set text color to {} for cells {}"
         description = description_tpl.format(text_color_rgb, idx_string)
@@ -827,10 +840,11 @@ class Grid(QTableView):
         line_color = self.main_window.widgets.line_color_button.color
         line_color_rgb = line_color.getRgb()
 
-        attr_bottom = bottom_selection, self.table, {"bordercolor_bottom":
-                                                     line_color_rgb}
-        attr_right = right_selection, self.table, {"bordercolor_right":
-                                                   line_color_rgb}
+        attr_dict_bottom = AttrDict([("bordercolor_bottom", line_color_rgb)])
+        attr_bottom = bottom_selection, self.table, attr_dict_bottom
+
+        attr_dict_right = AttrDict([("bordercolor_right", line_color_rgb)])
+        attr_right = right_selection, self.table, attr_dict_right
 
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set line color {} for cells {}"
@@ -850,7 +864,9 @@ class Grid(QTableView):
         bg_color = self.main_window.widgets.background_color_button.color
         bg_color_rgb = bg_color.getRgb()
         self.gui_update()
-        attr = self.selection, self.table, {"bgcolor": bg_color_rgb}
+
+        attr_dict = AttrDict([("bgcolor", bg_color_rgb)])
+        attr = self.selection, self.table, attr_dict
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set cell background color to {} for cells {}"
         description = description_tpl.format(bg_color_rgb, idx_string)
@@ -869,10 +885,10 @@ class Grid(QTableView):
         right_selection = \
             self.selection.get_right_borders_selection(border_choice)
 
-        attr_bottom = bottom_selection, self.table, {"borderwidth_bottom":
-                                                     width}
-        attr_right = right_selection, self.table, {"borderwidth_right":
-                                                   width}
+        attr_dict_bottom = AttrDict([("borderwidth_bottom", width)])
+        attr_bottom = bottom_selection, self.table, attr_dict_bottom
+        attr_dict_right = AttrDict([("borderwidth_right", width)])
+        attr_right = right_selection, self.table, attr_dict_right
 
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set border width to {} for cells {}"
@@ -991,13 +1007,13 @@ class Grid(QTableView):
         # Check if current cell is already merged
         if self.columnSpan(top, left) > 1 or self.rowSpan(top, left) > 1:
             selection = Selection([], [], [], [], [(top, left)])
-            attr = selection, self.table, {"merge_area": None}
+            attr = selection, self.table, AttrDict([("merge_area", None)])
             description_tpl = "Unmerge cells with top-left cell {}"
         elif bottom > top or right > left:
             # Merge and store the current selection
             merging_selection = Selection([], [], [], [], [(top, left)])
-            attr = merging_selection, self.table, {"merge_area":
-                                                   (top, left, bottom, right)}
+            attr_dict = AttrDict([("merge_area", (top, left, bottom, right))])
+            attr = merging_selection, self.table, attr_dict
             description_tpl = "Merge cells with top-left cell {}"
         else:
             # Cells are not merged because the span is one

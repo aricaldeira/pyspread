@@ -50,9 +50,39 @@ import sys
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
 
+from lib.attrdict import AttrDict
 import lib.charts as charts
 from lib.typechecks import isslice, isstring
 from lib.selection import Selection
+
+
+class DefaultCellAttributeDict(AttrDict):
+    """Holds default values for all cell attributes"""
+
+    def __init__(self):
+        super().__init__(self)
+
+        self.borderwidth_bottom = 1
+        self.borderwidth_right = 1
+        self.bordercolor_bottom = None
+        self.bordercolor_right = None
+        self.bgcolor = 255, 255, 255
+        self.textfont = None
+        self.pointsize = 10
+        self.fontweight = None
+        self.fontstyle = None
+        self.textcolor = None
+        self.underline = False
+        self.strikethrough = False
+        self.locked = False
+        self.angle = 0.0
+        self.vertical_align = "align_top"
+        self.justification = "justify_left"
+        self.frozen = False
+        self.merge_area = None
+        self.renderer = "text"
+        self.button_cell = False
+        self.panel_cell = False
 
 
 class CellAttributes(list):
@@ -60,7 +90,7 @@ class CellAttributes(list):
 
     - The first element of each tuple is a Selection.
     - The second element is the table
-    - The third element is a `dict` of attributes that are altered.
+    - The third element is a `AttrDict` of attributes that are altered.
 
     The class provides attribute read access to single cells via
     :meth:`__getitem__`.
@@ -83,32 +113,7 @@ class CellAttributes(list):
         self.reverse = None
         self.sort = None
 
-    default_cell_attributes = {
-        "borderwidth_bottom": 1,
-        "borderwidth_right": 1,
-        "bordercolor_bottom": None,
-        "bordercolor_right": None,
-        "bgcolor": None,
-        "textfont": None,
-        "pointsize": 10,
-        "fontweight": None,
-        "fontstyle": None,
-        "textcolor": None,
-        "underline": False,
-        "strikethrough": False,
-        "locked": False,
-        "angle": 0.0,
-        "column-width": 75,
-        "row-height": 26,
-        "vertical_align": "align_top",
-        "justification": "justify_left",
-        "frozen": False,
-        "merge_area": None,
-        "renderer": "text",
-        "button_cell": False,
-        "panel_cell": False,
-    }
-
+    default_cell_attributes = DefaultCellAttributeDict()
     # Cache for __getattr__ maps key to tuple of len and attr_dict
 
     _attr_cache = {}

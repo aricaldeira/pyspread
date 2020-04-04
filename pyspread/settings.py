@@ -84,8 +84,8 @@ class Settings:
     # Sizes
     font_sizes = (6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32)
 
-    default_row_size = 30
-    default_column_size = 100
+    default_row_height = 30
+    default_column_width = 100
 
     zoom_levels = (0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
                    1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0)
