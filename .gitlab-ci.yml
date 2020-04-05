@@ -36,7 +36,7 @@ test_debian_experimental:
   - py.test-3
 
 pages:
-  image: debian:testing
+  image: debian:stable
   script:
   - pip3 install -r apidocs/requirements.txt
   - mkdir public
