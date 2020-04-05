@@ -119,6 +119,8 @@ class TestGrid:
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""
 
+    pass
+
 
 class TestGridTableModel:
     """Unit tests for GridTableModel in grid.py"""
@@ -134,27 +136,85 @@ class TestGridTableModel:
     ]
 
     @pytest.mark.parametrize("shape, res, error", param_test_shape)
-    def test_shape(self, shape, res, error):
-        """Unit test for File -> New"""
+    def test_shape(self, shape, res, error, monkeypatch):
+        """Unit test for shape getter and setter"""
 
         try:
-            self.model.shape = shape
+            monkeypatch.setattr(self.model, "shape", shape)
         except ValueError:
             assert error == ValueError
         else:
             assert error is None
         assert self.model.shape == res
 
-        self.model.shape = (1000, 100, 3)
+    def test_code(self):
+        pass
+
+    def test_insertRows(self):
+        pass
+
+    def test_removeRows(self):
+        pass
+
+    def test_insertColumns(self):
+        pass
+
+    def test_removeColumns(self):
+        pass
+
+    def test_insertTable(self):
+        pass
+
+    def test_removeTable(self):
+        pass
+
+    def test_font(self):
+        pass
+
+    def test_data(self):
+        """Unit test for data and setData"""
+
+        pass
+
+    def test_reset(self):
+        pass
 
 
 class TestGridCellNavigator:
     """Unit tests for GridCellNavigator in grid.py"""
 
+    def test_above_keys(self):
+        pass
+
+    def test_below_keys(self):
+        pass
+
+    def test_left_keys(self):
+        pass
+
+    def test_right_keys(self):
+        pass
+
+    def test_above_left_key(self):
+        pass
+
+    def test_above_right_key(self):
+        pass
+
+    def test_below_left_key(self):
+        pass
+
+    def test_below_right_key(self):
+        pass
+
 
 class TestGridCellDelegate:
     """Unit tests for GridCellDelegate in grid.py"""
 
+    pass
+
 
 class TestTableChoice:
     """Unit tests for TableChoice in grid.py"""
+
+    pass

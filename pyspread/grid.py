@@ -23,6 +23,7 @@
 **Provides**
 
 * :class:`Grid`: QTableView of the main grid
+* :class:`GridHeaderView`: QHeaderView for the main grids headers
 * :class:`GridTableModel`: QAbstractTableModel linking the view to code_array
   backend
 * :class:`GridCellNavigator`: Find neighbors of a cell
@@ -92,23 +93,21 @@ class Grid(QTableView):
         self.model.dataChanged.connect(self.on_data_changed)
         self.selectionModel().currentChanged.connect(self.on_current_changed)
 
-        self.main_window.widgets.text_color_button.colorChanged.connect(
-                self.on_text_color)
-        self.main_window.widgets.background_color_button.colorChanged.connect(
-                self.on_background_color)
-        self.main_window.widgets.line_color_button.colorChanged.connect(
-                self.on_line_color)
-        self.main_window.widgets.font_combo.fontChanged.connect(self.on_font)
-        self.main_window.widgets.font_size_combo.fontSizeChanged.connect(
-                self.on_font_size)
+        widgets = self.main_window.widgets
+        widgets.text_color_button.colorChanged.connect(self.on_text_color)
+        widgets.background_color_button.colorChanged.connect(
+            self.on_background_color)
+        widgets.line_color_button.colorChanged.connect(self.on_line_color)
+        widgets.font_combo.fontChanged.connect(self.on_font)
+        widgets.font_size_combo.fontSizeChanged.connect(self.on_font_size)
 
         self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
         self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
 
         self.verticalHeader().setDefaultSectionSize(
-                self.main_window.settings.default_row_height)
+            self.main_window.settings.default_row_height)
         self.horizontalHeader().setDefaultSectionSize(
-                self.main_window.settings.default_column_width)
+            self.main_window.settings.default_column_width)
 
         self.verticalHeader().setMinimumSectionSize(0)
         self.horizontalHeader().setMinimumSectionSize(0)
@@ -143,12 +142,16 @@ class Grid(QTableView):
 
     @contextmanager
     def undo_resizing_row(self):
+        """Sets self.__undo_resizing_row to True for context"""
+
         self.__undo_resizing_row = True
         yield
         self.__undo_resizing_row = False
 
     @contextmanager
     def undo_resizing_column(self):
+        """Sets self.__undo_resizing_column to True for context"""
+
         self.__undo_resizing_column = True
         yield
         self.__undo_resizing_column = False
@@ -709,8 +712,8 @@ class Grid(QTableView):
         attr_dict = AttrDict([("angle", 90.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
-        description = "Set cell rotation to 90° for cells {}".format(
-                idx_string)
+        description_tpl = "Set cell rotation to 90° for cells {}"
+        description = description_tpl.format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
                                                 self.currentIndex(),
                                                 self.selected_idx, description)
@@ -722,8 +725,8 @@ class Grid(QTableView):
         attr_dict = AttrDict([("angle", 180.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
-        description = "Set cell rotation to 180° for cells {}".format(
-                idx_string)
+        description_tpl = "Set cell rotation to 180° for cells {}"
+        description = description_tpl.format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
                                                 self.currentIndex(),
                                                 self.selected_idx, description)
@@ -735,8 +738,8 @@ class Grid(QTableView):
         attr_dict = AttrDict([("angle", 270.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
-        description = "Set cell rotation to 270° for cells {}".format(
-                idx_string)
+        description_tpl = "Set cell rotation to 270° for cells {}"
+        description = description_tpl.format(idx_string)
         command = commands.SetCellTextAlignment(attr, self.model,
                                                 self.currentIndex(),
                                                 self.selected_idx, description)
@@ -1368,7 +1371,7 @@ class GridTableModel(QAbstractTableModel):
         def safe_str(obj):
             """Returns str(obj), on RecursionError returns error message"""
             try:
-                return str(value)
+                return str(obj)
             except RecursionError as err:
                 return str(err)
 
@@ -1379,15 +1382,13 @@ class GridTableModel(QAbstractTableModel):
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image" or value is None:
                 return ""
-            else:
-                return safe_str(value)
+            return safe_str(value)
 
         if role == Qt.ToolTipRole:
             value = self.code_array[key]
             if value is None:
                 return ""
-            else:
-                return wrap_text(safe_str(value))
+            return wrap_text(safe_str(value))
 
         if role == Qt.DecorationRole:
             renderer = self.code_array.cell_attributes[key].renderer
@@ -1395,12 +1396,11 @@ class GridTableModel(QAbstractTableModel):
                 value = self.code_array[key]
                 if isinstance(value, QImage):
                     return value
-                else:
-                    try:
-                        arr = numpy.array(value)
-                        return array2qimage(arr)
-                    except Exception:
-                        return value
+                try:
+                    arr = numpy.array(value)
+                    return array2qimage(arr)
+                except Exception:
+                    return value
 
         if role == Qt.BackgroundColorRole:
             if self.main_window.settings.show_frozen \
@@ -1418,9 +1418,10 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.TextColorRole:
             text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
-                return self.grid.palette().color(QPalette.Text)
+                text_color = self.grid.palette().color(QPalette.Text)
             else:
-                return QColor(*text_color_rgb)
+                text_color = QColor(*text_color_rgb)
+            return text_color
 
         if role == Qt.FontRole:
             return self.font(key)
@@ -1466,7 +1467,7 @@ class GridTableModel(QAbstractTableModel):
 
             return True
 
-        if role == Qt.DecorationRole or role == Qt.TextAlignmentRole:
+        if role in (Qt.DecorationRole, Qt.TextAlignmentRole):
             assert isinstance(value[2], AttrDict)
             self.code_array.cell_attributes.append(value)
             # We have a selection and no single cell
@@ -1534,8 +1535,7 @@ class GridCellNavigator:
         color = self.code_array.cell_attributes[self.key].bordercolor_bottom
         if color is None:
             return self.main_window.grid.palette().color(QPalette.Mid)
-        else:
-            return QColor(*color)
+        return QColor(*color)
 
     @property
     def border_qcolor_right(self):
@@ -1544,8 +1544,7 @@ class GridCellNavigator:
         color = self.code_array.cell_attributes[self.key].bordercolor_right
         if color is None:
             return self.main_window.grid.palette().color(QPalette.Mid)
-        else:
-            return QColor(*color)
+        return QColor(*color)
 
     @property
     def merge_area(self):
@@ -1565,10 +1564,9 @@ class GridCellNavigator:
         merge_area = self.merge_area
         if merge_area is None:
             return [self._merging_key(self.row - 1, self.column, self.table)]
-        else:
-            top, left, bottom, right = merge_area
-            return [self._merging_key(self.row - 1, col, self.table)
-                    for col in range(left, right + 1)]
+        _, left, _, right = merge_area
+        return [self._merging_key(self.row - 1, col, self.table)
+                for col in range(left, right + 1)]
 
     def below_keys(self):
         """Key list of neighboring cells below the key cell"""
@@ -1576,10 +1574,9 @@ class GridCellNavigator:
         merge_area = self.merge_area
         if merge_area is None:
             return [self._merging_key(self.row + 1, self.column, self.table)]
-        else:
-            top, left, bottom, right = merge_area
-            return [self._merging_key(self.row + 1, col, self.table)
-                    for col in range(left, right + 1)]
+        _, left, _, right = merge_area
+        return [self._merging_key(self.row + 1, col, self.table)
+                for col in range(left, right + 1)]
 
     def left_keys(self):
         """Key list of neighboring cells left of the key cell"""
@@ -1587,10 +1584,9 @@ class GridCellNavigator:
         merge_area = self.merge_area
         if merge_area is None:
             return [self._merging_key(self.row, self.column - 1, self.table)]
-        else:
-            top, left, bottom, right = merge_area
-            return [self._merging_key(row, self.column - 1, self.table)
-                    for row in range(top, bottom + 1)]
+        top, _, bottom, _ = merge_area
+        return [self._merging_key(row, self.column - 1, self.table)
+                for row in range(top, bottom + 1)]
 
     def right_keys(self):
         """Key list of neighboring cells right of the key cell"""
@@ -1598,10 +1594,9 @@ class GridCellNavigator:
         merge_area = self.merge_area
         if merge_area is None:
             return [self._merging_key(self.row, self.column + 1, self.table)]
-        else:
-            top, left, bottom, right = merge_area
-            return [self._merging_key(row, self.column + 1, self.table)
-                    for row in range(top, bottom + 1)]
+        top, _, bottom, _ = merge_area
+        return [self._merging_key(row, self.column + 1, self.table)
+                for row in range(top, bottom + 1)]
 
     def above_left_key(self):
         """Key of neighboring cell above left of the key cell"""
@@ -1625,6 +1620,7 @@ class GridCellNavigator:
 
 
 class GridCellDelegate(QStyledItemDelegate):
+    """QStyledItemDelegate for main grid QTableView"""
 
     def __init__(self, main_window, code_array):
         super().__init__()
@@ -1635,10 +1631,14 @@ class GridCellDelegate(QStyledItemDelegate):
 
     @property
     def grid(self):
+        """Returns mainwindow.grid"""
+
         return self.main_window.grid
 
     @contextmanager
     def painter_save(self, painter):
+        """Saves and restores the painter during a context"""
+
         painter.save()
         yield
         painter.restore()
