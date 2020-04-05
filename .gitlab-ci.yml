@@ -37,6 +37,9 @@ test_debian_experimental:
 
 pages:
   image: debian:stable
+before_script:
+  - apt update -qq
+  - apt install -y -qq python3-pip python3-dev python3-pyqt5 python3-pyqt5.qtsvg python3-matplotlib python3-numpy python3-pytest python3-sphinx
   script:
   - pip3 install -r apidocs/requirements.txt
   - mkdir public
