@@ -21,7 +21,6 @@
 
 """
 
-
 pyspread
 ========
 
@@ -32,7 +31,6 @@ pyspread
 
 * MainApplication: Initial command line operations and application launch
 * :class:`MainWindow`: Main windows class
-
 
 """
 
@@ -77,13 +75,13 @@ class MainWindow(QMainWindow):
     """Pyspread main window
 
     :application: QApplication
-    :filepath:`str`: filepath for inital file to be opened, defaults to None
+    :param filepath: filepath for inital file to be opened, defaults to None
 
     """
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, filepath=None):
+    def __init__(self, filepath: str = None):
         super().__init__()
 
         self._loading = True
