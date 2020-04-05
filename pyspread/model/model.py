@@ -46,6 +46,7 @@ from inspect import isgenerator
 from itertools import product
 import re
 import sys
+from typing import NamedTuple
 
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
@@ -85,12 +86,16 @@ class DefaultCellAttributeDict(AttrDict):
         self.panel_cell = False
 
 
-class CellAttributes(list):
-    """Stores cell formatting attributes in a list of three tuples
+class CellAttribute(NamedTuple):
+    """Single cell attribute"""
 
-    - The first element of each tuple is a Selection.
-    - The second element is the table
-    - The third element is a `AttrDict` of attributes that are altered.
+    selection: Selection
+    table: int
+    attr: AttrDict
+
+
+class CellAttributes(list):
+    """Stores cell formatting attributes in a list of CellAttribute instances
 
     The class provides attribute read access to single cells via
     :meth:`__getitem__`.
@@ -117,22 +122,23 @@ class CellAttributes(list):
 
     _attr_cache = AttrDict()
     _table_cache = {}
-    DefaultCellAttributeDict = DefaultCellAttributeDict
 
-    def append(self, value):
+    def append(self, cell_attribute: CellAttribute):
         """append that clears caches"""
 
+        assert isinstance(cell_attribute, CellAttribute)
+
         # We need to clean up merge areas
-        selection, table, attr = value
+        selection, table, attr = cell_attribute
         if "merge_area" in attr:
             for i, ele in enumerate(reversed(self)):
                 if ele[0] == selection and ele[1] == table \
                    and "merge_area" in ele[2]:
                     self.pop(-1 - i)
             if attr["merge_area"] is not None:
-                super().append(value)
+                super().append(cell_attribute)
         else:
-            super().append(value)
+            super().append(cell_attribute)
 
         self._attr_cache.clear()
         self._table_cache.clear()
@@ -155,11 +161,11 @@ class CellAttributes(list):
 
         row, col, tab = key
 
-        result_dict = self.DefaultCellAttributeDict()
+        result_dict = DefaultCellAttributeDict()
 
         try:
+            from lib.attrdict import AttrDict
             for selection, attr_dict in self._table_cache[tab]:
-                from lib.attrdict import AttrDict
                 assert isinstance(attr_dict, AttrDict)
                 if (row, col) in selection:
                     result_dict.update(attr_dict)
@@ -171,10 +177,12 @@ class CellAttributes(list):
 
         return result_dict
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, cell_attribute: CellAttribute):
         """__setitem__ that clears caches"""
 
-        super().__setitem__(key, value)
+        assert isinstance(cell_attribute, CellAttribute)
+
+        super().__setitem__(key, cell_attribute)
 
         self._attr_cache.clear()
         self._table_cache.clear()
@@ -852,7 +860,7 @@ class DataArray:
 
             ca = list(list.__getitem__(self.cell_attributes, index))
             ca[1] = new_table
-            self.cell_attributes[index] = tuple(ca)
+            self.cell_attributes[index] = CellAttribute(*ca)
 
         def get_ca_with_updated_ma(attrs, merge_area):
             """Returns cell attributes with updated merge area"""
@@ -895,7 +903,7 @@ class DataArray:
                                                          no_to_insert, axis)
                     new_attrs = get_ca_with_updated_ma(attrs, merge_area)
 
-                    ca_updates[i] = selection, table, new_attrs
+                    ca_updates[i] = CellAttribute(selection, table, new_attrs)
 
             for idx in ca_updates:
                 self.cell_attributes[idx] = ca_updates[idx]
@@ -1092,10 +1100,10 @@ class CodeArray(DataArray):
 
         if all(type(k) is not slice for k in key):
             # Button cell handling
-            if self.cell_attributes[key]["button_cell"] is not False:
+            if self.cell_attributes[key].button_cell is not False:
                 return
             # Frozen cell handling
-            frozen_res = self.cell_attributes[key]["frozen"]
+            frozen_res = self.cell_attributes[key].frozen
             if frozen_res:
                 if repr(key) in self.frozen_cache:
                     return self.frozen_cache[repr(key)]
@@ -1281,7 +1289,8 @@ class CodeArray(DataArray):
         base_keys = ['cStringIO', 'KeyValueStore', 'UnRedo',
                      'isgenerator', 'isstring', 'bz2', 'base64',
                      '__package__', 're', '__doc__', 'QPixmap', 'charts',
-                     'CellAttributes', 'product', 'ast', '__builtins__',
+                     'product', 'AttrDict', 'CellAttribute', 'CellAttributes',
+                     'DefaultCellAttributeDict', 'ast', '__builtins__',
                      '__file__', 'sys', 'isslice', '__name__', 'QImage',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime']

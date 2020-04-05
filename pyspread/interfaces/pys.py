@@ -45,6 +45,7 @@ from collections import OrderedDict
 
 from lib.attrdict import AttrDict
 from lib.selection import Selection
+from model.model import CellAttribute
 
 
 def wxcolor2rgb(wxcolor):
@@ -198,15 +199,17 @@ class PysReader:
 
             selection = Selection([], [], [], [], [(key[0], key[1])])
             tab = key[2]
-            attrs = AttrDict([("renderer", "image")])
-            self.cell_attributes_postfixes.append((selection, tab, attrs))
+            attr_dict = AttrDict([("renderer", "image")])
+            attr = CellAttribute(selection, tab, attr_dict)
+            self.cell_attributes_postfixes.append(attr)
 
         elif "charts.ChartFigure(" in code:
             # We have a matplotlib figure
             selection = Selection([], [], [], [], [(key[0], key[1])])
             tab = key[2]
-            attrs = AttrDict([("renderer", "matplotlib")])
-            self.cell_attributes_postfixes.append((selection, tab, attrs))
+            attr_dict = AttrDict([("renderer", "matplotlib")])
+            attr = CellAttribute(selection, tab, attr_dict)
+            self.cell_attributes_postfixes.append(attr)
 
         return code
 
@@ -272,7 +275,7 @@ class PysReader:
 
         tab = int(splitline[5])
 
-        attrs = AttrDict()
+        attr_dict = AttrDict()
 
         old_merged_cells = {}
 
@@ -292,17 +295,19 @@ class PysReader:
                     # We have a merged cell
                     old_merged_cells[value_[:2]] = value_
                 try:
-                    attrs.pop("merge_area")
+                    attr_dict.pop("merge_area")
                 except KeyError:
                     pass
-                attrs[key_] = value_
+                attr_dict[key_] = value_
 
-        self.code_array.cell_attributes.append((selection, tab, attrs))
+        attr = CellAttribute(selection, tab, attr_dict)
+        self.code_array.cell_attributes.append(attr)
 
         for key in old_merged_cells:
             selection = Selection([], [], [], [], [key])
-            attrs = AttrDict([("merge_area", old_merged_cells[key])])
-            self.code_array.cell_attributes.append((selection, tab, attrs))
+            attr_dict = AttrDict([("merge_area", old_merged_cells[key])])
+            attr = CellAttribute(selection, tab, attr_dict)
+            self.code_array.cell_attributes.append(attr)
         old_merged_cells.clear()
 
     @version_handler
@@ -316,7 +321,7 @@ class PysReader:
 
         tab = int(splitline[5])
 
-        attrs = AttrDict()
+        attr_dict = AttrDict()
 
         for col, ele in enumerate(splitline[6:]):
             if not (col % 2):
@@ -326,9 +331,10 @@ class PysReader:
             else:
                 # Even cols are values
                 value = ast.literal_eval(ele)
-                attrs[key] = value
+                attr_dict[key] = value
 
-        self.code_array.cell_attributes.append((selection, tab, attrs))
+        attr = CellAttribute(selection, tab, attr_dict)
+        self.code_array.cell_attributes.append(attr)
 
     def _pys2row_heights(self, line):
         """Updates row_heights in code_array"""
