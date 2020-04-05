@@ -51,6 +51,7 @@ from lib.attrdict import AttrDict
 from lib.selection import Selection
 sys.path.pop(0)
 
+
 class Settings:
     """Simulates settings class"""
 
@@ -192,7 +193,7 @@ class TestDataArray(object):
         self.data_array[(1, 2, 3)] = "12"
         self.data_array[(1, 2, 4)] = "13"
 
-        assert "12" == self.data_array.pop((1, 2, 3))
+        assert self.data_array.pop((1, 2, 3)) == "12"
 
         assert sorted(self.data_array.keys()) == [(1, 2, 4)]
 
@@ -302,7 +303,7 @@ class TestDataArray(object):
                 assert cell_attributes[target][key] == attr_dict[key]
 
     param_test_insert = [
-        ({(2, 3, 0): "42"}, 1, 1, 0,  None,
+        ({(2, 3, 0): "42"}, 1, 1, 0, None,
          {(2, 3, 0): None, (3, 3, 0): "42"}),
         ({(0, 0, 0): "0", (0, 0, 2): "2"}, 1, 1, 2, None,
          {(0, 0, 3): "2", (0, 0, 4): None}),
