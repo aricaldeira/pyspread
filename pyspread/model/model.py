@@ -40,19 +40,29 @@ from builtins import object
 import ast
 import base64
 import bz2
+from collections import defaultdict
 from copy import copy
 import datetime
+from importlib import reload
 from inspect import isgenerator
+import io
 from itertools import product
 import re
+import signal
 import sys
+from traceback import print_exception
 from typing import NamedTuple
 
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
+try:
+    from matplotlib.figure import Figure
+except ImportError:
+    Figure = None
 
 from lib.attrdict import AttrDict
 import lib.charts as charts
+from lib.exception_handling import get_user_codeframe
 from lib.typechecks import isslice, isstring
 from lib.selection import Selection
 
@@ -104,6 +114,8 @@ class CellAttributes(list):
     """
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.__add__ = None
         self.__delattr__ = None
         self.__delitem__ = None
@@ -146,7 +158,7 @@ class CellAttributes(list):
     def __getitem__(self, key):
         """Returns attribute dict for a single key"""
 
-        assert not any(type(key_ele) is slice for key_ele in key)
+        assert not any(isinstance(key_ele, slice) for key_ele in key)
 
         if key in self._attr_cache:
             cache_len, cache_dict = self._attr_cache[key]
@@ -164,7 +176,6 @@ class CellAttributes(list):
         result_dict = DefaultCellAttributeDict()
 
         try:
-            from lib.attrdict import AttrDict
             for selection, attr_dict in self._table_cache[tab]:
                 assert isinstance(attr_dict, AttrDict)
                 if (row, col) in selection:
@@ -292,9 +303,6 @@ class DictGrid(KeyValueStore):
         self.macros = u""
         """Macros as string"""
 
-        # We need to import this here for the unit tests to work
-        from collections import defaultdict
-
         self.row_heights = defaultdict(float)  # Keys have format (row, table)
         self.col_widths = defaultdict(float)  # Keys have format (col, table)
 
@@ -390,7 +398,7 @@ class DataArray:
 
         data["shape"] = self.shape
         data["grid"] = {}.update(self.dict_grid)
-        data["attributes"] = [ca for ca in self.cell_attributes]
+        data["attributes"] = self.cell_attributes[:]
         data["row_heights"] = self.row_heights
         data["col_widths"] = self.col_widths
         data["macros"] = self.macros
@@ -562,10 +570,9 @@ class DataArray:
         for key_ele in key:
             if isslice(key_ele):
                 # We have something slice-like here
-
                 return self.cell_array_generator(key)
 
-            elif isstring(key_ele):
+            if isstring(key_ele):
                 # We have something string-like here
                 msg = "Cell string based access not implemented"
                 raise NotImplementedError(msg)
@@ -689,13 +696,13 @@ class DataArray:
         for i, key_ele in enumerate(key):
 
             # Get first element of key that is a slice
-            if type(key_ele) is slice:
+            if isinstance(key_ele, slice):
                 slc_keys = range(*key_ele.indices(self.dict_grid.shape[i]))
                 key_list = list(key)
 
                 key_list[i] = None
 
-                has_subslice = any(type(ele) is slice for ele in key_list)
+                has_subslice = any(isinstance(ele, slice) for ele in key_list)
 
                 for slc_key in slc_keys:
                     key_list[i] = slc_key
@@ -808,8 +815,13 @@ class DataArray:
         # Adjust merge area if it is beyond the grid shape
         rows, cols, tabs = self.shape
 
-        if __top < 0 and __bottom < 0 or __top >= rows and __bottom >= rows or\
-           __left < 0 and __right < 0 or __left >= cols and __right >= cols:
+        if __top < 0 and __bottom < 0:
+            return
+        if __top >= rows and __bottom >= rows:
+            return
+        if __left < 0 and __right < 0:
+            return
+        if __left >= cols and __right >= cols:
             return
 
         if __top < 0:
@@ -858,9 +870,9 @@ class DataArray:
         def replace_cell_attributes_table(index, new_table):
             """Replaces table in cell_attributes item"""
 
-            ca = list(list.__getitem__(self.cell_attributes, index))
-            ca[1] = new_table
-            self.cell_attributes[index] = CellAttribute(*ca)
+            cell_attr = list(list.__getitem__(self.cell_attributes, index))
+            cell_attr[1] = new_table
+            self.cell_attributes[index] = CellAttribute(*cell_attr)
 
         def get_ca_with_updated_ma(attrs, merge_area):
             """Returns cell attributes with updated merge area"""
@@ -892,8 +904,8 @@ class DataArray:
             # Adjust selections on given table
 
             ca_updates = {}
-            for i, (selection, table, attrs) in enumerate(
-                                                    self.cell_attributes):
+            for i, (selection, table, attrs) \
+                    in enumerate(self.cell_attributes):
                 selection = copy(selection)
                 if tab is None or tab == table:
                     selection.insert(insertion_point, no_to_insert, axis)
@@ -990,7 +1002,7 @@ class DataArray:
         if no_to_delete < 0:
             raise ValueError("Cannot delete negative number of rows/cols/...")
 
-        elif no_to_delete >= self.shape[axis]:
+        if no_to_delete >= self.shape[axis]:
             raise ValueError("Last row/column/table must not be deleted")
 
         if deletion_point > self.shape[axis] or \
@@ -1098,7 +1110,7 @@ class CodeArray(DataArray):
     def __getitem__(self, key):
         """Returns _eval_cell"""
 
-        if all(type(k) is not slice for k in key):
+        if not any(isinstance(k, slice) for k in key):
             # Button cell handling
             if self.cell_attributes[key].button_cell is not False:
                 return
@@ -1107,12 +1119,11 @@ class CodeArray(DataArray):
             if frozen_res:
                 if repr(key) in self.frozen_cache:
                     return self.frozen_cache[repr(key)]
-                else:
-                    # Frozen cache is empty.
-                    # Maybe we have a reload without the frozen cache
-                    result = self._eval_cell(key, self(key))
-                    self.frozen_cache[repr(key)] = result
-                    return result
+                # Frozen cache is empty.
+                # Maybe we have a reload without the frozen cache
+                result = self._eval_cell(key, self(key))
+                self.frozen_cache[repr(key)] = result
+                return result
 
         # Normal cell handling
 
@@ -1198,39 +1209,28 @@ class CodeArray(DataArray):
                 # Probably no numpy array
                 return numpy.array([_f for _f in val if _f])
 
-        # Set up environment for evaluation
-        try:
-            from matplotlib.figure import Figure  # Needs to be imported here
-        except ImportError:
-            Figure = None
         env_dict = {'X': key[0], 'Y': key[1], 'Z': key[2], 'bz2': bz2,
                     'base64': base64, 'nn': nn, 'Figure': Figure,
                     'R': key[0], 'C': key[1], 'T': key[2], 'S': self}
         env = self._get_updated_environment(env_dict=env_dict)
 
-        # Return cell value if in safe mode
-
         if self.safe_mode:
+            # Safe mode is active
             return code
 
-        # If cell is not present return None
-
         if code is None:
+            # Cell is not present
             return
 
-        elif isgenerator(code):
+        if isgenerator(code):
             # We have a generator object
-
             return numpy.array(self._make_nested_list(code), dtype="O")
 
         try:
-            import signal
-
             signal.signal(signal.SIGALRM, self.handler)
             signal.alarm(self.settings.timeout)
-
-        except Exception:
-            # No POSIX system
+        except AttributeError:
+            # No Unix system
             pass
 
         try:
@@ -1249,7 +1249,7 @@ class CodeArray(DataArray):
         finally:
             try:
                 signal.alarm(0)
-            except Exception:
+            except AttributeError:
                 # No POSIX system
                 pass
 
@@ -1277,7 +1277,6 @@ class CodeArray(DataArray):
     def reload_modules(self):
         """Reloads modules that are available in cells"""
 
-        from importlib import reload
         modules = [bz2, base64, re, ast, sys, numpy, datetime]
 
         for module in modules:
@@ -1286,14 +1285,15 @@ class CodeArray(DataArray):
     def clear_globals(self):
         """Clears all newly assigned globals"""
 
-        base_keys = ['cStringIO', 'KeyValueStore', 'UnRedo',
-                     'isgenerator', 'isstring', 'bz2', 'base64',
+        base_keys = ['cStringIO', 'KeyValueStore', 'UnRedo', 'Figure',
+                     'reload', 'io', 'print_exception', 'get_user_codeframe',
+                     'isgenerator', 'isstring', 'bz2', 'base64', 'defaultdict'
                      '__package__', 're', '__doc__', 'QPixmap', 'charts',
                      'product', 'AttrDict', 'CellAttribute', 'CellAttributes',
                      'DefaultCellAttributeDict', 'ast', '__builtins__',
                      '__file__', 'sys', 'isslice', '__name__', 'QImage',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
-                     'numpy', 'CodeArray', 'DataArray', 'datetime']
+                     'numpy', 'CodeArray', 'DataArray', 'datetime', 'signal']
 
         for key in list(globals().keys()):
             if key not in base_keys:
@@ -1325,7 +1325,6 @@ class CodeArray(DataArray):
         globals().update(self._get_updated_environment())
 
         # Create file-like string to capture output
-        import io
         code_out = io.StringIO()
         code_err = io.StringIO()
         err_msg = io.StringIO()
@@ -1335,12 +1334,9 @@ class CodeArray(DataArray):
         sys.stderr = code_err
 
         try:
-            import signal
-
             signal.signal(signal.SIGALRM, self.handler)
             signal.alarm(self.settings.timeout)
-
-        except Exception:
+        except AttributeError:
             # No POSIX system
             pass
 
@@ -1348,16 +1344,11 @@ class CodeArray(DataArray):
             exec(self.macros, globals())
             try:
                 signal.alarm(0)
-            except Exception:
+            except AttributeError:
                 # No POSIX system
                 pass
 
         except Exception:
-            # Print exception
-            # (Because of how the globals are handled during execution
-            # we must import modules here)
-            from traceback import print_exception
-            from lib.exception_handling import get_user_codeframe
             exc_info = sys.exc_info()
             user_tb = get_user_codeframe(exc_info[2]) or exc_info[2]
             print_exception(exc_info[0], exc_info[1], user_tb, None, err_msg)
@@ -1390,15 +1381,15 @@ class CodeArray(DataArray):
 
         """
 
-        def tuple_key(t):
-            return t[::-1]
+        def tuple_key(tpl):
+            return tpl[::-1]
 
         if reverse:
-            def tuple_cmp(t):
-                return t[::-1] > startkey[::-1]
+            def tuple_cmp(tpl):
+                return tpl[::-1] > startkey[::-1]
         else:
-            def tuple_cmp(t):
-                return t[::-1] < startkey[::-1]
+            def tuple_cmp(tpl):
+                return tpl[::-1] < startkey[::-1]
 
         searchkeys = sorted(keys, key=tuple_key, reverse=reverse)
         searchpos = sum(1 for _ in filter(tuple_cmp, searchkeys))
@@ -1446,8 +1437,8 @@ class CodeArray(DataArray):
 
         if pos == -1:
             return None
-        else:
-            return pos
+
+        return pos
 
     def findnextmatch(self, startkey, find_string, up=False, word=False,
                       case=False, regexp=False, results=True):
@@ -1472,23 +1463,15 @@ class CodeArray(DataArray):
 
         """
 
-        if results:
-            def is_matching(key, find_string, word, case, regexp):
-                code = self(key)
-                pos = self.string_match(code, find_string, word, case, regexp)
+        def is_matching(key, find_string, word, case, regexp):
+            code = self(key)
+            pos = self.string_match(code, find_string, word, case, regexp)
+            if results:
                 if pos is not None:
                     return True
-                else:
-                    res_str = str(self[key])
-                    pos = self.string_match(res_str, find_string, word, case,
-                                            regexp)
-                    return pos is not None
-
-        else:
-            def is_matching(code, find_string, word, case, regexp):
-                code = self(key)
-                pos = self.string_match(code, find_string, word, case, regexp)
-                return pos is not None
+                r_str = str(self[key])
+                pos = self.string_match(r_str, find_string, word, case, regexp)
+            return pos is not None
 
         # List of keys in sgrid in search order
 
@@ -1505,6 +1488,8 @@ class CodeArray(DataArray):
                 pass
 
     def handler(self, signum, frame):
+        """Signal handler for timeout"""
+
         raise RuntimeError("Timeout after {} s.".format(self.settings.timeout))
 
 # End of class CodeArray
