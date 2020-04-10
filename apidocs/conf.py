@@ -44,7 +44,6 @@ release = 'v2-dev'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx_autodoc_typehints',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -53,6 +52,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.graphviz',
     'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
 
     'recommonmark'
 ]
