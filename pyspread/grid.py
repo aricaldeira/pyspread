@@ -1643,7 +1643,7 @@ class GridCellDelegate(QStyledItemDelegate):
         yield
         painter.restore()
 
-    def _paint_bl_border_lines(self, x, y, width, height, painter, key):
+    def paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
         cell = GridCellNavigator(self.main_window, key)
@@ -1668,8 +1668,7 @@ class GridCellDelegate(QStyledItemDelegate):
                                              cell.above_right_key())
         right_cells = [GridCellNavigator(self.main_window, key)
                        for key in cell.right_keys()]
-#        below_right_cell = GridCellNavigator(self.main_window,
-#                                             cell.below_right_key())
+
         below_cells = [GridCellNavigator(self.main_window, key)
                        for key in cell.below_keys()]
         below_left_cell = GridCellNavigator(self.main_window,
@@ -1755,7 +1754,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         # Paint bottom and right border lines of the current cell
         key = row, column, table
-        return self._paint_bl_border_lines(0, 0, width, height, painter, key)
+        return self.paint_bl_border_lines(0, 0, width, height, painter, key)
 
     def _render_markup(self, painter, option, index):
         """HTML markup renderer"""
