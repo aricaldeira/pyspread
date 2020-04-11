@@ -159,7 +159,7 @@ class Grid(QTableView):
         self.__undo_resizing_column = False
 
     @property
-    def row(self):
+    def row(self) -> int:
         """Current row"""
 
         return self.currentIndex().row()
@@ -171,7 +171,7 @@ class Grid(QTableView):
         self.current = value, self.column
 
     @property
-    def column(self):
+    def column(self) -> int:
         """Current column"""
 
         return self.currentIndex().column()
@@ -183,7 +183,7 @@ class Grid(QTableView):
         self.current = self.row, value
 
     @property
-    def table(self):
+    def table(self) -> int:
         """Current table"""
 
         return self.table_choice.table
@@ -196,7 +196,7 @@ class Grid(QTableView):
             self.table_choice.table = value
 
     @property
-    def current(self):
+    def current(self) -> Tuple[int, int, int]:
         """Tuple of row, column, table of the current index"""
 
         return self.row, self.column, self.table
@@ -225,7 +225,7 @@ class Grid(QTableView):
         self.setCurrentIndex(index)
 
     @property
-    def row_heights(self):
+    def row_heights(self) -> List[Tuple[int, float]]:
         """Returns list of tuples (row_index, row height) for current table"""
 
         row_heights = self.model.code_array.row_heights
@@ -233,7 +233,7 @@ class Grid(QTableView):
                 if tab == self.table]
 
     @property
-    def column_widths(self):
+    def column_widths(self) -> List[Tuple[int, float]]:
         """Returns list of tuples (col_index, col_width) for current table"""
 
         col_widths = self.model.code_array.col_widths
@@ -241,7 +241,7 @@ class Grid(QTableView):
                 if tab == self.table]
 
     @property
-    def selection(self):
+    def selection(self) -> Selection:
         """Pyspread selection based on self's QSelectionModel"""
 
         selection = self.selectionModel().selection()
@@ -267,13 +267,13 @@ class Grid(QTableView):
         return Selection(block_top_left, block_bottom_right, [], [], cells)
 
     @property
-    def selected_idx(self):
+    def selected_idx(self) -> List[QModelIndex]:
         """Currently selected indices"""
 
         return self.selectionModel().selectedIndexes()
 
     @property
-    def zoom(self):
+    def zoom(self) -> float:
         """Returns zoom level"""
 
         return self._zoom
@@ -376,7 +376,7 @@ class Grid(QTableView):
         self.verticalHeader().update_zoom()
         self.horizontalHeader().update_zoom()
 
-    def has_selection(self):
+    def has_selection(self) -> bool:
         """Returns True if more than one cell is selected, else False
 
         This method handles spanned/merged cells. One single cell that is
@@ -1270,11 +1270,11 @@ class GridTableModel(QAbstractTableModel):
         self.endRemoveColumns()
 
     @property
-    def grid(self):
+    def grid(self) -> Grid:
         return self.main_window.grid
 
     @property
-    def shape(self):
+    def shape(self) -> Tuple[int, int, int]:
         """Returns 3-tuple of rows, columns and tables"""
 
         return self.code_array.shape
@@ -1289,33 +1289,33 @@ class GridTableModel(QAbstractTableModel):
             self.code_array.shape = value
             self.grid.table_choice.no_tables = value[2]
 
-    def current(self, index: QModelIndex):
+    def current(self, index: QModelIndex) -> Tuple[int, int, int]:
         """Tuple of row, column, table of given index"""
 
         return index.row(), index.column(), self.main_window.grid.table
 
-    def code(self, index: QModelIndex):
+    def code(self, index: QModelIndex) -> str:
         """Code in index"""
 
         return self.code_array(self.current(index))
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent=QModelIndex()) -> int:
         """Overloaded rowCount for code_array backend"""
 
         return self.shape[0]
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent=QModelIndex()) -> int:
         """Overloaded columnCount for code_array backend"""
 
         return self.shape[1]
 
-    def insertRows(self, row: int, count: int):
+    def insertRows(self, row: int, count: int) -> bool:
         """Overloaded insertRows for code_array backend"""
 
         self.code_array.insert(row, count, axis=0, tab=self.grid.table)
         return True
 
-    def removeRows(self, row: int, count: int):
+    def removeRows(self, row: int, count: int) -> bool:
         """Overloaded removeRows for code_array backend"""
 
         try:
@@ -1324,13 +1324,13 @@ class GridTableModel(QAbstractTableModel):
             return False
         return True
 
-    def insertColumns(self, column: int, count: int):
+    def insertColumns(self, column: int, count: int) -> bool:
         """Overloaded insertColumns for code_array backend"""
 
         self.code_array.insert(column, count, axis=1, tab=self.grid.table)
         return True
 
-    def removeColumns(self, column: int, count: int):
+    def removeColumns(self, column: int, count: int) -> bool:
         """Overloaded removeColumns for code_array backend"""
 
         try:
@@ -1349,7 +1349,7 @@ class GridTableModel(QAbstractTableModel):
 
         self.code_array.delete(table, count, axis=2)
 
-    def font(self, key: Tuple[int, int, int]):
+    def font(self, key: Tuple[int, int, int]) -> QFont:
         """Returns font for given key"""
 
         attr = self.code_array.cell_attributes[key]
@@ -1368,10 +1368,11 @@ class GridTableModel(QAbstractTableModel):
             font.setStrikeOut(attr.strikethrough)
         return font
 
-    def data(self, index: QModelIndex, role: Qt.ItemDataRole = Qt.DisplayRole):
+    def data(self, index: QModelIndex,
+             role: Qt.ItemDataRole = Qt.DisplayRole) -> Any:
         """Overloaded data for code_array backend"""
 
-        def safe_str(obj):
+        def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
             try:
                 return str(obj)
@@ -1448,7 +1449,7 @@ class GridTableModel(QAbstractTableModel):
         return QVariant()
 
     def setData(self, index: QModelIndex, value: Any, role: Qt.ItemDataRole,
-                raw: bool = False, table: int = None):
+                raw: bool = False, table: int = None) -> bool:
         """Overloaded setData for code_array backend"""
 
         if role == Qt.EditRole:
@@ -1479,7 +1480,7 @@ class GridTableModel(QAbstractTableModel):
                 self.dataChanged.emit(idx, idx)
             return True
 
-    def flags(self, index: QModelIndex):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         """Overloaded, makes items editable"""
 
         return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
@@ -1525,19 +1526,19 @@ class GridCellNavigator:
         self.row, self.column, self.table = self.key = key
 
     @property
-    def borderwidth_bottom(self):
+    def borderwidth_bottom(self) -> float:
         """Width of bottom border line"""
 
         return self.code_array.cell_attributes[self.key].borderwidth_bottom
 
     @property
-    def borderwidth_right(self):
+    def borderwidth_right(self) -> float:
         """Width of right border line"""
 
         return self.code_array.cell_attributes[self.key].borderwidth_right
 
     @property
-    def border_qcolor_bottom(self):
+    def border_qcolor_bottom(self) -> QColor:
         """Color of bottom border line"""
 
         color = self.code_array.cell_attributes[self.key].bordercolor_bottom
@@ -1546,7 +1547,7 @@ class GridCellNavigator:
         return QColor(*color)
 
     @property
-    def border_qcolor_right(self):
+    def border_qcolor_right(self) -> QColor:
         """Color of right border line"""
 
         color = self.code_array.cell_attributes[self.key].bordercolor_right
@@ -1555,7 +1556,7 @@ class GridCellNavigator:
         return QColor(*color)
 
     @property
-    def merge_area(self):
+    def merge_area(self) -> Tuple[int, int, int, int]:
         """Merge area of the key cell"""
 
         return self.code_array.cell_attributes[self.key].merge_area
@@ -1638,7 +1639,7 @@ class GridCellDelegate(QStyledItemDelegate):
         self.cell_attributes = self.code_array.cell_attributes
 
     @property
-    def grid(self):
+    def grid(self) -> Grid:
         """Returns mainwindow.grid"""
 
         return self.main_window.grid
@@ -1651,9 +1652,10 @@ class GridCellDelegate(QStyledItemDelegate):
         yield
         painter.restore()
 
-    def paint_bl_border_lines(self, x: float, y: float, width: float,
-                              height: float, painter: QPainter,
-                              key: Tuple[int, int, int]):
+    def paint_bl_border_lines(
+            self, x: float, y: float, width: float, height: float,
+            painter: QPainter,
+            key: Tuple[int, int, int]) -> Tuple[float, float, float, float]:
         """Paint the bottom and the left border line of the cell"""
 
         cell = GridCellNavigator(self.main_window, key)
@@ -1747,8 +1749,9 @@ class GridCellDelegate(QStyledItemDelegate):
 
         return irect_x, irect_y, irect_width, irect_height
 
-    def _paint_border_lines(self, width: float, height: float,
-                            painter: QPainter, index: QModelIndex):
+    def _paint_border_lines(
+            self, width: float, height: float, painter: QPainter,
+            index: QModelIndex) -> Tuple[float, float, float, float]:
         """Paint border lines around the cell
 
         First, bottom and right border lines are painted.
@@ -1804,16 +1807,16 @@ class GridCellDelegate(QStyledItemDelegate):
             painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
             doc.documentLayout().draw(painter, ctx)
 
-    def _get_aligned_image_rect(self, option: QStyleOptionViewItem,
-                                index: QModelIndex,
-                                image_width: Union[int, float],
-                                image_height: Union[int, float]):
+    def _get_aligned_image_rect(
+            self, option: QStyleOptionViewItem, index: QModelIndex,
+            image_width: Union[int, float],
+            image_height: Union[int, float]) -> Tuple[float, float]:
         """Returns image rect dependent on alignment and justification"""
 
         def scale_size(inner_width: Union[int, float],
                        inner_height: Union[int, float],
                        outer_width: Union[int, float],
-                       outer_height: Union[int, float]):
+                       outer_height: Union[int, float]) -> Tuple[float, float]:
             """Scales up inner_rect to fit in outer_rect
 
             Returns width, height tuple that maintains aspect ratio.
@@ -2037,7 +2040,7 @@ class GridCellDelegate(QStyledItemDelegate):
             self.__paint(painter, optionCopy, index)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
-              index: QModelIndex):
+              index: QModelIndex) -> Tuple[float, float, float, float]:
         """Overloads QStyledItemDelegate to add cell border painting"""
 
         def get_unzoomed_rect_args(
@@ -2079,7 +2082,7 @@ class GridCellDelegate(QStyledItemDelegate):
                     self._rotated_paint(painter, option, index, angle)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem,
-                     index: QModelIndex):
+                     index: QModelIndex) -> QWidget:
         """Overloads QStyledItemDelegate
 
         Disables editor in locked cells
@@ -2102,7 +2105,7 @@ class GridCellDelegate(QStyledItemDelegate):
         self.editor.installEventFilter(self)
         return self.editor
 
-    def eventFilter(self, source: QObject, event: QEvent):
+    def eventFilter(self, source: QObject, event: QEvent) -> bool:
         """Overloads eventFilter. Overrides QLineEdit default shortcut.
 
         Quotes cell editor content for <Ctrl>+<Enter> and <Ctrl>+<Return>.
