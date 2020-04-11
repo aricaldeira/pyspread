@@ -74,15 +74,16 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class MainWindow(QMainWindow):
-    """Pyspread main window
-
-    :param filepath: filepath for inital file to be opened, defaults to None
-
-    """
+    """Pyspread main window"""
 
     gui_update = pyqtSignal(dict)
 
     def __init__(self, filepath: str = None):
+        """
+        :param filepath: filepath for inital file to be opened
+
+        """
+
         super().__init__()
 
         self._loading = True
@@ -247,6 +248,8 @@ class MainWindow(QMainWindow):
         If safe_mode changes from True to False then caches are cleared and
         macros are executed.
 
+        :param value: Safe mode
+
         """
 
         if self.grid.model.code_array.safe_mode == bool(value):
@@ -301,7 +304,11 @@ class MainWindow(QMainWindow):
         dialog.exec_()
 
     def on_paint_request(self, printer: QPrinter):
-        """Paints to printer"""
+        """Paints to printer
+
+        :param printer: Target printer
+
+        """
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
@@ -405,7 +412,11 @@ class MainWindow(QMainWindow):
         self.undo_stack.redo()
 
     def on_toggle_refresh_timer(self, toggled: bool):
-        """Toggles periodic timer for frozen cells"""
+        """Toggles periodic timer for frozen cells
+
+        :param toggled: Toggle state
+
+        """
 
         if toggled:
             self.refresh_timer.start(self.settings.refresh_timeout)
@@ -425,7 +436,12 @@ class MainWindow(QMainWindow):
             self.grid.refresh_frozen_cells()
 
     def _toggle_widget(self, widget: QWidget, action_name: str, toggled: bool):
-        """Toggles widget visibility and updates toggle actions"""
+        """Toggles widget visibility and updates toggle actions
+
+        :param action_name: Name of action from Action class
+        :param toggled: Toggle state
+
+        """
 
         if toggled:
             widget.show()
@@ -435,34 +451,58 @@ class MainWindow(QMainWindow):
         self.main_window_actions[action_name].setChecked(widget.isVisible())
 
     def on_toggle_main_toolbar(self, toggled: bool):
-        """Main toolbar toggle event handler"""
+        """Main toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.main_toolbar, "toggle_main_toolbar", toggled)
 
     def on_toggle_macro_toolbar(self, toggled: bool):
-        """Macro toolbar toggle event handler"""
+        """Macro toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
                             toggled)
 
     def on_toggle_format_toolbar(self, toggled: bool):
-        """Format toolbar toggle event handler"""
+        """Format toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.format_toolbar, "toggle_format_toolbar",
                             toggled)
 
     def on_toggle_find_toolbar(self, toggled: bool):
-        """Find toolbar toggle event handler"""
+        """Find toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
     def on_toggle_entry_line(self, toggled: bool):
-        """Entryline toggle event handler"""
+        """Entryline toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
 
     def on_toggle_macro_panel(self, toggled: bool):
-        """Macro panel toggle event handler"""
+        """Macro panel toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
 
@@ -503,9 +543,9 @@ class MainWindow(QMainWindow):
         QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
 
     def on_gui_update(self, attributes: CellAttributes):
-        """GUI update event handler.
+        """GUI update that shall be called on each cell change
 
-        Emitted on cell change. Attributes contains current cell_attributes.
+        :param attributes: Attributes of current cell
 
         """
 
