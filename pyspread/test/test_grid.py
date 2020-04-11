@@ -30,6 +30,7 @@ Unit tests for grid.py
 from contextlib import contextmanager
 from os.path import abspath, dirname, join
 import sys
+from typing import NamedTuple
 
 import pytest
 
@@ -147,8 +148,31 @@ class TestGridTableModel:
             assert error is None
         assert self.model.shape == res
 
-    def test_code(self):
-        pass
+    param_test_code = [
+        (0, 0, "", None),
+        (0, 0, "None", "None"),
+        (0, 0, "2+6", "2+6"),
+        (1, 1, "test", "test"),
+    ]
+
+    @pytest.mark.parametrize("row, column, code, res", param_test_code)
+    def test_code(self, row, column, code, res):
+        """Unit test for code"""
+
+        class Index:
+            def __init__(self, row: int, column: int):
+                self._row = row
+                self._column = column
+
+            def row(self) -> int:
+                return self._row
+
+            def column(self) -> int:
+                return self._column
+
+        self.model.code_array[(row, column, 0)] = code
+        index = Index(row, column)
+        assert self.model.code(index) == res
 
     def test_insertRows(self):
         pass
