@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, filepath: str = None):
         """
-        :param filepath: filepath for inital file to be opened
+        :param filepath: File path for inital file to be opened
 
         """
 
@@ -143,14 +143,22 @@ class MainWindow(QMainWindow):
         self.setMenuBar(MenuBar(self))
 
     def resizeEvent(self, event: QEvent):
-        """Overloaded, aborts on self._loading"""
+        """Overloaded, aborts on self._loading
+
+        :param event: Resize event
+
+        """
 
         super(MainWindow, self).resizeEvent(event)
         if self._loading:
             return
 
     def closeEvent(self, event: QEvent = None):
-        """Overloaded, allows saving changes or canceling close"""
+        """Overloaded, allows saving changes or canceling close
+
+        :param event: Any QEvent
+
+        """
 
         if event:
             event.ignore()
@@ -189,6 +197,9 @@ class MainWindow(QMainWindow):
         """Overloaded event filter for handling QDockWidget close events
 
         Updates the menu if the macro panel is closed.
+
+        :param source: Source widget of event
+        :param event: Any QEvent
 
         """
 
@@ -438,6 +449,7 @@ class MainWindow(QMainWindow):
     def _toggle_widget(self, widget: QWidget, action_name: str, toggled: bool):
         """Toggles widget visibility and updates toggle actions
 
+        :param widget: Widget to be toggled shown or hidden
         :param action_name: Name of action from Action class
         :param toggled: Toggle state
 

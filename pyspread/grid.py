@@ -78,16 +78,22 @@ class Grid(QTableView):
     """The main grid of pyspread"""
 
     def __init__(self, main_window: QMainWindow):
+        """
+
+        :param main_window: Application main window
+
+        """
+
         super().__init__()
 
         self.main_window = main_window
 
-        dimensions = main_window.settings.shape
+        shape = main_window.settings.shape
 
-        self.model = GridTableModel(main_window, dimensions)
+        self.model = GridTableModel(main_window, shape)
         self.setModel(self.model)
 
-        self.table_choice = TableChoice(self, dimensions[2])
+        self.table_choice = TableChoice(self, shape[2])
 
         self.widget_indices = []  # Store each index with an indexWidget here
 
@@ -166,7 +172,11 @@ class Grid(QTableView):
 
     @row.setter
     def row(self, value: int):
-        """Sets current row to value"""
+        """Sets current row to value
+
+        :param value: Row to be made current
+
+        """
 
         self.current = value, self.column
 
@@ -178,7 +188,11 @@ class Grid(QTableView):
 
     @column.setter
     def column(self, value: int):
-        """Sets current column to value"""
+        """Sets current column to value
+
+        :param value: Column to be made current
+
+        """
 
         self.current = self.row, value
 
@@ -190,7 +204,11 @@ class Grid(QTableView):
 
     @table.setter
     def table(self, value: int):
-        """Sets current table"""
+        """Sets current table
+
+        :param value: Table to be made current
+
+        """
 
         if 0 <= value < self.model.shape[2]:
             self.table_choice.table = value
@@ -202,8 +220,12 @@ class Grid(QTableView):
         return self.row, self.column, self.table
 
     @current.setter
-    def current(self, value: Sequence[int]):
-        """Sets the current index to row, column and if given table"""
+    def current(self, value: Union[Tuple[int, int, int], Tuple[int, int]]):
+        """Sets the current index to row, column and if given table
+
+        :param value: Key of cell to be made current
+
+        """
 
         if len(value) not in (2, 3):
             msg = "Current cell must be defined with a tuple " + \
@@ -284,6 +306,8 @@ class Grid(QTableView):
 
         Does nothing if not between minimum and maximum of settings.zoom_levels
 
+        :param zoom: Zoom level to be set
+
         """
 
         zoom_levels = self.main_window.settings.zoom_levels
@@ -301,6 +325,9 @@ class Grid(QTableView):
          * Data is submitted when a cell is changed without pressing <Enter>
            e.g. by mouse click or arrow keys.
 
+        :param editor: Editor to be closed
+        :param hint: Hint to be overridden if == `QAbstractItemDelegate.NoHint`
+
         """
 
         if hint == QAbstractItemDelegate.NoHint:
@@ -315,6 +342,8 @@ class Grid(QTableView):
          * If Shift is pressed, the cell in the next column is selected.
          * If Shift is not pressed, the cell in the next row is selected.
 
+        :param event: Key event
+
         """
 
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
@@ -328,7 +357,11 @@ class Grid(QTableView):
             super().keyPressEvent(event)
 
     def wheelEvent(self, event: QWheelEvent):
-        """Overrides mouse wheel event handler"""
+        """Overrides mouse wheel event handler
+
+        :param event: Mouse wheel event
+
+        """
 
         modifiers = QApplication.keyboardModifiers()
         if modifiers == Qt.ControlModifier:
@@ -340,7 +373,11 @@ class Grid(QTableView):
             super().wheelEvent(event)
 
     def contextMenuEvent(self, event: QContextMenuEvent):
-        """Overrides contextMenuEvent to install GridContextMenu"""
+        """Overrides contextMenuEvent to install GridContextMenu
+
+        :param event: Context menu event
+
+        """
 
         menu = GridContextMenu(self.main_window.main_window_actions)
         menu.exec_(self.mapToGlobal(event.pos()))
@@ -366,7 +403,11 @@ class Grid(QTableView):
         self.resize(w, h)
 
     def _selected_idx_to_str(self, selected_idx: Iterable[QModelIndex]) -> str:
-        """Converts selected_idx to string with cell indices"""
+        """Converts selected_idx to string with cell indices
+
+        :param selected_idx: Indices of selected cells
+
+        """
 
         return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
 
@@ -411,14 +452,24 @@ class Grid(QTableView):
             self.main_window.setWindowTitle(main_window_title)
 
     def on_current_changed(self, current: Tuple[int, int, int], _: Any = None):
-        """Event handler for change of current cell"""
+        """Event handler for change of current cell
+
+        :param current: Key of current cell
+
+        """
 
         code = self.model.code_array(self.current)
         self.main_window.entry_line.setPlainText(code)
         self.gui_update()
 
     def on_row_resized(self, row: int, old_height: float, new_height: float):
-        """Row resized event handler"""
+        """Row resized event handler
+
+        :param row: Row that is resized
+        :param old_height: Row height before resizing
+        :param new_height: Row height after resizing
+
+        """
 
         if self.__undo_resizing_row:  # Resize from undo or redo command
             return
@@ -436,7 +487,13 @@ class Grid(QTableView):
 
     def on_column_resized(self, column: int, old_width: float,
                           new_width: float):
-        """Column resized event handler"""
+        """Column resized event handler
+
+        :param row: Column that is resized
+        :param old_width: Column width before resizing
+        :param new_width: Column width after resizing
+
+        """
 
         if self.__undo_resizing_column:  # Resize from undo or redo command
             return
@@ -478,6 +535,8 @@ class Grid(QTableView):
 
         Does neither emit dataChanged nor clear _attr_cache or _table_cache.
 
+        :param key: Key of cell to be refreshed
+
         """
 
         if self.model.code_array.cell_attributes[key].frozen:
@@ -511,7 +570,11 @@ class Grid(QTableView):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def on_show_frozen_pressed(self, toggled: bool):
-        """Show frozen cells event handler"""
+        """Show frozen cells event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self.main_window.settings.show_frozen = toggled
 
@@ -562,7 +625,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_bold_pressed(self, toggled: bool):
-        """Bold button pressed event handler"""
+        """Bold button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         fontweight = QFont.Bold if toggled else QFont.Normal
         attr_dict = AttrDict([("fontweight", fontweight)])
@@ -575,7 +642,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_italics_pressed(self, toggled: bool):
-        """Italics button pressed event handler"""
+        """Italics button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         fontstyle = QFont.StyleItalic if toggled else QFont.StyleNormal
         attr_dict = AttrDict([("fontstyle", fontstyle)])
@@ -588,7 +659,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_underline_pressed(self, toggled: bool):
-        """Underline button pressed event handler"""
+        """Underline button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("underline", toggled)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -600,7 +675,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_strikethrough_pressed(self, toggled: bool):
-        """Strikethrough button pressed event handler"""
+        """Strikethrough button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("strikethrough", toggled)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -612,7 +691,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_text_renderer_pressed(self, toggled: bool):
-        """Text renderer button pressed event handler"""
+        """Text renderer button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("renderer", "text")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -632,7 +715,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_image_renderer_pressed(self, toggled: bool):
-        """Image renderer button pressed event handler"""
+        """Image renderer button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("renderer", "image")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -645,7 +732,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_markup_renderer_pressed(self, toggled: bool):
-        """Markup renderer button pressed event handler"""
+        """Markup renderer button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("renderer", "markup")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -665,7 +756,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_matplotlib_renderer_pressed(self, toggled: bool):
-        """Matplotlib renderer button pressed event handler"""
+        """Matplotlib renderer button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("renderer", "matplotlib")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -685,7 +780,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_lock_pressed(self, toggled: bool):
-        """Lock button pressed event handler"""
+        """Lock button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("locked", toggled)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -697,7 +796,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_rotate_0(self, toggled: bool):
-        """Set cell rotation to 0° left button pressed event handler"""
+        """Set cell rotation to 0° left button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("angle", 0.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -709,7 +812,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_rotate_90(self, toggled: bool):
-        """Set cell rotation to 90° left button pressed event handler"""
+        """Set cell rotation to 90° left button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("angle", 90.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -722,7 +829,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_rotate_180(self, toggled: bool):
-        """Set cell rotation to 180° left button pressed event handler"""
+        """Set cell rotation to 180° left button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("angle", 180.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -735,7 +846,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_rotate_270(self, toggled: bool):
-        """Set cell rotation to 270° left button pressed event handler"""
+        """Set cell rotation to 270° left button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("angle", 270.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -748,7 +863,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_justify_left(self, toggled: bool):
-        """Justify left button pressed event handler"""
+        """Justify left button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("justification", "justify_left")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -760,7 +879,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_justify_fill(self, toggled: bool):
-        """Justify fill button pressed event handler"""
+        """Justify fill button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("justification", "justify_fill")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -772,7 +895,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_justify_center(self, toggled: bool):
-        """Justify center button pressed event handler"""
+        """Justify center button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("justification", "justify_center")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -784,7 +911,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_justify_right(self, toggled: bool):
-        """Justify right button pressed event handler"""
+        """Justify right button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("justification", "justify_right")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -796,7 +927,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_align_top(self, toggled: bool):
-        """Align top button pressed event handler"""
+        """Align top button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("vertical_align", "align_top")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -808,7 +943,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_align_middle(self, toggled: bool):
-        """Align centere button pressed event handler"""
+        """Align centere button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("vertical_align", "align_center")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -820,7 +959,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_align_bottom(self, toggled: bool):
-        """Align bottom button pressed event handler"""
+        """Align bottom button pressed event handler
+
+        :param toggled: Toggle state
+
+        """
 
         attr_dict = AttrDict([("vertical_align", "align_bottom")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -832,7 +975,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_border_choice(self, event: QEvent):
-        """Border choice style event handler"""
+        """Border choice style event handler
+
+        :param event: Any event
+
+        """
 
         self.main_window.settings.border_choice = self.sender().text()
         self.gui_update()
@@ -971,7 +1118,11 @@ class Grid(QTableView):
                 self.widget_indices.append(index)
 
     def on_freeze_pressed(self, toggled: bool):
-        """Freeze cell event handler"""
+        """Freeze cell event handler
+
+        :param toggled: Toggle state
+
+        """
 
         current_attr = self.model.code_array.cell_attributes[self.current]
         if current_attr.frozen == toggled:
@@ -989,7 +1140,11 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_button_cell_pressed(self, toggled: bool):
-        """Button cell event handler"""
+        """Button cell event handler
+
+        :param toggled: Toggle state
+
+        """
 
         current_attr = self.model.code_array.cell_attributes[self.current]
         if not toggled and current_attr.button_cell is False \
@@ -1153,6 +1308,12 @@ class GridHeaderView(QHeaderView):
     """QHeaderView with zoom support"""
 
     def __init__(self, orientation: Qt.Orientation, grid: Grid):
+        """
+        :param orientation: Orientation of the `QHeaderView`
+        :param grid: The main grid `QTableView`
+
+        """
+
         super().__init__(orientation, grid)
         self.setSectionsClickable(True)
         self.default_section_size = self.defaultSectionSize()
@@ -1168,14 +1329,24 @@ class GridHeaderView(QHeaderView):
                      int(unzoomed_size.height() * self.grid.zoom))
 
     def sectionSizeHint(self, logicalIndex: int) -> QSize:
-        """Overrides sectionSizeHint, which supports zoom"""
+        """Overrides sectionSizeHint, which supports zoom
+
+        :param logicalIndex: Index of the section for the size hint
+
+        """
 
         unzoomed_size = super().sectionSizeHint(logicalIndex)
         return QSize(int(unzoomed_size.width() * self.grid.zoom),
                      int(unzoomed_size.height() * self.grid.zoom))
 
     def paintSection(self, painter: QPainter, rect: QRect, logicalIndex: int):
-        """Overrides paintSection, which supports zoom"""
+        """Overrides paintSection, which supports zoom
+
+        :param painter: Painter with which the section is drawn
+        :param rect: Outer rectangle of the section to be drawn
+        :param logicalIndex: Index of the section to be drawn
+
+        """
 
         unzoomed_rect = QRect(0, 0,
                               rect.width()/self.grid.zoom,
@@ -1190,6 +1361,8 @@ class GridHeaderView(QHeaderView):
 
         Installs HorizontalHeaderContextMenu or VerticalHeaderContextMenu
         depending on self.orientation().
+
+        :param event: The triggering event
 
         """
 
@@ -1223,11 +1396,17 @@ class GridTableModel(QAbstractTableModel):
     """QAbstractTableModel for Grid"""
 
     def __init__(self, main_window: QMainWindow,
-                 dimensions: Tuple[int, int, int]):
+                 shape: Tuple[int, int, int]):
+        """
+        :param main_window: Application main window
+        :param shape: Grid shape `(rows, columns, tables)`
+
+        """
+
         super().__init__()
 
         self.main_window = main_window
-        self.code_array = CodeArray(dimensions, main_window.settings)
+        self.code_array = CodeArray(shape, main_window.settings)
 
     @contextmanager
     def model_reset(self):
@@ -1239,7 +1418,15 @@ class GridTableModel(QAbstractTableModel):
 
     @contextmanager
     def inserting_rows(self, index: QModelIndex, first: int, last: int):
-        """Context manager for inserting rows"""
+        """Context manager for inserting rows
+
+        see `QAbstractItemModel.beginInsertRows`
+
+        :param index: Parent into which the new rows are inserted
+        :param first: Row number that first row will have after insertion
+        :param last: Row number that last row will have after insertion
+
+        """
 
         self.beginInsertRows(index, first, last)
         yield
@@ -1247,7 +1434,15 @@ class GridTableModel(QAbstractTableModel):
 
     @contextmanager
     def inserting_columns(self, index: QModelIndex, first: int, last: int):
-        """Context manager for inserting columns"""
+        """Context manager for inserting columns
+
+        see `QAbstractItemModel.beginInsertColumns`
+
+        :param index: Parent into which the new columns are inserted
+        :param first: Column number that first column will have after insertion
+        :param last: Column number that last column will have after insertion
+
+        """
 
         self.beginInsertColumns(index, first, last)
         yield
@@ -1255,7 +1450,15 @@ class GridTableModel(QAbstractTableModel):
 
     @contextmanager
     def removing_rows(self, index: QModelIndex, first: int, last: int):
-        """Context manager for removing rows"""
+        """Context manager for removing rows
+
+        see `QAbstractItemModel.beginRemoveRows`
+
+        :param index: Parent from which rows are removed
+        :param first: Row number of the first row to be removed
+        :param last: Row number of the last row to be removed
+
+        """
 
         self.beginRemoveRows(index, first, last)
         yield
@@ -1263,7 +1466,15 @@ class GridTableModel(QAbstractTableModel):
 
     @contextmanager
     def removing_columns(self, index: QModelIndex, first: int, last: int):
-        """Context manager for removing columns"""
+        """Context manager for removing columns
+
+        see `QAbstractItemModel.beginRemoveColumns`
+
+        :param index: Parent from which columns are removed
+        :param first: Column number of the first column to be removed
+        :param last: Column number of the last column to be removed
+
+        """
 
         self.beginRemoveColumns(index, first, last)
         yield
@@ -1281,7 +1492,11 @@ class GridTableModel(QAbstractTableModel):
 
     @shape.setter
     def shape(self, value: Tuple[int, int, int]):
-        """Sets the shape in the code array and adjusts the table_choice"""
+        """Sets the shape in the code array and adjusts the table_choice
+
+        :param value: Grid shape `(rows, columns, tables)`
+
+        """
 
         check_shape_validity(value, self.main_window.settings.maxshape)
 
@@ -1290,33 +1505,52 @@ class GridTableModel(QAbstractTableModel):
             self.grid.table_choice.no_tables = value[2]
 
     def current(self, index: QModelIndex) -> Tuple[int, int, int]:
-        """Tuple of row, column, table of given index"""
+        """Tuple of row, column, table of given index
+
+        :param index: Index of the cell to be made the current cell
+
+        """
 
         return index.row(), index.column(), self.main_window.grid.table
 
     def code(self, index: QModelIndex) -> str:
-        """Code in index"""
+        """Code in cell index
+
+        :param index: Index of the cell for which the code is returned
+
+        """
 
         return self.code_array(self.current(index))
 
-    def rowCount(self, parent=QModelIndex()) -> int:
-        """Overloaded rowCount for code_array backend"""
+    def rowCount(self, _: QModelIndex = QModelIndex()) -> int:
+        """Overloaded `QAbstractItemModel.rowCount` for code_array backend"""
 
         return self.shape[0]
 
-    def columnCount(self, parent=QModelIndex()) -> int:
-        """Overloaded columnCount for code_array backend"""
+    def columnCount(self, _: QModelIndex = QModelIndex()) -> int:
+        """Overloaded `QAbstractItemModel.columnCount` for code_array backend
+        """
 
         return self.shape[1]
 
     def insertRows(self, row: int, count: int) -> bool:
-        """Overloaded insertRows for code_array backend"""
+        """Overloaded `QAbstractItemModel.insertRows` for code_array backend
+
+        :param row: Row at which rows are inserted
+        :param count: Number of rows to be inserted
+
+        """
 
         self.code_array.insert(row, count, axis=0, tab=self.grid.table)
         return True
 
     def removeRows(self, row: int, count: int) -> bool:
-        """Overloaded removeRows for code_array backend"""
+        """Overloaded `QAbstractItemModel.removeRows` for code_array backend
+
+        :param row: Row at which rows are removed
+        :param count: Number of rows to be removed
+
+        """
 
         try:
             self.code_array.delete(row, count, axis=0, tab=self.grid.table)
@@ -1325,13 +1559,23 @@ class GridTableModel(QAbstractTableModel):
         return True
 
     def insertColumns(self, column: int, count: int) -> bool:
-        """Overloaded insertColumns for code_array backend"""
+        """Overloaded `QAbstractItemModel.insertColumns` for code_array backend
+
+        :param column: Column at which columns are inserted
+        :param count: Number of columns to be inserted
+
+        """
 
         self.code_array.insert(column, count, axis=1, tab=self.grid.table)
         return True
 
     def removeColumns(self, column: int, count: int) -> bool:
-        """Overloaded removeColumns for code_array backend"""
+        """Overloaded `QAbstractItemModel.removeColumns` for code_array backend
+
+        :param column: Column at which columns are removed
+        :param count: Number of columns to be removed
+
+        """
 
         try:
             self.code_array.delete(column, count, axis=1, tab=self.grid.table)
@@ -1340,17 +1584,31 @@ class GridTableModel(QAbstractTableModel):
         return True
 
     def insertTable(self, table: int, count: int = 1):
-        """Inserts a table"""
+        """Inserts tables
+
+        :param table: Table at which tables are inserted
+        :param count: Number of tables to be inserted
+
+        """
 
         self.code_array.insert(table, count, axis=2)
 
     def removeTable(self, table: int, count: int = 1):
-        """Inserts a table"""
+        """Removes tables
+
+        :param table: Table at which tables are removed
+        :param count: Number of tables to be removed
+
+        """
 
         self.code_array.delete(table, count, axis=2)
 
     def font(self, key: Tuple[int, int, int]) -> QFont:
-        """Returns font for given key"""
+        """Returns font for given key
+
+        :param key: Key of cell, for which font is returned
+
+        """
 
         attr = self.code_array.cell_attributes[key]
         font = QFont()
@@ -1370,7 +1628,12 @@ class GridTableModel(QAbstractTableModel):
 
     def data(self, index: QModelIndex,
              role: Qt.ItemDataRole = Qt.DisplayRole) -> Any:
-        """Overloaded data for code_array backend"""
+        """Overloaded data for code_array backend
+
+        :param index: Index of the cell, for which data is returned
+        :param role: Role of data to be returned
+
+        """
 
         def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
@@ -1450,7 +1713,15 @@ class GridTableModel(QAbstractTableModel):
 
     def setData(self, index: QModelIndex, value: Any, role: Qt.ItemDataRole,
                 raw: bool = False, table: int = None) -> bool:
-        """Overloaded setData for code_array backend"""
+        """Overloaded setData for code_array backend
+
+        :param index: Index of the cell, for which data is set
+        :param value: Value of data to be set
+        :param role: Role of data to be set
+        :param raw: Sets raw data without string formatting in `EditRole`
+        :param table: Table for which data shall is set
+
+        """
 
         if role == Qt.EditRole:
             if table is None:
@@ -1481,12 +1752,21 @@ class GridTableModel(QAbstractTableModel):
             return True
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
-        """Overloaded, makes items editable"""
+        """Overloaded, makes items editable
+
+        :param index: Index of cell for which flags are returned
+
+        """
 
         return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
 
     def headerData(self, idx: QModelIndex, _, role: Qt.ItemDataRole) -> str:
-        """Overloaded for displaying numbers in header"""
+        """Overloaded for displaying numbers in header
+
+        :param idx: Index of header for which data is returned
+        :param role: Role of data to be returned
+
+        """
 
         if role == Qt.DisplayRole:
             return str(idx)
@@ -1521,6 +1801,12 @@ class GridCellNavigator:
     """Find neighbors of a cell"""
 
     def __init__(self, main_window: QMainWindow, key: Tuple[int, int, int]):
+        """
+        :param main_window: Application main window
+        :param key: Key of cell fow which neighbors are identified
+
+        """
+
         self.main_window = main_window
         self.code_array = main_window.grid.model.code_array
         self.row, self.column, self.table = self.key = key
@@ -1562,7 +1848,11 @@ class GridCellNavigator:
         return self.code_array.cell_attributes[self.key].merge_area
 
     def _merging_key(self, key: Tuple[int, int, int]) -> Tuple[int, int, int]:
-        """Merging cell if cell is merged else cell key"""
+        """Merging cell if cell is merged else cell key
+
+        :param key: Key of cell that is checked for being merged
+
+        """
 
         merging_key = self.code_array.cell_attributes.get_merging_cell(key)
         return key if merging_key is None else merging_key
@@ -1632,6 +1922,12 @@ class GridCellDelegate(QStyledItemDelegate):
     """QStyledItemDelegate for main grid QTableView"""
 
     def __init__(self, main_window: QMainWindow, code_array: CodeArray):
+        """
+        :param main_window: Application main window
+        :param code_array: Main backend model instance
+
+        """
+
         super().__init__()
 
         self.main_window = main_window
@@ -1646,7 +1942,11 @@ class GridCellDelegate(QStyledItemDelegate):
 
     @contextmanager
     def painter_save(self, painter: QPainter):
-        """Saves and restores the painter during a context"""
+        """Saves and restores the painter during a context
+
+        :param painter: Painter for which the state is preserved
+
+        """
 
         painter.save()
         yield
@@ -1656,7 +1956,16 @@ class GridCellDelegate(QStyledItemDelegate):
             self, x: float, y: float, width: float, height: float,
             painter: QPainter,
             key: Tuple[int, int, int]) -> Tuple[float, float, float, float]:
-        """Paint the bottom and the left border line of the cell"""
+        """Paint the bottom and the left border line of the cell
+
+        :param x: X position of cell rect
+        :param y: Y position of cell rect
+        :param width: Width of cell rect
+        :param height: Height of cell rect
+        :param painter: Painter with which borders are drawn
+        :param key: Key of cell for which borders are drawn
+
+        """
 
         cell = GridCellNavigator(self.main_window, key)
 
@@ -1760,6 +2069,11 @@ class GridCellDelegate(QStyledItemDelegate):
         Finally, bottom and right border lines of the cell above left
         are painted.
 
+        :param width: Width of cell rect
+        :param height: Height of cell rect
+        :param painter: Painter with which borders are drawn
+        :param index: Index of cell for which borders are drawn
+
         """
 
         row = index.row()
@@ -1772,7 +2086,13 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def _render_markup(self, painter: QPainter, option: QStyleOptionViewItem,
                        index: QModelIndex):
-        """HTML markup renderer"""
+        """HTML markup renderer
+
+        :param painter: Painter with which markup is rendered
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
 
         self.initStyleOption(option, index)
 
@@ -1811,7 +2131,13 @@ class GridCellDelegate(QStyledItemDelegate):
             self, option: QStyleOptionViewItem, index: QModelIndex,
             image_width: Union[int, float],
             image_height: Union[int, float]) -> Tuple[float, float]:
-        """Returns image rect dependent on alignment and justification"""
+        """Returns image rect dependent on alignment and justification
+
+        :param option: Style option for painting
+        :param image_width: Width of image [px]
+        :param image_height: Height of image [px]
+
+        """
 
         def scale_size(inner_width: Union[int, float],
                        inner_height: Union[int, float],
@@ -1873,7 +2199,14 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def _render_qimage(self, painter: QPainter, option: QStyleOptionViewItem,
                        index: QModelIndex, qimage: QImage = None):
-        """QImage renderer"""
+        """QImage renderer
+
+        :param painter: Painter with which qimage is rendered
+        :param option: Style option for rendering
+        :param index: Index of cell for which qimage is rendered
+        :param qimage: Image to be rendered
+
+        """
 
         if qimage is None:
             qimage = index.data(Qt.DecorationRole)
@@ -1967,7 +2300,13 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def _render_matplotlib(self, painter: QPainter,
                            option: QStyleOptionViewItem, index: QModelIndex):
-        """Matplotlib renderer"""
+        """Matplotlib renderer
+
+        :param painter: Painter with which the matplotlib image is rendered
+        :param option: Style option for rendering
+        :param index: Index of cell for which the matplotlib image is rendered
+
+        """
 
         if matplotlib is None:
             # matplotlib is not installed
@@ -1988,7 +2327,13 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def __paint(self, painter: QPainter, option: QStyleOptionViewItem,
                 index: QModelIndex):
-        """Calls the overloaded paint function or creates html delegate"""
+        """Calls the overloaded paint function or creates html delegate
+
+        :param painter: Painter with which borders are drawn
+        :param option: Style option for rendering
+        :param index: Index of cell for which borders are drawn
+
+        """
 
         key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key].renderer
@@ -2007,7 +2352,12 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option: QStyleOptionViewItem,
                  index: QModelIndex) -> QSize:
-        """Overloads SizeHint"""
+        """Overloads SizeHint
+
+        :param option: Style option for rendering
+        :param index: Index of the cell for the size hint
+
+        """
 
         key = index.row(), index.column(), self.grid.table
         if not self.cell_attributes[key].renderer == "markup":
@@ -2024,7 +2374,14 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def _rotated_paint(self, painter: QPainter, option: QStyleOptionViewItem,
                        index: QModelIndex, angle: float):
-        """Paint cell contents for rotated cells"""
+        """Paint cell contents for rotated cells
+
+        :param painter: Painter with which borders are drawn
+        :param option: Style option for rendering
+        :param index: Index of cell to be rendered
+        :param angle: Angle to which the renderer content is rotated
+
+        """
 
         # Rotate evryting by 90 degree
 
@@ -2041,7 +2398,13 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               index: QModelIndex) -> Tuple[float, float, float, float]:
-        """Overloads QStyledItemDelegate to add cell border painting"""
+        """Overloads `QStyledItemDelegate` to add cell border painting
+
+        :param painter: Painter with which borders are drawn
+        :param option: Style option for rendering
+        :param index: Index of cell to be rendered
+
+        """
 
         def get_unzoomed_rect_args(
                 rect: QRect, zoom: float) -> Tuple[float, float, float, float]:
@@ -2083,10 +2446,14 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem,
                      index: QModelIndex) -> QWidget:
-        """Overloads QStyledItemDelegate
+        """Overloads `QStyledItemDelegate`
 
         Disables editor in locked cells
         Switches to chart dialog in chart cells
+
+        :param parent: Parent widget for the cell editor to be returned
+        :param option: Style option for the cell editor
+        :param index: Index of cell for which a cell editor is created
 
         """
 
@@ -2106,10 +2473,13 @@ class GridCellDelegate(QStyledItemDelegate):
         return self.editor
 
     def eventFilter(self, source: QObject, event: QEvent) -> bool:
-        """Overloads eventFilter. Overrides QLineEdit default shortcut.
+        """Overloads `eventFilter`. Overrides QLineEdit default shortcut.
 
         Quotes cell editor content for <Ctrl>+<Enter> and <Ctrl>+<Return>.
         Counts as undoable action.
+
+        :param source: Source widget of event
+        :param event: Any QEvent
 
         """
 
@@ -2127,7 +2497,12 @@ class GridCellDelegate(QStyledItemDelegate):
         return QWidget.eventFilter(self, source, event)
 
     def setEditorData(self, editor: QWidget, index: QModelIndex):
-        """Overloads setEditorData to use code_array data"""
+        """Overloads `setEditorData` to use code_array data
+
+        :param editor: Cell editor, in which data is set
+        :param index: Index of cell from which the cell editor data is set
+
+        """
 
         row = index.row()
         column = index.column()
@@ -2138,7 +2513,13 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def setModelData(self, editor: QWidget, model: QAbstractItemModel,
                      index: QModelIndex):
-        """Overloads setModelData to use code_array data"""
+        """Overloads `setModelData` to use code_array data
+
+        :param editor: Cell editor, from which data is retrieved
+        :param model: `GridTableModel`
+        :param index: Index of cell for which data is set
+
+        """
 
         description = "Set code for cell {}".format(model.current(index))
         command = commands.SetCellCode(editor.text(), model, index,
@@ -2146,8 +2527,13 @@ class GridCellDelegate(QStyledItemDelegate):
         self.main_window.undo_stack.push(command)
 
     def updateEditorGeometry(self, editor: QWidget,
-                             option: QStyleOptionViewItem, index: QModelIndex):
-        """Overloads updateEditorGeometry to update editor geometry to cell"""
+                             option: QStyleOptionViewItem, _: QModelIndex):
+        """Overloads `updateEditorGeometry` to update editor geometry to cell
+
+        :param editor: Cell editor, for which geometry is retrieved
+        :param option: Style option of the editor
+
+        """
 
         editor.setGeometry(option.rect)
 
@@ -2156,6 +2542,12 @@ class TableChoice(QTabBar):
     """The TabBar below the main grid"""
 
     def __init__(self, grid: Grid, no_tables: int):
+        """
+        :param grid: The main grid `QTableView`
+        :param no_tables: Number of tables to be initially created
+
+        """
+
         super().__init__(shape=QTabBar.RoundedSouth)
         self.setExpanding(False)
 
@@ -2166,10 +2558,17 @@ class TableChoice(QTabBar):
 
     @property
     def no_tables(self) -> int:
+        """Returns the number of tables in the table_choice"""
+
         return self._no_tables
 
     @no_tables.setter
     def no_tables(self, value: int):
+        """Sets the number of tables in the table_choice
+
+        :param value: Number of tables
+
+        """
         self._no_tables = value
 
         if value > self.count():
@@ -2190,14 +2589,22 @@ class TableChoice(QTabBar):
 
     @table.setter
     def table(self, value: int):
-        """Sets a new table to be displayed"""
+        """Sets a new table to be displayed
+
+        :param value: Number of the table
+
+        """
 
         self.setCurrentIndex(value)
 
     # Overrides
 
     def contextMenuEvent(self, event: QContextMenuEvent):
-        """Overrides contextMenuEvent to install GridContextMenu"""
+        """Overrides contextMenuEvent to install GridContextMenu
+
+        :param event: Triggering event
+
+        """
 
         actions = self.grid.main_window.main_window_actions
 
@@ -2207,7 +2614,11 @@ class TableChoice(QTabBar):
     # Event handlers
 
     def on_table_changed(self, current: int):
-        """Event handler for table changes"""
+        """Event handler for table changes
+
+        :param current: The current table to be displayed
+
+        """
 
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
