@@ -174,23 +174,102 @@ class TestGridTableModel:
         index = Index(row, column)
         assert self.model.code(index) == res
 
-    def test_insertRows(self):
-        pass
+    param_test_insertRows = [
+        (0, 5, (0, 0, 0), "0", (5, 0, 0), "0"),
+        (0, 5, (0, 0, 0), "0", (0, 0, 0), None),
+        (0, 0, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (3, 5, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (0, 500, (0, 0, 0), "0", (500, 0, 0), "0"),
+    ]
 
-    def test_removeRows(self):
-        pass
+    @pytest.mark.parametrize("row, count, key, code, reskey, res",
+                             param_test_insertRows)
+    def test_insertRows(self, row, count, key, code, reskey, res):
+        """Unit test for insertRows"""
 
-    def test_insertColumns(self):
-        pass
+        self.model.code_array[key] = code
+        self.model.insertRows(row, count)
+        assert self.model.code_array(reskey) == res
 
-    def test_removeColumns(self):
-        pass
+    param_test_removeRows = [
+        (0, 5, (5, 0, 0), "0", (0, 0, 0), "0"),
+        (0, 5, (0, 0, 0), "0", (0, 0, 0), None),
+        (0, 0, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (3, 5, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (0, 499, (500, 0, 0), "0", (1, 0, 0), "0"),
+    ]
 
-    def test_insertTable(self):
-        pass
+    @pytest.mark.parametrize("row, count, key, code, reskey, res",
+                             param_test_removeRows)
+    def test_removeRows(self, row, count, key, code, reskey, res):
+        """Unit test for removeRows"""
 
-    def test_removeTable(self):
-        pass
+        self.model.code_array[key] = code
+        self.model.removeRows(row, count)
+        assert self.model.code_array(reskey) == res
+
+    param_test_insertColumns = [
+        (0, 5, (0, 0, 0), "0", (0, 5, 0), "0"),
+        (0, 5, (0, 0, 0), "0", (0, 0, 0), None),
+        (0, 0, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (3, 5, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (0, 50, (0, 0, 0), "0", (0, 50, 0), "0"),
+    ]
+
+    @pytest.mark.parametrize("column, count, key, code, reskey, res",
+                             param_test_insertColumns)
+    def test_insertColumns(self, column, count, key, code, reskey, res):
+        """Unit test for insertColumns"""
+
+        self.model.code_array[key] = code
+        self.model.insertColumns(column, count)
+        assert self.model.code_array(reskey) == res
+
+    param_test_removeColumns = [
+        (0, 2, (0, 2, 0), "0", (0, 0, 0), "0"),
+        (0, 2, (0, 0, 0), "0", (0, 0, 0), None),
+        (0, 0, (0, 0, 0), "0", (0, 0, 0), "0"),
+        (3, 1, (0, 0, 0), "0", (0, 0, 0), "0"),
+    ]
+
+    @pytest.mark.parametrize("column, count, key, code, reskey, res",
+                             param_test_removeColumns)
+    def test_removeColumns(self, column, count, key, code, reskey, res):
+        """Unit test for removeColumns"""
+
+        self.model.code_array[key] = code
+        self.model.removeColumns(column, count)
+        assert self.model.code_array(reskey) == res
+
+    param_test_insertTable = [
+        (0, (0, 0, 0), "0", (0, 0, 1), "0"),
+        (0, (0, 0, 0), "0", (0, 0, 0), None),
+        (2, (0, 0, 0), "0", (0, 0, 0), "0"),
+    ]
+
+    @pytest.mark.parametrize("table, key, code, reskey, res",
+                             param_test_insertTable)
+    def test_insertTable(self, table, key, code, reskey, res):
+        """Unit test for insertTable"""
+
+        self.model.code_array[key] = code
+        self.model.insertTable(table)
+        assert self.model.code_array(reskey) == res
+
+    param_test_removeTable = [
+        (0, (0, 0, 1), "0", (0, 0, 0), "0"),
+        (0, (0, 0, 0), "0", (0, 0, 0), None),
+        (1, (0, 0, 2), "0", (0, 0, 1), "0"),
+    ]
+
+    @pytest.mark.parametrize("table, key, code, reskey, res",
+                             param_test_removeTable)
+    def test_removeTable(self, table, key, code, reskey, res):
+        """Unit test for removeTable"""
+
+        self.model.code_array[key] = code
+        self.model.removeTable(table)
+        assert self.model.code_array(reskey) == res
 
     def test_font(self):
         pass
