@@ -38,8 +38,9 @@ import os
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QSplitter, QMessageBox,
-                             QDockWidget, QUndoStack, QStyleOptionViewItem)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QSplitter,
+                             QMessageBox, QDockWidget, QUndoStack,
+                             QStyleOptionViewItem)
 try:
     from PyQt5.QtSvg import QSvgWidget
 except ImportError:
@@ -63,6 +64,7 @@ from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
 from installer import DependenciesDialog
 from panels import MacroPanel
 from lib.hashing import genkey
+from model.model import CellAttributes
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
@@ -74,7 +76,6 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 class MainWindow(QMainWindow):
     """Pyspread main window
 
-    :application: QApplication
     :param filepath: filepath for inital file to be opened, defaults to None
 
     """
@@ -140,13 +141,15 @@ class MainWindow(QMainWindow):
 
         self.setMenuBar(MenuBar(self))
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event: QEvent):
+        """Overloaded, aborts on self._loading"""
+
         super(MainWindow, self).resizeEvent(event)
         if self._loading:
             return
 
-    def closeEvent(self, event=None):
-        """Overloaded close event, allows saving changes or canceling close"""
+    def closeEvent(self, event: QEvent = None):
+        """Overloaded, allows saving changes or canceling close"""
 
         if event:
             event.ignore()
@@ -181,8 +184,8 @@ class MainWindow(QMainWindow):
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
-    def eventFilter(self, source, event):
-        """Event filter for handling QDockWidget close events
+    def eventFilter(self, source: QWidget, event: QEvent) -> bool:
+        """Overloaded event filter for handling QDockWidget close events
 
         Updates the menu if the macro panel is closed.
 
@@ -230,13 +233,13 @@ class MainWindow(QMainWindow):
                 self.macro_dock.isVisible())
 
     @property
-    def safe_mode(self):
+    def safe_mode(self) -> bool:
         """Returns safe_mode state. In safe_mode cells are not evaluated."""
 
         return self.grid.model.code_array.safe_mode
 
     @safe_mode.setter
-    def safe_mode(self, value):
+    def safe_mode(self, value: bool):
         """Sets safe mode.
 
         This triggers the safe_mode icon in the statusbar.
@@ -297,7 +300,7 @@ class MainWindow(QMainWindow):
         dialog.paintRequested.connect(self.on_paint_request)
         dialog.exec_()
 
-    def on_paint_request(self, printer):
+    def on_paint_request(self, printer: QPrinter):
         """Paints to printer"""
 
         painter = QPainter(printer)
@@ -401,7 +404,7 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def on_toggle_refresh_timer(self, toggled):
+    def on_toggle_refresh_timer(self, toggled: bool):
         """Toggles periodic timer for frozen cells"""
 
         if toggled:
@@ -421,7 +424,7 @@ class MainWindow(QMainWindow):
            and self.grid.state() != self.grid.EditingState:
             self.grid.refresh_frozen_cells()
 
-    def _toggle_widget(self, widget, action_name, toggled):
+    def _toggle_widget(self, widget: QWidget, action_name: str, toggled: bool):
         """Toggles widget visibility and updates toggle actions"""
 
         if toggled:
@@ -431,34 +434,34 @@ class MainWindow(QMainWindow):
 
         self.main_window_actions[action_name].setChecked(widget.isVisible())
 
-    def on_toggle_main_toolbar(self, toggled):
+    def on_toggle_main_toolbar(self, toggled: bool):
         """Main toolbar toggle event handler"""
 
         self._toggle_widget(self.main_toolbar, "toggle_main_toolbar", toggled)
 
-    def on_toggle_macro_toolbar(self, toggled):
+    def on_toggle_macro_toolbar(self, toggled: bool):
         """Macro toolbar toggle event handler"""
 
         self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
                             toggled)
 
-    def on_toggle_format_toolbar(self, toggled):
+    def on_toggle_format_toolbar(self, toggled: bool):
         """Format toolbar toggle event handler"""
 
         self._toggle_widget(self.format_toolbar, "toggle_format_toolbar",
                             toggled)
 
-    def on_toggle_find_toolbar(self, toggled):
+    def on_toggle_find_toolbar(self, toggled: bool):
         """Find toolbar toggle event handler"""
 
         self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self, toggled):
+    def on_toggle_entry_line(self, toggled: bool):
         """Entryline toggle event handler"""
 
         self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
 
-    def on_toggle_macro_panel(self, toggled):
+    def on_toggle_macro_panel(self, toggled: bool):
         """Macro panel toggle event handler"""
 
         self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
@@ -499,7 +502,7 @@ class MainWindow(QMainWindow):
                     devs=devs, doc_devs=doc_devs)
         QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
 
-    def on_gui_update(self, attributes):
+    def on_gui_update(self, attributes: CellAttributes):
         """GUI update event handler.
 
         Emitted on cell change. Attributes contains current cell_attributes.
