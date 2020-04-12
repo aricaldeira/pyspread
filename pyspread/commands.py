@@ -39,7 +39,7 @@ from copy import copy
 from typing import List, Iterable, Tuple
 
 from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.Gui import QTextDocument
+from PyQt5.QtGui import QTextDocument
 from PyQt5.QtWidgets import QUndoCommand, QTableView, QPlainTextEdit
 
 from model.model import CellAttribute
