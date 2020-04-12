@@ -36,10 +36,11 @@ Pyspread undoable commands
 """
 
 from copy import copy
-from typing import List, Tuple
+from typing import List, Iterable, Tuple
 
 from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.QtWidgets import QUndoCommand, QTableView
+from PyQt5.Gui import QTextDocument
+from PyQt5.QtWidgets import QUndoCommand, QTableView, QPlainTextEdit
 
 from model.model import CellAttribute
 from widgets import CellButton
@@ -115,7 +116,7 @@ class SetCellCode(QUndoCommand):
         """
         :param code: The main grid object
         :param model: Model of the grid object
-        :param index: Index of the cell for which the code is to be set
+        :param index: Index of the cell for which the code is set
         :param description: Command description
 
         """
@@ -493,7 +494,8 @@ class DeleteColumns(QUndoCommand):
 class InsertTable(QUndoCommand):
     """Inserts table"""
 
-    def __init__(self, grid, model, table, description):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 table: int, description: str):
         """
         :param grid: The main grid object
         :param model: Model of the grid object
@@ -527,13 +529,24 @@ class InsertTable(QUndoCommand):
 class DeleteTable(QUndoCommand):
     """Deletes table"""
 
-    def __init__(self, grid, model, table, description):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 table: int, description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param table: Table number for deletion
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.model = model
         self.table = table
 
     def redo(self):
+        """Redo table deletion, updates row and column sizes and screen"""
+
         # Store content of deleted table
         self.old_row_heights = copy(self.model.code_array.row_heights)
         self.old_col_widths = copy(self.model.code_array.col_widths)
@@ -549,6 +562,8 @@ class DeleteTable(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
+        """Undo table deletion, updates row and column sizes and screen"""
+
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.insertTable(self.table)
@@ -566,9 +581,24 @@ class DeleteTable(QUndoCommand):
 
 
 class SetCellFormat(QUndoCommand):
-    """Sets cell format in grid"""
+    """Sets cell format in grid
 
-    def __init__(self, attr, model, index, selected_idx, description):
+    Format is set for one given cell and a selection.
+
+    """
+
+    def __init__(self, attr: CellAttribute, model: QAbstractTableModel,
+                 index: QModelIndex, selected_idx: Iterable[QModelIndex],
+                 description: str):
+        """
+        :param attr: Cell format to be set
+        :param model: Model of the grid object
+        :param index: Index of the cell for which the format is set
+        :param selected_idx: Indexes of cells for which the format is set
+        :param description: Command description
+
+        """
+
         super().__init__(description)
 
         self.attr = attr
@@ -577,10 +607,14 @@ class SetCellFormat(QUndoCommand):
         self.selected_idx = selected_idx
 
     def redo(self):
+        """Redo cell formatting"""
+
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
+        """Undo cell formatting"""
+
         self.model.code_array.cell_attributes.pop()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -589,11 +623,15 @@ class SetCellMerge(SetCellFormat):
     """Sets cell merges in grid"""
 
     def redo(self):
+        """Redo cell merging"""
+
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
         self.model.main_window.grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
+        """Undo cell merging"""
+
         self.model.code_array.cell_attributes.pop()
         self.model.main_window.grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
@@ -603,6 +641,8 @@ class SetCellTextAlignment(SetCellFormat):
     """Sets cell text alignment in grid"""
 
     def redo(self):
+        """Redo cell text alignment"""
+
         self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -610,13 +650,23 @@ class SetCellTextAlignment(SetCellFormat):
 class FreezeCell(QUndoCommand):
     """Freezes cell in grid"""
 
-    def __init__(self, model, current, description):
+    def __init__(self, model: QAbstractTableModel,
+                 current: Tuple[int, int, int], description: str):
+        """
+        :param model: Model of the grid object
+        :param current: Index of the cell to be frozen
+        :param description: Command description
+
+        """
+
         super().__init__(description)
 
         self.model = model
         self.current = current
 
     def redo(self):
+        """Redo cell freezing"""
+
         row, column, table = self.current
 
         # Add frozen cache content
@@ -631,6 +681,8 @@ class FreezeCell(QUndoCommand):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
+        """Undo cell freezing"""
+
         self.model.code_array.frozen_cache.pop(repr(self.current))
         self.model.code_array.cell_attributes.pop()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
@@ -640,6 +692,8 @@ class ThawCell(FreezeCell):
     """Thaw (unfreezes) cell in grid"""
 
     def redo(self):
+        """Redo cell thawing"""
+
         row, column, table = current = self.current
 
         # Remove and store frozen cache content
@@ -653,16 +707,36 @@ class ThawCell(FreezeCell):
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
+        """Undo cell thawing"""
+
         self.model.code_array.frozen_cache[repr(self.current)] = self.res_obj
         self.model.code_array.cell_attributes.pop()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class SetCellRenderer(QUndoCommand):
-    """Sets cell renderer in grid"""
+    """Sets cell renderer in grid
 
-    def __init__(self, attr, model, entry_line, highlighter_document,
-                 index, selected_idx, description):
+    Adjusts syntax highlighting in entry line.
+
+    """
+
+    def __init__(self, attr: CellAttribute, model: QAbstractTableModel,
+                 entry_line: QPlainTextEdit,
+                 highlighter_document: QTextDocument,
+                 index: QModelIndex, selected_idx: Iterable[QModelIndex],
+                 description: str):
+        """
+        :param attr: Cell format that cointains traget renderer information
+        :param model: Model of the grid object
+        :param entry_line: Entry line in main window
+        :param highlighter_document: Document for entry line
+        :param index: Index of the cell for which the renderer is set
+        :param selected_idx: Indexes of cells for which the renderer is set
+        :param description: Command description
+
+        """
+
         super().__init__(description)
 
         self.attr = attr
@@ -674,11 +748,15 @@ class SetCellRenderer(QUndoCommand):
         self.selected_idx = selected_idx
 
     def redo(self):
+        """Redo cell renderer setting, adjusts syntax highlighting"""
+
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
         self.entry_line.highlighter.setDocument(self.new_highlighter_document)
         self.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
+        """Undo cell renderer setting, adjusts syntax highlighting"""
+
         self.model.code_array.cell_attributes.pop()
         self.entry_line.highlighter.setDocument(self.old_highlighter_document)
         self.model.dataChanged.emit(self.index, self.index)
@@ -687,7 +765,16 @@ class SetCellRenderer(QUndoCommand):
 class MakeButtonCell(QUndoCommand):
     """Makes a button cell"""
 
-    def __init__(self, grid, text, index, description):
+    def __init__(self, grid: QTableView, text: str, index: QModelIndex,
+                 description: str):
+        """
+        :param grid: Main grid object
+        :param text: Button cell text
+        :param index: Index of the cell which becomes a button cell
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.text = text
@@ -695,6 +782,8 @@ class MakeButtonCell(QUndoCommand):
         self.key = self.index.row(), self.index.column(), self.grid.table
 
     def redo(self):
+        """Redo button cell making"""
+
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
         attr_dict = AttrDict([("button_cell", self.text)])
@@ -710,6 +799,8 @@ class MakeButtonCell(QUndoCommand):
         self.grid.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
+        """Undo button cell making"""
+
         if self.index not in self.grid.widget_indices:
             return
 
@@ -729,7 +820,14 @@ class MakeButtonCell(QUndoCommand):
 class RemoveButtonCell(QUndoCommand):
     """Removes a button cell"""
 
-    def __init__(self, grid, index, description):
+    def __init__(self, grid: QTableView, index: QModelIndex, description: str):
+        """
+        :param grid: Main grid object
+        :param index: Index of the cell where a button cell is removed
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.text = None
@@ -737,6 +835,8 @@ class RemoveButtonCell(QUndoCommand):
         self.key = self.index.row(), self.index.column(), self.grid.table
 
     def redo(self):
+        """Redo button cell removal"""
+
         if self.index not in self.grid.widget_indices:
             return
         attr = self.grid.model.code_array.cell_attributes[self.key]
@@ -754,6 +854,8 @@ class RemoveButtonCell(QUndoCommand):
         self.grid.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
+        """Undo button cell removal"""
+
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
         attr_dict = AttrDict([("button_cell", self.text)])
