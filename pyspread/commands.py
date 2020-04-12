@@ -36,20 +36,31 @@ Pyspread undoable commands
 """
 
 from copy import copy
+from typing import List, Tuple
 
-from PyQt5.QtCore import Qt, QModelIndex
-from PyQt5.QtWidgets import QUndoCommand
+from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
+from PyQt5.QtWidgets import QUndoCommand, QTableView
+
+from model.model import CellAttribute
+from widgets import CellButton
 
 from lib.attrdict import AttrDict
 from lib.selection import Selection
-from model.model import CellAttribute
-from widgets import CellButton
 
 
 class SetGridSize(QUndoCommand):
     """Sets size of grid"""
 
-    def __init__(self, grid, old_shape, new_shape, description):
+    def __init__(self, grid: QTableView, old_shape: Tuple[int, int, int],
+                 new_shape: Tuple[int, int, int], description: str):
+        """
+        :param grid: The main grid object
+        :param old_shape: Shape of the grid before command
+        :param new_shape: Shape of the grid to be set
+        :param description: Command description
+
+        """
+
         super().__init__(description)
 
         self.grid = grid
@@ -59,7 +70,7 @@ class SetGridSize(QUndoCommand):
         self.deleted_cells = {}  # Storage dict for deleted cells
 
     def redo(self):
-        """Changes grid size and deletes cell code outside the new shape
+        """Redo grid size change and deletion of cell code outside new shape
 
         Cell formats are not deleted.
 
@@ -81,9 +92,9 @@ class SetGridSize(QUndoCommand):
         self.grid.model.shape = self.new_shape
 
     def undo(self):
-        """Restores grid size and adds cell code outside the old shape
+        """Undo grid size change and deletion of cell code outside new shape
 
-        Cell formats are not affected.
+        Cell formats are not deleted.
 
         """
         model = self.grid.model
@@ -99,7 +110,15 @@ class SetGridSize(QUndoCommand):
 class SetCellCode(QUndoCommand):
     """Sets cell code in grid"""
 
-    def __init__(self, code, model, index, description):
+    def __init__(self, code: str, model: QAbstractTableModel,
+                 index: QModelIndex, description: str):
+        """
+        :param code: The main grid object
+        :param model: Model of the grid object
+        :param index: Index of the cell for which the code is to be set
+        :param description: Command description
+
+        """
         super().__init__(description)
 
         self.description = description
@@ -111,7 +130,13 @@ class SetCellCode(QUndoCommand):
     def id(self):
         return 1  # Enable command merging
 
-    def mergeWith(self, other):
+    def mergeWith(self, other: QUndoCommand) -> bool:
+        """Consecutive commands are merged if descriptions match
+
+        :param other: Command to be merged
+
+        """
+
         if self.description != other.description:
             return False
         self.new_codes += other.new_codes
@@ -120,12 +145,24 @@ class SetCellCode(QUndoCommand):
         return True
 
     def redo(self):
+        """Redo cell code setting
+
+        During update, cell highlighting is disabled.
+
+        """
+
         with self.model.main_window.entry_line.disable_highlighter():
             for index, new_code in zip(self.indices, self.new_codes):
                 self.model.setData(index, new_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
+        """Undo cell code setting.
+
+        During update, cell highlighting is disabled.
+
+        """
+
         with self.model.main_window.entry_line.disable_highlighter():
             for index, old_code in zip(self.indices, self.old_codes):
                 self.model.setData(index, old_code, Qt.EditRole, raw=True)
@@ -135,7 +172,18 @@ class SetCellCode(QUndoCommand):
 class SetRowsHeight(QUndoCommand):
     """Sets rows height in grid"""
 
-    def __init__(self, grid, rows, table, old_height, new_height, description):
+    def __init__(self, grid: QTableView, rows: List[int], table: int,
+                 old_height: float, new_height: float, description: str):
+        """
+        :param grid: The main grid object
+        :param rows: Rows for which height are set
+        :param table: Table for which row heights are set
+        :param old_height: Row height before setting
+        :param new_height: Target row height for setting
+        :param description: Command description
+
+        """
+
         super().__init__(description)
 
         self.grid = grid
@@ -146,16 +194,26 @@ class SetRowsHeight(QUndoCommand):
 
         self.default_size = self.grid.verticalHeader().defaultSectionSize()
 
-    def id(self):
-        return 2  # Enable command merging
+    def id(self) -> int:
+        """Command id that enables command merging"""
 
-    def mergeWith(self, other):
+        return 2
+
+    def mergeWith(self, other: QUndoCommand) -> bool:
+        """Consecutive commands are merged if descriptions match
+
+        :param other: Command to be merged
+
+        """
+
         if self.rows != other.rows:
             return False
         self.new_height = other.new_height
         return True
 
     def redo(self):
+        """Redo row height setting"""
+
         for row in self.rows:
             if self.new_height != self.default_size:
                 self.grid.model.code_array.row_heights[(row, self.table)] = \
@@ -165,6 +223,8 @@ class SetRowsHeight(QUndoCommand):
                     self.grid.setRowHeight(row, self.new_height)
 
     def undo(self):
+        """Undo row height setting"""
+
         for row in self.rows:
             if self.old_height == self.default_size:
                 self.grid.model.code_array.row_heights.pop((row, self.table))
@@ -179,8 +239,18 @@ class SetRowsHeight(QUndoCommand):
 class SetColumnsWidth(QUndoCommand):
     """Sets column width in grid"""
 
-    def __init__(self, grid, columns, table, old_width, new_width,
-                 description):
+    def __init__(self, grid: QTableView, columns: List[int], table: int,
+                 old_width: float, new_width: float, description: str):
+        """
+        :param grid: The main grid object
+        :param columns: Columns for which widths are set
+        :param table: Table for which column widths are set
+        :param old_width: Column width before setting
+        :param new_width: Target column width for setting
+        :param description: Command description
+
+        """
+
         super().__init__(description)
 
         self.grid = grid
@@ -191,16 +261,26 @@ class SetColumnsWidth(QUndoCommand):
 
         self.default_size = self.grid.horizontalHeader().defaultSectionSize()
 
-    def id(self):
+    def id(self) -> int:
+        """Command id that enables command merging"""
+
         return 3  # Enable command merging
 
-    def mergeWith(self, other):
+    def mergeWith(self, other: QUndoCommand) -> bool:
+        """Consecutive commands are merged if descriptions match
+
+        :param other: Command to be merged
+
+        """
+
         if self.columns != other.columns:
             return False
         self.new_width = other.new_width
         return True
 
     def redo(self):
+        """Redo column width setting"""
+
         for column in self.columns:
             if self.new_width != self.default_size:
                 self.grid.model.code_array.col_widths[(column, self.table)] =\
@@ -210,6 +290,8 @@ class SetColumnsWidth(QUndoCommand):
                     self.grid.setColumnWidth(column, self.new_width)
 
     def undo(self):
+        """Undo column width setting"""
+
         for column in self.columns:
             if self.old_width == self.default_size:
                 self.grid.model.code_array.col_widths.pop((column, self.table))
@@ -224,7 +306,18 @@ class SetColumnsWidth(QUndoCommand):
 class InsertRows(QUndoCommand):
     """Inserts grid rows"""
 
-    def __init__(self, grid, model, index, row, count, description):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 index: QModelIndex, row: int, count: int, description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param index: Parent into which the new rows are inserted
+        :param row: Row number that first row will have after insertion
+        :param count: Number of rows to be inserted
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.model = model
@@ -234,11 +327,15 @@ class InsertRows(QUndoCommand):
         self.count = count
 
     def redo(self):
+        """Redo row insertion, updates screen"""
+
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
+        """Undo row insertion, updates screen"""
+
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
         self.grid.table_choice.on_table_changed(self.grid.current)
@@ -247,7 +344,18 @@ class InsertRows(QUndoCommand):
 class DeleteRows(QUndoCommand):
     """Deletes grid rows"""
 
-    def __init__(self, grid, model, index, row, count, description):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 index: QModelIndex, row: int, count: int, description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param index: Parent from which the new rows are deleted
+        :param row: Row number of the first row to be deleted
+        :param count: Number of rows to be deleted
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.model = model
@@ -257,6 +365,8 @@ class DeleteRows(QUndoCommand):
         self.count = count
 
     def redo(self):
+        """Redo row deletion, updates screen"""
+
         # Store content of deleted rows
         self.old_row_heights = copy(self.model.code_array.row_heights)
         self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
@@ -271,6 +381,8 @@ class DeleteRows(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
+        """Undo row deletion, updates screen"""
+
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
@@ -285,7 +397,19 @@ class DeleteRows(QUndoCommand):
 class InsertColumns(QUndoCommand):
     """Inserts grid columns"""
 
-    def __init__(self, grid, model, index, column, count, description):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 index: QModelIndex, column: int, count: int,
+                 description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param index: Parent into which the new columns are inserted
+        :param column: Column number of the first column after insertion
+        :param count: Number of columns to be inserted
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.model = model
@@ -296,11 +420,15 @@ class InsertColumns(QUndoCommand):
         self.count = count
 
     def redo(self):
+        """Redo column insertion, updates screen"""
+
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
+        """Undo column insertion, updates screen"""
+
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
         self.grid.table_choice.on_table_changed(self.grid.current)
@@ -309,7 +437,19 @@ class InsertColumns(QUndoCommand):
 class DeleteColumns(QUndoCommand):
     """Deletes grid columns"""
 
-    def __init__(self, grid, model, index, column, count, description):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 index: QModelIndex, column: int, count: int,
+                 description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param index: Parent from which the new columns are deleted
+        :param column: Column number of the first column to be deleted
+        :param count: Number of columns to be deleted
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.model = model
@@ -320,6 +460,8 @@ class DeleteColumns(QUndoCommand):
         self.count = count
 
     def redo(self):
+        """Redo column deletion, updates screen"""
+
         # Store content of deleted columns
         self.old_col_widths = copy(self.model.code_array.col_widths)
         self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
@@ -334,6 +476,8 @@ class DeleteColumns(QUndoCommand):
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
+        """Undo column deletion, updates screen"""
+
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
 
@@ -350,18 +494,30 @@ class InsertTable(QUndoCommand):
     """Inserts table"""
 
     def __init__(self, grid, model, table, description):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param table: Table number for insertion
+        :param description: Command description
+
+        """
+
         super().__init__(description)
         self.grid = grid
         self.model = model
         self.table = table
 
     def redo(self):
+        """Redo table insertion, updates row and column sizes and screen"""
+
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.insertTable(self.table)
         self.grid.table_choice.on_table_changed(self.grid.current)
 
     def undo(self):
+        """Undo table insertion, updates row and column sizes and screen"""
+
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.removeTable(self.table)

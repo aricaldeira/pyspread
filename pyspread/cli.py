@@ -38,6 +38,8 @@ class PathAction(Action):
     """Action that handles paths with spaces and provides a pathlib Path"""
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """Overrides __call__ to enable spaces in path names"""
+
         if values:
             setattr(namespace, self.dest, Path(" ".join(values)))
         else:
@@ -95,7 +97,11 @@ class ArgumentParser(ArgumentParser):
             msg = "Required module PyQt5.QtSvg not found."
             self.dependency_warning(msg)
 
-    def dependency_warning(self, message):
-        """Print warning message"""
+    def dependency_warning(self, message: str):
+        """Print warning message to stdout
+
+        :param message: Warning message to be displayed
+
+        """
 
         sys.stdout.write('warning: {}\n'.format(message))

@@ -25,8 +25,10 @@
 
 """
 
-from PyQt5.QtWidgets import QAction, QActionGroup
-from PyQt5.QtGui import QKeySequence
+from typing import Callable, List
+
+from PyQt5.QtWidgets import QAction, QActionGroup, QWidget
+from PyQt5.QtGui import QKeySequence, QIcon
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -45,8 +47,9 @@ class Action(QAction):
 
     """
 
-    def __init__(self, parent, label, *callbacks,
-                 icon=None, shortcut=None, statustip=None, checkable=False):
+    def __init__(self, parent: QWidget, label: str, *callbacks: List[Callable],
+                 icon: QIcon = None, shortcut: str = None,
+                 statustip: str = None, checkable: bool = False):
         """
 
         :param parent: The parent object, normally :class:`pyspread.MainWindow`
@@ -75,7 +78,12 @@ class Action(QAction):
 class MainWindowActions(AttrDict):
     """Holds all QActions for the main window"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: The parent object, normally :class:`pyspread.MainWindow`
+
+        """
+
         super().__init__()
         self.parent = parent
 
@@ -750,7 +758,12 @@ class ChartDialogActions(AttrDict):
 
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: The parent object
+
+        """
+
         super().__init__()
         self.parent = parent
         self._add_chart_template_actions()
