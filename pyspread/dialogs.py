@@ -798,7 +798,7 @@ class ChartDialog(QDialog):
         chart_template_name = self.sender().data()
         chart_template_path = MPL_TEMPLATE_PATH / chart_template_name
         try:
-            with open(chart_template_path) as template_file:
+            with open(chart_template_path, encoding='utf8') as template_file:
                 chart_template_code = template_file.read()
         except OSError:
             return
@@ -1126,7 +1126,7 @@ class CsvTable(QTableView):
         self.verticalHeader().hide()
 
         try:
-            with open(filepath, newline='') as csvfile:
+            with open(filepath, newline='', encoding='utf-8') as csvfile:
                 if hasattr(dialect, 'hasheader') and dialect.hasheader:
                     header = get_header(csvfile, dialect)
                     self.model.setHorizontalHeaderLabels(header)
@@ -1387,7 +1387,7 @@ class TutorialDialog(QDialog):
         document = self.browser.document()
         document.setMetaInformation(QTextDocument.DocumentUrl,
                                     'file://' + str(TUTORIAL_PATH) + "/")
-        with open(self.path) as helpfile:
+        with open(self.path, encoding='utf-8') as helpfile:
             help_text = helpfile.read()
 
         help_html = markdown(help_text, extras=['metadata'])
@@ -1481,7 +1481,7 @@ class ManualDialog(QDialog):
         footer_text = '-----------\n' + str(ManualNavigator(self.path))
         footer_html = markdown(footer_text)
 
-        with open(self.path) as helpfile:
+        with open(self.path, encoding='utf8') as helpfile:
             help_text = helpfile.read()
 
         help_html = "".join([header_html,

@@ -51,7 +51,7 @@ def sniff(filepath, sniff_size):
 
     """
 
-    with open(filepath, newline='') as csvfile:
+    with open(filepath, newline='', encoding='utf-8') as csvfile:
         csv_str = csvfile.read(sniff_size)
 
     dialect = csv.Sniffer().sniff(csv_str)

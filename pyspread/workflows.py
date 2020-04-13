@@ -501,7 +501,7 @@ class Workflows:
         command = None
 
         try:
-            with open(filepath, newline='') as csvfile:
+            with open(filepath, newline='', encoding='utf-8') as csvfile:
                 title = "csv import progress"
                 label = "Importing {}...".format(filepath.name)
                 with self.progress_dialog(title, label,
@@ -585,7 +585,7 @@ class Workflows:
             return
 
         try:
-            with open(filepath, "w", newline='') as csvfile:
+            with open(filepath, "w", newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile, dialect=csv_dlg.dialect)
                 writer.writerows(csv_data)
         except OSError as error:
@@ -1385,7 +1385,7 @@ class Workflows:
 
         if filepath.suffix == ".svg":
             try:
-                with open(filepath, "r") as svgfile:
+                with open(filepath, "r", encoding='utf-8') as svgfile:
                     svg = svgfile.read()
             except OSError as err:
                 msg_tpl = "Error opening file {filepath}: {err}."
