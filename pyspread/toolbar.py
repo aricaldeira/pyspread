@@ -38,9 +38,14 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
-from menus import ToolbarManagerMenu
-from widgets import FindEditor
+try:
+    from pyspread.icons import Icon
+    from pyspread.menus import ToolbarManagerMenu
+    from pyspread.widgets import FindEditor
+except ImportError:
+    from icons import Icon
+    from menus import ToolbarManagerMenu
+    from widgets import FindEditor
 
 
 def add_toolbutton_widget(button, widget, minsize=(300, 200),

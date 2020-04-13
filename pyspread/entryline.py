@@ -24,9 +24,14 @@ from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QTextOption
 from PyQt5.QtWidgets import QWidget
 
-import commands
-from lib.spelltextedit import SpellTextEdit
-from lib.string_helpers import quote
+try:
+    import pyspread.commands as commands
+    from pyspread.lib.spelltextedit import SpellTextEdit
+    from pyspread.lib.string_helpers import quote
+except ImportError:
+    import commands
+    from lib.spelltextedit import SpellTextEdit
+    from lib.string_helpers import quote
 
 
 class Entryline(SpellTextEdit):

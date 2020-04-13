@@ -45,8 +45,12 @@ from PyQt5.QtWidgets \
             QLineEdit, QPushButton)
 from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
-from actions import Action
-from icons import Icon
+try:
+    from pyspread.actions import Action
+    from pyspread.icons import Icon
+except ImportError:
+    from actions import Action
+    from icons import Icon
 
 
 class MultiStateBitmapButton(QToolButton):

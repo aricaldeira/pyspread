@@ -35,9 +35,14 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
-from lib.attrdict import AttrDict
-from lib.dependencies import get_enchant_version
+try:
+    from pyspread.icons import Icon
+    from pyspread.lib.attrdict import AttrDict
+    from pyspread.lib.dependencies import get_enchant_version
+except ImportError:
+    from icons import Icon
+    from lib.attrdict import AttrDict
+    from lib.dependencies import get_enchant_version
 
 
 class Action(QAction):

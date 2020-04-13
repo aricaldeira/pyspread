@@ -4,7 +4,7 @@ try:
     from dataclasses import dataclass
 except ImportError:
     # Python 3.6 compatibility
-    from lib.dataclasses import dataclass
+    from pyspread.lib.dataclasses import dataclass
 import os
 
 try:
@@ -22,9 +22,14 @@ try:
     from packaging import version
 except ImportError:
     # We fall back to local library to remove the dependency
-    from lib.packaging import version
-
-from lib.attrdict import AttrDict
+    try:
+        from pyspread.lib.packaging import version
+    except ImportError:
+        from lib.packaging import version
+try:
+    from pyspread.lib.attrdict import AttrDict
+except ImportError:
+    from lib.attrdict import AttrDict
 
 
 @dataclass

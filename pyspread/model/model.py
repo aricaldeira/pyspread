@@ -59,11 +59,18 @@ try:
 except ImportError:
     Figure = None
 
-from lib.attrdict import AttrDict
-import lib.charts as charts
-from lib.exception_handling import get_user_codeframe
-from lib.typechecks import isslice, isstring
-from lib.selection import Selection
+try:
+    from pyspread.lib.attrdict import AttrDict
+    import pyspread.lib.charts as charts
+    from pyspread.lib.exception_handling import get_user_codeframe
+    from pyspread.lib.typechecks import isslice, isstring
+    from pyspread.lib.selection import Selection
+except ImportError:
+    from lib.attrdict import AttrDict
+    import lib.charts as charts
+    from lib.exception_handling import get_user_codeframe
+    from lib.typechecks import isslice, isstring
+    from lib.selection import Selection
 
 
 class DefaultCellAttributeDict(AttrDict):

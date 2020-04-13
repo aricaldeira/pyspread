@@ -43,9 +43,14 @@ import ast
 from base64 import b64decode, b85encode
 from collections import OrderedDict
 
-from lib.attrdict import AttrDict
-from lib.selection import Selection
-from model.model import CellAttribute
+try:
+    from pyspread.lib.attrdict import AttrDict
+    from pyspread.lib.selection import Selection
+    from pyspread.model.model import CellAttribute
+except ImportError:
+    from lib.attrdict import AttrDict
+    from lib.selection import Selection
+    from model.model import CellAttribute
 
 
 def wxcolor2rgb(wxcolor):

@@ -72,13 +72,24 @@ try:
 except ImportError:
     Figure = None
 
-from actions import ChartDialogActions
-from toolbar import ChartTemplatesToolBar
-from icons import PYSPREAD_PATH
-from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
-from lib.markdown2 import markdown
-from lib.spelltextedit import SpellTextEdit
-from settings import TUTORIAL_PATH, MANUAL_PATH
+try:
+    from pyspread.actions import ChartDialogActions
+    from pyspread.toolbar import ChartTemplatesToolBar
+    from pyspread.icons import PYSPREAD_PATH
+    from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
+                                  convert)
+    from pyspread.lib.markdown2 import markdown
+    from pyspread.lib.spelltextedit import SpellTextEdit
+    from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH
+except ImportError:
+    from actions import ChartDialogActions
+    from toolbar import ChartTemplatesToolBar
+    from icons import PYSPREAD_PATH
+    from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
+    from lib.markdown2 import markdown
+    from lib.spelltextedit import SpellTextEdit
+    from settings import TUTORIAL_PATH, MANUAL_PATH
+
 
 MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 

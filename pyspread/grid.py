@@ -60,18 +60,33 @@ try:
 except ImportError:
     matplotlib = None
 
-import commands
-from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
-from lib.attrdict import AttrDict
-from lib.selection import Selection
-from lib.string_helpers import quote, wrap_text, get_svg_size
-from lib.qimage2ndarray import array2qimage
-from lib.qimage_svg import QImageSvg
-from lib.typechecks import is_svg, check_shape_validity
-from menus \
-    import (GridContextMenu, TableChoiceContextMenu,
-            HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
-from widgets import CellButton
+try:
+    import pyspread.commands as commands
+    from pyspread.model.model import (CodeArray, CellAttribute,
+                                      DefaultCellAttributeDict)
+    from pyspread.lib.attrdict import AttrDict
+    from pyspread.lib.selection import Selection
+    from pyspread.lib.string_helpers import quote, wrap_text, get_svg_size
+    from pyspread.lib.qimage2ndarray import array2qimage
+    from pyspread.lib.qimage_svg import QImageSvg
+    from pyspread.lib.typechecks import is_svg, check_shape_validity
+    from pyspread.menus \
+        import (GridContextMenu, TableChoiceContextMenu,
+                HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
+    from pyspread.widgets import CellButton
+except ImportError:
+    import commands
+    from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
+    from lib.attrdict import AttrDict
+    from lib.selection import Selection
+    from lib.string_helpers import quote, wrap_text, get_svg_size
+    from lib.qimage2ndarray import array2qimage
+    from lib.qimage_svg import QImageSvg
+    from lib.typechecks import is_svg, check_shape_validity
+    from menus \
+        import (GridContextMenu, TableChoiceContextMenu,
+                HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
+    from widgets import CellButton
 
 
 class Grid(QTableView):

@@ -54,18 +54,32 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-import commands
-from dialogs \
-    import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
-            FileSaveDialog, ImageFileOpenDialog, ChartDialog, CellKeyDialog,
-            FindDialog, ReplaceDialog, CsvFileImportDialog, CsvImportDialog,
-            CsvExportDialog, CsvExportAreaDialog, CsvFileExportDialog,
-            SvgExportAreaDialog)
-from interfaces.pys import PysReader, PysWriter
-from lib.hashing import sign, verify
-from lib.selection import Selection
-from lib.typechecks import is_svg, check_shape_validity
-from lib.csv import csv_reader, convert
+try:
+    import pyspread.commands as commands
+    from pyspread.dialogs \
+        import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
+                FileSaveDialog, ImageFileOpenDialog, ChartDialog,
+                CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
+                CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
+                CsvFileExportDialog, SvgExportAreaDialog)
+    from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.lib.hashing import sign, verify
+    from pyspread.lib.selection import Selection
+    from pyspread.lib.typechecks import is_svg, check_shape_validity
+    from pyspread.lib.csv import csv_reader, convert
+except ImportError:
+    import commands
+    from dialogs \
+        import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
+                FileSaveDialog, ImageFileOpenDialog, ChartDialog,
+                CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
+                CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
+                CsvFileExportDialog, SvgExportAreaDialog)
+    from interfaces.pys import PysReader, PysWriter
+    from lib.hashing import sign, verify
+    from lib.selection import Selection
+    from lib.typechecks import is_svg, check_shape_validity
+    from lib.csv import csv_reader, convert
 
 
 class Workflows:

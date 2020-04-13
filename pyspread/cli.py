@@ -30,8 +30,12 @@ from argparse import Action, ArgumentParser
 from pathlib import Path
 import sys
 
-from __init__ import APP_NAME, VERSION
-from installer import REQUIRED_DEPENDENCIES
+try:
+    from pyspread.__init__ import APP_NAME, VERSION
+    from pyspread.installer import REQUIRED_DEPENDENCIES
+except ImportError:
+    from __init__ import APP_NAME, VERSION
+    from installer import REQUIRED_DEPENDENCIES
 
 
 class PathAction(Action):

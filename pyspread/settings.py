@@ -25,7 +25,10 @@ from pathlib import Path
 from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QToolBar
 
-from __init__ import VERSION, APP_NAME
+try:
+    from pyspread.__init__ import VERSION, APP_NAME
+except ImportError:
+    from __init__ import VERSION, APP_NAME
 
 PYSPREAD_DIRNAME = abspath(join(dirname(__file__), ".."))
 PYSPREAD_PATH = Path(PYSPREAD_DIRNAME)

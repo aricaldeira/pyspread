@@ -42,11 +42,18 @@ from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
 from PyQt5.QtGui import QTextDocument
 from PyQt5.QtWidgets import QUndoCommand, QTableView, QPlainTextEdit
 
-from model.model import CellAttribute
-from widgets import CellButton
+try:
+    from pyspread.model.model import CellAttribute
+    from pyspread.widgets import CellButton
 
-from lib.attrdict import AttrDict
-from lib.selection import Selection
+    from pyspread.lib.attrdict import AttrDict
+    from pyspread.lib.selection import Selection
+except ImportError:
+    from model.model import CellAttribute
+    from widgets import CellButton
+
+    from lib.attrdict import AttrDict
+    from lib.selection import Selection
 
 
 class SetGridSize(QUndoCommand):

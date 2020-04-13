@@ -45,7 +45,10 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
+try:
+    from pyspread.icons import Icon
+except ImportError:
+    from icons import Icon
 
 
 class MenuBar(QMenuBar):

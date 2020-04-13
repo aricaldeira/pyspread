@@ -21,7 +21,10 @@
 
 from PyQt5.QtGui import QIcon
 
-from settings import PYSPREAD_PATH
+try:
+    from pyspread.settings import PYSPREAD_PATH
+except ImportError:
+    from settings import PYSPREAD_PATH
 
 ICON_PATH = PYSPREAD_PATH / 'share/icons'
 ACTION_PATH = ICON_PATH / 'actions'

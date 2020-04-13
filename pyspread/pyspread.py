@@ -48,23 +48,45 @@ except ImportError:
 from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
-from __init__ import VERSION, APP_NAME
-from cli import ArgumentParser
-from settings import Settings
-from icons import Icon, IconPath
-from grid import Grid
-from entryline import Entryline
-from menus import MenuBar
-from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
-from actions import MainWindowActions
-from workflows import Workflows
-from widgets import Widgets
-from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
-                     TutorialDialog, PrintAreaDialog, PrintPreviewDialog)
-from installer import DependenciesDialog
-from panels import MacroPanel
-from lib.hashing import genkey
-from model.model import CellAttributes
+try:
+    from pyspread.__init__ import VERSION, APP_NAME
+    from pyspread.cli import ArgumentParser
+    from pyspread.settings import Settings
+    from pyspread.icons import Icon, IconPath
+    from pyspread.grid import Grid
+    from pyspread.entryline import Entryline
+    from pyspread.menus import MenuBar
+    from pyspread.toolbar import (MainToolBar, FindToolbar, FormatToolbar,
+                                  MacroToolbar)
+    from pyspread.actions import MainWindowActions
+    from pyspread.workflows import Workflows
+    from pyspread.widgets import Widgets
+    from pyspread.dialogs import (ApproveWarningDialog, PreferencesDialog,
+                                  ManualDialog, TutorialDialog,
+                                  PrintAreaDialog, PrintPreviewDialog)
+    from pyspread.installer import DependenciesDialog
+    from pyspread.panels import MacroPanel
+    from pyspread.lib.hashing import genkey
+    from pyspread.model.model import CellAttributes
+except ImportError:
+    from __init__ import VERSION, APP_NAME
+    from cli import ArgumentParser
+    from settings import Settings
+    from icons import Icon, IconPath
+    from grid import Grid
+    from entryline import Entryline
+    from menus import MenuBar
+    from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
+    from actions import MainWindowActions
+    from workflows import Workflows
+    from widgets import Widgets
+    from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
+                         TutorialDialog, PrintAreaDialog, PrintPreviewDialog)
+    from installer import DependenciesDialog
+    from panels import MacroPanel
+    from lib.hashing import genkey
+    from model.model import CellAttributes
+
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
