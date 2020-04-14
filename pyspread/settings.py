@@ -32,9 +32,10 @@ except ImportError:
 
 PYSPREAD_DIRNAME = abspath(join(dirname(__file__), ".."))
 PYSPREAD_PATH = Path(PYSPREAD_DIRNAME)
-DOC_PATH = PYSPREAD_PATH / "share/doc"
+DOC_PATH = PYSPREAD_PATH / "share/pyspread/doc"
 TUTORIAL_PATH = DOC_PATH / "tutorial"
 MANUAL_PATH = DOC_PATH / "manual"
+MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/pyspread/templates/matplotlib'
 
 
 class Settings:

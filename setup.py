@@ -43,9 +43,15 @@ setup(
         "Source Code": "https://gitlab.com/pyspread/pyspread",
     },
     packages=find_packages(),
-    package_dir={'': '.'},
-    scripts=['pyspread.sh'],
-    include_package_data=True,
+    scripts=['bin/pyspread'],
+    package_data={'pyspread': [
+            '../share/*',
+            '../share/*/*',
+            '../share/*/*/*',
+            '../share/*/*/*/*',
+            '../share/*/*/*/*/*',
+        ]
+    },
     license='GPL v3 :: GNU General Public License',
     keywords=['spreadsheet', 'pyspread'],
     python_requires='>=3.6',

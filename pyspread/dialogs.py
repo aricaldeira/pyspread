@@ -80,7 +80,7 @@ try:
                                   convert)
     from pyspread.lib.markdown2 import markdown
     from pyspread.lib.spelltextedit import SpellTextEdit
-    from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH
+    from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 except ImportError:
     from actions import ChartDialogActions
     from toolbar import ChartTemplatesToolBar
@@ -88,10 +88,7 @@ except ImportError:
     from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
     from lib.markdown2 import markdown
     from lib.spelltextedit import SpellTextEdit
-    from settings import TUTORIAL_PATH, MANUAL_PATH
-
-
-MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
+    from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 
 
 class DiscardChangesDialog:

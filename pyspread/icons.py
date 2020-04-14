@@ -26,7 +26,7 @@ try:
 except ImportError:
     from settings import PYSPREAD_PATH
 
-ICON_PATH = PYSPREAD_PATH / 'share/icons'
+ICON_PATH = PYSPREAD_PATH / 'share/pyspread/icons'
 ACTION_PATH = ICON_PATH / 'actions'
 STATUS_PATH = ICON_PATH / 'status'
 CHARTS_PATH = ICON_PATH / 'charts'
