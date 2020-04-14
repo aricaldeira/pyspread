@@ -45,11 +45,11 @@ setup(
     packages=find_packages(),
     scripts=['bin/pyspread'],
     package_data={'pyspread': [
-            '../share/*',
-            '../share/*/*',
-            '../share/*/*/*',
-            '../share/*/*/*/*',
-            '../share/*/*/*/*/*',
+            'share/*',
+            'share/*/*',
+            'share/*/*/*',
+            'share/*/*/*/*',
+            'share/*/*/*/*/*',
         ]
     },
     license='GPL v3 :: GNU General Public License',

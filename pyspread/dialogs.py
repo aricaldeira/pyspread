@@ -75,7 +75,6 @@ except ImportError:
 try:
     from pyspread.actions import ChartDialogActions
     from pyspread.toolbar import ChartTemplatesToolBar
-    from pyspread.icons import PYSPREAD_PATH
     from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
                                   convert)
     from pyspread.lib.markdown2 import markdown
@@ -84,7 +83,6 @@ try:
 except ImportError:
     from actions import ChartDialogActions
     from toolbar import ChartTemplatesToolBar
-    from icons import PYSPREAD_PATH
     from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
     from lib.markdown2 import markdown
     from lib.spelltextedit import SpellTextEdit

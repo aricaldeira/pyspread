@@ -183,7 +183,6 @@ class CellAttributes(list):
 
         try:
             for selection, attr_dict in self._table_cache[tab]:
-                assert isinstance(attr_dict, AttrDict)
                 if (row, col) in selection:
                     result_dict.update(attr_dict)
         except KeyError:

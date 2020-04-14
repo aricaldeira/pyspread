@@ -22,14 +22,10 @@
 from PyQt5.QtGui import QIcon
 
 try:
-    from pyspread.settings import PYSPREAD_PATH
+    from pyspread.settings import (ICON_PATH, ACTION_PATH, STATUS_PATH,
+                                   CHARTS_PATH)
 except ImportError:
-    from settings import PYSPREAD_PATH
-
-ICON_PATH = PYSPREAD_PATH / 'share/pyspread/icons'
-ACTION_PATH = ICON_PATH / 'actions'
-STATUS_PATH = ICON_PATH / 'status'
-CHARTS_PATH = ICON_PATH / 'charts'
+    from settings import ICON_PATH, ACTION_PATH, STATUS_PATH, CHARTS_PATH
 
 
 class IconPath:
