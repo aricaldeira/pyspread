@@ -1325,7 +1325,7 @@ class GridHeaderView(QHeaderView):
     def __init__(self, orientation: Qt.Orientation, grid: Grid):
         """
         :param orientation: Orientation of the `QHeaderView`
-        :param grid: The main grid `QTableView`
+        :param grid: The main grid widget
 
         """
 
@@ -2558,7 +2558,7 @@ class TableChoice(QTabBar):
 
     def __init__(self, grid: Grid, no_tables: int):
         """
-        :param grid: The main grid `QTableView`
+        :param grid: The main grid widget
         :param no_tables: Number of tables to be initially created
 
         """

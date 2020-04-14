@@ -173,7 +173,13 @@ class IconPath:
 class IconConverter(type):
     """Meta class that provides QIcons for IconPaths icons"""
 
-    def __getattr__(cls, name):
+    def __getattr__(cls, name: str) -> QIcon:
+        """Provides QIcons for icon names
+
+        :param name: Icon name
+
+        """
+
         return QIcon(str(getattr(IconPath, name)))
 
 

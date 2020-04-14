@@ -54,7 +54,6 @@ class ArgumentParser(ArgumentParser):
     """Parser for the command line"""
 
     def __init__(self):
-
         self.check_mandatory_dependencies()
 
         description = "pyspread is a non-traditional spreadsheet that is " \
