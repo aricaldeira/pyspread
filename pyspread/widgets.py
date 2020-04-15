@@ -36,21 +36,26 @@
  * :class:`Widgets`
  * :class:`FindEditor`
  * :class:`CellButton`
+ * :class:`HelpBrowser`
 
 """
+
+from pathlib import Path
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex
 from PyQt5.QtWidgets \
     import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
-            QLineEdit, QPushButton)
+            QLineEdit, QPushButton, QTextBrowser, QWidget)
 from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
 try:
     from pyspread.actions import Action
     from pyspread.icons import Icon
+    from pyspread.lib.markdown2 import markdown
 except ImportError:
     from actions import Action
     from icons import Icon
+    from lib.markdown2 import markdown
 
 
 class MultiStateBitmapButton(QToolButton):
@@ -566,3 +571,45 @@ class CellButton(QPushButton):
         self.grid.model.code_array.frozen_cache[repr(self.key)] = result
         self.grid.model.code_array.result_cache.clear()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
+class HelpBrowser(QTextBrowser):
+    """Help browser widget"""
+
+    def __init__(self, parent: QWidget, path: Path):
+        """
+        :param parent: Parent window
+        :param path: Path to markdown file that is displayed
+
+        """
+
+        super().__init__(parent)
+
+        self.setReadOnly(True)
+        self.setOpenExternalLinks(True)
+        self.update(path)
+
+    def update(self, path: Path):
+        """Updates content
+
+        :param path: Path to markdown file that is displayed
+
+        """
+
+        self.setSearchPaths([str(path.parents[0])])
+        self.setHtml(self.get_html(path))
+
+    def get_html(self, path: Path) -> str:
+        """Returns html content for content of browser
+
+        :param path: Path to markdown file that is displayed
+
+        """
+
+        try:
+            with open(path, encoding='utf-8') as helpfile:
+                help_text = helpfile.read()
+        except IOError as err:
+            return "Error opening file {}: {}".format(path, err)
+
+        return markdown(help_text, extras=['metadata'])

@@ -37,7 +37,7 @@ from ast import literal_eval
 from contextlib import contextmanager
 from io import BytesIO
 from math import isclose
-from typing import Any, Iterable, List, Sequence, Tuple, Union
+from typing import Any, Iterable, List, Tuple, Union
 
 import numpy
 

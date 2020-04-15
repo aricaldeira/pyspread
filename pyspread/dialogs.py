@@ -61,10 +61,10 @@ from PyQt5.QtWidgets \
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
-            QPlainTextEdit, QToolBar, QMainWindow)
+            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget)
 from PyQt5.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
-            QTextDocument, QValidator, QWheelEvent)
+            QValidator, QWheelEvent)
 
 from PyQt5.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
                                   QPrinter)
@@ -78,6 +78,7 @@ except ImportError:
 try:
     from pyspread.actions import ChartDialogActions
     from pyspread.toolbar import ChartTemplatesToolBar
+    from pyspread.widgets import HelpBrowser
     from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
                                   convert)
     from pyspread.lib.markdown2 import markdown
@@ -86,6 +87,7 @@ try:
 except ImportError:
     from actions import ChartDialogActions
     from toolbar import ChartTemplatesToolBar
+    from widgets import HelpBrowser
     from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
     from lib.markdown2 import markdown
     from lib.spelltextedit import SpellTextEdit
@@ -1436,10 +1438,9 @@ class CsvExportDialog(QDialog):
 class TutorialDialog(QDialog):
     """Dialog for browsing the pyspread tutorial"""
 
-    title = "pyspread tutorial"
-    path = TUTORIAL_PATH / 'tutorial.md'
-    baseurl = str(path.parent) + '/'
+    window_title = "pyspread tutorial"
     size_hint = 1000, 800
+    path: Path = TUTORIAL_PATH / 'tutorial.md'
 
     def __init__(self, parent: QWidget):
         """
@@ -1449,37 +1450,22 @@ class TutorialDialog(QDialog):
 
         super().__init__(parent)
 
-        self.setWindowTitle(self.title)
-
         self._create_widgets()
         self._layout()
-        self.update_content()
 
     def _create_widgets(self):
-        """Creates dialog browser"""
+        """Creates dialog widgets, e.g. the browser"""
 
-        self.browser = QTextBrowser(self)
-        self.browser.setReadOnly(True)
-        self.browser.setOpenExternalLinks(True)
+        self.browser = HelpBrowser(self, self.path)
 
     def _layout(self):
         """Dialog layout management"""
 
+        self.setWindowTitle(self.window_title)
+
         layout = QHBoxLayout()
         layout.addWidget(self.browser)
         self.setLayout(layout)
-
-    def update_content(self):
-        """Update content of browser"""
-
-        document = self.browser.document()
-        document.setMetaInformation(QTextDocument.DocumentUrl,
-                                    'file://' + str(TUTORIAL_PATH) + "/")
-        with open(self.path, encoding='utf-8') as helpfile:
-            help_text = helpfile.read()
-
-        help_html = markdown(help_text, extras=['metadata'])
-        self.browser.setHtml(help_html)
 
     # Overrides
 
@@ -1489,126 +1475,39 @@ class TutorialDialog(QDialog):
         return QSize(*self.size_hint)
 
 
-class ManualNavigator:
-    """Navigation markdown text generator for manual"""
-
-    filename2title = {
-        "overview.md": "Overview",
-        "basic_concepts.md": "Concepts",
-        "workspace.md": "Workspace",
-        "file_menu.md": "File",
-        "edit_menu.md": "Edit",
-        "view_menu.md": "View",
-        "format_menu.md": "Format",
-        "macro_menu.md": "Macro",
-        "advanced_topics.md": "Advanced topics",
-    }
-
-    def __init__(self, path: Path):
-        """
-        :param path: Manual file path
-
-        """
-
-        self.path = path
-
-    def __str__(self):
-        return " | ".join(self.md_title(fn) for fn in self.filename2title)
-
-    def md_title(self, filename: str) -> str:
-        """Returns title for filename in markdown.
-
-        The filename is bold if filename == self.path.name.
-
-        :param filename: File name to be checked
-
-        """
-
-        if filename == self.path.name:
-            tpl = "[**{}**]({})"
-        else:
-            tpl = "[{}]({})"
-
-        return tpl.format(self.filename2title[filename],
-                          self.path.parent / filename)
-
-
-class ManualDialog(QDialog):
+class ManualDialog(TutorialDialog):
     """Dialog for browsing the pyspread manual"""
 
-    title = "pyspread manual"
-    path = MANUAL_PATH / 'overview.md'
-    baseurl = str(MANUAL_PATH) + '/'
+    window_title = "pyspread manual"
     size_hint = 1000, 800
-
-    def __init__(self, parent: QWidget):
-        """
-        :param parent: Parent window
-
-        """
-
-        super().__init__(parent)
-
-        self.setWindowTitle(self.title)
-
-        self._create_widgets()
-        self._layout()
-        self.update_content()
-
-        self.browser.sourceChanged.connect(self.on_update)
+    title2path = {
+        "Overview": MANUAL_PATH / 'overview.md',
+        "Concepts": MANUAL_PATH / 'basic_concepts.md',
+        "Workspace": MANUAL_PATH / 'workspace.md',
+        "File": MANUAL_PATH / 'file_menu.md',
+        "Edit": MANUAL_PATH / 'edit_menu.md',
+        "View": MANUAL_PATH / 'view_menu.md',
+        "Format": MANUAL_PATH / 'format_menu.md',
+        "Macro": MANUAL_PATH / 'macro_menu.md',
+        "Advanced topics": MANUAL_PATH / 'advanced_topics.md',
+    }
 
     def _create_widgets(self):
-        """Creates dialog browser"""
+        """Creates tabbar and dialog browser"""
 
-        self.browser = QTextBrowser(self)
-        self.browser.setReadOnly(True)
-        self.browser.setOpenExternalLinks(True)
+        self.tabbar = QTabWidget(self)
+        for title in self.title2path:
+            path = self.title2path[title]
+            self.tabbar.addTab(HelpBrowser(self, path), title)
 
     def _layout(self):
         """Dialog layout management"""
 
+        self.setWindowTitle(self.window_title)
+
         layout = QHBoxLayout()
-        layout.addWidget(self.browser)
+        layout.addWidget(self.tabbar)
         self.setLayout(layout)
-
-    def update_content(self):
-        """Update content of browser"""
-
-        document = self.browser.document()
-        document.setMetaInformation(QTextDocument.DocumentUrl,
-                                    'file://' + self.baseurl + "/")
-
-        header_text = str(ManualNavigator(self.path)) + '\n \n-----------'
-        header_html = markdown(header_text)
-
-        footer_text = '-----------\n' + str(ManualNavigator(self.path))
-        footer_html = markdown(footer_text)
-
-        with open(self.path, encoding='utf8') as helpfile:
-            help_text = helpfile.read()
-
-        help_html = "".join([header_html,
-                             markdown(help_text, extras=['metadata',
-                                                         'code-friendly',
-                                                         'fenced-code-blocks',
-                                                         'tables']),
-                             footer_html])
-        self.browser.setHtml(help_html)
-
-    def on_update(self, url: QUrl):
-        """Replaces html url with markdown file and adds proper path"""
-
-        self.path = MANUAL_PATH / url.path()
-        if self.path.suffix == ".html":
-            self.path = self.path.with_suffix(".md")
-        self.update_content()
-
-    # Overrides
-
-    def sizeHint(self) -> QSize:
-        """QDialog.sizeHint override"""
-
-        return QSize(*self.size_hint)
 
 
 class PrintPreviewDialog(QPrintPreviewDialog):
