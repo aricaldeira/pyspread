@@ -588,7 +588,7 @@ class CsvFileImportDialog(FileDialogBase):
     def show_dialog(self):
         """Present dialog and update values"""
 
-        path = self.main_window.settings.last_file_input_path
+        path = self.main_window.settings.last_file_import_path
         self.file_path, self.selected_filter = \
             QFileDialog.getOpenFileName(self.main_window, self.title,
                                         str(path), self.filters,

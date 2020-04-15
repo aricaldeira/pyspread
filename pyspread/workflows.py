@@ -492,6 +492,9 @@ class Workflows:
             return  # Cancel pressed
         filepath = Path(dial.file_path)
 
+        # Store file import path for next time importing a file
+        self.main_window.settings.last_file_import_path = filepath
+
         csv_dlg = CsvImportDialog(self.main_window, filepath)
 
         if not csv_dlg.exec():
@@ -570,6 +573,9 @@ class Workflows:
         if not dial.file_path:
             return  # Cancel pressed
         filepath = Path(dial.file_path)
+
+        # Store file export path for next time exporting a file
+        self.main_window.settings.last_file_export_path = filepath
 
         if "CSV" in dial.selected_filter:
             self._csv_export(filepath)

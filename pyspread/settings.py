@@ -68,6 +68,12 @@ class Settings:
     # Initial :class:`~pathlib.Path` for saving files
     last_file_output_path = Path.home()
 
+    # Initial :class:`~pathlib.Path` for importing files
+    last_file_import_path = Path.home()
+
+    # Initial :class:`~pathlib.Path` for exporting files
+    last_file_export_path = Path.home()
+
     # Maximum number of files in file history
     max_file_history = 5
 
@@ -150,6 +156,12 @@ class Settings:
         if self.last_file_output_path is not None:
             settings.setValue("last_file_output_path",
                               self.last_file_output_path.parent)
+        if self.last_file_import_path is not None:
+            settings.setValue("last_file_import_path",
+                              self.last_file_import_path)
+        if self.last_file_export_path is not None:
+            settings.setValue("last_file_export_path",
+                              self.last_file_export_path.parent)
         settings.setValue("max_file_history", self.max_file_history)
         settings.value("file_history", [], 'QStringList')
         if self.file_history:
@@ -212,6 +224,8 @@ class Settings:
 
         setting2attr("last_file_input_path")
         setting2attr("last_file_output_path")
+        setting2attr("last_file_import_path")
+        setting2attr("last_file_export_path")
         setting2attr("max_file_history", mapper=int)
         setting2attr("file_history")
         setting2attr("timeout", mapper=int)
