@@ -87,9 +87,15 @@ def csv_reader(csvfile, dialect, digest_types=None):
     """
 
     csvreader = csv.reader(csvfile, dialect=dialect)
+    try:
+        ignore_header = dialect.hasheader and not dialect.keepheader
+    except AttributeError:
+        try:
+            ignore_header = dialect.hasheader
+        except AttributeError:
+            ignore_header = False
 
-    if hasattr(dialect, "hasheader") and dialect.hasheader:
-        # Ignore first line
+    if ignore_header:
         for line in csvreader:
             break
 

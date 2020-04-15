@@ -960,6 +960,7 @@ class CsvParameterGroupBox(QGroupBox):
     hasheader_tooltip = \
         "Analyze the CSV file and treat the first row as strings if it " \
         "appears to be a series of column headers."
+    keepheader_tooltip = "Import header labels as str in the first row"
     doublequote_tooltip = \
         "Controls how instances of quotechar appearing inside a field " \
         "should be themselves be quoted. When True, the character is " \
@@ -1033,6 +1034,11 @@ class CsvParameterGroupBox(QGroupBox):
         self.hasheader_widget = QCheckBox(self.parent)
         self.hasheader_widget.setToolTip(self.hasheader_tooltip)
 
+        # Keep header
+        self.keepheader_label = QLabel("Keep header")
+        self.keepheader_widget = QCheckBox(self.parent)
+        self.keepheader_widget.setToolTip(self.keepheader_tooltip)
+
         # Double quote
         self.doublequote_label = QLabel("Doublequote")
         self.doublequote_widget = QCheckBox(self.parent)
@@ -1052,6 +1058,7 @@ class CsvParameterGroupBox(QGroupBox):
             "escapechar": self.escapechar_widget,
             "quoting": self.quoting_widget,
             "hasheader": self.hasheader_widget,  # Extra dialect attribute
+            "keepheader": self.keepheader_widget,  # Extra dialect attribute
             "doublequote": self.doublequote_widget,
             "skipinitialspace": self.skipinitialspace_widget,
         }
@@ -1077,6 +1084,7 @@ class CsvParameterGroupBox(QGroupBox):
 
         right_form_layout.addRow(self.quoting_label, self.quoting_widget)
         right_form_layout.addRow(self.hasheader_label, self.hasheader_widget)
+        right_form_layout.addRow(self.keepheader_label, self.keepheader_widget)
         right_form_layout.addRow(self.doublequote_label,
                                  self.doublequote_widget)
         right_form_layout.addRow(self.skipinitialspace_label,

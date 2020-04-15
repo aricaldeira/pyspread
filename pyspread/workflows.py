@@ -500,6 +500,13 @@ class Workflows:
         if not csv_dlg.exec():
             return
 
+        dialect = csv_dlg.dialect
+        digest_types = csv_dlg.digest_types
+        try:
+            keep_header = dialect.hasheader and dialect.keepheader
+        except AttributeError:
+            keep_header = False
+
         # Dialog accepted, now fill the grid
 
         row, column, table = current = self.main_window.grid.current
@@ -527,8 +534,7 @@ class Workflows:
                         # Enter safe mode
                         self.main_window.safe_mode = True
 
-                        reader = csv_reader(csvfile, csv_dlg.dialect,
-                                            csv_dlg.digest_types)
+                        reader = csv_reader(csvfile, dialect, digest_types)
                         for i, line in enumerate(reader):
                             if row + i >= rows:
                                 break
@@ -542,11 +548,12 @@ class Workflows:
                                 if column + j >= columns:
                                     break
 
-                                if csv_dlg.digest_types is None:
+                                if digest_types is None:
                                     code = str(ele)
+                                elif i == 0 and keep_header:
+                                    code = repr(ele)
                                 else:
-                                    code = convert(ele,
-                                                   csv_dlg.digest_types[j])
+                                    code = convert(ele, digest_types[j])
                                 index = model.index(row + i, column + j)
                                 cmd = commands.SetCellCode(code, model, index,
                                                            description)
