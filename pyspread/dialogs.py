@@ -1007,7 +1007,7 @@ class CsvParameterGroupBox(QGroupBox):
         self.quotechar_widget.setToolTip(self.quotechar_tooltip)
 
         # Delimiter
-        self.delimiter_label = QLabel("Quote character")
+        self.delimiter_label = QLabel("Delimiter")
         self.delimiter_widget = QLineEdit(self.default_delimiter, self.parent)
         self.delimiter_widget.setMaxLength(1)
         self.delimiter_widget.setToolTip(self.delimiter_tooltip)
