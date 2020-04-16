@@ -20,10 +20,8 @@
 
 
 """
-test_string_helpers
-===================
 
-Unit tests for string_helpers.py
+**Unit tests for string_helpers.py**
 
 """
 

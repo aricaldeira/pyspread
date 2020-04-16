@@ -67,6 +67,8 @@ try:
     from pyspread.lib.selection import Selection
     from pyspread.lib.typechecks import is_svg, check_shape_validity
     from pyspread.lib.csv import csv_reader, convert
+    from pyspread.lib.file_helpers import \
+        (progress_dialog, linecount, file_progress_gen, ProgressDialogCanceled)
 except ImportError:
     import commands
     from dialogs \
@@ -80,28 +82,13 @@ except ImportError:
     from lib.selection import Selection
     from lib.typechecks import is_svg, check_shape_validity
     from lib.csv import csv_reader, convert
+    from lib.file_helpers import \
+        (progress_dialog, linecount, file_progress_gen, ProgressDialogCanceled)
 
 
 class Workflows:
     def __init__(self, main_window):
         self.main_window = main_window
-
-    @contextmanager
-    def progress_dialog(self, title, label, maximum):
-        """:class:`~contextlib.contextmanager` that displays a progress dialog
-        """
-
-        progress_dialog = QProgressDialog(self.main_window)
-        progress_dialog.setWindowTitle(title)
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setLabelText(label)
-        progress_dialog.setMaximum(maximum)
-
-        yield progress_dialog
-
-        progress_dialog.setValue(maximum)
-        progress_dialog.close()
-        progress_dialog.deleteLater()
 
     @contextmanager
     def disable_entryline_updates(self):
@@ -276,32 +263,46 @@ class Workflows:
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
 
+        # Get number of lines for progess dialog
+
+        try:
+            with open(filepath, 'rb') as infile:
+                filelines = linecount(infile)
+        except OSError as error:
+            self.main_window.statusBar().showMessage(str(error))
+            return
+
         # Load file into grid
+
+        title = "File open progress"
+        label = "Opening {}...".format(filepath.name)
+
         try:
             with fopen(filepath, "rb") as infile:
-                title = "File open progress"
-                label = "Opening {}...".format(filepath.name)
-                with self.progress_dialog(title, label,
-                                          filesize) as progress_dialog:
-                    try:
-                        for line in PysReader(infile, code_array):
-                            progress_dialog.setValue(infile.tell())
-                            QApplication.instance().processEvents()
-                            if progress_dialog.wasCanceled():
-                                grid.model.reset()
-                                self.main_window.safe_mode = False
-                                break
-                    except ValueError as error:
-                        grid.model.reset()
-                        self.main_window.statusBar().showMessage(str(error))
-                        progress_dialog.close()
-                        return
+                reader = PysReader(infile, code_array)
+                try:
+                    for i, _ in file_progress_gen(self.main_window, reader,
+                                                  title, label, filelines):
+                        pass
+                except ValueError as error:
+                    grid.model.reset()
+                    self.main_window.statusBar().showMessage(str(error))
+                    self.main_window.safe_mode = False
+                    return
+                except ProgressDialogCanceled:
+                    msg = "File open stopped by user at line {}.".format(i)
+                    self.main_window.statusBar().showMessage(msg)
+                    grid.model.reset()
+                    self.main_window.safe_mode = False
+                    return
+
         except OSError as err:
             msg_tpl = "Error opening file {filepath}: {err}."
             msg = msg_tpl.format(filepath=filepath, err=err)
             self.main_window.statusBar().showMessage(msg)
             # Reset grid
             grid.model.reset()
+            self.main_window.safe_mode = False
             return
         # Explicitly set the grid shape
         shape = code_array.shape
@@ -402,23 +403,29 @@ class Workflows:
         QApplication.instance().processEvents()
 
         # Save grid to temporary file
+
+        title = "File save progress"
+        label = "Saving {}...".format(filepath.name)
+
         with NamedTemporaryFile(delete=False) as tempfile:
             filename = tempfile.name
             try:
                 pys_writer = PysWriter(code_array)
-                with self.progress_dialog("File save progress",
-                                          "Saving {}...".format(filepath.name),
-                                          len(pys_writer)) as progress_dialog:
-                    for i, line in enumerate(pys_writer):
+                try:
+                    for i, line in file_progress_gen(
+                            self.main_window, pys_writer, title, label,
+                            len(pys_writer)):
                         line = bytes(line, "utf-8")
                         if filepath.suffix == ".pys":
                             line = bz2.compress(line)
                         tempfile.write(line)
-                        progress_dialog.setValue(i)
-                        QApplication.instance().processEvents()
-                        if progress_dialog.wasCanceled():
-                            tempfile.delete = True  # Delete incomplete tmpfile
-                            return
+
+                except ProgressDialogCanceled:
+                    msg = "File save stopped by user."
+                    self.main_window.statusBar().showMessage(msg)
+                    tempfile.delete = True  # Delete incomplete tmpfile
+                    return
+
             except (OSError, ValueError) as err:
                 tempfile.delete = True
                 QMessageBox.critical(self.main_window, "Error saving file",
@@ -478,14 +485,6 @@ class Workflows:
     def file_import(self):
         """Import csv files"""
 
-        def rawincount(filepath):
-            """Counts lines of file"""
-
-            with open(filepath, 'rb') as f:
-                bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024)
-                                                 for _ in repeat(None)))
-                return sum(buf.count(b'\n') for buf in bufgen)
-
         # Get filepath from user
         dial = CsvFileImportDialog(self.main_window)
         if not dial.file_path:
@@ -517,60 +516,59 @@ class Workflows:
         description = description_tpl.format(filepath, current)
 
         try:
-            filelines = rawincount(filepath)
+            with open(filepath, 'rb') as infile:
+                filelines = linecount(infile)
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
             return
 
         command = None
 
+        title = "csv import progress"
+        label = "Importing {}...".format(filepath.name)
+
         try:
             with open(filepath, newline='', encoding='utf-8') as csvfile:
-                title = "csv import progress"
-                label = "Importing {}...".format(filepath.name)
-                with self.progress_dialog(title, label,
-                                          filelines) as progress_dialog:
-                    try:
-                        # Enter safe mode
-                        self.main_window.safe_mode = True
+                try:
+                    reader = csv_reader(csvfile, dialect, digest_types)
+                    for i, line in file_progress_gen(self.main_window, reader,
+                                                     title, label, filelines):
+                        if row + i >= rows:
+                            break
 
-                        reader = csv_reader(csvfile, dialect, digest_types)
-                        for i, line in enumerate(reader):
-                            if row + i >= rows:
+                        for j, ele in enumerate(line):
+                            if column + j >= columns:
                                 break
-                            if i % 100 == 0:
-                                progress_dialog.setValue(i)
-                                QApplication.instance().processEvents()
-                                if progress_dialog.wasCanceled():
-                                    return
 
-                            for j, ele in enumerate(line):
-                                if column + j >= columns:
-                                    break
+                            if digest_types is None:
+                                code = str(ele)
+                            elif i == 0 and keep_header:
+                                code = repr(ele)
+                            else:
+                                code = convert(ele, digest_types[j])
+                            index = model.index(row + i, column + j)
+                            _command = commands.SetCellCode(code, model, index,
+                                                            description)
+                            try:
+                                command.mergeWith(_command)
+                            except AttributeError:
+                                command = _command
 
-                                if digest_types is None:
-                                    code = str(ele)
-                                elif i == 0 and keep_header:
-                                    code = repr(ele)
-                                else:
-                                    code = convert(ele, digest_types[j])
-                                index = model.index(row + i, column + j)
-                                cmd = commands.SetCellCode(code, model, index,
-                                                           description)
+                except (TypeError, ValueError) as error:
+                    self.main_window.statusBar().showMessage(str(error))
+                    return
 
-                                if command is None:
-                                    command = cmd
-                                else:
-                                    command.mergeWith(cmd)
-                    except ValueError as error:
-                        msg = str(error)
-                        self.main_window.statusBar().showMessage(msg)
-                        return
+                except ProgressDialogCanceled:
+                    msg = "Import stopped by user at line {}.".format(i)
+                    self.main_window.statusBar().showMessage(msg)
+                    return
 
-                    self.main_window.undo_stack.push(command)
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
             return
+
+        with self.busy_cursor():
+            self.main_window.undo_stack.push(command)
 
     def file_export(self):
         """Export csv and svg files"""
