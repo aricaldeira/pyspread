@@ -213,17 +213,15 @@ class Workflows:
         # Exit safe mode
         self.main_window.safe_mode = False
 
-    def _get_filesize(self, filepath):
-        """Returns the filesize"""
+    def count_file_lines(self, filepath):
+        """Returns line count of file in filepath"""
 
         try:
-            filesize = os.path.getsize(filepath)
-        except OSError as err:
-            msg_tpl = "Error opening file {filepath}: {err}."
-            msg = msg_tpl.format(filepath=filepath, err=err)
-            self.main_window.statusBar().showMessage(msg)
+            with open(filepath, 'rb') as infile:
+                return linecount(infile)
+        except OSError as error:
+            self.main_window.statusBar().showMessage(str(error))
             return
-        return filesize
 
     def filepath_open(self, filepath):
         """Workflow for opening a file if a filepath is known"""
@@ -231,8 +229,9 @@ class Workflows:
         grid = self.main_window.grid
         code_array = grid.model.code_array
 
-        filesize = self._get_filesize(filepath)
-        if filesize is None:
+        # Get number of lines for progess dialog
+        filelines = self.count_file_lines(filepath)
+        if not filelines:  # May not be None or 0
             return
 
         # Reset grid
@@ -263,17 +262,7 @@ class Workflows:
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
 
-        # Get number of lines for progess dialog
-
-        try:
-            with open(filepath, 'rb') as infile:
-                filelines = linecount(infile)
-        except OSError as error:
-            self.main_window.statusBar().showMessage(str(error))
-            return
-
         # Load file into grid
-
         title = "File open progress"
         label = "Opening {}...".format(filepath.name)
 
@@ -501,12 +490,17 @@ class Workflows:
 
         dialect = csv_dlg.dialect
         digest_types = csv_dlg.digest_types
+
+        # Dialog accepted, now fill the grid
+        self._csv_import(filepath, dialect, digest_types)
+
+    def _csv_import(self, filepath, dialect, digest_types):
+        """Import csv from filepath"""
+
         try:
             keep_header = dialect.hasheader and dialect.keepheader
         except AttributeError:
             keep_header = False
-
-        # Dialog accepted, now fill the grid
 
         row, column, table = current = self.main_window.grid.current
         model = self.main_window.grid.model
@@ -515,11 +509,8 @@ class Workflows:
         description_tpl = "Import from csv file {} at cell {}"
         description = description_tpl.format(filepath, current)
 
-        try:
-            with open(filepath, 'rb') as infile:
-                filelines = linecount(infile)
-        except OSError as error:
-            self.main_window.statusBar().showMessage(str(error))
+        filelines = self.count_file_lines(filepath)
+        if not filelines:  # May not be None or 0
             return
 
         command = None
