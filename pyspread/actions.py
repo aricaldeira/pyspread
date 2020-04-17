@@ -20,8 +20,11 @@
 
 """
 
-- :class:`Action` is a quick one liner way to create `QAction`
--
+**Provides**
+
+ * :class:`Action` is a quick one liner way to create `QAction`
+ * :class:`MainWindowActions`
+ * :class:`ChartDialogActions`
 
 """
 
@@ -64,6 +67,7 @@ class Action(QAction):
         :param shortcut: The magic kestrokes if ant
         :param statustip: The popup message
         :param checkable: Has a checkbox
+
         """
         if icon is None:
             super().__init__(label, parent, checkable=checkable)

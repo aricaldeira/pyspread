@@ -94,7 +94,6 @@ class Grid(QTableView):
 
     def __init__(self, main_window: QMainWindow):
         """
-
         :param main_window: Application main window
 
         """

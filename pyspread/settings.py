@@ -18,12 +18,21 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Provides**
+
+ * :class:`Settings`
+
+"""
+
 
 from os.path import abspath, dirname, join
 from pathlib import Path
+from typing import Any
 
 from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QToolBar
+from PyQt5.QtWidgets import QToolBar, QWidget
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME
@@ -116,17 +125,34 @@ class Settings:
     # sniff_size should be larger than 1st+2nd line
     sniff_size = 65536  # TODO
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent widget, normally main window
+
+        """
+
         super().__setattr__("parent", parent)
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any):
+        """
+        Overloads __setattr__ to ensure that only existing attributes are set
+
+        :param key: Setting attribute key
+        :param value: New setting value
+
+        """
+
         if not hasattr(self, key):
             raise AttributeError("{self} has no attribute {key}.".format(
                                  self=self, key=key))
         super().__setattr__(key, value)
 
-    def add_to_file_history(self, filename):
-        """Adds new file to history"""
+    def add_to_file_history(self, filename: Path):
+        """Adds new file to history
+
+        :param value: File name to be added to history
+
+        """
 
         self.file_history = [f for f in self.file_history if f != filename]
         self.file_history.insert(0, filename)

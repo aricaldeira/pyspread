@@ -20,7 +20,7 @@
 
 """
 
-Window panels
+**Provides**
 
  * :class:`MacroPanel`
 

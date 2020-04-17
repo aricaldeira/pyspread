@@ -299,13 +299,8 @@ class GridShapeDialog(DataEntryDialog):
 
         """
 
-        data = self.data
-
-        if data is None:
-            return
-
         try:
-            return tuple(map(int, data))
+            return tuple(map(int, self.data))
         except (TypeError, ValueError):
             pass
 
