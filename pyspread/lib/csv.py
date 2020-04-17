@@ -20,34 +20,35 @@
 # --------------------------------------------------------------------
 
 """
-csv
-===
 
-Provides
---------
+**Provides**
 
- * sniff: Sniffs CSV dialect and header info
- * get_first_line
- * csv_digest_gen
- * cell_key_val_gen
- * Digest: Converts any object to target type as good as possible
- * CsvInterface
- * TxtGenerator
+ * :func:`sniff`: Sniffs CSV dialect and header info
+ * :func:`get_header`
+ * :func:`csv_reader`
+ * :func:`convert`
+ * :func:`date`
+ * :func:`datetime`
+ * :func:`time`
+ * :func:`make_object`
+ * :dict:`typehandlers`
 
 """
 
 import ast
 import csv
 from dateutil.parser import parse
+from pathlib import Path
+from typing import IO, Iterable, List
 
 
-def sniff(filepath, sniff_size):
+def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
     """Sniffs CSV dialect and header info
 
-    :filepath: pathlib.Path: Path of file to sniff
-    :sniffsize: int: Maximum no. bytes to use for sniffing
+    Returned csv.Dialect object has additional attrinbute `has_header`
 
-    Returns a csv.Dialect object with additional attrinbute has_header
+    :param filepath: Path of file to sniff
+    :param sniff_size: Maximum no. bytes to use for sniffing
 
     """
 
@@ -60,8 +61,8 @@ def sniff(filepath, sniff_size):
     return dialect
 
 
-def get_header(csvfile, dialect):
-    """Returns List of first line items of file filepath"""
+def get_header(csvfile: IO, dialect: csv.Dialect) -> str:
+    """Returns list of first line items of file filepath"""
 
     csvfile.seek(0)
     csvreader = csv.reader(csvfile, dialect=dialect)
@@ -72,17 +73,13 @@ def get_header(csvfile, dialect):
     return header
 
 
-def csv_reader(csvfile, dialect, digest_types=None):
+def csv_reader(csvfile: IO, dialect: csv.Dialect,
+               digest_types: List[str] = None) -> Iterable[str]:
     """Generator of digested values from csv file in filepath
 
-    Parameters
-    ----------
-    csvfile:filelike
-    \tCsv file to read
-    dialect: Object
-    \tCsv dialect
-    digest_types: tuple of types
-    \tTypes of data for each col
+    :param csvfile: Csv file to read
+    :param dialect: Csv dialect
+    :param digest_types: Names of types of data for each column
 
     """
 
@@ -105,8 +102,13 @@ def csv_reader(csvfile, dialect, digest_types=None):
 
 # Type conversion functions
 
-def convert(string, digest_type):
-    """Main type conversion functgion for csv import"""
+def convert(string: str, digest_type: str) -> str:
+    """Main type conversion function for csv import
+
+    :param string: String to be digested
+    :param digest_type: Name of digetsion function
+
+    """
 
     if digest_type is None:
         digest_type = 'repr'

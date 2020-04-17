@@ -37,13 +37,14 @@ import os.path
 from pathlib import Path
 from shutil import move
 from tempfile import NamedTemporaryFile
+from typing import Iterable, List, Tuple
 
 from PyQt5.QtCore \
     import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets \
     import (QApplication, QProgressDialog, QMessageBox, QInputDialog,
-            QStyleOptionViewItem)
+            QStyleOptionViewItem, QTableView)
 try:
     from PyQt5.QtSvg import QSvgGenerator
 except ImportError:
@@ -63,6 +64,7 @@ try:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 CsvFileExportDialog, SvgExportAreaDialog)
     from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
     from pyspread.lib.selection import Selection
     from pyspread.lib.typechecks import is_svg, check_shape_validity
@@ -78,6 +80,7 @@ except ImportError:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 CsvFileExportDialog, SvgExportAreaDialog)
     from interfaces.pys import PysReader, PysWriter
+    from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
     from lib.selection import Selection
     from lib.typechecks import is_svg, check_shape_validity
@@ -213,8 +216,12 @@ class Workflows:
         # Exit safe mode
         self.main_window.safe_mode = False
 
-    def count_file_lines(self, filepath):
-        """Returns line count of file in filepath"""
+    def count_file_lines(self, filepath: Path):
+        """Returns line count of file in filepath
+
+        :param filepath: Path of file to be analyzed
+
+        """
 
         try:
             with open(filepath, 'rb') as infile:
@@ -223,8 +230,12 @@ class Workflows:
             self.main_window.statusBar().showMessage(str(error))
             return
 
-    def filepath_open(self, filepath):
-        """Workflow for opening a file if a filepath is known"""
+    def filepath_open(self, filepath: Path):
+        """Workflow for opening a file if a filepath is known
+
+        :param filepath: Path of file to be opened
+
+        """
 
         grid = self.main_window.grid
         code_array = grid.model.code_array
@@ -337,13 +348,21 @@ class Workflows:
         self.filepath_open(filepath)
 
     @handle_changed_since_save
-    def file_open_recent(self, filepath):
-        """File open recent workflow"""
+    def file_open_recent(self, filepath: Path):
+        """File open recent workflow
+
+        :param filepath: Path of file to be opened
+
+        """
 
         self.filepath_open(Path(filepath))
 
-    def sign_file(self, filepath):
-        """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
+    def sign_file(self, filepath: Path):
+        """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`
+
+        :param filepath: Path of file to be signed
+
+        """
 
         if self.main_window.safe_mode:
             msg = "File saved but not signed because it is unapproved."
@@ -375,15 +394,12 @@ class Workflows:
 
         self.main_window.statusBar().showMessage(msg)
 
-    def _save(self, filepath):
+    def _save(self, filepath: Path):
         """Save filepath using chosen_filter
 
         Compresses save file if filepath.suffix is `.pys`
 
-        Parameters
-        ----------
-        * filepath: pathlib.Path
-        \tSave file path
+        :param filepath: Path of file to be saved
 
         """
 
@@ -495,8 +511,15 @@ class Workflows:
         # Dialog accepted, now fill the grid
         self._csv_import(filepath, dialect, digest_types)
 
-    def _csv_import(self, filepath, dialect, digest_types):
-        """Import csv from filepath"""
+    def _csv_import(self, filepath: Path, dialect: csv.Dialect,
+                    digest_types: List[str]):
+        """Import csv from filepath
+
+        :param filepath: Path of file to be imported
+        :param dialect: Attribute for csv reading and writing
+        :param digest_types: Names of preprocessing functions for csv columns
+
+        """
 
         try:
             keep_header = dialect.hasheader and dialect.keepheader
@@ -583,8 +606,12 @@ class Workflows:
                 filepath = filepath.with_suffix(dial.suffix)
             self._svg_export(filepath)
 
-    def _csv_export(self, filepath):
-        """Export to csv file filepath"""
+    def _csv_export(self, filepath: Path):
+        """Export to csv file filepath
+
+        :param filepath: Path of file to be exported
+
+        """
 
         # Get area for csv export
         csv_area = CsvExportAreaDialog(self.main_window,
@@ -609,8 +636,12 @@ class Workflows:
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
 
-    def _svg_export(self, filepath):
-        """Export to svg file filepath"""
+    def _svg_export(self, filepath: Path):
+        """Export to svg file filepath
+
+        :param filepath: Path of file to be exported
+
+        """
 
         with self.print_zoom():
             grid = self.main_window.grid
@@ -640,16 +671,24 @@ class Workflows:
             painter.end()
 
     @contextmanager
-    def print_zoom(self, zoom=1.0):
-        """Decorator for tasks that have to take place in standard zoom"""
+    def print_zoom(self, zoom: float = 1.0):
+        """Decorator for tasks that have to take place in standard zoom
+
+        :param zoom: Print zoom factor
+
+        """
 
         __zoom = self.main_window.grid.zoom
         self.main_window.grid.zoom = zoom
         yield
         self.main_window.grid.zoom = __zoom
 
-    def get_paint_rows(self, area):
-        """Iterator of rows to paint"""
+    def get_paint_rows(self, area: Tuple[int, int, int, int]) -> Iterable[int]:
+        """Iterator of rows to paint
+
+        :param area: Area of cells to paint (top, left, bottom, right)
+
+        """
 
         rows = self.main_window.grid.model.shape[0]
         top, _, bottom, _ = area
@@ -662,8 +701,13 @@ class Workflows:
 
         return range(top, bottom + 1)
 
-    def get_paint_columns(self, area):
-        """Iterator of columns to paint"""
+    def get_paint_columns(self,
+                          area: Tuple[int, int, int, int]) -> Iterable[int]:
+        """Iterator of columns to paint
+
+        :param area: Area of cells to paint (top, left, bottom, right)
+
+        """
 
         columns = self.main_window.grid.model.shape[1]
         _, left, _, right = area
@@ -676,21 +720,38 @@ class Workflows:
 
         return range(left, right + 1)
 
-    def get_total_height(self, area):
-        """Total height of paint_rows"""
+    def get_total_height(self, area: Tuple[int, int, int, int]) -> float:
+        """Total height of paint_rows
+
+        :param area: Area of cells to evaluate (top, left, bottom, right)
+
+        """
 
         grid = self.main_window.grid
         return sum(grid.rowHeight(row) for row in self.get_paint_rows(area))
 
-    def get_total_width(self, area):
-        """Total height of paint_columns"""
+    def get_total_width(self, area: Tuple[int, int, int, int]) -> float:
+        """Total height of paint_columns
+
+        :param area: Area of cells to evaluate (top, left, bottom, right)
+
+        """
 
         grid = self.main_window.grid
         return sum(grid.columnWidth(column)
                    for column in self.get_paint_columns(area))
 
-    def paint(self, painter, option, paint_rect, rows, columns):
-        """Grid paint workflow for printing and svg export"""
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
+              paint_rect: QRectF, rows: Iterable[int], columns: Iterable[int]):
+        """Grid paint workflow for printing and svg export
+
+        :param painter: Painter with which the grid is drawn
+        :param option: Style option for rendering
+        :param paint_rect: Rectangle, which is drawn at the grid borders
+        :param rows: Rows to be painted
+        :param columns: Columns to be painted
+
+        """
 
         grid = self.main_window.grid
         code_array = grid.model.code_array
@@ -745,8 +806,12 @@ class Workflows:
 
     # Edit menu
 
-    def delete(self, description_tpl="Delete selection {}"):
-        """Delete cells in selection"""
+    def delete(self, description_tpl: str = "Delete selection {}"):
+        """Delete cells in selection
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
 
         grid = self.main_window.grid
         model = grid.model
@@ -800,8 +865,12 @@ class Workflows:
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
 
-    def _copy_results_current(self, grid):
-        """Copy cell results for the current cell"""
+    def _copy_results_current(self, grid: QTableView):
+        """Copy cell results for the current cell
+
+        :param grid: Main grid
+
+        """
 
         current = grid.current
         data = grid.model.code_array[current]
@@ -855,8 +924,12 @@ class Workflows:
             mime_data.setImageData(png_image)
             clipboard.setMimeData(mime_data)
 
-    def _copy_results_selection(self, grid):
-        """Copy repr of selected cells result objects to the clipboard"""
+    def _copy_results_selection(self, grid: QTableView):
+        """Copy repr of selected cells result objects to the clipboard
+
+        :param grid: Main grid
+
+        """
 
         def repr_nn(ele):
             """repr which returns '' if ele is None"""
@@ -894,8 +967,13 @@ class Workflows:
         else:
             self._copy_results_current(grid)
 
-    def _paste_to_selection(self, selection, data):
-        """Pastes data into grid filling the selection"""
+    def _paste_to_selection(self, selection: Selection, data: str):
+        """Pastes data into grid filling the selection
+
+        :param selection: Grid cell selection for pasting
+        :param data: Clipboard text
+
+        """
 
         grid = self.main_window.grid
         model = grid.model
@@ -933,8 +1011,12 @@ class Workflows:
                     break
         undo_stack.push(command)
 
-    def _paste_to_current(self, data):
-        """Pastes data into grid starting from the current cell"""
+    def _paste_to_current(self, data: str):
+        """Pastes data into grid starting from the current cell
+
+        :param data: Clipboard text
+
+        """
 
         grid = self.main_window.grid
         model = grid.model
@@ -994,15 +1076,11 @@ class Workflows:
                 else:
                     self._paste_to_current(data)
 
-    def _paste_svg(self, svg, index):
+    def _paste_svg(self, svg: str, index: QModelIndex):
         """Pastes svg image into cell
 
-        Parameters
-        ----------
-         * svg: string
-        \tSVG data
-         * index: QModelIndex
-        \tTarget cell index
+        :param svg: SVG data
+        :param index: Target cell index
 
         """
 
@@ -1019,19 +1097,22 @@ class Workflows:
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
-    def _paste_image(self, image_data, index):
+    def _paste_image(self, image_data: bytes, index: QModelIndex):
         """Pastes svg image into cell
 
-        Parameters
-        ----------
-         * image_data: bytes
-        \tRaw image data. May be anything that QImage handles.
-         * index: QModelIndex
-        \tTarget cell index
+        :param image_data: Raw image data. May be anything that QImage handles.
+        :param index: Target cell index
 
         """
 
-        def gen_chunk(string, length):
+        def gen_chunk(string: str, length: int) -> Iterable[str]:
+            """Generator for chunks of string
+
+            :param string: String to be chunked
+            :param length: Chunk length
+
+            """
+
             for i in range(0, len(string), length):
                 yield string[i:i+length]
 
@@ -1134,8 +1215,12 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def _get_next_match(self, find_dialog):
-        """Returns tuple of find string and next matching cell key"""
+    def _get_next_match(self, find_dialog: FindDialog):
+        """Returns tuple of find string and next matching cell key
+
+        :param find_dialog: Find dialog from which the search origins
+
+        """
 
         grid = self.main_window.grid
         findnextmatch = grid.model.code_array.findnextmatch
@@ -1158,8 +1243,15 @@ class Workflows:
                 regexp=find_dialog.regex_checkbox.isChecked(),
                 results=find_dialog.results_checkbox.isChecked())
 
-    def _display_match_msg(self, find_string, next_match, regexp):
-        """Displays find match message in statusbar"""
+    def _display_match_msg(self, find_string: str, next_match: str,
+                           regexp: str):
+        """Displays find match message in statusbar
+
+        :param find_string: Message component
+        :param next_match: Message component
+        :param regexp: Message component
+
+        """
 
         str_name = "Regular expression" if regexp else "String"
         msg_tpl = "{str_name} {find_string} found in cell {next_match}."
@@ -1168,8 +1260,12 @@ class Workflows:
                              next_match=next_match)
         self.main_window.statusBar().showMessage(msg)
 
-    def find_dialog_on_find(self, find_dialog):
-        """Edit -> Find workflow, after pressing find button in FindDialog"""
+    def find_dialog_on_find(self, find_dialog: FindDialog):
+        """Edit -> Find workflow, after pressing find button in FindDialog
+
+        :param find_dialog: Find dialog of origin
+
+        """
 
         find_string, next_match = self._get_next_match(find_dialog)
 
@@ -1216,10 +1312,16 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def replace_dialog_on_replace(self, replace_dialog, toggled=False, max_=1):
+    def replace_dialog_on_replace(self, replace_dialog: ReplaceDialog,
+                                  toggled: bool = False,
+                                  max_: int = 1) -> bool:
         """Edit -> Replace workflow when pushing Replace in ReplaceDialog
 
         Returns True if there is a match
+
+        :param replace_dialog: Replace dialog of origin
+        :param toggled: Replace dialog toggle state
+        :param max_: Maximum number of replace actions, -1 is unlimited
 
         """
 
@@ -1248,8 +1350,12 @@ class Workflows:
 
             return True
 
-    def replace_dialog_on_replace_all(self, replace_dialog):
-        """Edit -> Replace workflow when pushing ReplaceAll in ReplaceDialog"""
+    def replace_dialog_on_replace_all(self, replace_dialog: ReplaceDialog):
+        """Edit -> Replace workflow when pushing ReplaceAll in ReplaceDialog
+
+        :param replace_dialog: Replace dialog of origin
+
+        """
 
         while self.replace_dialog_on_replace(replace_dialog, max_=-1):
             pass
@@ -1303,8 +1409,12 @@ class Workflows:
 
         """
 
-        def remove_tabu_keys(attr):
-            """Remove keys that are not copied from attr"""
+        def remove_tabu_keys(attr: AttrDict):
+            """Remove keys that are not copied from attr
+
+            :param attr: Attribute dict that holds cell attributes
+
+            """
 
             tabu_attrs = "merge_area", "frozen"
             for tabu_attr in tabu_attrs:

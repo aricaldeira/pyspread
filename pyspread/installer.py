@@ -13,10 +13,10 @@ except ImportError:
     get_distribution = None
 from PyQt5.QtCore import QProcess, QSize
 from PyQt5.QtGui import QColor, QTextCursor
-from PyQt5.QtWidgets import QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QTreeWidgetItem, QToolButton, QGroupBox
-from PyQt5.QtWidgets import QTreeWidget, QCheckBox, QLineEdit, QPushButton
-from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtWidgets import (
+        QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout, QTreeWidgetItem,
+        QToolButton, QGroupBox, QTreeWidget, QCheckBox, QLineEdit, QPushButton,
+        QPlainTextEdit, QWidget, QPushButton)
 
 try:
     from packaging import version
@@ -104,7 +104,12 @@ class DependenciesDialog(QDialog):
     column_headers = ("", "Status", "Package", "Version", "Required",
                       "Description")
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget = None):
+        """
+        :param parent: Parent widget
+
+        """
+
         super().__init__(parent)
 
         self.setWindowTitle("Installer")
@@ -126,7 +131,7 @@ class DependenciesDialog(QDialog):
 
         self.update_load()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         """Overloaded method"""
 
         return QSize(700, 200)
@@ -163,8 +168,12 @@ class DependenciesDialog(QDialog):
             item.setText(self.column.status, status)
             item.setBackground(self.column.status, QColor(color))
 
-    def on_butt_install(self, butt):
-        """One of install buttons pressed"""
+    def on_butt_install(self, butt: QPushButton):
+        """One of install buttons pressed
+
+        :param butt: The pressed button
+
+        """
 
         butt.setDisabled(True)
         idx = self.buttGroup.id(butt)
@@ -180,6 +189,12 @@ class InstallPackageDialog(QDialog):
     line_str = "-" * 56
 
     def __init__(self, parent=None, module=None):
+        """
+        :param parent: Parent widget
+        :param module: Module to be installed
+
+        """
+
         super().__init__(parent)
 
         self.module = module
@@ -225,7 +240,7 @@ class InstallPackageDialog(QDialog):
         self.update_cmd_line()
 
     def update_cmd_line(self, *unused):
-        """Update the commend line considring sudo button state"""
+        """Update the commend line considering sudo button state"""
 
         cmd = ""
         if self.buttSudo.isChecked():
