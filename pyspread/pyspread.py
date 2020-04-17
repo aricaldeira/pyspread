@@ -171,9 +171,10 @@ class MainWindow(QMainWindow):
 
         """
 
-        super(MainWindow, self).resizeEvent(event)
         if self._loading:
             return
+
+        super(MainWindow, self).resizeEvent(event)
 
     def closeEvent(self, event: QEvent = None):
         """Overloaded, allows saving changes or canceling close
