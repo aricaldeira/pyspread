@@ -285,7 +285,8 @@ class Workflows:
                     self.main_window.safe_mode = False
                     return
 
-        except OSError as err:
+        except Exception as err:
+            # A lot may got wrong with a malformed pys file, includes OSError
             msg_tpl = "Error opening file {filepath}: {err}."
             msg = msg_tpl.format(filepath=filepath, err=err)
             self.main_window.statusBar().showMessage(msg)
@@ -554,7 +555,8 @@ class Workflows:
                     self.main_window.statusBar().showMessage(msg)
                     return
 
-        except OSError as error:
+        except Exception as error:
+            # A lot may go wrong with malformed csv files, includes OSError
             self.main_window.statusBar().showMessage(str(error))
             return
 
