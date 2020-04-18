@@ -24,6 +24,7 @@
 
  * :func:`quote`
  * :func:`wrap_text`
+ * :func:`get_svg_size`
 
 """
 
