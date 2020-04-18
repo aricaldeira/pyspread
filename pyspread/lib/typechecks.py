@@ -20,61 +20,60 @@
 
 """
 
-Contains functions for checking type likeness.
+Functions for checking types and type likeness
+
+**Provides**
+
+ * :func:`isstring`
+ * :func:`is_svg`
+ * :func:`check_shape_validity`
 
 """
 
 from io import BytesIO
 import xml.etree.ElementTree as ET
+from typing import Tuple
 
 
-def isslice(obj):
-    """Returns True if obj is insatnce of slice"""
+def is_stringlike(obj: object) -> bool:
+    """Is `obj` string like
 
-    return isinstance(obj, slice)
+    :param obj: Object to be checked
+    :return: True if obj is instance of str, bytes or bytearray
 
-
-def isstring(obj):
-    """Returns True if obj is instance of str, bytes or bytearray"""
+    """
 
     return isinstance(obj, (str, bytes, bytearray))
 
 
-def is_svg(svg_bytes):
-    """Checks if code is an svg image
+def is_svg(svg_bytes: bytes) -> bool:
+    """Checks if svg_bytes is an svg image
 
-    Parameters
-    ----------
-    code: String
-    \tCode to be parsed in order to check svg complaince
+    :param svg_bytes: Data to be checked for being an SVG image
+    :return: True if svg_bytes seems to be an  SVG image
 
     """
 
     tag = None
 
-    svg = BytesIO(svg_bytes)
-
-    try:
-        for event, el in ET.iterparse(svg, ('start',)):
-            tag = el.tag
-            break
-    except ET.ParseError:
-        pass
-
-    svg.close()
+    with BytesIO(svg_bytes) as svg:
+        try:
+            for event, el in ET.iterparse(svg, ('start',)):
+                tag = el.tag
+                break
+        except ET.ParseError:
+            pass
 
     return tag == '{http://www.w3.org/2000/svg}svg'
 
 
-def check_shape_validity(shape, maxshape):
+def check_shape_validity(shape: Tuple[int, int, int],
+                         maxshape: Tuple[int, int, int]) -> bool:
     """Checks if shape is valid
 
-    Returns True if yes, raises a ValueError otherwise.
-
     :param shape: shape for grid to be checked
-    :type shape: tuple
     :param maxshape: maximum shape for grid
-    :type maxshape: tuple
+    :return: True if yes, raises a ValueError otherwise
 
     """
 

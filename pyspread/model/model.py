@@ -76,14 +76,14 @@ try:
     from pyspread.lib.attrdict import AttrDict
     import pyspread.lib.charts as charts
     from pyspread.lib.exception_handling import get_user_codeframe
-    from pyspread.lib.typechecks import isslice, isstring
+    from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
     import lib.charts as charts
     from lib.exception_handling import get_user_codeframe
-    from lib.typechecks import isslice, isstring
+    from lib.typechecks import is_stringlike
     from lib.selection import Selection
 
 
@@ -629,11 +629,11 @@ class DataArray:
         """
 
         for key_ele in key:
-            if isslice(key_ele):
+            if isinstance(key_ele, slice):
                 # We have something slice-like here
                 return self.cell_array_generator(key)
 
-            if isstring(key_ele):
+            if is_stringlike(key_ele):
                 # We have something string-like here
                 msg = "Cell string based access not implemented"
                 raise NotImplementedError(msg)
@@ -654,14 +654,14 @@ class DataArray:
         single_keys_per_dim = []
 
         for axis, key_ele in enumerate(key):
-            if isslice(key_ele):
+            if isinstance(key_ele, slice):
                 # We have something slice-like here
 
                 length = key[axis]
                 slice_range = range(*key_ele.indices(length))
                 single_keys_per_dim.append(slice_range)
 
-            elif isstring(key_ele):
+            elif is_stringlike(key_ele):
                 # We have something string-like here
 
                 raise NotImplementedError
@@ -1271,7 +1271,7 @@ class CodeArray(DataArray):
             if ele is None:
                 res.append(None)
 
-            elif not isstring(ele) and isgenerator(ele):
+            elif not is_stringlike(ele) and isgenerator(ele):
                 # Nested generator
                 res.append(self._make_nested_list(ele))
 
@@ -1423,11 +1423,11 @@ class CodeArray(DataArray):
 
         base_keys = ['cStringIO', 'KeyValueStore', 'UnRedo', 'Figure',
                      'reload', 'io', 'print_exception', 'get_user_codeframe',
-                     'isgenerator', 'isstring', 'bz2', 'base64', 'defaultdict'
+                     'isgenerator', 'is_stringlike', 'bz2', 'base64',
                      '__package__', 're', '__doc__', 'QPixmap', 'charts',
                      'product', 'AttrDict', 'CellAttribute', 'CellAttributes',
                      'DefaultCellAttributeDict', 'ast', '__builtins__',
-                     '__file__', 'sys', 'isslice', '__name__', 'QImage',
+                     '__file__', 'sys', '__name__', 'QImage', 'defaultdict',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'signal',
                      'Any', 'Dict', 'Iterable', 'List', 'NamedTuple',

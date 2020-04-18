@@ -82,8 +82,10 @@
 #  Modified BSD license --> GPL compatible
 """
 
-- :class:`PythonEnchantHighlighter`
-- :class:`SpellTextEdit`
+**Provides**
+
+ * :class:`PythonEnchantHighlighter`
+ * :class:`SpellTextEdit`
 
 
 
