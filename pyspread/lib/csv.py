@@ -45,10 +45,9 @@ from typing import IO, Iterable, List
 def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
     """Sniffs CSV dialect and header info
 
-    Returned csv.Dialect object has additional attrinbute `has_header`
-
     :param filepath: Path of file to sniff
     :param sniff_size: Maximum no. bytes to use for sniffing
+    :return: csv.Dialect object with additional attribute `has_header`
 
     """
 
@@ -107,6 +106,7 @@ def convert(string: str, digest_type: str) -> str:
 
     :param string: String to be digested
     :param digest_type: Name of digetsion function
+    :return: Converted string
 
     """
 

@@ -19,9 +19,8 @@
 # --------------------------------------------------------------------
 
 
-def get_enchant_version():
+def get_enchant_version() -> str:
     """
-    :rtype: str or None
     :return: version number string of pyenchant if it is installed else None
 
 

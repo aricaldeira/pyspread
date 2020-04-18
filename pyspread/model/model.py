@@ -1429,7 +1429,9 @@ class CodeArray(DataArray):
                      'DefaultCellAttributeDict', 'ast', '__builtins__',
                      '__file__', 'sys', 'isslice', '__name__', 'QImage',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
-                     'numpy', 'CodeArray', 'DataArray', 'datetime', 'signal']
+                     'numpy', 'CodeArray', 'DataArray', 'datetime', 'signal',
+                     'Any', 'Dict', 'Iterable', 'List', 'NamedTuple',
+                     'Sequence', 'Tuple', 'Union']
 
         for key in list(globals().keys()):
             if key not in base_keys:

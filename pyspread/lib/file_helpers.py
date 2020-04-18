@@ -69,13 +69,14 @@ def progress_dialog(main_window: QMainWindow, title: str, label: str,
 
 
 def linecount(infile: BinaryIO, buffer_size: int = 1024*1024) -> int:
-    """Returns number of newlines in infile
+    """Count lines in infile
 
-    Starts at current position in file
+    Starts at current position in file. Position is not preserved.
     Idea taken from https://stackoverflow.com/questions/845058
 
     :param infile: File like object for which lines are counted (binary mode!)
     :param buffer_size: Buffer size for reading the file
+    :return: Number of newlines in infile
 
     """
 
