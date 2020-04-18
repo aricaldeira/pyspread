@@ -24,7 +24,7 @@ Functions for checking types and type likeness
 
 **Provides**
 
- * :func:`isstring`
+ * :func:`is_stringlike`
  * :func:`is_svg`
  * :func:`check_shape_validity`
 
