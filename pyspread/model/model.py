@@ -61,7 +61,8 @@ import re
 import signal
 import sys
 from traceback import print_exception
-from typing import Any, Dict, Iterable, List, NamedTuple, Tuple, Union
+from typing import (
+        Any, Dict, Iterable, List, NamedTuple, Sequence, Tuple, Union)
 
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
@@ -611,17 +612,19 @@ class DataArray:
 
     # Slice support
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Tuple[Union[int, slice], Union[int, slice],
+                                     Union[int, slice]]
+                    ) -> Union[str, Iterable[str], Iterable[Iterable[str]],
+                               Iterable[Iterable[Iterable[str]]]]:
         """Adds slicing access to cell code retrieval
 
         The cells are returned as a generator of generators, of ... of unicode.
 
         :param key: Keys of the cell code that is returned
-        :type key:  tuple of integer or slice
 
         Note
         ----
-        Classical Excel type addressing (A$1, ...) may be added here
+        Classical Excel type addressing (A$1, ...) may be added here later
 
         """
 
@@ -639,13 +642,12 @@ class DataArray:
 
         return self.dict_grid[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Tuple[Union[int, slice], Union[int, slice],
+                                     Union[int, slice]], value: str):
         """Accepts index and slice keys
 
         :param key: Cell key(s) that shall be set
-        :type key: tuple of 3 int or 3 slice
         :param value: Code for cell(s) to be set
-        :type value: str
 
         """
 
@@ -1196,8 +1198,14 @@ class CodeArray(DataArray):
     # In safe_mode, cells are not evaluated but its code is returned instead.
     safe_mode = False
 
-    def __setitem__(self, key, value):
-        """Sets cell code and resets result cache"""
+    def __setitem__(self, key: Tuple[Union[int, slice], Union[int, slice],
+                                     Union[int, slice]], value: str):
+        """Sets cell code and resets result cache
+
+        :param key: Cell key(s) that shall be set
+        :param value: Code for cell(s) to be set
+
+        """
 
         # Change numpy array repr function for grid cell results
         numpy.set_string_function(lambda s: repr(s.tolist()))
@@ -1217,8 +1225,13 @@ class CodeArray(DataArray):
             # Reset result cache
             self.result_cache = {}
 
-    def __getitem__(self, key):
-        """Returns _eval_cell"""
+    def __getitem__(self, key: Tuple[Union[int, slice], Union[int, slice],
+                                     Union[int, slice]]) -> Any:
+        """Returns _eval_cell
+
+        :param key: Cell key for result retrieval (code if in safe mode)
+
+        """
 
         if not any(isinstance(k, slice) for k in key):
             # Button cell handling
@@ -1246,7 +1259,10 @@ class CodeArray(DataArray):
 
             return result
 
-    def _make_nested_list(self, gen):
+    def _make_nested_list(self, gen: Union[Iterable, Iterable[Iterable],
+                                           Iterable[Iterable[Iterable]]]
+                          ) -> Union[Sequence, Sequence[Sequence],
+                                     Sequence[Sequence[Sequence]]]:
         """Makes nested list from generator for creating numpy.array"""
 
         res = []
@@ -1264,11 +1280,10 @@ class CodeArray(DataArray):
 
         return res
 
-    def _get_updated_environment(self, env_dict=None):
+    def _get_updated_environment(self, env_dict: dict = None) -> dict:
         """Returns globals environment with 'magic' variable
 
-        :param env_dict: Maps global variable name to value
-        :type env_dict: dict, optional, defaults to {'S': self}
+        :param env_dict: Maps global variable name to value, None: {'S': self}
 
         """
 
@@ -1280,8 +1295,15 @@ class CodeArray(DataArray):
 
         return env
 
-    def exec_then_eval(self, code, _globals=None, _locals=None):
-        """execs multuiline code and returns eval of last code line"""
+    def exec_then_eval(self, code: str,
+                       _globals: dict = None, _locals: dict = None):
+        """execs multuiline code and returns eval of last code line
+
+        :param code: Code to be executed / evaled
+        :param _globals: Globals dict for code execution and eval
+        :param _locals: Locals dict for code execution and eval
+
+        """
 
         if _globals is None:
             _globals = {}
@@ -1306,11 +1328,16 @@ class CodeArray(DataArray):
 
         return res
 
-    def _eval_cell(self, key, code):
-        """Evaluates one cell and returns its result"""
+    def _eval_cell(self, key: Tuple[int, int, int], code: str) -> Any:
+        """Evaluates one cell and returns its result
+
+        :param key: Key of cell to be evaled
+        :param code: Code to be evaled
+
+        """
 
         # Flatten helper function
-        def nn(val):
+        def nn(val: numpy.array) -> numpy.array:
             """Returns flat numpy array without None values"""
             try:
                 return numpy.array([_f for _f in val.flat if _f])
@@ -1368,11 +1395,10 @@ class CodeArray(DataArray):
 
         return result
 
-    def pop(self, key):
+    def pop(self, key: Tuple[int, int, int]):
         """pop with cache support
 
         :param key: Cell key that shall be popped
-        :type key: tuple
 
         """
 
@@ -1409,13 +1435,13 @@ class CodeArray(DataArray):
             if key not in base_keys:
                 globals().pop(key)
 
-    def get_globals(self):
+    def get_globals(self) -> dict:
         """Returns globals dict"""
 
         return globals()
 
-    def execute_macros(self):
-        """Executes all macros and returns result string
+    def execute_macros(self) -> Tuple[str, str]:
+        """Executes all macros and returns result string and error string
 
         Executes macros only when not in safe_mode
 
@@ -1479,15 +1505,14 @@ class CodeArray(DataArray):
         self.frozen_cache.clear()
         return results, errs
 
-    def _sorted_keys(self, keys, startkey, reverse=False):
+    def _sorted_keys(self, keys: Iterable[Tuple[int, int, int]],
+                     startkey: Tuple[int, int, int],
+                     reverse: bool = False) -> Iterable[Tuple[int, int, int]]:
         """Generator that yields sorted keys starting with startkey
 
         :param keys: Key sequence that is sorted
-        :type keys: Iterable of tuple
         :param startkey: First key to be yielded
-        :type startkey: tuple
         :param reverse: Sort direction reversed if True
-        :type reverse: bool, optional, defaults to False
 
         """
 
@@ -1509,16 +1534,15 @@ class CodeArray(DataArray):
         for key in searchkeys:
             yield key
 
-    def string_match(self, datastring, findstring, word, case, regexp):
+    def string_match(self, datastring: str, findstring: str, word: bool,
+                     case: bool, regexp: bool) -> int:
         """Returns position of findstring in datastring or None if not found
 
+        :param datastring: String to be searched
+        :param findstring: Search string
         :param word: Search full words only if True
-        :type word: bool
         :param case: Search case sensitively if True
-        :type case: bool
         :param regexp: Regular expression search if True
-        :rtype: int or None
-        :return: Position of findstring in datastring or None if not found
 
         """
 
@@ -1550,26 +1574,19 @@ class CodeArray(DataArray):
 
         return pos
 
-    def findnextmatch(self, startkey, find_string, up=False, word=False,
-                      case=False, regexp=False, results=True):
-        """the position of the next match of find_string
+    def findnextmatch(self, startkey: Tuple[int, int, int], find_string: str,
+                      up: bool = False, word: bool = False, case: bool = False,
+                      regexp: bool = False, results: bool = True
+                      ) -> Tuple[int, int, int]:
+        """Returns tuple with position of the next match of find_string or None
 
         :param startkey: Start position of search
-        :type startkey: tuple
         :param find_string: String to be searched for
-        :type startkey: str
         :param up: Search up instead of down if True
-        :type up: bool, optional, defaults to False
         :param word: Search full words only if True
-        :type word: bool, optional, defaults to False
         :param case: Search case sensitively if True
-        :type case: bool, optional, defaults to False
-        :param regexp: Reg. expression search if True
-        :type regexp: bool, optional, defaults to False
+        :param regexp: Regular expression search if True
         :param results: Search includes result string if True (slower)
-        :type results: bool, optional, defaults to True
-        :rtype: str or None
-        :return:  Returns tuple with position of the next match of find_string
 
         """
 
@@ -1597,8 +1614,13 @@ class CodeArray(DataArray):
                 # re errors are cryptical: sre_constants,...
                 pass
 
-    def handler(self, signum, frame):
-        """Signal handler for timeout"""
+    def handler(self, signum: Any, frame: Any):
+        """Signal handler for timeout
+
+        :param signum: Ignored
+        :param frame: Ignored
+
+        """
 
         raise RuntimeError("Timeout after {} s.".format(self.settings.timeout))
 
