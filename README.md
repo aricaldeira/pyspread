@@ -55,7 +55,7 @@ Note that there may unfixed bugs if you use the latest repository version.
 You may want to check the CI, which comprises unit tests at
 `https://gitlab.com/pyspread/pyspread/pipelines`.
 
-Get the latest tarball or zip at `https://gitlab.com/pyspread/pyspread` or
+Get the latest tarball or zip at https://gitlab.com/pyspread/pyspread or
 clone the git repo at `https://gitlab.com/pyspread/pyspread.git`
 
 # Starting pyspread

@@ -59,8 +59,12 @@ except ImportError:
     from model.model import CellAttribute, CodeArray
 
 
-def wxcolor2rgb(wxcolor):
-    """Returns rtg tuple for given wxPython binary color value"""
+def wxcolor2rgb(wxcolor: int) -> Tuple[int, int, int]:
+    """Returns red, green, blue for given wxPython binary color value
+
+    :param wxcolor: Color value from wx.Color
+
+    """
 
     red = wxcolor >> 16
     green = wxcolor - (red << 16) >> 8
