@@ -20,7 +20,6 @@
 
 """
 
-
 The model contains the core data structures of pyspread and is divided
 into the following layers.
 
@@ -29,7 +28,19 @@ into the following layers.
 - Layer 1: :class:`DictGrid`
 - Layer 0: :class:`KeyValueStore`
 
+
+**Provides**
+
+ * :class:`DefaultCellAttributeDict`
+ * :class:`CellAttribute`
+ * :class:`CellAttributes`
+ * :class:`KeyValueStore`
+ * :class:`DictGrid`
+ * :class:`DataArray`
+ * :class:`CodeArray`
+
 """
+
 from __future__ import absolute_import
 from builtins import filter
 from builtins import str
@@ -50,7 +61,7 @@ import re
 import signal
 import sys
 from traceback import print_exception
-from typing import NamedTuple
+from typing import Any, Dict, Iterable, List, NamedTuple, Tuple, Union
 
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
@@ -60,12 +71,14 @@ except ImportError:
     Figure = None
 
 try:
+    from pyspread.settings import Settings
     from pyspread.lib.attrdict import AttrDict
     import pyspread.lib.charts as charts
     from pyspread.lib.exception_handling import get_user_codeframe
     from pyspread.lib.typechecks import isslice, isstring
     from pyspread.lib.selection import Selection
 except ImportError:
+    from settings import Settings
     from lib.attrdict import AttrDict
     import lib.charts as charts
     from lib.exception_handling import get_user_codeframe
@@ -113,6 +126,13 @@ class CellAttribute(NamedTuple):
 class CellAttributes(list):
     """Stores cell formatting attributes in a list of CellAttribute instances
 
+    The class stores cell attributes as a list of layers.
+    Each layer describes attributes for one selection in one table.
+    Ultimately, a cell's attributes are determined by going through all
+    elements of an `CellAttributes` instance. A default `AttrDict` is updated
+    with the one in the list element if it is relevant for the respective cell.
+    Therefore, attributes are efficiently stored for large sets of cells.
+
     The class provides attribute read access to single cells via
     :meth:`__getitem__`.
     Otherwise it behaves similar to a `list`.
@@ -142,7 +162,11 @@ class CellAttributes(list):
     _table_cache = {}
 
     def append(self, cell_attribute: CellAttribute):
-        """append that clears caches"""
+        """append that clears caches
+
+        :param cell_attribute: Cell attribute to be appended
+
+        """
 
         assert isinstance(cell_attribute, CellAttribute)
 
@@ -161,8 +185,12 @@ class CellAttributes(list):
         self._attr_cache.clear()
         self._table_cache.clear()
 
-    def __getitem__(self, key):
-        """Returns attribute dict for a single key"""
+    def __getitem__(self, key: Tuple[int, int, int]) -> AttrDict:
+        """Returns attribute dict for a single key
+
+        :param key: Key of cell for cell_attribute retrieval
+
+        """
 
         assert not any(isinstance(key_ele, slice) for key_ele in key)
 
@@ -193,17 +221,22 @@ class CellAttributes(list):
 
         return result_dict
 
-    def __setitem__(self, key, cell_attribute: CellAttribute):
-        """__setitem__ that clears caches"""
+    def __setitem__(self, index: int, cell_attribute: CellAttribute):
+        """__setitem__ that clears caches
+
+        :param index: Index of item in self
+        :param cell_attribute: Cell attribute to be set
+
+        """
 
         assert isinstance(cell_attribute, CellAttribute)
 
-        super().__setitem__(key, cell_attribute)
+        super().__setitem__(index, cell_attribute)
 
         self._attr_cache.clear()
         self._table_cache.clear()
 
-    def _len_table_cache(self):
+    def _len_table_cache(self) -> int:
         """Returns the length of the table cache"""
 
         length = 0
@@ -225,13 +258,13 @@ class CellAttributes(list):
 
         assert len(self) == self._len_table_cache()
 
-    def get_merging_cell(self, key):
+    def get_merging_cell(self,
+                         key: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """Returns key of cell that merges the cell key
 
-        or None if cell key not merged
+        Retuns None if cell key not merged.
 
         :param key: Key of the cell that is merged
-        :type key: tuple
 
         """
 
@@ -244,10 +277,17 @@ class CellAttributes(list):
                 if top <= row <= bottom and left <= col <= right:
                     return top, left, tab
 
-    def for_table(self, table):
-        """Return cell attributes for a given table"""
+    def for_table(self, table: int) -> list:
+        """Return cell attributes for a given table
 
-        # table presence in grid is not checked
+        Return type should be `CellAttributes`. The list return type is
+        provided because PEP 563 is unavailable in Python 3.6.
+
+        Note that the table's presence in the grid is not checked.
+
+        :param table: Table for which cell attributes are returned
+
+        """
 
         table_cell_attributes = CellAttributes()
 
@@ -268,10 +308,15 @@ class KeyValueStore(dict):
     """
 
     def __init__(self, default_value=None):
+        """
+        :param default_value: Value that is provided for missing keys
+
+        """
+
         super().__init__()
         self.default_value = default_value
 
-    def __missing__(self, value):
+    def __missing__(self, value: Any) -> Any:
         """Returns the default value None"""
 
         return self.default_value
@@ -292,27 +337,32 @@ class DictGrid(KeyValueStore):
 
     This class represents layer 1 of the model.
 
-    :param shape: Shape of the grid
-    :type shape: tuple
-
     """
 
-    def __init__(self, shape):
+    def __init__(self, shape: Tuple[int, int, int]):
+        """
+        :param shape: Shape of the grid
+
+        """
+
         super().__init__()
 
         self.shape = shape
 
+        # Instance of :class:`CellAttributes`
         self.cell_attributes = CellAttributes()
-        """Instance of :class:`CellAttributes`"""
 
+        # Macros as string
         self.macros = u""
-        """Macros as string"""
 
         self.row_heights = defaultdict(float)  # Keys have format (row, table)
         self.col_widths = defaultdict(float)  # Keys have format (col, table)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Tuple[int, int, int]) -> Any:
+        """
+        :param key: Cell key
 
+        """
         shape = self.shape
 
         for axis, key_ele in enumerate(key):
@@ -343,23 +393,19 @@ class DataArray:
 
     This class represents layer 2 of the model.
 
-    :param shape: Shape of the grid
-    :type shape: tuple
-
     """
 
-    def __init__(self, shape, settings):
+    def __init__(self, shape: Tuple[int, int, int], settings: Settings):
+        """
+        :param shape: Shape of the grid
+        :param settings: Pyspread settings
+
+        """
+
         self.dict_grid = DictGrid(shape)
         self.settings = settings
 
-        # Safe mode
-        self.safe_mode = False
-        """Whether pyspread is operating in safe_mode
-
-        .. todo:: Explain safe mode
-        """
-
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not hasattr(other, "dict_grid") or \
            not hasattr(other, "cell_attributes"):
             return False
@@ -367,11 +413,11 @@ class DataArray:
         return self.dict_grid == other.dict_grid and \
             self.cell_attributes == other.cell_attributes
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
     @property
-    def data(self):
+    def data(self) -> dict:
         """Returns `dict` of data content.
 
 
@@ -382,20 +428,20 @@ class DataArray:
         - However, it is not used for importing and exporting data because
           these operations are partial to the grid.
 
-        Keys:
+        **Content of returned dict**
 
-        shape: 3-tuple of Integer
-        \tGrid shape
-        grid: Dict of 3-tuples to strings
-        \tCell content
-        attributes: List of 3-tuples
-        \tCell attributes
-        row_heights: Dict of 2-tuples to float
-        \t(row, tab): row_height
-        col_widths: Dict of 2-tuples to float
-        \t(col, tab): col_width
-        macros: String
-        \tMacros from macro list
+        :param shape: Grid shape
+        :type shape: Tuple[int, int, int]
+        :param grid: Cell content
+        :type grid: Dict[Tuple[int, int, int], str]
+        :param attributes: Cell attributes
+        :type attributes: CellAttribute
+        :param row_heights: Row heights
+        :type row_heights: defaultdict[Tuple[int, int], float]
+        :param col_widths: Column widths
+        :type col_widths: defaultdict[Tuple[int, int], float]
+        :param macros: Macros
+        :type macros: str
 
         """
 
@@ -417,17 +463,19 @@ class DataArray:
         Old values are deleted.
         If a paremeter is not given, nothing is changed.
 
+        **Content of kwargs dict**
+
         :param shape: Grid shape
-        :type shape: tuple
+        :type shape: Tuple[int, int, int]
         :param grid: Cell content
-        :type grid: dict
+        :type grid: Dict[Tuple[int, int, int], str]
         :param attributes: Cell attributes
-        :type attributes: CellAttributes
-        :param row_heights: Dict (row, tab): row_height
-        :type row_heights: dict
-        :param col_widths: Dict (col, tab): col_width
-        :type col_widths: dict
-        :param macros: Macros from macro list
+        :type attributes: CellAttribute
+        :param row_heights: Row heights
+        :type row_heights: defaultdict[Tuple[int, int], float]
+        :param col_widths: Column widths
+        :type col_widths: defaultdict[Tuple[int, int], float]
+        :param macros: Macros
         :type macros: str
 
         """
@@ -452,37 +500,37 @@ class DataArray:
             self.macros = kwargs["macros"]
 
     @property
-    def row_heights(self):
+    def row_heights(self) -> defaultdict:
         """row_heights interface to dict_grid"""
 
         return self.dict_grid.row_heights
 
     @row_heights.setter
-    def _row_heights(self, row_heights):
+    def row_heights(self, row_heights: defaultdict):
         """row_heights interface to dict_grid"""
 
         self.dict_grid.row_heights = row_heights
 
     @property
-    def col_widths(self):
+    def col_widths(self) -> defaultdict:
         """col_widths interface to dict_grid"""
 
         return self.dict_grid.col_widths
 
     @col_widths.setter
-    def col_widths(self, col_widths):
+    def col_widths(self, col_widths: defaultdict):
         """col_widths interface to dict_grid"""
 
         self.dict_grid.col_widths = col_widths
 
     @property
-    def cell_attributes(self):
+    def cell_attributes(self) -> CellAttributes:
         """cell_attributes interface to dict_grid"""
 
         return self.dict_grid.cell_attributes
 
     @cell_attributes.setter
-    def cell_attributes(self, value):
+    def cell_attributes(self, value: CellAttributes):
         """cell_attributes interface to dict_grid"""
 
         # First empty cell_attributes
@@ -490,31 +538,30 @@ class DataArray:
         self.cell_attributes.extend(value)
 
     @property
-    def macros(self):
+    def macros(self) -> str:
         """macros interface to dict_grid"""
 
         return self.dict_grid.macros
 
     @macros.setter
-    def macros(self, macros):
+    def macros(self, macros: str):
         """Sets  macros string"""
 
         self.dict_grid.macros = macros
 
     @property
-    def shape(self):
+    def shape(self) -> Tuple[int, int, int]:
         """Returns dict_grid shape"""
 
         return self.dict_grid.shape
 
     @shape.setter
-    def shape(self, shape):
+    def shape(self, shape: Tuple[int, int, int]):
         """Deletes all cells beyond new shape and sets dict_grid shape
 
         Returns a dict of the deleted cells' contents
 
         :param shape: Target shape for grid
-        :type shape: tuple
 
         """
 
@@ -538,13 +585,19 @@ class DataArray:
 
         return deleted_cells
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable:
         """Returns iterator over self.dict_grid"""
 
         return iter(self.dict_grid)
 
-    def __contains__(self, key):
-        """Handles single keys only"""
+    def __contains__(self, key: Tuple[int, int, int]) -> bool:
+        """True if key is contained in grid
+
+        Handles single keys only.
+
+        :param key: Key of cell to be checked
+
+        """
 
         if any(not isinstance(ele, int) for ele in key):
             return NotImplemented
@@ -635,7 +688,7 @@ class DataArray:
 
     # Pickle support
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, DictGrid]:
         """Returns dict_grid for pickling
 
         Note that all persistent data is contained in the DictGrid class
@@ -644,8 +697,13 @@ class DataArray:
 
         return {"dict_grid": self.dict_grid}
 
-    def get_row_height(self, row, tab):
-        """Returns row height"""
+    def get_row_height(self, row: int, tab: int) -> float:
+        """Returns row height
+
+        :param row: Row for which height is retrieved
+        :param tab: Table for which for which row height is retrieved
+
+        """
 
         try:
             return self.row_heights[(row, tab)]
@@ -653,8 +711,13 @@ class DataArray:
         except KeyError:
             return
 
-    def get_col_width(self, col, tab):
-        """Returns column width"""
+    def get_col_width(self, col: int, tab: int) -> float:
+        """Returns column width
+
+        :param col: Column for which width is retrieved
+        :param tab: Table for which for which column width is retrieved
+
+        """
 
         try:
             return self.col_widths[(col, tab)]
@@ -662,21 +725,24 @@ class DataArray:
         except KeyError:
             return
 
-    def keys(self):
+    def keys(self) -> List[Tuple[int, int, int]]:
         """Returns keys in self.dict_grid"""
 
         return list(self.dict_grid.keys())
 
-    def pop(self, key):
-        """dict_grid pop wrapper"""
+    def pop(self, key: Tuple[int, int, int]) -> Any:
+        """dict_grid pop wrapper
+
+        :param key: Cell key
+
+        """
 
         return self.dict_grid.pop(key)
 
-    def get_last_filled_cell(self, table=None):
+    def get_last_filled_cell(self, table: int = None) -> Tuple[int, int, int]:
         """Returns key for the bottommost rightmost cell with content
 
         :param table: Limit search to this table
-        :type table: int, optional
 
         """
 
@@ -690,11 +756,14 @@ class DataArray:
 
         return maxrow, maxcol, table
 
-    def cell_array_generator(self, key):
+    def cell_array_generator(self,
+                             key: Tuple[Union[int, slice], Union[int, slice],
+                                        Union[int, slice]]) -> Iterable[str]:
         """Generator traversing cells specified in key
 
+        Yields cells' contents.
+
         :param key: Specifies the cell keys of the generator
-        :type key: Iterable of Integer or slice
 
         """
 
@@ -722,8 +791,13 @@ class DataArray:
 
                 break
 
-    def _shift_rowcol(self, insertion_point, no_to_insert):
-        """Shifts row and column sizes when a table is inserted or deleted"""
+    def _shift_rowcol(self, insertion_point: int, no_to_insert: int):
+        """Shifts row and column sizes when a table is inserted or deleted
+
+        :param insertion_point: Table at which a new table is inserted
+        :param no_to_insert: Number of tables that are inserted
+
+        """
 
         # Shift row heights
 
@@ -761,8 +835,16 @@ class DataArray:
             if (col, tab) not in new_col_widths:
                 self.set_col_width(col, tab, None)
 
-    def _adjust_rowcol(self, insertion_point, no_to_insert, axis, tab=None):
-        """Adjusts row and column sizes on insertion/deletion"""
+    def _adjust_rowcol(self, insertion_point: int, no_to_insert: int,
+                       axis: int, tab: int = None):
+        """Adjusts row and column sizes on insertion/deletion
+
+        :param insertion_point: Point on axis at which insertion takes place
+        :param no_to_insert: Number of rows or columns that are inserted
+        :param axis: Row insertion if 0, column insertion if 1, must be in 0, 1
+        :param tab: Table at which insertion takes place, None means all tables
+
+        """
 
         if axis == 2:
             self._shift_rowcol(insertion_point, no_to_insert)
@@ -790,17 +872,15 @@ class DataArray:
             if (pos, table) not in new_sizes:
                 set_cell_size(pos, table, None)
 
-    def _adjust_merge_area(self, attrs, insertion_point, no_to_insert, axis):
+    def _adjust_merge_area(
+            self, attrs: AttrDict, insertion_point: int, no_to_insert: int,
+            axis: int) -> Tuple[int, int, int, int]:
         """Returns an updated merge area
 
         :param attrs: Cell attribute dictionary that shall be adjusted
-        :type attrs: dict
-        :param insertion_point: Point on axis before insertion takes place
-        :type insertion_point: int
-        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
-        :type no_to_insert: int, >=0
-        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col
-        :type axis: int in range(2)
+        :param insertion_point: Point on axis at which insertion takes place
+        :param no_to_insert: Number of rows/cols/tabs to be inserted (>=0)
+        :param axis: Row insertion if 0, column insertion if 1, must be in 0, 1
 
         """
 
@@ -855,32 +935,40 @@ class DataArray:
 
         return __top, __left, __bottom, __right
 
-    def _adjust_cell_attributes(self, insertion_point, no_to_insert, axis,
-                                tab=None, cell_attrs=None):
+    def _adjust_cell_attributes(
+            self, insertion_point: int, no_to_insert: int,  axis: int,
+            tab: int = None, cell_attrs: AttrDict = None):
         """Adjusts cell attributes on insertion/deletion
 
-        :param insertion_point: Point on axis before insertion
-        :type insertion_point: int
-        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
-        :type no_to_insert: int, >=0
-        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col ...
-        :type axis: int in range(3)
-        :param tab: Limits insertion to tab for axis < 2
-        :type tab: int, optional
-        :param cell_attrs: If given replaces the existing CellAttributes
-        :type cell_attrs: CellAttributes, optional
+        :param insertion_point: Point on axis at which insertion takes place
+        :param no_to_insert: Number of rows/cols/tabs to be inserted (>=0)
+        :param axis: Row insertion if 0, column insertion if 1, must be in 0, 1
+        :param tab: Table at which insertion takes place, None means all tables
+        :param cell_attrs: If given replaces the existing cell attributes
 
         """
 
-        def replace_cell_attributes_table(index, new_table):
-            """Replaces table in cell_attributes item"""
+        def replace_cell_attributes_table(index: int, new_table: int):
+            """Replaces table in cell_attributes item
+
+            :param index: Cell attribute index for table replacement
+            :param new_table: New table value for cell attribute
+
+            """
 
             cell_attr = list(list.__getitem__(self.cell_attributes, index))
             cell_attr[1] = new_table
             self.cell_attributes[index] = CellAttribute(*cell_attr)
 
-        def get_ca_with_updated_ma(attrs, merge_area):
-            """Returns cell attributes with updated merge area"""
+        def get_ca_with_updated_ma(
+                attrs: AttrDict,
+                merge_area: Tuple[int, int, int, int]) -> AttrDict:
+            """Returns cell attributes with updated merge area
+
+            :param attrs: Cell attributes to be updated
+            :param merge_area: New merge area (top, left, bottom, right)
+
+            """
 
             new_attrs = copy(attrs)
 
@@ -950,17 +1038,14 @@ class DataArray:
         self.cell_attributes._attr_cache.clear()
         self.cell_attributes._update_table_cache()
 
-    def insert(self, insertion_point, no_to_insert, axis, tab=None):
+    def insert(self, insertion_point: int, no_to_insert: int, axis: int,
+               tab: int = None):
         """Inserts no_to_insert rows/cols/tabs/... before insertion_point
 
-        :param insertion_point: Point on axis before insertion
-        :type insertion_point: int
-        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
-        :type no_to_insert: int, >= 0,
-        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col ...
-        :type axis: int
-        :param tab: If given then insertion is limited to this tab for axis < 2
-        :type tab: int, optional
+        :param insertion_point: Point on axis at which insertion takes place
+        :param no_to_insert: Number of rows/cols/tabs to be inserted (>=0)
+        :param axis: Row/Column/Table insertion if 0/1/2 must be in 0, 1, 2
+        :param tab: Table at which insertion takes place, None means all tables
 
         """
 
@@ -994,10 +1079,14 @@ class DataArray:
         for key in new_keys:
             self.__setitem__(key, new_keys[key])
 
-    def delete(self, deletion_point, no_to_delete, axis, tab=None):
+    def delete(self, deletion_point: int, no_to_delete: int, axis: int,
+               tab: int = None):
         """Deletes no_to_delete rows/cols/... starting with deletion_point
 
-        Axis specifies number of dimension, i.e. 0 == row, 1 == col, 2 == tab
+        :param deletion_point: Point on axis at which deletion takes place
+        :param no_to_delete: Number of rows/cols/tabs to be deleted (>=0)
+        :param axis: Row/Column/Table deletion if 0/1/2, must be in 0, 1, 2
+        :param tab: Table at which insertion takes place, None means all tables
 
         """
 
@@ -1042,8 +1131,14 @@ class DataArray:
         self._adjust_rowcol(deletion_point, -no_to_delete, axis, tab=tab)
         self._adjust_cell_attributes(deletion_point, -no_to_delete, axis, tab)
 
-    def set_row_height(self, row, tab, height):
-        """Sets row height"""
+    def set_row_height(self, row: int, tab: int, height: float):
+        """Sets row height
+
+        :param row: Row for height setting
+        :param tab: Table, in which row height is set
+        :param height: Row height to be set
+
+        """
 
         try:
             self.row_heights.pop((row, tab))
@@ -1053,8 +1148,14 @@ class DataArray:
         if height is not None:
             self.row_heights[(row, tab)] = float(height)
 
-    def set_col_width(self, col, tab, width):
-        """Sets column width"""
+    def set_col_width(self, col: int, tab: int, width: float):
+        """Sets column width
+
+        :param col: Column for width setting
+        :param tab: Table, in which column width is set
+        :param width: Column width to be set
+
+        """
 
         try:
             self.col_widths.pop((col, tab))
@@ -1090,6 +1191,10 @@ class CodeArray(DataArray):
 
     # Custom font storage
     custom_fonts = {}
+
+    # Safe mode: If True then Whether pyspread is operating in safe_mode
+    # In safe_mode, cells are not evaluated but its code is returned instead.
+    safe_mode = False
 
     def __setitem__(self, key, value):
         """Sets cell code and resets result cache"""
