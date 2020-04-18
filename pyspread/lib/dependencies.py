@@ -18,6 +18,14 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Provides**
+
+ * :func:`get_enchant_version`
+
+"""
+
 
 def get_enchant_version() -> str:
     """

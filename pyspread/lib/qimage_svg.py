@@ -22,6 +22,11 @@
 
 High resolution svg support for qimage and :mod:`matplotlib.figure`
 
+**Provides**
+
+* :class:`QImageSvg`
+
+
 """
 
 from io import StringIO
