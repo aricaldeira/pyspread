@@ -1224,7 +1224,7 @@ class CsvTable(QTableView):
                                  for ele, t in zip(row, digest_types))
                         item_row = map(QStandardItem, codes)
                     self.model.appendRow(item_row)
-        except OSError:
+        except (OSError, csv.Error):
             return
 
     def get_digest_types(self) -> List[str]:
@@ -1303,7 +1303,7 @@ class CsvImportDialog(QDialog):
 
         try:
             dialect = sniff(self.filepath, self.sniff_size)
-        except OSError as error:
+        except (OSError, csv.Error) as error:
             self.parent.statusBar().showMessage(str(error))
             return
         self.parameter_groupbox.set_csvdialect(dialect)
@@ -1314,7 +1314,7 @@ class CsvImportDialog(QDialog):
 
         try:
             sniff_dialect = sniff(self.filepath, self.sniff_size)
-        except OSError as error:
+        except (OSError, csv.Error) as error:
             self.parent.statusBar().showMessage(str(error))
             return
         try:
@@ -1330,7 +1330,11 @@ class CsvImportDialog(QDialog):
     def accept(self):
         """Button event handler, starts csv import"""
 
-        sniff_dialect = sniff(self.filepath, self.sniff_size)
+        try:
+            sniff_dialect = sniff(self.filepath, self.sniff_size)
+        except csv.Error as error:
+            self.parent.statusBar().showMessage(str(error))
+            return
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
