@@ -29,6 +29,7 @@
 
 from os.path import abspath, dirname, join
 from pathlib import Path
+from platform import system
 from typing import Any
 
 from PyQt5.QtCore import QSettings
@@ -169,7 +170,10 @@ class Settings:
     def save(self):
         """Saves application state to QSettings"""
 
-        settings = QSettings(APP_NAME, APP_NAME)
+        if system() == "Darwin":
+            settings = QSettings(APP_NAME+".gitlab.io", APP_NAME)
+        else:
+            settings = QSettings(APP_NAME, APP_NAME)
 
         # Application state
 
@@ -232,7 +236,10 @@ class Settings:
     def restore(self):
         """Restores application state from QSettings"""
 
-        settings = QSettings(APP_NAME, APP_NAME)
+        if system() == "Darwin":
+            settings = QSettings(APP_NAME+".gitlab.io", APP_NAME)
+        else:
+            settings = QSettings(APP_NAME, APP_NAME)
 
         def setting2attr(setting_name, attr=None, mapper=None):
             """Sets attr to mapper(<Setting from setting_name>)"""
