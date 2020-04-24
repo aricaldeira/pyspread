@@ -565,7 +565,7 @@ class PysWriter(object):
 
         for selection, tab, attr_dict in purged_cell_attributes:
             sel_list = [selection.block_tl, selection.block_br,
-                        selection.rows, selection.cols, selection.cells]
+                        selection.rows, selection.columns, selection.cells]
 
             tab_list = [tab]
 
