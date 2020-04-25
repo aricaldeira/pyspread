@@ -497,6 +497,22 @@ class Workflows:
             return  # Cancel pressed
         filepath = Path(dial.file_path)
 
+        self._csv_import(filepath)
+
+    def _csv_import(self, filepath: Path):
+        """Import csv from filepath
+
+        :param filepath: Path of file to be imported
+
+        """
+
+        filelines = self.count_file_lines(filepath)
+        if not filelines:  # May not be None or 0
+            title = "CSV Import Error"
+            text = "File {} seems to be empty.".format(filepath)
+            QMessageBox.warning(self.main_window, title, text)
+            return
+
         # Store file import path for next time importing a file
         self.main_window.settings.last_file_import_path = filepath
 
@@ -507,35 +523,67 @@ class Workflows:
 
         dialect = csv_dlg.dialect
         digest_types = csv_dlg.digest_types
-
-        # Dialog accepted, now fill the grid
-        self._csv_import(filepath, dialect, digest_types)
-
-    def _csv_import(self, filepath: Path, dialect: csv.Dialect,
-                    digest_types: List[str]):
-        """Import csv from filepath
-
-        :param filepath: Path of file to be imported
-        :param dialect: Attribute for csv reading and writing
-        :param digest_types: Names of preprocessing functions for csv columns
-
-        """
-
         try:
             keep_header = dialect.hasheader and dialect.keepheader
         except AttributeError:
             keep_header = False
-
         row, column, table = current = self.main_window.grid.current
         model = self.main_window.grid.model
         rows, columns, tables = model.shape
 
+        # Dialog accepted, now check if grid is large enough
+        csv_rows = filelines
+        if dialect.hasheader and not dialect.keepheader:
+            csv_rows -= 1
+        csv_columns = csv_dlg.csv_table.model.columnCount()
+        max_rows, max_columns = self.main_window.settings.maxshape[:2]
+
+        if csv_rows > rows - row or csv_columns > columns - column:
+            if csv_rows + row > max_rows or csv_columns + column > max_columns:
+                # Required grid size is too large
+                text_tpl = "The csv file {} does not fit into the grid.\n " +\
+                           "\nIt has {} rows and {} columns. Counting from " +\
+                           "the current cell, {} rows and {} columns would " +\
+                           "be needed, which exeeds the maximum shape of " +\
+                           "{} rows and {} columns. Data that does not fit " +\
+                           "inside the grid is discarded.\n \nDo you want " +\
+                           "to increase the grid size so that as much data " +\
+                           "from the csv file as possible fits in?"
+                text = text_tpl.format(filepath, csv_rows, csv_columns,
+                                       rows-row, columns-column, )
+            else:
+                # Shall we resize the grid?
+                text_tpl = \
+                    "The csv file {} does not fit into the grid.\n \n" +\
+                    "It has {} rows and {} columns. Counting from the " +\
+                    "current cell, only {} rows and {} columns remain for " +\
+                    "CSV data.\n \nData that does not fit inside the grid " +\
+                    "is discarded.\n \nDo you want to increase the grid " +\
+                    "size so that all csv file data fits in?"
+                text = text_tpl.format(filepath, csv_rows, csv_columns,
+                                       rows-row, columns-column)
+
+            title = "CSV Content Exceeds Grid Shape"
+            choices = QMessageBox.No | QMessageBox.Yes | QMessageBox.Cancel
+            default_choice = QMessageBox.No
+            choice = QMessageBox.question(self.main_window, title, text,
+                                          choices, default_choice)
+            if choice == QMessageBox.Yes:
+                # Resize grid
+                target_rows = min(max_rows, max(csv_rows + row, rows))
+                target_columns = min(max_columns,
+                                     max(csv_columns + column, columns))
+                self._resize_grid((target_rows, target_columns, tables))
+                rows = target_rows
+                columns = target_columns
+
+            elif choice == QMessageBox.Cancel:
+                return
+
+        # Now fill the grid
+
         description_tpl = "Import from csv file {} at cell {}"
         description = description_tpl.format(filepath, current)
-
-        filelines = self.count_file_lines(filepath)
-        if not filelines:  # May not be None or 0
-            return
 
         command = None
 
@@ -1375,12 +1423,21 @@ class Workflows:
     def edit_resize(self):
         """Edit -> Resize workflow"""
 
-        grid = self.main_window.grid
-
         # Get grid shape from user
-        old_shape = grid.model.code_array.shape
+        old_shape = self.main_window.grid.model.code_array.shape
         title = "Resize grid"
         shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
+        self._resize_grid(shape, old_shape)
+
+    def _resize_grid(self, shape: Tuple[int, int, int]):
+        """Resize grid
+
+        :param shape: New grid shape
+
+        """
+
+        grid = self.main_window.grid
+        old_shape = self.main_window.grid.model.code_array.shape
 
         # Check if shape is valid
         try:
