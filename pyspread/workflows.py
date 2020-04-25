@@ -570,17 +570,29 @@ class Workflows:
                                 command = _command
 
                 except (TypeError, ValueError) as error:
-                    self.main_window.statusBar().showMessage(str(error))
+                    title = "CSV Import Error"
+                    text_tpl = "Error importing csv file {path}.\n \n" + \
+                               "{errtype}: {error}"
+                    text = text_tpl.format(path=filepath,
+                                           errtype=type(error).__name__,
+                                           error=error)
+                    QMessageBox.warning(self.main_window, title, text)
                     return
 
                 except ProgressDialogCanceled:
-                    msg = "Import stopped by user at line {}.".format(i)
-                    self.main_window.statusBar().showMessage(msg)
+                    title = "CSV Import Stopped"
+                    text = "Import stopped by user at line {}.".format(i)
+                    QMessageBox.warning(self.main_window, title, text)
                     return
 
         except Exception as error:
             # A lot may go wrong with malformed csv files, includes OSError
-            self.main_window.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error importing csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=filepath, errtype=type(error).__name__,
+                                   error=error)
+            QMessageBox.warning(self.main_window, title, text)
             return
 
         with self.busy_cursor():

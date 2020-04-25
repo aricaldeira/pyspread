@@ -1161,6 +1161,8 @@ class CsvTable(QTableView):
 
         super().__init__(parent)
 
+        self.parent = parent
+
         self.comboboxes = []
 
         self.model = QStandardItemModel(self)
@@ -1224,8 +1226,13 @@ class CsvTable(QTableView):
                                  for ele, t in zip(row, digest_types))
                         item_row = map(QStandardItem, codes)
                     self.model.appendRow(item_row)
-        except (OSError, csv.Error):
-            return
+        except (OSError, csv.Error) as error:
+            title = "CSV Import Error"
+            text_tpl = "Error importing csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=filepath, errtype=type(error).__name__,
+                                   error=error)
+            QMessageBox.warning(self.parent, title, text)
 
     def get_digest_types(self) -> List[str]:
         """Returns list of digest types from comboboxes"""
@@ -1304,7 +1311,11 @@ class CsvImportDialog(QDialog):
         try:
             dialect = sniff(self.filepath, self.sniff_size)
         except (OSError, csv.Error) as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
         self.parameter_groupbox.set_csvdialect(dialect)
         self.csv_table.fill(self.filepath, dialect)
@@ -1315,12 +1326,21 @@ class CsvImportDialog(QDialog):
         try:
             sniff_dialect = sniff(self.filepath, self.sniff_size)
         except (OSError, csv.Error) as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error setting dialect for csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
 
         digest_types = self.csv_table.get_digest_types()
@@ -1333,12 +1353,21 @@ class CsvImportDialog(QDialog):
         try:
             sniff_dialect = sniff(self.filepath, self.sniff_size)
         except csv.Error as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error setting dialect for csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             self.reject()
             return
 
