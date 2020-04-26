@@ -61,13 +61,20 @@ class ArgumentParser(ArgumentParser):
                       "Python."
 
         # Override usage because of the PathAction fix for paths with spaces
-        usage = "{} [-h] [--version] [file]".format(APP_NAME)
+        usage_tpl = "{} [-h] [--version] [--default-settings] [file]"
+        usage = usage_tpl.format(APP_NAME)
 
         super().__init__(prog=APP_NAME, description=description, usage=usage)
 
         self.add_argument('--version', action='version', version=VERSION)
-        self.add_argument('file', action=PathAction, nargs="*",
-                          help='open pyspread file in pys or pysu format')
+
+        reset_settings_help = 'start with default settings and save on exit'
+
+        self.add_argument('--reset-settings', action='store_true',
+                          help=reset_settings_help)
+
+        file_help = 'open pyspread file in pys or pysu format'
+        self.add_argument('file', action=PathAction, nargs="*", help=file_help)
 
     def check_mandatory_dependencies(self):
         """Checks mandatory dependencies and exits if they are not met"""

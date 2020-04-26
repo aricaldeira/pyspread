@@ -126,13 +126,15 @@ class Settings:
     # sniff_size should be larger than 1st+2nd line
     sniff_size = 65536  # TODO
 
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: QWidget, reset_settings: bool = False):
         """
         :param parent: Parent widget, normally main window
+        :param reset_settings: Do not restore saved settings
 
         """
 
         super().__setattr__("parent", parent)
+        super().__setattr__("reset_settings", reset_settings)
 
     def __setattr__(self, key: str, value: Any):
         """
@@ -163,7 +165,7 @@ class Settings:
         cls_attrs = (attr for attr in dir(self)
                      if (not attr.startswith("__")
                          and attr not in ("reset", "parent", "save",
-                                          "restore")))
+                                          "restore", "default_settings")))
         for cls_attr in cls_attrs:
             setattr(self, cls_attr, getattr(Settings, cls_attr))
 
@@ -235,6 +237,9 @@ class Settings:
 
     def restore(self):
         """Restores application state from QSettings"""
+
+        if self.reset_settings:
+            return
 
         if system() == "Darwin":
             settings = QSettings(APP_NAME+".gitlab.io", APP_NAME)

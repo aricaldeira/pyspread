@@ -100,9 +100,10 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, filepath: str = None):
+    def __init__(self, filepath: str = None, reset_settings: bool = False):
         """
         :param filepath: File path for inital file to be opened
+        :param reset_settings: Ignore stored `QSettings` and use defaults
 
         """
 
@@ -110,7 +111,7 @@ class MainWindow(QMainWindow):
 
         self._loading = True
 
-        self.settings = Settings(self)
+        self.settings = Settings(self, reset_settings=reset_settings)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
         self.refresh_timer = QTimer()
@@ -661,7 +662,7 @@ def main():
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
-    main_window = MainWindow(args.file)
+    main_window = MainWindow(args.file, reset_settings=args.reset_settings)
 
     main_window.show()
 
