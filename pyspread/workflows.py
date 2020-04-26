@@ -452,7 +452,7 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
         # Set the current filepath
-        self.main_window.settings.last_file_input_path = filepath
+        self.main_window.settings.last_file_output_path = filepath
 
         # Change the main window title
         window_title = "{filename} - pyspread".format(filename=filepath.name)
@@ -463,7 +463,7 @@ class Workflows:
     def file_save(self):
         """File save workflow"""
 
-        filepath = self.main_window.settings.last_file_input_path
+        filepath = self.main_window.settings.last_file_output_path
         if filepath.suffix:
             self._save(filepath)
 

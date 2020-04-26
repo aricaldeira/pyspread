@@ -187,16 +187,16 @@ class Settings:
 
         if self.last_file_input_path is not None:
             settings.setValue("last_file_input_path",
-                              self.last_file_input_path.parent)
+                              self.last_file_input_path)
         if self.last_file_output_path is not None:
             settings.setValue("last_file_output_path",
-                              self.last_file_output_path.parent)
+                              self.last_file_output_path)
         if self.last_file_import_path is not None:
             settings.setValue("last_file_import_path",
                               self.last_file_import_path)
         if self.last_file_export_path is not None:
             settings.setValue("last_file_export_path",
-                              self.last_file_export_path.parent)
+                              self.last_file_export_path)
         settings.setValue("max_file_history", self.max_file_history)
         settings.value("file_history", [], 'QStringList')
         if self.file_history:
@@ -259,6 +259,7 @@ class Settings:
                 attr = setting_name
             if mapper is None:
                 def mapper(x): return x
+            print(attr, value)
             setattr(self, attr, mapper(value))
 
         # Application state

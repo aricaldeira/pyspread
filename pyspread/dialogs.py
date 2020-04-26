@@ -613,7 +613,7 @@ class CsvFileExportDialog(FileDialogBase):
     def show_dialog(self):
         """Present dialog and update values"""
 
-        path = self.main_window.settings.last_file_output_path
+        path = self.main_window.settings.last_file_export_path
         self.file_path, self.selected_filter = \
             QFileDialog.getSaveFileName(self.main_window, self.title,
                                         str(path), self.filters,
