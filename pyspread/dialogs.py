@@ -985,6 +985,8 @@ class CsvParameterGroupBox(QGroupBox):
         self._create_widgets()
         self._layout()
 
+        self.hasheader_widget.toggled.connect(self.on_hasheader_toggled)
+
     def _create_widgets(self):
         """Create widgets for all parameters"""
 
@@ -1089,6 +1091,13 @@ class CsvParameterGroupBox(QGroupBox):
 
         self.setLayout(hbox_layout)
 
+    # Event handlers
+    def on_hasheader_toggled(self, toggled: bool):
+        """Disables keep_header if hasheader is not toggled"""
+
+        self.keepheader_widget.setChecked(False)
+        self.keepheader_widget.setEnabled(toggled)
+
     def adjust_csvdialect(self, dialect: csv.Dialect) -> csv.Dialect:
         """Adjusts csv dialect from widget settings
 
@@ -1146,6 +1155,8 @@ class CsvParameterGroupBox(QGroupBox):
                     widget.setText(value)
                 else:
                     raise AttributeError("{} unsupported".format(widget))
+        if not self.hasheader_widget.isChecked():
+            self.keepheader_widget.setEnabled(False)
 
 
 class CsvTable(QTableView):
