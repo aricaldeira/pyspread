@@ -90,6 +90,9 @@ class Settings:
     # Maximum number of files in file history
     file_history = []
 
+    # List of default digest types for preprocessing values from CSV import
+    digest_types = None
+
     # Maximum length of code, for which the netry line enables highlighting
     highlighter_limit = 1000000
 

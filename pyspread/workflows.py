@@ -516,11 +516,15 @@ class Workflows:
         # Store file import path for next time importing a file
         self.main_window.settings.last_file_import_path = filepath
 
-        csv_dlg = CsvImportDialog(self.main_window, filepath)
+        digest_types = self.main_window.settings.digest_types
+
+        csv_dlg = CsvImportDialog(self.main_window, filepath,
+                                  digest_types=digest_types)
 
         if not csv_dlg.exec():
             return
 
+        self.main_window.settings.digest_types = csv_dlg.digest_types
         dialect = csv_dlg.dialect
         digest_types = csv_dlg.digest_types
         try:

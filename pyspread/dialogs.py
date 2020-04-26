@@ -1262,26 +1262,24 @@ class CsvTable(QTableView):
 
 
 class CsvImportDialog(QDialog):
-    """Modal dialog for importing csv files
-
-    :param filepath: pathlib.Path to csv file
-
-    """
+    """Modal dialog for importing csv files"""
 
     title = "CSV import"
 
-    def __init__(self, parent: QWidget, filepath: Path):
+    def __init__(self, parent: QWidget, filepath: Path,
+                 digest_types: List[str] = None):
         """
         :param parent: Parent window
         :param filepath: Path to csv file
+        :param digest_types: Names of preprocessing functions for csv values
 
         """
 
         super().__init__(parent)
 
         self.parent = parent
-
         self.filepath = filepath
+        self.digest_types = digest_types
 
         self.sniff_size = parent.settings.sniff_size
 
@@ -1330,6 +1328,8 @@ class CsvImportDialog(QDialog):
             return
         self.parameter_groupbox.set_csvdialect(dialect)
         self.csv_table.fill(self.filepath, dialect)
+        if self.digest_types is not None:
+            self.csv_table.update_comboboxes(self.digest_types)
 
     def apply(self):
         """Button event handler, applies parameters to csv_table"""
@@ -1382,10 +1382,9 @@ class CsvImportDialog(QDialog):
             self.reject()
             return
 
-        digest_types = self.csv_table.get_digest_types()
-
+        self.digest_types = self.csv_table.get_digest_types()
         self.dialect = dialect
-        self.digest_types = digest_types
+
         super().accept()
 
 
