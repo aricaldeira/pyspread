@@ -301,11 +301,12 @@ class Settings:
                 if visibility is not None:
                     for is_visible, action in zip(visibility,
                                                   widget.actions()):
-                        action.setVisible(is_visible == 'true')
+                        action.setVisible(is_visible in ['true', True])
                 manager_button = widget.widgetForAction(widget.actions()[-1])
                 manager_button.menu().update_checked_states()
 
             if widget_name == "entry_line" \
                and settings.value("entry_line_isvisible") is not None:
-                visible = settings.value("entry_line_isvisible") == "true"
+                visible = settings.value("entry_line_isvisible") in ['true',
+                                                                     True]
                 widget.setVisible(visible)
