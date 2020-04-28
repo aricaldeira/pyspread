@@ -259,7 +259,6 @@ class Settings:
                 attr = setting_name
             if mapper is None:
                 def mapper(x): return x
-            print(attr, value)
             setattr(self, attr, mapper(value))
 
         # Application state
@@ -286,18 +285,15 @@ class Settings:
                 widget = getattr(self.parent, widget_name)
 
             geometry = settings.value(geometry_name)
-            print(widget_name, geometry)
             if geometry:
                 widget.restoreGeometry(geometry)
             widget_state = settings.value(widget_state_name)
-            print(widget_name, widget_state)
             if widget_state:
                 widget.restoreState(widget_state)
 
             if isinstance(widget, QToolBar):
                 toolbar_visibility_name = widget_name + '/visibility'
                 visibility = settings.value(toolbar_visibility_name)
-                print(widget_name, visibility)
                 if visibility is not None:
                     for is_visible, action in zip(visibility,
                                                   widget.actions()):
