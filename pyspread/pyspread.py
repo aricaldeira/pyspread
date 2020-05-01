@@ -130,7 +130,8 @@ class MainWindow(QMainWindow):
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
-        self._update_action_toggles()
+        # Update toolbar toggle checkboxes
+        self.update_action_toggles()
 
         # Update the GUI so that everything matches the model
         cell_attributes = self.grid.model.code_array.cell_attributes
@@ -247,26 +248,26 @@ class MainWindow(QMainWindow):
         self.addToolBarBreak()
         self.addToolBar(self.format_toolbar)
 
-    def _update_action_toggles(self):
+    def update_action_toggles(self):
         """Updates the toggle menu check states"""
 
         self.main_window_actions.toggle_main_toolbar.setChecked(
-                self.main_toolbar.isVisible())
+                self.main_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_macro_toolbar.setChecked(
-                self.macro_toolbar.isVisible())
+                self.macro_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_format_toolbar.setChecked(
-                self.format_toolbar.isVisible())
+                self.format_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_find_toolbar.setChecked(
-                self.find_toolbar.isVisible())
+                self.find_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_entry_line.setChecked(
-                self.entry_line.isVisible())
+                self.entry_line.isVisibleTo(self))
 
         self.main_window_actions.toggle_macro_panel.setChecked(
-                self.macro_dock.isVisible())
+                self.macro_dock.isVisibleTo(self))
 
     @property
     def safe_mode(self) -> bool:
