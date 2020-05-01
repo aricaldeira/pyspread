@@ -28,23 +28,21 @@ from ast import literal_eval
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
-from copy import deepcopy
 import csv
 from itertools import cycle
 import io
-from itertools import takewhile, repeat
 import os.path
 from pathlib import Path
 from shutil import move
 from tempfile import NamedTemporaryFile
-from typing import Iterable, List, Tuple
+from typing import Iterable, Tuple
 
 from PyQt5.QtCore \
     import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets \
-    import (QApplication, QProgressDialog, QMessageBox, QInputDialog,
-            QStyleOptionViewItem, QTableView)
+    import (QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem,
+            QTableView)
 try:
     from PyQt5.QtSvg import QSvgGenerator
 except ImportError:
@@ -70,7 +68,8 @@ try:
     from pyspread.lib.typechecks import is_svg, check_shape_validity
     from pyspread.lib.csv import csv_reader, convert
     from pyspread.lib.file_helpers import \
-        (progress_dialog, linecount, file_progress_gen, ProgressDialogCanceled)
+        (linecount, file_progress_gen, ProgressDialogCanceled)
+    from pyspread.model.model import CellAttribute, CellAttributes
 except ImportError:
     import commands
     from dialogs \
@@ -86,7 +85,8 @@ except ImportError:
     from lib.typechecks import is_svg, check_shape_validity
     from lib.csv import csv_reader, convert
     from lib.file_helpers import \
-        (progress_dialog, linecount, file_progress_gen, ProgressDialogCanceled)
+        (linecount, file_progress_gen, ProgressDialogCanceled)
+    from model.model import CellAttribute, CellAttributes
 
 
 class Workflows:
@@ -1511,7 +1511,7 @@ class Workflows:
         (top, left), (bottom, right) = \
             selection.get_grid_bbox(grid.model.shape)
 
-        table_cell_attributes = deepcopy(cell_attributes.for_table(table))
+        table_cell_attributes = cell_attributes.for_table(table)
         for __selection, _, attrs in table_cell_attributes:
             new_selection = selection & __selection
             if new_selection:
@@ -1560,12 +1560,13 @@ class Workflows:
             if not any(tabu_attr in attrs for tabu_attr in tabu_attrs):
                 selection = Selection(*selection_params)
                 shifted_selection = selection.shifted(row, column)
-                new_cell_attribute = shifted_selection, table, attrs
-
+                attr_dict = AttrDict()
+                attr_dict.update(attrs)
+                new_cell_attribute = CellAttribute(shifted_selection, table,
+                                                   attr_dict)
                 selected_idx = []
                 for key in shifted_selection.cell_generator(model.shape):
                     selected_idx.append(model.index(*key))
-
                 command = commands.SetCellFormat(new_cell_attribute, model,
                                                  grid.currentIndex(),
                                                  selected_idx, description)

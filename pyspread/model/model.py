@@ -294,7 +294,8 @@ class CellAttributes(list):
 
         for selection, __table, attr in self:
             if __table == table:
-                table_cell_attributes.append((selection, __table, attr))
+                cell_attribute = CellAttribute(selection, __table, attr)
+                table_cell_attributes.append(cell_attribute)
 
         return table_cell_attributes
 
