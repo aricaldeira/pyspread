@@ -1431,7 +1431,7 @@ class Workflows:
         old_shape = self.main_window.grid.model.code_array.shape
         title = "Resize grid"
         shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
-        self._resize_grid(shape, old_shape)
+        self._resize_grid(shape)
 
     def _resize_grid(self, shape: Tuple[int, int, int]):
         """Resize grid
