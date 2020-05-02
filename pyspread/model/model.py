@@ -1099,9 +1099,6 @@ class DataArray:
         if no_to_delete < 0:
             raise ValueError("Cannot delete negative number of rows/cols/...")
 
-        if no_to_delete >= self.shape[axis]:
-            raise ValueError("Last row/column/table must not be deleted")
-
         if deletion_point > self.shape[axis] or \
            deletion_point <= -self.shape[axis]:
             raise IndexError("Deletion point not in grid")

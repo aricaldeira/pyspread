@@ -337,6 +337,17 @@ class InsertRows(QUndoCommand):
     def redo(self):
         """Redo row insertion, updates screen"""
 
+        # Store content of overflowing rows
+        self.old_row_heights = copy(self.model.code_array.row_heights)
+        self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
+        self.old_code = {}
+
+        no_rows = self.model.shape[0]
+        rows = list(range(no_rows-self.count, no_rows+1))
+        selection = Selection([], [], rows, [], [])
+        for key in selection.cell_generator(self.model.shape, self.grid.table):
+            self.old_code[key] = self.model.code_array(key)
+
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
         self.grid.table_choice.on_table_changed(self.grid.current)
@@ -346,6 +357,11 @@ class InsertRows(QUndoCommand):
 
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
+        self.model.code_array.dict_grid.row_heights = self.old_row_heights
+        self.model.code_array.dict_grid.cell_attributes = \
+            self.old_cell_attributes
+        for key in self.old_code:
+            self.model.code_array[key] = self.old_code[key]
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
@@ -393,6 +409,7 @@ class DeleteRows(QUndoCommand):
 
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
+
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
         self.model.code_array.dict_grid.cell_attributes = \
             self.old_cell_attributes
@@ -430,6 +447,16 @@ class InsertColumns(QUndoCommand):
     def redo(self):
         """Redo column insertion, updates screen"""
 
+        # Store content of overflowing columns
+        self.old_col_widths = copy(self.model.code_array.col_widths)
+        self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
+        self.old_code = {}
+        no_columns = self.model.shape[1]
+        columns = list(range(no_columns-self.count, no_columns+1))
+        selection = Selection([], [], [], columns, [])
+        for key in selection.cell_generator(self.model.shape, self.grid.table):
+            self.old_code[key] = self.model.code_array(key)
+
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
         self.grid.table_choice.on_table_changed(self.grid.current)
@@ -439,6 +466,13 @@ class InsertColumns(QUndoCommand):
 
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
+
+        self.model.code_array.dict_grid.col_widths = self.old_col_widths
+        self.model.code_array.dict_grid.cell_attributes = \
+            self.old_cell_attributes
+        for key in self.old_code:
+            self.model.code_array[key] = self.old_code[key]
+
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
@@ -519,6 +553,15 @@ class InsertTable(QUndoCommand):
     def redo(self):
         """Redo table insertion, updates row and column sizes and screen"""
 
+        # Store content of overflowing table
+        self.old_row_heights = copy(self.model.code_array.row_heights)
+        self.old_col_widths = copy(self.model.code_array.col_widths)
+        self.old_cell_attributes = copy(self.model.code_array.cell_attributes)
+        self.old_code = {}
+        for key in self.model.code_array:
+            if key[2] == self.model.shape[2] - 1:
+                self.old_code[key] = self.model.code_array(key)
+
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.insertTable(self.table)
@@ -530,6 +573,16 @@ class InsertTable(QUndoCommand):
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.removeTable(self.table)
+
+                self.model.code_array.dict_grid.row_heights = \
+                    self.old_row_heights
+                self.model.code_array.dict_grid.col_widths = \
+                    self.old_col_widths
+                self.model.code_array.dict_grid.cell_attributes = \
+                    self.old_cell_attributes
+                for key in self.old_code:
+                    self.model.code_array[key] = self.old_code[key]
+
         self.grid.table_choice.on_table_changed(self.grid.current)
 
 
