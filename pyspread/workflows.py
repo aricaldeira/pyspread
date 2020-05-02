@@ -1584,6 +1584,9 @@ class Workflows:
         filepath = Path(dial.file_path)
 
         index = self.main_window.grid.currentIndex()
+        self.main_window.grid.clearSelection()
+        self.main_window.grid.selectionModel().select(
+                index, QItemSelectionModel.Select)
 
         if filepath.suffix == ".svg":
             try:
@@ -1627,4 +1630,5 @@ class Workflows:
             model = self.main_window.grid.model
             description = "Insert chart into cell {}".format(index)
             command = commands.SetCellCode(code, model, index, description)
+
             self.main_window.undo_stack.push(command)

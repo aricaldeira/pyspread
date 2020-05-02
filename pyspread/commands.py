@@ -358,8 +358,10 @@ class InsertRows(QUndoCommand):
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
-        self.model.code_array.dict_grid.cell_attributes = \
-            self.old_cell_attributes
+        self.model.code_array.dict_grid.cell_attributes.clear()
+        for ca in self.old_cell_attributes:
+            self.model.code_array.dict_grid.cell_attributes.append(ca)
+
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
         self.grid.table_choice.on_table_changed(self.grid.current)
@@ -411,8 +413,9 @@ class DeleteRows(QUndoCommand):
             self.model.insertRows(self.row, self.count)
 
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
-        self.model.code_array.dict_grid.cell_attributes = \
-            self.old_cell_attributes
+        self.model.code_array.dict_grid.cell_attributes.clear()
+        for ca in self.old_cell_attributes:
+            self.model.code_array.dict_grid.cell_attributes.append(ca)
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
@@ -468,8 +471,9 @@ class InsertColumns(QUndoCommand):
             self.model.removeColumns(self.column, self.count)
 
         self.model.code_array.dict_grid.col_widths = self.old_col_widths
-        self.model.code_array.dict_grid.cell_attributes = \
-            self.old_cell_attributes
+        self.model.code_array.dict_grid.cell_attributes.clear()
+        for ca in self.old_cell_attributes:
+            self.model.code_array.dict_grid.cell_attributes.append(ca)
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
@@ -524,8 +528,9 @@ class DeleteColumns(QUndoCommand):
             self.model.insertColumns(self.column, self.count)
 
         self.model.code_array.dict_grid.col_widths = self.old_col_widths
-        self.model.code_array.dict_grid.cell_attributes = \
-            self.old_cell_attributes
+        self.model.code_array.dict_grid.cell_attributes.clear()
+        for ca in self.old_cell_attributes:
+            self.model.code_array.dict_grid.cell_attributes.append(ca)
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
@@ -578,8 +583,9 @@ class InsertTable(QUndoCommand):
                     self.old_row_heights
                 self.model.code_array.dict_grid.col_widths = \
                     self.old_col_widths
-                self.model.code_array.dict_grid.cell_attributes = \
-                    self.old_cell_attributes
+                self.model.code_array.dict_grid.cell_attributes.clear()
+                for ca in self.old_cell_attributes:
+                    self.model.code_array.dict_grid.cell_attributes.append(ca)
                 for key in self.old_code:
                     self.model.code_array[key] = self.old_code[key]
 
@@ -632,8 +638,9 @@ class DeleteTable(QUndoCommand):
                     self.old_row_heights
                 self.model.code_array.dict_grid.col_widths = \
                     self.old_col_widths
-                self.model.code_array.dict_grid.cell_attributes = \
-                    self.old_cell_attributes
+                self.model.code_array.dict_grid.cell_attributes.clear()
+                for ca in self.old_cell_attributes:
+                    self.model.code_array.dict_grid.cell_attributes.append(ca)
                 for key in self.old_code:
                     self.model.code_array[key] = self.old_code[key]
 
@@ -692,7 +699,11 @@ class SetCellMerge(SetCellFormat):
     def undo(self):
         """Undo cell merging"""
 
-        self.model.code_array.cell_attributes.pop()
+        try:
+            self.model.code_array.cell_attributes.pop()
+        except IndexError as error:
+            raise Warning(str(error))
+            return
         self.model.main_window.grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -800,6 +811,7 @@ class SetCellRenderer(QUndoCommand):
         super().__init__(description)
 
         self.attr = attr
+        self.description = description
         self.model = model
         self.entry_line = entry_line
         self.new_highlighter_document = highlighter_document
