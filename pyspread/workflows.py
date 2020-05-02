@@ -37,12 +37,12 @@ from shutil import move
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
 
-from PyQt5.QtCore \
-    import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize
+from PyQt5.QtCore import (
+    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize,
+    QItemSelectionModel)
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
-from PyQt5.QtWidgets \
-    import (QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem,
-            QTableView)
+from PyQt5.QtWidgets import (
+    QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView)
 try:
     from PyQt5.QtSvg import QSvgGenerator
 except ImportError:
@@ -1619,6 +1619,9 @@ class Workflows:
         if chart_dialog.exec_() == ChartDialog.Accepted:
             code = chart_dialog.editor.toPlainText()
             index = self.main_window.grid.currentIndex()
+            self.main_window.grid.clearSelection()
+            self.main_window.grid.selectionModel().select(
+                    index, QItemSelectionModel.Select)
             self.main_window.grid.on_matplotlib_renderer_pressed(True)
 
             model = self.main_window.grid.model
