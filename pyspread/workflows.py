@@ -1549,7 +1549,10 @@ class Workflows:
         cas_data = mime_data.data("application/x-pyspread-cell-attributes")
         cas_data_str = str(cas_data, encoding='utf-8')
         cas = literal_eval(cas_data_str)
-        assert isinstance(cas, list)
+        if not isinstance(cas, list):
+            msg_tpl = "{} has type {} that is not instance of list"
+            msg = msg_tpl.format(cas, type(cas))
+            raise Warning(msg)
 
         tabu_attrs = "merge_area", "frozen"
 

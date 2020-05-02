@@ -1758,7 +1758,10 @@ class GridTableModel(QAbstractTableModel):
             return True
 
         if role in (Qt.DecorationRole, Qt.TextAlignmentRole):
-            assert isinstance(value[2], AttrDict)
+            if not isinstance(value[2], AttrDict):
+                msg_tpl = "{} has type {} that is not instance of AttrDict"
+                msg = msg_tpl.format(value[2], type(value[2]))
+                raise Warning(msg)
             self.code_array.cell_attributes.append(value)
             # We have a selection and no single cell
             for idx in index:

@@ -97,7 +97,9 @@ class Selection(object):
 
         """
 
-        assert len(cell) == 2
+        if len(cell) != 2:
+            raise Warning("Key length is not 2. Returning None.")
+            return
 
         cell_row, cell_col = cell
 
@@ -411,10 +413,14 @@ class Selection(object):
         rows, columns, tables = shape
 
         # Negative dimensions cannot be
-        assert all(dim > 0 for dim in shape)
+        if any(dim <= 0 for dim in shape):
+            raise Warning("Invalid shape {}".format(shape))
+            return
 
         # Current table has to be in dimensions
-        assert 0 <= table < tables
+        if not 0 <= table < tables:
+            raise Warning("Table {} not in grid".format(table))
+            return
 
         string_list = []
 

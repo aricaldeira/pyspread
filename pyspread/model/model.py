@@ -169,7 +169,10 @@ class CellAttributes(list):
 
         """
 
-        assert isinstance(cell_attribute, CellAttribute)
+        if not isinstance(cell_attribute, CellAttribute):
+            msg = "{} not instance of CellAttribute".format(cell_attribute)
+            raise Warning(msg)
+            return
 
         # We need to clean up merge areas
         selection, table, attr = cell_attribute
@@ -193,7 +196,9 @@ class CellAttributes(list):
 
         """
 
-        assert not any(isinstance(key_ele, slice) for key_ele in key)
+        if any(isinstance(key_ele, slice) for key_ele in key):
+            raise Warning("slice in key {}".format(key))
+            return
 
         if key in self._attr_cache:
             cache_len, cache_dict = self._attr_cache[key]
@@ -230,7 +235,10 @@ class CellAttributes(list):
 
         """
 
-        assert isinstance(cell_attribute, CellAttribute)
+        if not isinstance(cell_attribute, CellAttribute):
+            msg = "{} not instance of CellAttribute".format(cell_attribute)
+            raise Warning(msg)
+            return
 
         super().__setitem__(index, cell_attribute)
 
@@ -257,7 +265,8 @@ class CellAttributes(list):
             except KeyError:
                 self._table_cache[tab] = [(sel, val)]
 
-        assert len(self) == self._len_table_cache()
+        if len(self) != self._len_table_cache():
+            raise Warning("Length of _table_cache does not match")
 
     def get_merging_cell(self,
                          key: Tuple[int, int, int]) -> Tuple[int, int, int]:
@@ -853,7 +862,9 @@ class DataArray:
             self._shift_rowcol(insertion_point, no_to_insert)
             return
 
-        assert axis in (0, 1)
+        if axis not in (0, 1):
+            raise Warning("Axis {} not in (0, 1)".format(axis))
+            return
 
         cell_sizes = self.col_widths if axis else self.row_heights
         set_cell_size = self.set_col_width if axis else self.set_row_height
@@ -887,7 +898,9 @@ class DataArray:
 
         """
 
-        assert axis in range(2)
+        if axis not in (0, 1):
+            raise Warning("Axis {} not in (0, 1)".format(axis))
+            return
 
         if "merge_area" not in attrs or attrs["merge_area"] is None:
             return
@@ -988,7 +1001,9 @@ class DataArray:
         if axis not in list(range(3)):
             raise ValueError("Axis must be in [0, 1, 2]")
 
-        assert tab is None or tab >= 0
+        if tab is not None and tab < 0:
+            raise Warning("tab is negative")
+            return
 
         if cell_attrs is None:
             cell_attrs = []

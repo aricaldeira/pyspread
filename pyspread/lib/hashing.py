@@ -65,7 +65,9 @@ def sign(data: bytes, key: bytes) -> bytes:
     if not isinstance(key, bytes):
         key = ast.literal_eval(key)
 
-    assert len(key) <= blake2b.MAX_KEY_SIZE
+    if len(key) > blake2b.MAX_KEY_SIZE:
+        raise Warning("Key is too long and has been truncated")
+        key = key[:blake2b.MAX_KEY_SIZE]
 
     signature = blake2b(digest_size=64, key=key)
     signature.update(data)
