@@ -286,7 +286,7 @@ class Selection(object):
 
             for tl in source_list:
                 tl_list = list(tl)
-                if tl[axis] > point:
+                if tl[axis] >= point:
                     tl_list[axis] += number
                 target_list.append(tuple(tl_list))
 
@@ -300,10 +300,10 @@ class Selection(object):
         self.block_br = build_tuple_list(self.block_br, point, number, axis)
 
         if axis == 0:
-            self.rows = [row + number if row > point else row
+            self.rows = [row + number if row >= point else row
                          for row in self.rows]
         elif axis == 1:
-            self.columns = [column + number if column > point else column
+            self.columns = [column + number if column >= point else column
                             for column in self.columns]
         else:
             raise ValueError("Axis not in [0, 1]")

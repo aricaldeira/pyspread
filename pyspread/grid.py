@@ -1099,7 +1099,7 @@ class Grid(QTableView):
             if table == self.table:
                 try:
                     if "merge_area" in attrs and attrs.merge_area is not None:
-                        top, left, bottom, right = attrs.merge_area
+                        top, left, bottom, right = attrs["merge_area"]
                         spans[(top, left)] = bottom, right
                 except (KeyError, TypeError):
                     pass
