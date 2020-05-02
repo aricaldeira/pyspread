@@ -346,7 +346,7 @@ class TestDataArray(object):
         self.data_array[2, 3, 4] = "42"
 
         try:
-            self.data_array.delete(1, 1000, 0)
+            self.data_array.delete(1, 1, 20)
             assert False
         except ValueError:
             pass
