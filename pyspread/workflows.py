@@ -323,6 +323,7 @@ class Workflows:
 
         # Change the main window last input directory state
         self.main_window.settings.last_file_input_path = filepath
+        self.main_window.settings.last_file_output_path = filepath
 
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
