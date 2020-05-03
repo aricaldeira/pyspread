@@ -355,10 +355,14 @@ class InsertRows(QUndoCommand):
     def undo(self):
         """Undo row insertion, updates screen"""
 
+        # Clear must be first so that merged cells do not consume values
+        self.model.code_array.dict_grid.cell_attributes.clear()
+
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
+
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
-        self.model.code_array.dict_grid.cell_attributes.clear()
+
         for ca in self.old_cell_attributes:
             self.model.code_array.dict_grid.cell_attributes.append(ca)
 
@@ -409,11 +413,14 @@ class DeleteRows(QUndoCommand):
     def undo(self):
         """Undo row deletion, updates screen"""
 
+        # Clear must be first so that merged cells do not consume values
+        self.model.code_array.dict_grid.cell_attributes.clear()
+
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
 
         self.model.code_array.dict_grid.row_heights = self.old_row_heights
-        self.model.code_array.dict_grid.cell_attributes.clear()
+
         for ca in self.old_cell_attributes:
             self.model.code_array.dict_grid.cell_attributes.append(ca)
         for key in self.old_code:
@@ -467,11 +474,14 @@ class InsertColumns(QUndoCommand):
     def undo(self):
         """Undo column insertion, updates screen"""
 
+        # Clear must be first so that merged cells do not consume values
+        self.model.code_array.dict_grid.cell_attributes.clear()
+
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
 
         self.model.code_array.dict_grid.col_widths = self.old_col_widths
-        self.model.code_array.dict_grid.cell_attributes.clear()
+
         for ca in self.old_cell_attributes:
             self.model.code_array.dict_grid.cell_attributes.append(ca)
         for key in self.old_code:
@@ -524,11 +534,14 @@ class DeleteColumns(QUndoCommand):
     def undo(self):
         """Undo column deletion, updates screen"""
 
+        # Clear must be first so that merged cells do not consume values
+        self.model.code_array.dict_grid.cell_attributes.clear()
+
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
 
         self.model.code_array.dict_grid.col_widths = self.old_col_widths
-        self.model.code_array.dict_grid.cell_attributes.clear()
+
         for ca in self.old_cell_attributes:
             self.model.code_array.dict_grid.cell_attributes.append(ca)
         for key in self.old_code:

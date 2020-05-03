@@ -1046,7 +1046,7 @@ class DataArray:
                     else:
                         replace_cell_attributes_table(i, table + no_to_insert)
 
-                elif insertion_point < table:
+                elif insertion_point <= table:
                     # Insert
                     replace_cell_attributes_table(i, table + no_to_insert)
 
