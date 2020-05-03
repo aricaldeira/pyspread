@@ -452,11 +452,13 @@ class CellKeyDialog(DataEntryDialog):
 
         """
 
-        if self.data is None:
+        data = self.data
+
+        if data is None:
             return
 
         try:
-            return tuple(map(int, self.data))
+            return tuple(map(int, data))
         except ValueError:
             pass
 
