@@ -2402,16 +2402,21 @@ class GridCellDelegate(QStyledItemDelegate):
 
         # Rotate evryting by 90 degree
 
-        optionCopy = QStyleOptionViewItem(option)
         rectCenter = QPointF(QRectF(option.rect).center())
         with self.painter_save(painter):
             painter.translate(rectCenter.x(), rectCenter.y())
             painter.rotate(angle)
-            painter.translate(-rectCenter.x(), -rectCenter.y())
-            optionCopy.rect = painter.worldTransform().mapRect(option.rect)
+            if isclose(angle, 0.0) or isclose(angle, 180.0):
+                painter.translate(-rectCenter.x(), -rectCenter.y())
+            elif isclose(angle, 90.0) or isclose(angle, 270.0):
+                painter.translate(-rectCenter.y(), -rectCenter.x())
+                option.rect = QRect(0, 0, option.rect.height(),
+                                    option.rect.width())
+            else:
+                raise Warning("Rotation angle {} unsupported".format(angle))
 
             # Call the base class paint method
-            self.__paint(painter, optionCopy, index)
+            self.__paint(painter, option, index)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               index: QModelIndex) -> Tuple[float, float, float, float]:
