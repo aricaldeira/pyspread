@@ -104,7 +104,7 @@ Open the macro panel with `<F4>` and type
 
 
 ```python
-from franctions import Fraction
+from fractions import Fraction
 ```
 
 Then press  the `Apply` button.
