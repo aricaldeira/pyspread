@@ -6,7 +6,8 @@ before_script:
 
 stages:
   - test
-  - pages
+  - release
+  - deploy
 
 test_debian_testing:
   image: debian:testing
@@ -35,7 +36,22 @@ test_debian_experimental:
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3
 
+
+## Release to pypi
+deploy_pypi:
+  stage: release
+  script:
+    - pip3 install twine
+    - python3 setup.py sdist bdist_wheel
+    - python3 -m twine upload dist/*
+  only:
+    - tags
+
+
+
+## api.docs pages at pyspread.gitlab.io/pyspread
 pages:
+  stage: deploy
   image: debian:experimental
   script:
   - apt install -y -qq python3-sphinx
