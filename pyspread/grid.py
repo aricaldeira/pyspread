@@ -1815,17 +1815,21 @@ class GridTableModel(QAbstractTableModel):
 
 
 class GridCellNavigator:
-    """Find neighbors of a cell"""
+    """Find neighbors of a cell
 
-    def __init__(self, main_window: QMainWindow, key: Tuple[int, int, int]):
+    TODO: Delete here and point everything to grid_renderer
+
+    """
+
+    def __init__(self, grid: QTableView, key: Tuple[int, int, int]):
         """
-        :param main_window: Application main window
+        :param grid: The main grid widget
         :param key: Key of cell fow which neighbors are identified
 
         """
 
-        self.main_window = main_window
-        self.code_array = main_window.grid.model.code_array
+        self.grid = grid
+        self.code_array = grid.model.code_array
         self.row, self.column, self.table = self.key = key
 
     @property
@@ -1846,7 +1850,7 @@ class GridCellNavigator:
 
         color = self.code_array.cell_attributes[self.key].bordercolor_bottom
         if color is None:
-            return self.main_window.grid.palette().color(QPalette.Mid)
+            return self.grid.palette().color(QPalette.Mid)
         return QColor(*color)
 
     @property
@@ -1855,7 +1859,7 @@ class GridCellNavigator:
 
         color = self.code_array.cell_attributes[self.key].bordercolor_right
         if color is None:
-            return self.main_window.grid.palette().color(QPalette.Mid)
+            return self.grid.palette().color(QPalette.Mid)
         return QColor(*color)
 
     @property
@@ -1986,7 +1990,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        cell = GridCellNavigator(self.main_window, key)
+        cell = GridCellNavigator(self.grid, key)
 
         borderline_bottom = [x - .5,
                              y + height - .5,
@@ -2000,20 +2004,17 @@ class GridCellDelegate(QStyledItemDelegate):
         # Check, which line is the thickest at each edge
         # Shorten line accordingly
 
-        above_left_cell = GridCellNavigator(self.main_window,
-                                            cell.above_left_key())
-        above_cells = [GridCellNavigator(self.main_window, key)
+        above_left_cell = GridCellNavigator(self.grid, cell.above_left_key())
+        above_cells = [GridCellNavigator(self.grid, key)
                        for key in cell.above_keys()]
-        above_right_cell = GridCellNavigator(self.main_window,
-                                             cell.above_right_key())
-        right_cells = [GridCellNavigator(self.main_window, key)
+        above_right_cell = GridCellNavigator(self.grid, cell.above_right_key())
+        right_cells = [GridCellNavigator(self.grid, key)
                        for key in cell.right_keys()]
 
-        below_cells = [GridCellNavigator(self.main_window, key)
+        below_cells = [GridCellNavigator(self.grid, key)
                        for key in cell.below_keys()]
-        below_left_cell = GridCellNavigator(self.main_window,
-                                            cell.below_left_key())
-        left_cells = [GridCellNavigator(self.main_window, key)
+        below_left_cell = GridCellNavigator(self.grid, cell.below_left_key())
+        left_cells = [GridCellNavigator(self.grid, key)
                       for key in cell.left_keys()]
 
         # Lower left edge:
@@ -2431,7 +2432,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """
 
         from .grid_renderer import CellRenderer
-        renderer = CellRenderer(self.grid, painter, option.rect, index)
+        renderer = CellRenderer(self.grid, painter, option, index)
         renderer.paint()
 
         return
