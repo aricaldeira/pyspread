@@ -2345,8 +2345,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
         self._render_qimage(painter, option, index, qimage=svg_str)
 
-    def __paint(self, painter: QPainter, option: QStyleOptionViewItem,
-                index: QModelIndex):
+    def paint_(self, painter: QPainter, option: QStyleOptionViewItem,
+               index: QModelIndex):
         """Calls the overloaded paint function or creates html delegate
 
         :param painter: Painter with which borders are drawn
@@ -2419,7 +2419,7 @@ class GridCellDelegate(QStyledItemDelegate):
                 raise Warning("Rotation angle {} unsupported".format(angle))
 
             # Call the base class paint method
-            self.__paint(painter, option, index)
+            self.paint_(painter, option, index)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               index: QModelIndex):
@@ -2472,7 +2472,7 @@ class GridCellDelegate(QStyledItemDelegate):
                 option.rect = QRect(0, 0, iw, ih)
                 if isclose(angle, 0):
                     # No rotation --> call the base class paint method
-                    self.__paint(painter, option, index)
+                    self.paint_(painter, option, index)
                 else:
                     self._rotated_paint(painter, option, index, angle)
 
