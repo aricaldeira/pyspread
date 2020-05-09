@@ -68,13 +68,13 @@ def painter_rotate(painter: QPainter, rect: QRectF, angle: int = 0) -> QRectF:
 
     with painter_save(painter):
         painter.translate(center_x, center_y)
-        painter.rotate(float(angle))
+        painter.rotate(angle)
 
         if angle in (0, 180):
             painter.translate(-center_x, -center_y)
         elif angle in (90, 270):
             painter.translate(-center_y, -center_x)
-            rect = QRectF(0, 0, rect.height(), rect.width())
+            rect = QRectF(rect.y(), rect.x(), rect.height(), rect.width())
         yield rect
 
 
@@ -117,19 +117,22 @@ class CellRenderer:
     def __init__(self, grid: QTableView, painter: QPainter, rect: QRectF,
                  index: QModelIndex):
         self.grid = grid
+        self.cell_attributes = grid.model.code_array.cell_attributes
         self.painter = painter
         self.rect = QRectF(rect)
         self.index = index
+        self.key = index.row(), index.column(), self.grid.table
 
     def paint(self):
         """Paints the cell"""
 
         zoom = self.grid.zoom
+        angle = self.cell_attributes[self.key].angle
 
-        with painter_rotate(self.painter, self.rect, 0) as rect:
+        with painter_rotate(self.painter, self.rect, angle) as rect:
             self.painter.setClipRect(rect)
 
             pen = QPen(Qt.black, zoom, Qt.SolidLine, Qt.SquareCap,
                        Qt.MiterJoin)
             self.painter.setPen(pen)
-            self.painter.drawRect(self.rect)
+            self.painter.drawRect(rect)
