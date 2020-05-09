@@ -1963,6 +1963,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
         :param painter: Painter for which the state is preserved
 
+        TODO: Delete here and point everything to grid_renderer
+
         """
 
         painter.save()
@@ -2419,7 +2421,7 @@ class GridCellDelegate(QStyledItemDelegate):
             self.__paint(painter, option, index)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
-              index: QModelIndex) -> Tuple[float, float, float, float]:
+              index: QModelIndex):
         """Overloads `QStyledItemDelegate` to add cell border painting
 
         :param painter: Painter with which borders are drawn
@@ -2427,6 +2429,13 @@ class GridCellDelegate(QStyledItemDelegate):
         :param index: Index of cell to be rendered
 
         """
+
+        from .grid_renderer import CellRenderer
+        renderer = CellRenderer(self.grid, painter, option.rect, index)
+        renderer.paint()
+
+        return
+
 
         def get_unzoomed_rect_args(
                 rect: QRect, zoom: float) -> Tuple[float, float, float, float]:
