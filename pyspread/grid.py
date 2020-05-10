@@ -1947,13 +1947,13 @@ class GridCellDelegate(QStyledItemDelegate):
         return QRectF(image_x, image_y, image_width, image_height)
 
     def _render_qimage(self, painter: QPainter, rect: QRectF,
-                       index: QModelIndex, qimage: QImage = None):
+                       index: QModelIndex, qimage: Union[str, QImage] = None):
         """QImage renderer
 
         :param painter: Painter with which qimage is rendered
         :param rect: Cell rect of the cell to be painted
         :param index: Index of cell for which qimage is rendered
-        :param qimage: Image to be rendered
+        :param qimage: Image to be rendered, may be svg string
 
         """
 
@@ -1967,9 +1967,9 @@ class GridCellDelegate(QStyledItemDelegate):
             height = 0
             width = 0
             for __row in range(row, row + row_span + 1):
-                height += self.grid.rowHeight(__row)
+                height += self.grid.rowHeight(__row) / self.grid.zoom
             for __column in range(column, column + column_span + 1):
-                width += self.grid.columnWidth(__column)
+                width += self.grid.columnWidth(__column) / self.grid.zoom
             rect = QRectF(rect.x(), rect.y(), width, height)
 
         if isinstance(qimage, QImage):
@@ -1989,6 +1989,7 @@ class GridCellDelegate(QStyledItemDelegate):
                 return
 
             svg_width, svg_height = get_svg_size(svg_bytes)
+
             try:
                 svg_aspect = svg_width / svg_height
             except ZeroDivisionError:
@@ -1998,20 +1999,20 @@ class GridCellDelegate(QStyledItemDelegate):
             except ZeroDivisionError:
                 rect_aspect = 1
 
-            rect_width = rect.width() * 2.0
-            rect_height = rect.height() * 2.0
-
             if svg_aspect > rect_aspect:
                 # svg is wider than rect --> shrink height
-                img_width = rect_width
-                img_height = rect_width / svg_aspect
+                img_width = rect.width()
+                img_height = rect.width() / svg_aspect
             else:
-                img_width = rect_height * svg_aspect
-                img_height = rect_height
+                img_width = rect.height() * svg_aspect
+                img_height = rect.height()
 
             if self.main_window.settings.print_zoom is not None:
                 img_width *= self.main_window.settings.print_zoom
                 img_height *= self.main_window.settings.print_zoom
+            else:  # Adjust for HiDpi
+                img_width *= 3
+                img_height *= 3
             qimage = QImageSvg(img_width, img_height, QImage.Format_ARGB32)
             qimage.from_svg_bytes(svg_bytes)
 

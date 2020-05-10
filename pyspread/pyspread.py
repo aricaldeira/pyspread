@@ -54,6 +54,7 @@ try:
     from pyspread.settings import Settings
     from pyspread.icons import Icon, IconPath
     from pyspread.grid import Grid
+    from pyspread.grid_renderer import painter_save
     from pyspread.entryline import Entryline
     from pyspread.menus import MenuBar
     from pyspread.toolbar import (MainToolBar, FindToolbar, FormatToolbar,
@@ -74,6 +75,7 @@ except ImportError:
     from settings import Settings
     from icons import Icon, IconPath
     from grid import Grid
+    from grid_renderer import painter_save
     from entryline import Entryline
     from menus import MenuBar
     from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
@@ -376,7 +378,7 @@ class MainWindow(QMainWindow):
         self.settings.print_zoom = min(page_rect.width() / grid_width,
                                        page_rect.height() / grid_height)
 
-        with self.grid.delegate.painter_save(painter):
+        with painter_save(painter):
             painter.scale(self.settings.print_zoom, self.settings.print_zoom)
 
             # Translate so that the grid starts at upper left paper edge
