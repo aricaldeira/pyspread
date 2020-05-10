@@ -292,9 +292,9 @@ class CellEdgeRenderer:
 
         """
 
-        lightnesses = [color.lightnessF() for color in self.colors]
+        darknesses = [-color.lightnessF() for color in self.colors]
 
-        idxs = numpy.lexsort(numpy.array([lightnesses, self.widths]))
+        idxs = numpy.lexsort(numpy.array([darknesses, self.widths]))
 
         widths = self.widths[idxs]
         colors = self.colors[idxs]
@@ -489,6 +489,12 @@ class CellRenderer:
 
         :param rect: Cell rect of cell, for which the edge is painted
 
+                  top
+               TL  |  T
+        left ------------ right
+               L   |  C
+                 bottom
+
         """
 
         center = QPointF(rect.x(), rect.y())
@@ -528,30 +534,34 @@ class CellRenderer:
 
         :param rect: Cell rect of cell, for which the edge is painted
 
+                  top
+                T  |  TR
+        left ------------ right
+                C  |  R
+                 bottom
+
         """
 
         center = QPointF(rect.x() + rect.width(), rect.y())
 
         top_key = self.cell_nav.above_keys()[-1]
         top_right_key = self.cell_nav.above_right_key()
-        right_key = self.cell_nav.right_keys()[0]
 
         top_cell_nav = GridCellNavigator(self.grid, top_key)
         top_right_cell_nav = GridCellNavigator(self.grid, top_right_key)
-        right_cell_nav = GridCellNavigator(self.grid, right_key)
 
         left_width = top_cell_nav.borderwidth_bottom * self.grid.zoom
         right_width = top_right_cell_nav.borderwidth_bottom * self.grid.zoom
         top_width = top_cell_nav.borderwidth_right * self.grid.zoom
         bottom_width = self.cell_nav.borderwidth_right * self.grid.zoom
 
-        left_color = top_left_cell_nav.border_qcolor_right
-        right_color = top_left_cell_nav.border_qcolor_bottom
-        top_color = left_cell_nav.border_qcolor_right
-        bottom_color = top_cell_nav.border_qcolor_bottom
+        left_color = top_cell_nav.border_qcolor_bottom
+        right_color = top_right_cell_nav.border_qcolor_bottom
+        top_color = top_cell_nav.border_qcolor_right
+        bottom_color = self.cell_nav.border_qcolor_right
 
-        left_x = 0.0
-        right_x = rect.x()
+        left_x = rect.x() + rect.width()
+        right_x = self.grid.size().width()
         top_y = 0.0
         bottom_y = rect.y()
 
@@ -562,6 +572,48 @@ class CellRenderer:
         renderer = CellEdgeRenderer(self.painter, center, borders)
         renderer.paint(rect)
 
+    def paint_bottom_left_edge(self, rect: QRectF):
+        """Paints bottom left edge of the cell
+
+        :param rect: Cell rect of cell, for which the edge is painted
+
+                  top
+               L   |  C
+        left ------------ right
+               BL  |  B
+                 bottom
+
+        """
+
+        center = QPointF(rect.x(), rect.y() + rect.height())
+
+        left_key = self.cell_nav.left_keys()[-1]
+        bottom_left_key = self.cell_nav.below_left_key()
+
+        left_cell_nav = GridCellNavigator(self.grid, left_key)
+        bottom_left_cell_nav = GridCellNavigator(self.grid, bottom_left_key)
+
+        left_width = left_cell_nav.borderwidth_bottom * self.grid.zoom
+        right_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
+        top_width = left_cell_nav.borderwidth_right * self.grid.zoom
+        bottom_width = bottom_left_cell_nav.borderwidth_right * self.grid.zoom
+
+        left_color = left_cell_nav.border_qcolor_bottom
+        right_color = self.cell_nav.border_qcolor_bottom
+        top_color = left_cell_nav.border_qcolor_right
+        bottom_color = bottom_left_cell_nav.border_qcolor_right
+
+        left_x = 0.0
+        right_x = rect.x()
+        top_y = rect.y() + rect.height()
+        bottom_y = self.grid.size().height()
+
+        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
+                              left_color, right_color, top_color, bottom_color,
+                              left_x, right_x, top_y, bottom_y)
+
+        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer.paint(rect)
 
     def paint_borders(self, rect):
         """Paint cell borders"""
@@ -572,9 +624,10 @@ class CellRenderer:
         self.paint_left_borders(rect)
 
         self.paint_top_left_edge(rect)
+        self.paint_top_right_edge(rect)
+        self.paint_bottom_left_edge(rect)
 
 
-        # Above right edge
         # Below left edge
         # Below right edge
 
