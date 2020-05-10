@@ -259,8 +259,8 @@ class EdgeBorders:
                             self.top_color, self.bottom_color])
 
 
-class EdgePainter:
-    """Handles edge properties for painting"""
+class CellEdgeRenderer:
+    """Handles cell edge painting"""
 
     def __init__(self, painter: QPainter, center: QPointF,
                  borders: EdgeBorders):
@@ -285,43 +285,26 @@ class EdgePainter:
                  QLineF(center.x(), center.y(), center.x(), borders.bottom_y)]
         self.lines = numpy.array(lines)
 
-    def paint(self):
-        """Paints the edge"""
+    def paint(self, rect: QRectF):
+        """Paints the edge
 
-#        above_left_key = self.cell_nav.above_left_key()
-#        left_key = self.cell_nav.left_keys()[0]
-#        above_key = self.cell_nav.above_keys()[0]
-#
-#        above_left_cell_nav = GridCellNavigator(self.grid, above_left_key)
-#        left_cell_nav = GridCellNavigator(self.grid, left_key)
-#        above_cell_nav = GridCellNavigator(self.grid, above_key)
-#
-#        widths.append(above_left_cell_nav.borderwidth_right)
-#        widths.append(above_left_cell_nav.borderwidth_bottom)
-#        widths.append(left_cell_nav.borderwidth_right)
-#        widths.append(above_cell_nav.borderwidth_bottom)
-#
-#        colors.append(above_left_cell_nav.border_qcolor_right)
-#        colors.append(above_left_cell_nav.border_qcolor_bottom)
-#        colors.append(left_cell_nav.border_qcolor_right)
-#        colors.append(above_cell_nav.border_qcolor_bottom)
-#
-#        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
-#        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
-#        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
-#        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
+        :param rect: Cell rect of cell, for which edge is painted
+
+        """
 
         lightnesses = [color.lightnessF() for color in self.colors]
 
         idxs = numpy.lexsort(numpy.array([lightnesses, self.widths]))
 
-        widths = numpy.array(widths)[idxs]
-        colors = numpy.array(colors)[idxs]
-        lines = numpy.array(lines)[idxs]
+        widths = self.widths[idxs]
+        colors = self.colors[idxs]
+        lines = self.lines[idxs]
 
         for width, color, line in zip(widths, colors, lines):
-            self.painter.setPen(QPen(QBrush(color), width))
+            self.painter.setPen(QPen(QBrush(color), width,
+                                     Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
             self.painter.drawLine(line)
+
 
 class CellRenderer:
     """Renders a cell
@@ -412,7 +395,8 @@ class CellRenderer:
 
         line_color = self.cell_nav.border_qcolor_bottom
         line_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
-        self.painter.setPen(QPen(QBrush(line_color), line_width))
+        self.painter.setPen(QPen(QBrush(line_color), line_width,
+                                 Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
         bottom_border_line = QLineF(rect.x(),
                                     rect.y() + rect.height(),
@@ -432,7 +416,8 @@ class CellRenderer:
 
         line_color = self.cell_nav.border_qcolor_right
         line_width = self.cell_nav.borderwidth_right * self.grid.zoom
-        self.painter.setPen(QPen(QBrush(line_color), line_width))
+        self.painter.setPen(QPen(QBrush(line_color), line_width,
+                                 Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
         right_border_line = QLineF(rect.x() + rect.width(),
                                    rect.y(),
@@ -461,7 +446,8 @@ class CellRenderer:
 
             line_color = above_cell_nav.border_qcolor_bottom
             line_width = above_cell_nav.borderwidth_bottom * self.grid.zoom
-            self.painter.setPen(QPen(QBrush(line_color), line_width))
+            self.painter.setPen(QPen(QBrush(line_color), line_width,
+                                     Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
             above_border_line = QLineF(above_rect_x,
                                        rect.y(),
@@ -488,8 +474,9 @@ class CellRenderer:
             left_rect_height = sum(self.grid.rowHeight(row) for row in rows)
 
             line_color = left_cell_nav.border_qcolor_right
-            line_width = left_cell_nav.borderwidth_right
-            self.painter.setPen(QPen(QBrush(line_color), line_width))
+            line_width = left_cell_nav.borderwidth_right * self.grid.zoom
+            self.painter.setPen(QPen(QBrush(line_color), line_width,
+                                     Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
             above_border_line = QLineF(rect.x(),
                                        left_rect_y,
@@ -500,55 +487,41 @@ class CellRenderer:
     def paint_top_left_edge(self, rect: QRectF):
         """Paints top left edge of the cell
 
-        topleft: both lines
-        left[0]: right line
-        above[0]: bottom line
+        :param rect: Cell rect of right cell, in which the borders are painted
 
         """
 
-        min_x = 0.0
-        max_x = 10000.0
-        min_y = 0.0
-        max_y = 10000.0
+        center = QPointF(rect.x(), rect.y())
 
-        widths = []
-        colors = []
-        lines = []
-
-        above_left_key = self.cell_nav.above_left_key()
+        top_left_key = self.cell_nav.above_left_key()
         left_key = self.cell_nav.left_keys()[0]
-        above_key = self.cell_nav.above_keys()[0]
+        top_key = self.cell_nav.above_keys()[0]
 
-        above_left_cell_nav = GridCellNavigator(self.grid, above_left_key)
+        top_left_cell_nav = GridCellNavigator(self.grid, top_left_key)
         left_cell_nav = GridCellNavigator(self.grid, left_key)
-        above_cell_nav = GridCellNavigator(self.grid, above_key)
+        top_cell_nav = GridCellNavigator(self.grid, top_key)
 
-        widths.append(above_left_cell_nav.borderwidth_right)
-        widths.append(above_left_cell_nav.borderwidth_bottom)
-        widths.append(left_cell_nav.borderwidth_right)
-        widths.append(above_cell_nav.borderwidth_bottom)
+        left_width = top_left_cell_nav.borderwidth_right * self.grid.zoom
+        right_width = top_left_cell_nav.borderwidth_bottom * self.grid.zoom
+        top_width = left_cell_nav.borderwidth_right * self.grid.zoom
+        bottom_width = top_cell_nav.borderwidth_bottom * self.grid.zoom
 
-        colors.append(above_left_cell_nav.border_qcolor_right)
-        colors.append(above_left_cell_nav.border_qcolor_bottom)
-        colors.append(left_cell_nav.border_qcolor_right)
-        colors.append(above_cell_nav.border_qcolor_bottom)
+        left_color = top_left_cell_nav.border_qcolor_right
+        right_color = top_left_cell_nav.border_qcolor_bottom
+        top_color = left_cell_nav.border_qcolor_right
+        bottom_color = top_cell_nav.border_qcolor_bottom
 
-        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
-        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
-        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
-        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
+        left_x = 0.0
+        right_x = rect.x()
+        top_y = 0.0
+        bottom_y = rect.y()
 
-        lightnesses = [color.lightnessF() for color in colors]
+        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
+                              left_color, right_color, top_color, bottom_color,
+                              left_x, right_x, top_y, bottom_y)
 
-        idxs = numpy.lexsort(numpy.array([lightnesses, widths]))
-
-        widths = numpy.array(widths)[idxs]
-        colors = numpy.array(colors)[idxs]
-        lines = numpy.array(lines)[idxs]
-
-        for width, color, line in zip(widths, colors, lines):
-            self.painter.setPen(QPen(QBrush(color), width))
-            self.painter.drawLine(line)
+        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer.paint(rect)
 
     def paint_borders(self, rect):
         """Paint cell borders"""
@@ -579,12 +552,13 @@ class CellRenderer:
 
         rect = QRectF(self.option.rect)
 
-        self.painter.setClipRect(self.option.rect)
+        with painter_save(self.painter):
+            self.painter.setClipRect(self.option.rect)
 
-        angle = self.cell_attributes[self.key].angle
+            angle = self.cell_attributes[self.key].angle
 
-        with painter_rotate(self.painter, rect, angle) as rrect:
-            self.paint_content(rrect)
+            with painter_rotate(self.painter, rect, angle) as rrect:
+                self.paint_content(rrect)
 
-        self.paint_borders(rect)
-        self.paint_cursor(rect)
+            self.paint_borders(rect)
+            self.paint_cursor(rect)
