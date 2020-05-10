@@ -49,7 +49,7 @@ from PyQt5.QtGui \
             QWheelEvent, QContextMenuEvent)
 from PyQt5.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
-            QRect, QItemSelectionModel, QObject, QAbstractItemModel)
+            QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel)
 
 try:
     import matplotlib
@@ -1835,11 +1835,12 @@ class GridCellDelegate(QStyledItemDelegate):
 
         return self.main_window.grid
 
-    def _render_markup(self, painter: QPainter, option: QStyleOptionViewItem,
-                       index: QModelIndex):
+    def _render_markup(self, painter: QPainter, rect: QRectF,
+                       option: QStyleOptionViewItem, index: QModelIndex):
         """HTML markup renderer
 
         :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
         :param option: Style option for rendering
         :param index: Index of cell for which markup is rendered
 
@@ -1862,7 +1863,7 @@ class GridCellDelegate(QStyledItemDelegate):
         doc.setDefaultStyleSheet(css)
 
         doc.setHtml(option.text)
-        doc.setTextWidth(option.rect.width())
+        doc.setTextWidth(rect.width())
 
         option.text = ""
         style.drawControl(QStyle.CE_ItemViewItem, option, painter,
@@ -1874,17 +1875,16 @@ class GridCellDelegate(QStyledItemDelegate):
         ctx.palette.setColor(QPalette.Text, text_color)
 
         with painter_save(painter):
-            painter.translate(option.rect.topLeft())
-            painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
+            painter.translate(rect.topLeft())
             doc.documentLayout().draw(painter, ctx)
 
     def _get_aligned_image_rect(
-            self, option: QStyleOptionViewItem, index: QModelIndex,
+            self, rect: QRectF, index: QModelIndex,
             image_width: Union[int, float],
-            image_height: Union[int, float]) -> Tuple[float, float]:
+            image_height: Union[int, float]) -> QRectF:
         """Returns image rect dependent on alignment and justification
 
-        :param option: Style option for painting
+        :param rect: Rect to be aligned
         :param image_width: Width of image [px]
         :param image_height: Height of image [px]
 
@@ -1924,36 +1924,34 @@ class GridCellDelegate(QStyledItemDelegate):
         vertical_align = self.cell_attributes[key].vertical_align
 
         if justification == "justify_fill":
-            return option.rect
-
-        rect_x, rect_y = option.rect.x(), option.rect.y()
-        rect_width, rect_height = option.rect.width(), option.rect.height()
+            return rect
 
         try:
             image_width, image_height = scale_size(image_width, image_height,
-                                                   rect_width, rect_height)
+                                                   rect.width(), rect.height())
         except ZeroDivisionError:
             pass
-        image_x, image_y = rect_x, rect_y
+
+        image_x, image_y = rect.x(), rect.y()
 
         if justification == "justify_center":
-            image_x = rect_x + rect_width / 2 - image_width / 2
+            image_x = rect.x() + rect.width() / 2 - image_width / 2
         elif justification == "justify_right":
-            image_x = rect_x + rect_width - image_width
+            image_x = rect.x() + rect.width() - image_width
 
         if vertical_align == "align_center":
-            image_y = rect_y + rect_height / 2 - image_height / 2
+            image_y = rect.y() + rect.height() / 2 - image_height / 2
         elif vertical_align == "align_bottom":
-            image_y = rect_y + rect_height - image_height
+            image_y = rect.y() + rect.height() - image_height
 
-        return QRect(image_x, image_y, image_width, image_height)
+        return QRectF(image_x, image_y, image_width, image_height)
 
-    def _render_qimage(self, painter: QPainter, option: QStyleOptionViewItem,
+    def _render_qimage(self, painter: QPainter, rect: QRectF,
                        index: QModelIndex, qimage: QImage = None):
         """QImage renderer
 
         :param painter: Painter with which qimage is rendered
-        :param option: Style option for rendering
+        :param rect: Cell rect of the cell to be painted
         :param index: Index of cell for which qimage is rendered
         :param qimage: Image to be rendered
 
@@ -1965,16 +1963,14 @@ class GridCellDelegate(QStyledItemDelegate):
         row, column = index.row(), index.column()
         row_span = self.grid.rowSpan(row, column)
         column_span = self.grid.columnSpan(row, column)
-        if row_span == column_span == 1:
-            rect = option.rect
-        else:
+        if not(row_span == column_span == 1):
             height = 0
             width = 0
             for __row in range(row, row + row_span + 1):
                 height += self.grid.rowHeight(__row)
             for __column in range(column, column + column_span + 1):
                 width += self.grid.columnWidth(__column)
-            rect = QRect(option.rect.x(), option.rect.y(), width, height)
+            rect = QRectF(rect.x(), rect.y(), width, height)
 
         if isinstance(qimage, QImage):
             img_width, img_height = qimage.width(), qimage.height()
@@ -2019,7 +2015,7 @@ class GridCellDelegate(QStyledItemDelegate):
             qimage = QImageSvg(img_width, img_height, QImage.Format_ARGB32)
             qimage.from_svg_bytes(svg_bytes)
 
-        img_rect = self._get_aligned_image_rect(option, index,
+        img_rect = self._get_aligned_image_rect(rect, index,
                                                 img_width, img_height)
         if img_rect is None:
             return
@@ -2049,12 +2045,12 @@ class GridCellDelegate(QStyledItemDelegate):
             painter.scale(scale_x, scale_y)
             painter.drawImage(0, 0, qimage)
 
-    def _render_matplotlib(self, painter: QPainter,
-                           option: QStyleOptionViewItem, index: QModelIndex):
+    def _render_matplotlib(self, painter: QPainter, rect: QRectF,
+                           index: QModelIndex):
         """Matplotlib renderer
 
         :param painter: Painter with which the matplotlib image is rendered
-        :param option: Style option for rendering
+        :param rect: Cell rect of the cell to be painted
         :param index: Index of cell for which the matplotlib image is rendered
 
         """
@@ -2074,13 +2070,14 @@ class GridCellDelegate(QStyledItemDelegate):
         figure.savefig(filelike, format="svg")
         svg_str = filelike.getvalue().decode()
 
-        self._render_qimage(painter, option, index, qimage=svg_str)
+        self._render_qimage(painter, rect, index, qimage=svg_str)
 
-    def paint_(self, painter: QPainter, option: QStyleOptionViewItem,
-               index: QModelIndex):
+    def paint_(self, painter: QPainter, rect: QRectF,
+               option: QStyleOptionViewItem, index: QModelIndex):
         """Calls the overloaded paint function or creates html delegate
 
         :param painter: Painter with which borders are drawn
+        :param rect: Cell rect of the cell to be painted
         :param option: Style option for rendering
         :param index: Index of cell for which borders are drawn
 
@@ -2089,17 +2086,24 @@ class GridCellDelegate(QStyledItemDelegate):
         key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key].renderer
 
+        old_rect = option.rect
+        option.rect = QRect(int(rect.x()), int(rect.y()),
+                            int(rect.width() + 1.5),
+                            int(rect.height() + 1.5))
+
         if renderer == "text":
             super(GridCellDelegate, self).paint(painter, option, index)
 
         elif renderer == "markup":
-            self._render_markup(painter, option, index)
+            self._render_markup(painter, rect, option, index)
 
         elif renderer == "image":
-            self._render_qimage(painter, option, index)
+            self._render_qimage(painter, rect, index)
 
         elif renderer == "matplotlib":
-            self._render_matplotlib(painter, option, index)
+            self._render_matplotlib(painter, rect, index)
+
+        option.rect = old_rect
 
     def sizeHint(self, option: QStyleOptionViewItem,
                  index: QModelIndex) -> QSize:

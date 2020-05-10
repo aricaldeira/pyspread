@@ -349,13 +349,12 @@ class CellRenderer:
 
         self.cell_nav = GridCellNavigator(grid, self.key)
 
-    def inner_rect(self, rect: QRectF, zoom: float) -> QRectF:
+    def inner_rect(self, rect: QRectF) -> QRectF:
         """Returns inner rect that is shrunk by border widths
 
         For merged cells, minimum top/left border widths are taken into account
 
         :param rect: Cell rect to be shrunk
-        :param zoom: Zoom level of the cell
 
         """
 
@@ -369,10 +368,10 @@ class CellRenderer:
         width_bottom = self.cell_nav.borderwidth_bottom
         width_right = self.cell_nav.borderwidth_right
 
-        width_top *= zoom
-        width_left *= zoom
-        width_bottom *= zoom
-        width_right *= zoom
+        width_top *= self.grid.zoom
+        width_left *= self.grid.zoom
+        width_bottom *= self.grid.zoom
+        width_right *= self.grid.zoom
 
         rect_x = rect.x() + width_left / 2
         rect_y = rect.y() + width_top / 2
@@ -382,14 +381,14 @@ class CellRenderer:
         return QRectF(rect_x, rect_y, rect_width, rect_height)
 
     def paint_content(self, rect: QRectF):
-        """"""
+        """
+        :param rect: Cell rect of the cell to be painted
+
+        """
 
         with painter_zoom(self.painter, self.grid.zoom, rect) as rect:
-            old_rect = self.option.rect
-            self.option.rect = QRect(ceil(rect.x()), ceil(rect.y()),
-                                     int(rect.width()), int(rect.height()))
-            self.grid.delegate.paint_(self.painter, self.option, self.index)
-            self.option.rect = old_rect
+            self.grid.delegate.paint_(self.painter, rect, self.option,
+                                      self.index)
 
     def paint_bottom_border(self, rect: QRectF):
         """Paint bottom border of cell
@@ -688,8 +687,9 @@ class CellRenderer:
             self.painter.setClipRect(self.option.rect)
 
             angle = self.cell_attributes[self.key].angle
+            inner_rect = self.inner_rect(rect)
 
-            with painter_rotate(self.painter, rect, angle) as rrect:
+            with painter_rotate(self.painter, inner_rect, angle) as rrect:
                 self.paint_content(rrect)
 
             self.paint_borders(rect)
