@@ -22,7 +22,13 @@
 
 **Provides**
 
- * :class:`CellRenderer`
+ * :func: `painter_save`: Context manager saving and restoring painter state
+ * :func: `painter_zoom`: Context manager scaling and restoring the painter
+ * :func: `painter_rotate`: Context manager rotating and restoring the painter
+ * :class:`GridCellNavigator`: Find neighbors of a cell
+ * :class:`EdgeBorders`: Dataclass for edge properties
+ * :class:`CellEdgeRenderer`: Paints cell edges
+ * :class:`CellRenderer`: Paints cells
 
 """
 
@@ -43,7 +49,7 @@ from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
 
 @contextmanager
 def painter_save(painter: QPainter):
-    """Saves and restores the painter during a context
+    """Context manager saving and restoring painter state
 
     :param painter: Painter, for which the state is preserved
 
@@ -56,7 +62,9 @@ def painter_save(painter: QPainter):
 
 @contextmanager
 def painter_zoom(painter: QPainter, zoom: float, rect: QRectF) -> QRectF:
-    """Scales the painter during a context, (rect.x(), rect.y()) is invariant
+    """Context manager scaling and restoring the painter
+
+    (rect.x(), rect.y()) is invariant
 
     :param painter: Painter, for which the state is preserved
     :param zoom: Zoom factor
@@ -74,7 +82,7 @@ def painter_zoom(painter: QPainter, zoom: float, rect: QRectF) -> QRectF:
 
 @contextmanager
 def painter_rotate(painter: QPainter, rect: QRectF, angle: int = 0) -> QRectF:
-    """Saves and restores the painter during a context
+    """Context manager rotating and restoring the painter
 
     :param painter: Painter, which is rotated
     :param rect: Rect to be painted in
@@ -260,7 +268,7 @@ class EdgeBorders:
 
 
 class CellEdgeRenderer:
-    """Handles cell edge painting"""
+    """Paints cell edges"""
 
     def __init__(self, painter: QPainter, center: QPointF,
                  borders: EdgeBorders):
@@ -307,7 +315,7 @@ class CellEdgeRenderer:
 
 
 class CellRenderer:
-    """Renders a cell
+    """Paints cells
 
     Cell rendering governs the area of a cell inside its borders.
     It is done in a  vector oriented way.
@@ -670,17 +678,6 @@ class CellRenderer:
         self.paint_top_right_edge(rect)
         self.paint_bottom_left_edge(rect)
         self.paint_bottom_right_edge(rect)
-
-
-        # Below left edge
-        # Below right edge
-
-#        pen = QPen(Qt.black, self.grid.zoom, Qt.SolidLine, Qt.SquareCap,
-#                   Qt.MiterJoin)
-#        self.painter.setPen(pen)
-#
-#        self.painter.drawRect(rect)
-
 
     def paint(self):
         """Paints the cell"""

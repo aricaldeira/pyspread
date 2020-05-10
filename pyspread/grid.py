@@ -26,7 +26,6 @@
 * :class:`GridHeaderView`: QHeaderView for the main grids headers
 * :class:`GridTableModel`: QAbstractTableModel linking the view to code_array
   backend
-* :class:`GridCellNavigator`: Find neighbors of a cell
 * :class:`GridCellDelegate`: QStyledItemDelegate handling custom painting and
   editors
 * :class:`TableChoice`: The TabBar below the main grid
@@ -36,7 +35,6 @@
 from ast import literal_eval
 from contextlib import contextmanager
 from io import BytesIO
-from math import isclose
 from typing import Any, Iterable, List, Tuple, Union
 
 import numpy
@@ -46,13 +44,12 @@ from PyQt5.QtWidgets \
             QStyleOptionViewItem, QApplication, QStyle, QAbstractItemDelegate,
             QHeaderView, QFontDialog, QInputDialog, QLineEdit)
 from PyQt5.QtGui \
-    import (QColor, QBrush, QPen, QFont, QPainter, QPalette, QImage, QKeyEvent,
+    import (QColor, QBrush, QFont, QPainter, QPalette, QImage, QKeyEvent,
             QTextOption, QAbstractTextDocumentLayout, QTextDocument,
             QWheelEvent, QContextMenuEvent)
 from PyQt5.QtCore \
-    import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QPointF,
-            QRectF, QLineF, QSize, QRect, QItemSelectionModel, QObject,
-            QAbstractItemModel)
+    import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
+            QRect, QItemSelectionModel, QObject, QAbstractItemModel)
 
 try:
     import matplotlib
@@ -62,6 +59,7 @@ except ImportError:
 
 try:
     import pyspread.commands as commands
+    from pyspread.grid_renderer import painter_save, CellRenderer
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
@@ -76,6 +74,7 @@ try:
     from pyspread.widgets import CellButton
 except ImportError:
     import commands
+    from grid_renderer import painter_save, CellRenderer
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
     from lib.selection import Selection
@@ -1365,7 +1364,7 @@ class GridHeaderView(QHeaderView):
         unzoomed_rect = QRect(0, 0,
                               rect.width()/self.grid.zoom,
                               rect.height()/self.grid.zoom)
-        with self.grid.delegate.painter_save(painter):
+        with painter_save(painter):
             painter.translate(rect.x(), rect.y())
             painter.scale(self.grid.zoom, self.grid.zoom)
             super().paintSection(painter, unzoomed_rect, logicalIndex)
@@ -1814,131 +1813,6 @@ class GridTableModel(QAbstractTableModel):
             self.code_array.reload_modules()
 
 
-class GridCellNavigator:
-    """Find neighbors of a cell
-
-    TODO: Delete here and point everything to grid_renderer
-
-    """
-
-    def __init__(self, grid: QTableView, key: Tuple[int, int, int]):
-        """
-        :param grid: The main grid widget
-        :param key: Key of cell fow which neighbors are identified
-
-        """
-
-        self.grid = grid
-        self.code_array = grid.model.code_array
-        self.row, self.column, self.table = self.key = key
-
-    @property
-    def borderwidth_bottom(self) -> float:
-        """Width of bottom border line"""
-
-        return self.code_array.cell_attributes[self.key].borderwidth_bottom
-
-    @property
-    def borderwidth_right(self) -> float:
-        """Width of right border line"""
-
-        return self.code_array.cell_attributes[self.key].borderwidth_right
-
-    @property
-    def border_qcolor_bottom(self) -> QColor:
-        """Color of bottom border line"""
-
-        color = self.code_array.cell_attributes[self.key].bordercolor_bottom
-        if color is None:
-            return self.grid.palette().color(QPalette.Mid)
-        return QColor(*color)
-
-    @property
-    def border_qcolor_right(self) -> QColor:
-        """Color of right border line"""
-
-        color = self.code_array.cell_attributes[self.key].bordercolor_right
-        if color is None:
-            return self.grid.palette().color(QPalette.Mid)
-        return QColor(*color)
-
-    @property
-    def merge_area(self) -> Tuple[int, int, int, int]:
-        """Merge area of the key cell"""
-
-        return self.code_array.cell_attributes[self.key].merge_area
-
-    def _merging_key(self, key: Tuple[int, int, int]) -> Tuple[int, int, int]:
-        """Merging cell if cell is merged else cell key
-
-        :param key: Key of cell that is checked for being merged
-
-        """
-
-        merging_key = self.code_array.cell_attributes.get_merging_cell(key)
-        return key if merging_key is None else merging_key
-
-    def above_keys(self) -> List[Tuple[int, int, int]]:
-        """Key list of neighboring cells above the key cell"""
-
-        merge_area = self.merge_area
-        if merge_area is None:
-            return [self._merging_key((self.row - 1, self.column, self.table))]
-        _, left, _, right = merge_area
-        return [self._merging_key((self.row - 1, col, self.table))
-                for col in range(left, right + 1)]
-
-    def below_keys(self) -> List[Tuple[int, int, int]]:
-        """Key list of neighboring cells below the key cell"""
-
-        merge_area = self.merge_area
-        if merge_area is None:
-            return [self._merging_key((self.row + 1, self.column, self.table))]
-        _, left, _, right = merge_area
-        return [self._merging_key((self.row + 1, col, self.table))
-                for col in range(left, right + 1)]
-
-    def left_keys(self) -> List[Tuple[int, int, int]]:
-        """Key list of neighboring cells left of the key cell"""
-
-        merge_area = self.merge_area
-        if merge_area is None:
-            return [self._merging_key((self.row, self.column - 1, self.table))]
-        top, _, bottom, _ = merge_area
-        return [self._merging_key((row, self.column - 1, self.table))
-                for row in range(top, bottom + 1)]
-
-    def right_keys(self) -> List[Tuple[int, int, int]]:
-        """Key list of neighboring cells right of the key cell"""
-
-        merge_area = self.merge_area
-        if merge_area is None:
-            return [self._merging_key((self.row, self.column + 1, self.table))]
-        top, _, bottom, _ = merge_area
-        return [self._merging_key((row, self.column + 1, self.table))
-                for row in range(top, bottom + 1)]
-
-    def above_left_key(self) -> Tuple[int, int, int]:
-        """Key of neighboring cell above left of the key cell"""
-
-        return self._merging_key((self.row - 1, self.column - 1, self.table))
-
-    def above_right_key(self) -> Tuple[int, int, int]:
-        """Key of neighboring cell above right of the key cell"""
-
-        return self._merging_key((self.row - 1, self.column + 1, self.table))
-
-    def below_left_key(self) -> Tuple[int, int, int]:
-        """Key of neighboring cell below left of the key cell"""
-
-        return self._merging_key((self.row + 1, self.column - 1, self.table))
-
-    def below_right_key(self) -> Tuple[int, int, int]:
-        """Key of neighboring cell below right of the key cell"""
-
-        return self._merging_key((self.row + 1, self.column + 1, self.table))
-
-
 class GridCellDelegate(QStyledItemDelegate):
     """QStyledItemDelegate for main grid QTableView"""
 
@@ -1960,149 +1834,6 @@ class GridCellDelegate(QStyledItemDelegate):
         """Returns mainwindow.grid"""
 
         return self.main_window.grid
-
-    @contextmanager
-    def painter_save(self, painter: QPainter):
-        """Saves and restores the painter during a context
-
-        :param painter: Painter for which the state is preserved
-
-        TODO: Delete here and point everything to grid_renderer
-
-        """
-
-        painter.save()
-        yield
-        painter.restore()
-
-    def paint_bl_border_lines(
-            self, x: float, y: float, width: float, height: float,
-            painter: QPainter,
-            key: Tuple[int, int, int]) -> Tuple[float, float, float, float]:
-        """Paint the bottom and the left border line of the cell
-
-        :param x: X position of cell rect
-        :param y: Y position of cell rect
-        :param width: Width of cell rect
-        :param height: Height of cell rect
-        :param painter: Painter with which borders are drawn
-        :param key: Key of cell for which borders are drawn
-
-        """
-
-        cell = GridCellNavigator(self.grid, key)
-
-        borderline_bottom = [x - .5,
-                             y + height - .5,
-                             x + width - .5,
-                             y + height - .5]
-        borderline_right = [x + width - .5,
-                            y - .5,
-                            x + width - .5,
-                            y + height - .5]
-
-        # Check, which line is the thickest at each edge
-        # Shorten line accordingly
-
-        above_left_cell = GridCellNavigator(self.grid, cell.above_left_key())
-        above_cells = [GridCellNavigator(self.grid, key)
-                       for key in cell.above_keys()]
-        above_right_cell = GridCellNavigator(self.grid, cell.above_right_key())
-        right_cells = [GridCellNavigator(self.grid, key)
-                       for key in cell.right_keys()]
-
-        below_cells = [GridCellNavigator(self.grid, key)
-                       for key in cell.below_keys()]
-        below_left_cell = GridCellNavigator(self.grid, cell.below_left_key())
-        left_cells = [GridCellNavigator(self.grid, key)
-                      for key in cell.left_keys()]
-
-        # Lower left edge:
-        # Bottom lines of left cells and right line of below left cell
-
-        lower_left_edge_width = max([c.borderwidth_bottom for c in left_cells]
-                                    + [below_left_cell.borderwidth_right])
-        if lower_left_edge_width > cell.borderwidth_bottom:
-            borderline_bottom[0] += lower_left_edge_width / 2
-
-        # Lower right edge:
-        # Right lines of below cells and bottom lines of right cells
-
-        lower_right_edge_width = \
-            max([c.borderwidth_right for c in below_cells]
-                + [c.borderwidth_bottom for c in right_cells])
-
-        if lower_right_edge_width > cell.borderwidth_bottom:
-            borderline_bottom[2] -= lower_right_edge_width / 2
-
-        if lower_right_edge_width > cell.borderwidth_right:
-            borderline_right[3] -= lower_right_edge_width / 2
-
-        # Top right edge:
-        # Right lines of above cells and bottom line of above right cell
-
-        top_right_edge_width = max([c.borderwidth_right for c in above_cells]
-                                   + [above_right_cell.borderwidth_bottom])
-        if top_right_edge_width > cell.borderwidth_bottom:
-            borderline_right[1] += top_right_edge_width / 2
-
-        # Draw lines if their width is not 0
-
-        if cell.borderwidth_bottom:
-            painter.setPen(QPen(QBrush(cell.border_qcolor_bottom),
-                                cell.borderwidth_bottom))
-            bottom_border_line = QLineF(*borderline_bottom)
-            painter.drawLine(bottom_border_line)
-
-        if cell.borderwidth_right:
-            painter.setPen(QPen(QBrush(cell.border_qcolor_right),
-                                cell.borderwidth_right))
-            right_border_line = QLineF(*borderline_right)
-            painter.drawLine(right_border_line)
-
-        # Inner rect
-        irect_x = x - .5 + max(above_left_cell.borderwidth_right,
-                               *[c.borderwidth_right for c in left_cells],
-                               below_left_cell.borderwidth_right) / 2
-        irect_y = y - .5 + max(above_left_cell.borderwidth_bottom,
-                               *[c.borderwidth_bottom for c in above_cells],
-                               above_right_cell.borderwidth_bottom) / 2
-        irect_width = (x + width - irect_x
-                       - max(above_cells[-1].borderwidth_right,
-                             cell.borderwidth_right,
-                             below_cells[-1].borderwidth_right) / 2)
-        irect_height = (y + height - irect_y
-                        - max(left_cells[-1].borderwidth_bottom,
-                              cell.borderwidth_bottom,
-                              right_cells[-1].borderwidth_bottom) / 2)
-
-        return irect_x, irect_y, irect_width, irect_height
-
-    def _paint_border_lines(
-            self, width: float, height: float, painter: QPainter,
-            index: QModelIndex) -> Tuple[float, float, float, float]:
-        """Paint border lines around the cell
-
-        First, bottom and right border lines are painted.
-        Next, border lines of the cell above are painted.
-        Next, border lines of the cell left are painted.
-        Finally, bottom and right border lines of the cell above left
-        are painted.
-
-        :param width: Width of cell rect
-        :param height: Height of cell rect
-        :param painter: Painter with which borders are drawn
-        :param index: Index of cell for which borders are drawn
-
-        """
-
-        row = index.row()
-        column = index.column()
-        table = self.grid.table
-
-        # Paint bottom and right border lines of the current cell
-        key = row, column, table
-        return self.paint_bl_border_lines(0, 0, width, height, painter, key)
 
     def _render_markup(self, painter: QPainter, option: QStyleOptionViewItem,
                        index: QModelIndex):
@@ -2142,7 +1873,7 @@ class GridCellDelegate(QStyledItemDelegate):
         text_color = self.grid.model.data(index, role=Qt.TextColorRole)
         ctx.palette.setColor(QPalette.Text, text_color)
 
-        with self.painter_save(painter):
+        with painter_save(painter):
             painter.translate(option.rect.topLeft())
             painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
             doc.documentLayout().draw(painter, ctx)
@@ -2305,7 +2036,7 @@ class GridCellDelegate(QStyledItemDelegate):
                                    Qt.KeepAspectRatio,
                                    Qt.SmoothTransformation)
 
-        with self.painter_save(painter):
+        with painter_save(painter):
             try:
                 scale_x = img_rect.width() / img_width
             except ZeroDivisionError:
@@ -2392,35 +2123,6 @@ class GridCellDelegate(QStyledItemDelegate):
         doc.setTextWidth(options.rect.width())
         return QSize(doc.idealWidth(), doc.size().height())
 
-    def _rotated_paint(self, painter: QPainter, option: QStyleOptionViewItem,
-                       index: QModelIndex, angle: float):
-        """Paint cell contents for rotated cells
-
-        :param painter: Painter with which borders are drawn
-        :param option: Style option for rendering
-        :param index: Index of cell to be rendered
-        :param angle: Angle to which the renderer content is rotated
-
-        """
-
-        # Rotate evryting by 90 degree
-
-        rectCenter = QPointF(QRectF(option.rect).center())
-        with self.painter_save(painter):
-            painter.translate(rectCenter.x(), rectCenter.y())
-            painter.rotate(angle)
-            if isclose(angle, 0.0) or isclose(angle, 180.0):
-                painter.translate(-rectCenter.x(), -rectCenter.y())
-            elif isclose(angle, 90.0) or isclose(angle, 270.0):
-                painter.translate(-rectCenter.y(), -rectCenter.x())
-                option.rect = QRect(0, 0, option.rect.height(),
-                                    option.rect.width())
-            else:
-                raise Warning("Rotation angle {} unsupported".format(angle))
-
-            # Call the base class paint method
-            self.paint_(painter, option, index)
-
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               index: QModelIndex):
         """Overloads `QStyledItemDelegate` to add cell border painting
@@ -2431,50 +2133,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        from .grid_renderer import CellRenderer
         renderer = CellRenderer(self.grid, painter, option, index)
         renderer.paint()
-
-        return
-
-
-        def get_unzoomed_rect_args(
-                rect: QRect, zoom: float) -> Tuple[float, float, float, float]:
-            x = 0.0
-            y = 0.0
-            width = rect.width() / zoom
-            height = rect.height() / zoom
-            return x, y, width, height
-
-        painter.setRenderHint(QPainter.SmoothPixmapTransform)
-
-        zoom = self.grid.zoom
-        x = option.rect.x()
-        y = option.rect.y()
-
-        rectf = option.rect = QRect(*get_unzoomed_rect_args(option.rect, zoom))
-        if hasattr(option, "rectf"):
-            rectf = QRectF(*get_unzoomed_rect_args(option.rectf, zoom))
-            x = option.rectf.x()
-            y = option.rectf.y()
-
-        with self.painter_save(painter):
-            painter.translate(x, y)
-            painter.scale(zoom, zoom)
-            key = index.row(), index.column(), self.grid.table
-            angle = self.cell_attributes[key].angle
-
-            ix, iy, iw, ih = self._paint_border_lines(rectf.width(),
-                                                      rectf.height(),
-                                                      painter, index)
-            with self.painter_save(painter):
-                painter.translate(ix, iy)
-                option.rect = QRect(0, 0, iw, ih)
-                if isclose(angle, 0):
-                    # No rotation --> call the base class paint method
-                    self.paint_(painter, option, index)
-                else:
-                    self._rotated_paint(painter, option, index, angle)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem,
                      index: QModelIndex) -> QWidget:
