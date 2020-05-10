@@ -27,10 +27,16 @@
 """
 
 from contextlib import contextmanager
+try:
+    from dataclasses import dataclass
+except ImportError:
+    from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from math import ceil, isclose
 from typing import List, Tuple
 
-from PyQt5.QtCore import Qt, QModelIndex, QRect, QRectF, QLineF
+import numpy
+
+from PyQt5.QtCore import Qt, QModelIndex, QRect, QRectF, QLineF, QPointF
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPalette, QPen
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
 
@@ -219,6 +225,104 @@ class GridCellNavigator:
         return self._merging_key((self.row + 1, self.column + 1, self.table))
 
 
+@dataclass
+class EdgeBorders:
+    """Holds border data for an edge"""
+
+    left_width: float
+    right_width: float
+    top_width: float
+    bottom_width: float
+
+    left_color: QColor
+    right_color: QColor
+    top_color: QColor
+    bottom_color: QColor
+
+    left_x: float
+    right_x: float
+    top_y: float
+    bottom_y: float
+
+    @property
+    def widths(self) -> numpy.array:
+        """Numpy array of border widths in order left, right, top, bottom"""
+
+        return numpy.array([self.left_width, self.right_width,
+                            self.top_width, self.bottom_width])
+
+    @property
+    def colors(self) -> numpy.array:
+        """Numpy array of border colors in order left, right, top, bottom"""
+
+        return numpy.array([self.left_color, self.right_color,
+                            self.top_color, self.bottom_color])
+
+
+class EdgePainter:
+    """Handles edge properties for painting"""
+
+    def __init__(self, painter: QPainter, center: QPointF,
+                 borders: EdgeBorders):
+        """
+
+        Borders are provided by EdgeBorders in order: left, right, top, bottom
+
+        :param painter: Painter with which edge is drawn
+        :param center: Edge center
+        :param borders: Border widths and colors
+
+        """
+
+        self.painter = painter
+        self.center = center
+
+        self.widths = borders.widths
+        self.colors = borders.colors
+        lines = [QLineF(center.x(), center.y(), borders.left_x, center.y()),
+                 QLineF(center.x(), center.y(), borders.right_x, center.y()),
+                 QLineF(center.x(), center.y(), center.x(), borders.top_y),
+                 QLineF(center.x(), center.y(), center.x(), borders.bottom_y)]
+        self.lines = numpy.array(lines)
+
+    def paint(self):
+        """Paints the edge"""
+
+#        above_left_key = self.cell_nav.above_left_key()
+#        left_key = self.cell_nav.left_keys()[0]
+#        above_key = self.cell_nav.above_keys()[0]
+#
+#        above_left_cell_nav = GridCellNavigator(self.grid, above_left_key)
+#        left_cell_nav = GridCellNavigator(self.grid, left_key)
+#        above_cell_nav = GridCellNavigator(self.grid, above_key)
+#
+#        widths.append(above_left_cell_nav.borderwidth_right)
+#        widths.append(above_left_cell_nav.borderwidth_bottom)
+#        widths.append(left_cell_nav.borderwidth_right)
+#        widths.append(above_cell_nav.borderwidth_bottom)
+#
+#        colors.append(above_left_cell_nav.border_qcolor_right)
+#        colors.append(above_left_cell_nav.border_qcolor_bottom)
+#        colors.append(left_cell_nav.border_qcolor_right)
+#        colors.append(above_cell_nav.border_qcolor_bottom)
+#
+#        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
+#        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
+#        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
+#        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
+
+        lightnesses = [color.lightnessF() for color in self.colors]
+
+        idxs = numpy.lexsort(numpy.array([lightnesses, self.widths]))
+
+        widths = numpy.array(widths)[idxs]
+        colors = numpy.array(colors)[idxs]
+        lines = numpy.array(lines)[idxs]
+
+        for width, color, line in zip(widths, colors, lines):
+            self.painter.setPen(QPen(QBrush(color), width))
+            self.painter.drawLine(line)
+
 class CellRenderer:
     """Renders a cell
 
@@ -393,6 +497,59 @@ class CellRenderer:
                                        left_rect_y + left_rect_height)
             self.painter.drawLine(above_border_line)
 
+    def paint_top_left_edge(self, rect: QRectF):
+        """Paints top left edge of the cell
+
+        topleft: both lines
+        left[0]: right line
+        above[0]: bottom line
+
+        """
+
+        min_x = 0.0
+        max_x = 10000.0
+        min_y = 0.0
+        max_y = 10000.0
+
+        widths = []
+        colors = []
+        lines = []
+
+        above_left_key = self.cell_nav.above_left_key()
+        left_key = self.cell_nav.left_keys()[0]
+        above_key = self.cell_nav.above_keys()[0]
+
+        above_left_cell_nav = GridCellNavigator(self.grid, above_left_key)
+        left_cell_nav = GridCellNavigator(self.grid, left_key)
+        above_cell_nav = GridCellNavigator(self.grid, above_key)
+
+        widths.append(above_left_cell_nav.borderwidth_right)
+        widths.append(above_left_cell_nav.borderwidth_bottom)
+        widths.append(left_cell_nav.borderwidth_right)
+        widths.append(above_cell_nav.borderwidth_bottom)
+
+        colors.append(above_left_cell_nav.border_qcolor_right)
+        colors.append(above_left_cell_nav.border_qcolor_bottom)
+        colors.append(left_cell_nav.border_qcolor_right)
+        colors.append(above_cell_nav.border_qcolor_bottom)
+
+        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
+        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
+        lines.append(QLineF(rect.x(), rect.y(), min_x, rect.y()))
+        lines.append(QLineF(rect.x(), rect.y(), rect.x(), min_y))
+
+        lightnesses = [color.lightnessF() for color in colors]
+
+        idxs = numpy.lexsort(numpy.array([lightnesses, widths]))
+
+        widths = numpy.array(widths)[idxs]
+        colors = numpy.array(colors)[idxs]
+        lines = numpy.array(lines)[idxs]
+
+        for width, color, line in zip(widths, colors, lines):
+            self.painter.setPen(QPen(QBrush(color), width))
+            self.painter.drawLine(line)
+
     def paint_borders(self, rect):
         """Paint cell borders"""
 
@@ -401,57 +558,7 @@ class CellRenderer:
         self.paint_above_borders(rect)
         self.paint_left_borders(rect)
 
-        # Top left edge
-
-        # Get line widths and line colors
-        # topleft: both lines
-        # left[0]: right line
-        # above[0]: bottom line
-
-        # Order: above_left_right, above_left_bottom, left_right, above_bottom
-#        widths = []
-#        colors = []
-#
-#        above_left_key = self.cell_nav.above_left_key()
-#        left_key = self.cell_nav.left_keys()[0]
-#        above_key = self.cell_nav.above_keys()[0]
-#
-#        above_left_cell_nav = GridCellNavigator(self.grid, above_left_key)
-#        left_cell_nav = GridCellNavigator(self.grid, left_key)
-#        above_cell_nav = GridCellNavigator(self.grid, above_key)
-#
-#        widths.append(above_left_cell_nav.borderwidth_right)
-#        widths.append(above_left_cell_nav.borderwidth_bottom)
-#        widths.append(left_cell_nav.borderwidth_right)
-#        widths.append(above_cell_nav.borderwidth_bottom)
-#
-#        colors.append(above_left_cell_nav.border_qcolor_right)
-#        colors.append(above_left_cell_nav.border_qcolor_bottom)
-#        colors.append(left_cell_nav.border_qcolor_right)
-#        colors.append(above_cell_nav.border_qcolor_bottom)
-#
-#        lightnesses = [color.lightnessF() for color in colors]
-#
-#        width_idxs = [i for i, w in enumerate(widths) if w == min(widths)]
-#        lightness = 2.0  # Is always <= 1
-#        idx = width_idxs[0]
-#        for i in width_idxs:
-#            if lightnesses[i] < lightness:
-#                lightness = lightnesses[i]
-#                idx = i
-#
-#        self.painter.setPen(QPen(QBrush(colors[idx]), widths[idx]))
-#
-#        tl_border_line_1 = QLineF(rect.x(),
-#                                  rect.y(),
-#                                  rect.x() + widths[idx] * self.grid.zoom,
-#                                  rect.y())
-#        tl_border_line_2 = QLineF(rect.x(),
-#                                  rect.y(),
-#                                  rect.x(),
-#                                  rect.y() + widths[idx] * self.grid.zoom)
-#        self.painter.drawLines(tl_border_line_1, tl_border_line_2)
-
+        self.paint_top_left_edge(rect)
 
 
         # Above right edge
