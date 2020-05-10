@@ -30,7 +30,6 @@ Unit tests for grid.py
 from contextlib import contextmanager
 from os.path import abspath, dirname, join
 import sys
-from typing import NamedTuple
 
 import pytest
 
@@ -49,9 +48,11 @@ def insert_path(path):
 
 with insert_path(PYSPREADPATH):
     from ..pyspread import MainWindow
-    from ..grid import GridCellNavigator
 
-app = QApplication([])
+
+app = QApplication.instance()
+if app is None:
+    app = QApplication([])
 main_window = MainWindow()
 
 
@@ -283,122 +284,6 @@ class TestGridTableModel:
         assert not self.model.code_array.col_widths
         assert not self.model.code_array.macros
         assert not self.model.code_array.result_cache
-
-
-class TestGridCellNavigator:
-    """Unit tests for GridCellNavigator in grid.py"""
-
-    param_test_above_keys = [
-        ((0, 0, 0), [(-1, 0, 0)]),
-        ((20, 0, 0), [(19, 0, 0)]),
-        ((20, 0, 2), [(19, 0, 2)]),
-        ((20, 2, 2), [(19, 2, 2)]),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_above_keys)
-    def test_above_keys(self, key, res):
-        """Unit test for above_keys"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert set(cell.above_keys()) == set(res)
-
-    param_test_below_keys = [
-        ((0, 0, 0), [(1, 0, 0)]),
-        ((1000, 0, 0), [(1001, 0, 0)]),
-        ((20, 0, 2), [(21, 0, 2)]),
-        ((20, 2, 2), [(21, 2, 2)]),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_below_keys)
-    def test_below_keys(self, key, res):
-        """Unit test for below_keys"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert set(cell.below_keys()) == set(res)
-
-    param_test_left_keys = [
-        ((0, 0, 0), [(0, -1, 0)]),
-        ((20, 0, 0), [(20, -1, 0)]),
-        ((20, 0, 2), [(20, -1, 2)]),
-        ((20, 2, 2), [(20, 1, 2)]),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_left_keys)
-    def test_left_keys(self, key, res):
-        """Unit test for left_keys"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert set(cell.left_keys()) == set(res)
-
-    param_test_right_keys = [
-        ((0, 0, 0), [(0, 1, 0)]),
-        ((20, 0, 0), [(20, 1, 0)]),
-        ((20, 0, 2), [(20, 1, 2)]),
-        ((20, 2, 2), [(20, 3, 2)]),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_right_keys)
-    def test_right_keys(self, key, res):
-        """Unit test for right_keys"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert set(cell.right_keys()) == set(res)
-
-    param_test_above_left_key = [
-        ((0, 0, 0), (-1, -1, 0)),
-        ((20, 0, 0), (19, -1, 0)),
-        ((20, 0, 2), (19, -1, 2)),
-        ((20, 2, 2), (19, 1, 2)),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_above_left_key)
-    def test_above_left_key(self, key, res):
-        """Unit test for above_left_key"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert cell.above_left_key() == res
-
-    param_test_above_right_key = [
-        ((0, 0, 0), (-1, 1, 0)),
-        ((20, 0, 0), (19, 1, 0)),
-        ((20, 0, 2), (19, 1, 2)),
-        ((20, 2, 2), (19, 3, 2)),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_above_right_key)
-    def test_above_right_key(self, key, res):
-        """Unit test for above_right_key"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert cell.above_right_key() == res
-
-    param_test_below_left_key = [
-        ((0, 0, 0), (1, -1, 0)),
-        ((20, 0, 0), (21, -1, 0)),
-        ((20, 0, 2), (21, -1, 2)),
-        ((20, 2, 2), (21, 1, 2)),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_below_left_key)
-    def test_below_left_key(self, key, res):
-        """Unit test for below_left_key"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert cell.below_left_key() == res
-
-    param_test_below_right_key = [
-        ((0, 0, 0), (1, 1, 0)),
-        ((20, 0, 0), (21, 1, 0)),
-        ((20, 0, 2), (21, 1, 2)),
-        ((20, 2, 2), (21, 3, 2)),
-    ]
-
-    @pytest.mark.parametrize("key, res", param_test_below_right_key)
-    def test_below_right_key(self, key, res):
-        """Unit test for below_right_key"""
-
-        cell = GridCellNavigator(main_window, key)
-        assert cell.below_right_key() == res
 
 
 class TestGridCellDelegate:
