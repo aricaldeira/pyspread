@@ -677,30 +677,30 @@ class MainWindowActions(AttrDict):
                                        icon=Icon.format_borders_2,
                                        statustip='Set border width to 2')
 
-        self.format_borders_4 = Action(self.parent, "Border width 4",
+        self.format_borders_4 = Action(self.parent, "Border width 3",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_4,
-                                       statustip='Set border width to 4')
+                                       statustip='Set border width to 3')
 
-        self.format_borders_8 = Action(self.parent, "Border width 8",
+        self.format_borders_8 = Action(self.parent, "Border width 4",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_8,
-                                       statustip='Set border width to 8')
+                                       statustip='Set border width to 4')
 
-        self.format_borders_16 = Action(self.parent, "Border width 16",
+        self.format_borders_16 = Action(self.parent, "Border width 6",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_16,
-                                        statustip='Set border width to 16')
+                                        statustip='Set border width to 6')
 
-        self.format_borders_32 = Action(self.parent, "Border width 32",
+        self.format_borders_32 = Action(self.parent, "Border width 8",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_32,
-                                        statustip='Set border width to 32')
+                                        statustip='Set border width to 8')
 
-        self.format_borders_64 = Action(self.parent, "Border width 64",
+        self.format_borders_64 = Action(self.parent, "Border width 12",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_64,
-                                        statustip='Set border width to 64')
+                                        statustip='Set border width to 12')
 
         self.border_width_group = QActionGroup(self.parent)
         self.border_width_group.addAction(self.format_borders_0)

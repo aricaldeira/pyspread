@@ -385,8 +385,8 @@ class CellRenderer:
 
         """
 
-        with painter_zoom(self.painter, self.grid.zoom, rect) as rect:
-            self.grid.delegate.paint_(self.painter, rect, self.option,
+        with painter_zoom(self.painter, self.grid.zoom, rect) as zrect:
+            self.grid.delegate.paint_(self.painter, zrect, self.option,
                                       self.index)
 
     def paint_bottom_border(self, rect: QRectF):
