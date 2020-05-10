@@ -523,9 +523,9 @@ class CellRenderer:
         top_color = top_left_cell_nav.border_qcolor_right
         bottom_color = left_cell_nav.border_qcolor_right
 
-        left_x = 0.0
+        left_x = rect.x() - rect.width()
         right_x = rect.x()
-        top_y = 0.0
+        top_y = rect.y() - rect.height()
         bottom_y = rect.y()
 
         borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
@@ -567,8 +567,8 @@ class CellRenderer:
         bottom_color = self.cell_nav.border_qcolor_right
 
         left_x = rect.x() + rect.width()
-        right_x = self.grid.size().width()
-        top_y = 0.0
+        right_x = rect.x() + 2 * rect.width()
+        top_y = rect.y() - rect.height()
         bottom_y = rect.y()
 
         borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
@@ -609,10 +609,10 @@ class CellRenderer:
         top_color = left_cell_nav.border_qcolor_right
         bottom_color = bottom_left_cell_nav.border_qcolor_right
 
-        left_x = 0.0
+        left_x = rect.x() - rect.width()
         right_x = rect.x()
         top_y = rect.y() + rect.height()
-        bottom_y = self.grid.size().height()
+        bottom_y = rect.y() + 2 * rect.height()
 
         borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
                               left_color, right_color, top_color, bottom_color,
@@ -653,9 +653,9 @@ class CellRenderer:
         bottom_color = bottom_cell_nav.border_qcolor_right
 
         left_x = rect.x() + rect.width()
-        right_x = self.grid.size().width()
+        right_x = rect.x() + 2 * rect.width()
         top_y = rect.y() + rect.height()
-        bottom_y = self.grid.size().height()
+        bottom_y = rect.y() + 2 * rect.height()
 
         borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
                               left_color, right_color, top_color, bottom_color,
