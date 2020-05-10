@@ -1960,18 +1960,6 @@ class GridCellDelegate(QStyledItemDelegate):
         if qimage is None:
             qimage = index.data(Qt.DecorationRole)
 
-        row, column = index.row(), index.column()
-        row_span = self.grid.rowSpan(row, column)
-        column_span = self.grid.columnSpan(row, column)
-        if not(row_span == column_span == 1):
-            height = 0
-            width = 0
-            for __row in range(row, row + row_span + 1):
-                height += self.grid.rowHeight(__row) / self.grid.zoom
-            for __column in range(column, column + column_span + 1):
-                width += self.grid.columnWidth(__column) / self.grid.zoom
-            rect = QRectF(rect.x(), rect.y(), width, height)
-
         if isinstance(qimage, QImage):
             img_width, img_height = qimage.width(), qimage.height()
         else:
