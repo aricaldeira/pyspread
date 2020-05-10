@@ -615,6 +615,49 @@ class CellRenderer:
         renderer = CellEdgeRenderer(self.painter, center, borders)
         renderer.paint(rect)
 
+    def paint_bottom_right_edge(self, rect: QRectF):
+        """Paints bottom right edge of the cell
+
+        :param rect: Cell rect of cell, for which the edge is painted
+
+                 top
+               C  |  R
+        left ----------- right
+               B  |  BR
+                bottom
+
+        """
+
+        center = QPointF(rect.x() + rect.width(), rect.y() + rect.height())
+
+        right_key = self.cell_nav.right_keys()[-1]
+        bottom_key = self.cell_nav.below_keys()[-1]
+
+        right_cell_nav = GridCellNavigator(self.grid, right_key)
+        bottom_cell_nav = GridCellNavigator(self.grid, bottom_key)
+
+        left_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
+        right_width = right_cell_nav.borderwidth_bottom * self.grid.zoom
+        top_width = self.cell_nav.borderwidth_right * self.grid.zoom
+        bottom_width = bottom_cell_nav.borderwidth_right * self.grid.zoom
+
+        left_color = self.cell_nav.border_qcolor_bottom
+        right_color = right_cell_nav.border_qcolor_bottom
+        top_color = self.cell_nav.border_qcolor_right
+        bottom_color = bottom_cell_nav.border_qcolor_right
+
+        left_x = rect.x() + rect.width()
+        right_x = self.grid.size().width()
+        top_y = rect.y() + rect.height()
+        bottom_y = self.grid.size().height()
+
+        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
+                              left_color, right_color, top_color, bottom_color,
+                              left_x, right_x, top_y, bottom_y)
+
+        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer.paint(rect)
+
     def paint_borders(self, rect):
         """Paint cell borders"""
 
@@ -626,6 +669,7 @@ class CellRenderer:
         self.paint_top_left_edge(rect)
         self.paint_top_right_edge(rect)
         self.paint_bottom_left_edge(rect)
+        self.paint_bottom_right_edge(rect)
 
 
         # Below left edge
