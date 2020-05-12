@@ -200,12 +200,14 @@ class CellAttributes(list):
             raise Warning("slice in key {}".format(key))
             return
 
-        if key in self._attr_cache:
+        try:
             cache_len, cache_dict = self._attr_cache[key]
 
             # Use cache result only if no new attrs have been defined
             if cache_len == len(self):
                 return cache_dict
+        except KeyError:
+            pass
 
         # Update table cache if it is outdated (e.g. when creating a new grid)
         if len(self) != self._len_table_cache():

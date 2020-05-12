@@ -28,6 +28,7 @@
  * :class:`GridCellNavigator`: Find neighbors of a cell
  * :class:`EdgeBorders`: Dataclass for edge properties
  * :class:`CellEdgeRenderer`: Paints cell edges
+ * :class:`QColorCache`: QColor cache
  * :class:`CellRenderer`: Paints cells
 
 """
@@ -138,22 +139,16 @@ class GridCellNavigator:
         return self.code_array.cell_attributes[self.key].borderwidth_right
 
     @property
-    def border_qcolor_bottom(self) -> QColor:
+    def border_color_bottom(self) -> QColor:
         """Color of bottom border line"""
 
-        color = self.code_array.cell_attributes[self.key].bordercolor_bottom
-        if color is None:
-            return self.grid.palette().color(QPalette.Mid)
-        return QColor(*color)
+        return self.code_array.cell_attributes[self.key].bordercolor_bottom
 
     @property
-    def border_qcolor_right(self) -> QColor:
+    def border_color_right(self) -> QColor:
         """Color of right border line"""
 
-        color = self.code_array.cell_attributes[self.key].bordercolor_right
-        if color is None:
-            return self.grid.palette().color(QPalette.Mid)
-        return QColor(*color)
+        return self.code_array.cell_attributes[self.key].bordercolor_right
 
     @property
     def merge_area(self) -> Tuple[int, int, int, int]:
@@ -313,6 +308,21 @@ class CellEdgeRenderer:
             self.painter.drawLine(line)
 
 
+class QColorCache(dict):
+    """QColor cache that returns default color for None"""
+
+    def __init__(self, grid):
+        self.grid = grid
+
+    def __missing__(self, key):
+        if key is None:
+            self[key] = qcolor = self.grid.palette().color(QPalette.Mid)
+        else:
+            self[key] = qcolor = QColor(*key)
+
+        return qcolor
+
+
 class CellRenderer:
     """Paints cells
 
@@ -347,6 +357,8 @@ class CellRenderer:
         self.key = index.row(), index.column(), self.grid.table
 
         self.cell_nav = GridCellNavigator(grid, self.key)
+
+        self.qcolor_cache = QColorCache(grid)
 
     def inner_rect(self, rect: QRectF) -> QRectF:
         """Returns inner rect that is shrunk by border widths
@@ -399,7 +411,7 @@ class CellRenderer:
         if not self.cell_nav.borderwidth_bottom:
             return
 
-        line_color = self.cell_nav.border_qcolor_bottom
+        line_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
         line_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
         self.painter.setPen(QPen(QBrush(line_color), line_width,
                                  Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
@@ -420,7 +432,7 @@ class CellRenderer:
         if not self.cell_nav.borderwidth_right:
             return
 
-        line_color = self.cell_nav.border_qcolor_right
+        line_color = self.qcolor_cache[self.cell_nav.border_color_right]
         line_width = self.cell_nav.borderwidth_right * self.grid.zoom
         self.painter.setPen(QPen(QBrush(line_color), line_width,
                                  Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
@@ -450,7 +462,7 @@ class CellRenderer:
             above_rect_width = sum(self.grid.columnWidth(column)
                                    for column in columns)
 
-            line_color = above_cell_nav.border_qcolor_bottom
+            line_color = self.qcolor_cache[above_cell_nav.border_color_bottom]
             line_width = above_cell_nav.borderwidth_bottom * self.grid.zoom
             self.painter.setPen(QPen(QBrush(line_color), line_width,
                                      Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
@@ -479,7 +491,7 @@ class CellRenderer:
             left_rect_y = self.grid.rowViewportPosition(rows[0])
             left_rect_height = sum(self.grid.rowHeight(row) for row in rows)
 
-            line_color = left_cell_nav.border_qcolor_right
+            line_color = self.qcolor_cache[left_cell_nav.border_color_right]
             line_width = left_cell_nav.borderwidth_right * self.grid.zoom
             self.painter.setPen(QPen(QBrush(line_color), line_width,
                                      Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
@@ -518,10 +530,10 @@ class CellRenderer:
         top_width = top_left_cell_nav.borderwidth_right * self.grid.zoom
         bottom_width = left_cell_nav.borderwidth_right * self.grid.zoom
 
-        left_color = top_left_cell_nav.border_qcolor_bottom
-        right_color = top_cell_nav.border_qcolor_bottom
-        top_color = top_left_cell_nav.border_qcolor_right
-        bottom_color = left_cell_nav.border_qcolor_right
+        left_color = self.qcolor_cache[top_left_cell_nav.border_color_bottom]
+        right_color = self.qcolor_cache[top_cell_nav.border_color_bottom]
+        top_color = self.qcolor_cache[top_left_cell_nav.border_color_right]
+        bottom_color = self.qcolor_cache[left_cell_nav.border_color_right]
 
         left_x = rect.x() - rect.width()
         right_x = rect.x()
@@ -561,10 +573,10 @@ class CellRenderer:
         top_width = top_cell_nav.borderwidth_right * self.grid.zoom
         bottom_width = self.cell_nav.borderwidth_right * self.grid.zoom
 
-        left_color = top_cell_nav.border_qcolor_bottom
-        right_color = top_right_cell_nav.border_qcolor_bottom
-        top_color = top_cell_nav.border_qcolor_right
-        bottom_color = self.cell_nav.border_qcolor_right
+        left_color = self.qcolor_cache[top_cell_nav.border_color_bottom]
+        right_color = self.qcolor_cache[top_right_cell_nav.border_color_bottom]
+        top_color = self.qcolor_cache[top_cell_nav.border_color_right]
+        bottom_color = self.qcolor_cache[self.cell_nav.border_color_right]
 
         left_x = rect.x() + rect.width()
         right_x = rect.x() + 2 * rect.width()
@@ -604,10 +616,11 @@ class CellRenderer:
         top_width = left_cell_nav.borderwidth_right * self.grid.zoom
         bottom_width = bottom_left_cell_nav.borderwidth_right * self.grid.zoom
 
-        left_color = left_cell_nav.border_qcolor_bottom
-        right_color = self.cell_nav.border_qcolor_bottom
-        top_color = left_cell_nav.border_qcolor_right
-        bottom_color = bottom_left_cell_nav.border_qcolor_right
+        left_color = self.qcolor_cache[left_cell_nav.border_color_bottom]
+        right_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
+        top_color = self.qcolor_cache[left_cell_nav.border_color_right]
+        bottom_color = \
+            self.qcolor_cache[bottom_left_cell_nav.border_color_right]
 
         left_x = rect.x() - rect.width()
         right_x = rect.x()
@@ -647,10 +660,10 @@ class CellRenderer:
         top_width = self.cell_nav.borderwidth_right * self.grid.zoom
         bottom_width = bottom_cell_nav.borderwidth_right * self.grid.zoom
 
-        left_color = self.cell_nav.border_qcolor_bottom
-        right_color = right_cell_nav.border_qcolor_bottom
-        top_color = self.cell_nav.border_qcolor_right
-        bottom_color = bottom_cell_nav.border_qcolor_right
+        left_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
+        right_color = self.qcolor_cache[right_cell_nav.border_color_bottom]
+        top_color = self.qcolor_cache[self.cell_nav.border_color_right]
+        bottom_color = self.qcolor_cache[bottom_cell_nav.border_color_right]
 
         left_x = rect.x() + rect.width()
         right_x = rect.x() + 2 * rect.width()
