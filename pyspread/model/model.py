@@ -196,9 +196,9 @@ class CellAttributes(list):
 
         """
 
-        if any(isinstance(key_ele, slice) for key_ele in key):
-            raise Warning("slice in key {}".format(key))
-            return
+#        if any(isinstance(key_ele, slice) for key_ele in key):
+#            raise Warning("slice in key {}".format(key))
+#            return
 
         try:
             cache_len, cache_dict = self._attr_cache[key]
