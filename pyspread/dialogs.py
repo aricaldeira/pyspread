@@ -45,6 +45,7 @@
  * :class:`PrintPreviewDialog`
 """
 
+from contextlib import redirect_stdout
 import csv
 try:
     from dataclasses import dataclass
@@ -886,7 +887,12 @@ class ChartDialog(QDialog):
         key = self.parent.grid.current
         code = self.editor.toPlainText()
 
-        figure = self.parent.grid.model.code_array._eval_cell(key, code)
+        filelike = io.StringIO()
+        with redirect_stdout(filelike):
+            figure = self.parent.grid.model.code_array._eval_cell(key, code)
+        stdout_str = filelike.getvalue()
+        if stdout_str:
+            stdout_str += "\n \n"
 
         if isinstance(figure, Figure):
             canvas = FigureCanvasQTAgg(figure)
@@ -894,15 +900,18 @@ class ChartDialog(QDialog):
             canvas.draw()
         else:
             if isinstance(figure, Exception):
-                self.message.setText("Error:\n{}".format(figure))
+                msg = stdout_str + "Error:\n{}".format(figure)
+                self.message.setText(msg)
             else:
+                msg = stdout_str
                 msg_text = "Error:\n{} has type '{}', " + \
                            "which is no instance of {}."
-                msg = msg_text.format(figure,
-                                      type(figure).__name__,
-                                      Figure)
+                msg += msg_text.format(figure, type(figure).__name__,
+                                       Figure)
                 self.message.setText(msg)
-            self.splitter.replaceWidget(1, self.message)
+
+            if self.splitter.widget(1) != self.message:
+                self.splitter.replaceWidget(1, self.message)
 
     def create_buttonbox(self):
         """Returns a QDialogButtonBox with Ok and Cancel"""
