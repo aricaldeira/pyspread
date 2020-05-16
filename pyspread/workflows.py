@@ -1618,13 +1618,16 @@ class Workflows:
 
         code_array = self.main_window.grid.model.code_array
         code = code_array(self.main_window.grid.current)
+        current = self.main_window.grid.current
 
-        chart_dialog = ChartDialog(self.main_window)
+        chart_dialog = ChartDialog(self.main_window, current)
         if code is not None:
             chart_dialog.editor.setPlainText(code)
         chart_dialog.show()
+
         if chart_dialog.exec_() == ChartDialog.Accepted:
             code = chart_dialog.editor.toPlainText()
+            self.main_window.grid.current = current
             index = self.main_window.grid.currentIndex()
             self.main_window.grid.clearSelection()
             self.main_window.grid.selectionModel().select(

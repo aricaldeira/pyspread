@@ -813,11 +813,16 @@ class ReplaceDialog(FindDialog):
 class ChartDialog(QDialog):
     """The chart dialog"""
 
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: QWidget, key: Tuple[int, int, int],
+                 size: Tuple[int, int] = (800, 600)):
         """
         :param parent: Parent window
+        :param key: Target cell for chart
+        :param size: Initial dialog size
 
         """
+
+        self.key = key
 
         if Figure is None:
             raise ImportError
@@ -828,9 +833,9 @@ class ChartDialog(QDialog):
 
         self.chart_templates_toolbar = ChartTemplatesToolBar(self)
 
-        self.setWindowTitle("Chart dialog")
-        self.setModal(True)
-        self.resize(800, 600)
+        self.setWindowTitle("Chart dialog for cell {}".format(key))
+
+        self.resize(*size)
         self.parent = parent
 
         self.actions = ChartDialogActions(self)
