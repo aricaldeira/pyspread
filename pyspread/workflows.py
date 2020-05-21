@@ -69,7 +69,7 @@ try:
     from pyspread.lib.csv import csv_reader, convert
     from pyspread.lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from pyspread.model.model import CellAttribute, CellAttributes
+    from pyspread.model.model import CellAttribute
 except ImportError:
     import commands
     from dialogs \
@@ -86,10 +86,13 @@ except ImportError:
     from lib.csv import csv_reader, convert
     from lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from model.model import CellAttribute, CellAttributes
+    from model.model import CellAttribute
 
 
 class Workflows:
+
+    cell2dialog = {}  # Stores acrive chart dialogs
+
     def __init__(self, main_window):
         self.main_window = main_window
 
@@ -1620,9 +1623,17 @@ class Workflows:
         code = code_array(self.main_window.grid.current)
         current = self.main_window.grid.current
 
+        if current in self.cell2dialog:
+            self.cell2dialog[current].activateWindow()
+            self.cell2dialog[current].setFocus()
+            return
+
         chart_dialog = ChartDialog(self.main_window, current)
+        self.cell2dialog[current] = chart_dialog
+
         if code is not None:
             chart_dialog.editor.setPlainText(code)
+
         chart_dialog.show()
 
         if chart_dialog.exec_() == ChartDialog.Accepted:
@@ -1639,3 +1650,5 @@ class Workflows:
             command = commands.SetCellCode(code, model, index, description)
 
             self.main_window.undo_stack.push(command)
+
+        self.cell2dialog.pop(current)
