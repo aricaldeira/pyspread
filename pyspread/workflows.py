@@ -601,7 +601,7 @@ class Workflows:
         try:
             with open(filepath, newline='', encoding='utf-8') as csvfile:
                 try:
-                    reader = csv_reader(csvfile, dialect, digest_types)
+                    reader = csv_reader(csvfile, dialect)
                     for i, line in file_progress_gen(self.main_window, reader,
                                                      title, label, filelines):
                         if row + i >= rows:

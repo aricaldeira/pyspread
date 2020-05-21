@@ -1240,8 +1240,7 @@ class CsvTable(QTableView):
                 else:
                     self.horizontalHeader().hide()
 
-                for i, row in enumerate(csv_reader(csvfile, dialect,
-                                                   digest_types)):
+                for i, row in enumerate(csv_reader(csvfile, dialect)):
                     if i >= self.no_rows:
                         break
                     elif i == 0:
