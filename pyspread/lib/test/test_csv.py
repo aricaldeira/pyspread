@@ -28,11 +28,12 @@ Unit tests for csv.py
 
 """
 
+import datetime
 from pathlib import Path
 
 import pytest
 
-from ..csv import sniff, get_header, csv_reader
+from ..csv import sniff, get_header, csv_reader, convert
 
 
 TESTPATH = Path(__file__).parent
@@ -80,6 +81,8 @@ def test_get_header(filepath, header):
 
 
 def test_csv_reader():
+    """Unit test for csv_reader"""
+
     filepath = TESTPATH / 'valid1.csv'
     dialect = sniff(filepath, 1024)
     result = [["1", "2", "3"], ["4", "5", "6"]]
@@ -89,6 +92,29 @@ def test_csv_reader():
         for line, resline in zip(reader, result):
             assert line == resline
 
+
+param_convert = [
+    ('12', 'object', '12'),
+    ('12', 'str', "'12'"),
+    ('12', 'bool', 'True'),
+    ('12', 'bytes', "'12'"),
+    ('12', 'complex', "(12+0j)"),
+    ('12', 'int', "12"),
+    ('12', 'float', "12.0"),
+    ('12.0', 'repr', "'12.0'"),
+    ('12.0', 'object', "12.0"),
+    ('2000-1-1', 'date', repr(datetime.date(2000, 1, 1))),
+    ('1995-02-05 00:00', 'datetime',
+     repr(datetime.datetime(1995, 2, 5, 0, 0))),
+    ('23:59:59', 'time', repr(datetime.time(23, 59, 59))),
+]
+
+
+@pytest.mark.parametrize("string, digest_type, res", param_convert)
+def test_convert(string, digest_type, res):
+    """Unit test for convert"""
+
+    assert convert(string, digest_type) == res
 
 
 #param_digested_line = [

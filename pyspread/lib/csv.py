@@ -112,7 +112,7 @@ def convert(string: str, digest_type: str) -> str:
         digest_type = 'repr'
 
     try:
-        return str(typehandlers[digest_type](string))
+        return repr(typehandlers[digest_type](string))
 
     except Exception:
         return repr(string)
@@ -144,7 +144,7 @@ def make_object(obj):
 
 typehandlers = {
     'object': ast.literal_eval,
-    'repr': repr,
+    'repr': lambda x: x,
     'bool': bool,
     'int': int,
     'float': float,
