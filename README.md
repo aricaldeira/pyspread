@@ -23,6 +23,10 @@ su -
 apt install pyspread
 ```
 
+## Other platforms with packaged releases
+
+![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4)
+
 ## Other platforms
 
 ### Prerequisites
