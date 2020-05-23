@@ -710,4 +710,5 @@ class HelpBrowser(QTextBrowser):
         except IOError as err:
             return "Error opening file {}: {}".format(path, err)
 
-        return markdown(help_text, extras=['metadata'])
+        return markdown(help_text, extras=['metadata', 'code-friendly',
+                                           'fenced-code-blocks'])
