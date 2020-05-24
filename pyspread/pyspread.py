@@ -129,6 +129,9 @@ class MainWindow(QMainWindow):
         if self.settings.signature_key is None:
             self.settings.signature_key = genkey()
 
+        # Print area for print requests
+        self.print_area = None
+
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
@@ -253,23 +256,25 @@ class MainWindow(QMainWindow):
     def update_action_toggles(self):
         """Updates the toggle menu check states"""
 
-        self.main_window_actions.toggle_main_toolbar.setChecked(
-                self.main_toolbar.isVisibleTo(self))
+        actions = self.main_window_actions
 
-        self.main_window_actions.toggle_macro_toolbar.setChecked(
-                self.macro_toolbar.isVisibleTo(self))
+        maintoolbar_visible = self.main_toolbar.isVisibleTo(self)
+        actions.toggle_main_toolbar.setChecked(maintoolbar_visible)
 
-        self.main_window_actions.toggle_format_toolbar.setChecked(
-                self.format_toolbar.isVisibleTo(self))
+        macrotoolbar_visible = self.macro_toolbar.isVisibleTo(self)
+        actions.toggle_macro_toolbar.setChecked(macrotoolbar_visible)
 
-        self.main_window_actions.toggle_find_toolbar.setChecked(
-                self.find_toolbar.isVisibleTo(self))
+        formattoolbar_visible = self.format_toolbar.isVisibleTo(self)
+        actions.toggle_format_toolbar.setChecked(formattoolbar_visible)
 
-        self.main_window_actions.toggle_entry_line.setChecked(
-                self.entry_line.isVisibleTo(self))
+        findtoolbar_visible = self.find_toolbar.isVisibleTo(self)
+        actions.toggle_find_toolbar.setChecked(findtoolbar_visible)
 
-        self.main_window_actions.toggle_macro_panel.setChecked(
-                self.macro_dock.isVisibleTo(self))
+        entryline_visible = self.entry_line.isVisibleTo(self)
+        actions.toggle_entry_line.setChecked(entryline_visible)
+
+        macrodock_visible = self.macro_dock.isVisibleTo(self)
+        actions.toggle_macro_panel.setChecked(macrodock_visible)
 
     @property
     def safe_mode(self) -> bool:
@@ -595,9 +600,8 @@ class MainWindow(QMainWindow):
 
         doc_devs = "Martin Manns, Bosko Markovic, Pete Morgan"
 
-        about_msg = about_msg_template.format(
-                    version=VERSION, license=LICENSE,
-                    devs=devs, doc_devs=doc_devs)
+        about_msg = about_msg_template.format(version=VERSION, license=LICENSE,
+                                              devs=devs, doc_devs=doc_devs)
         QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
 
     def on_gui_update(self, attributes: CellAttributes):
@@ -680,6 +684,8 @@ class MainWindow(QMainWindow):
 
 
 def main():
+    """Pyspread main"""
+
     parser = ArgumentParser()
     args = parser.parse_args()
 
