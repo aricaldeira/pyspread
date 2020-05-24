@@ -789,6 +789,24 @@ class Workflows:
 
         return range(left, right + 1)
 
+    def get_paint_tables(self, first: int, last: int) -> Iterable[int]:
+        """Iterator of tables to paint
+
+        :param first: First table to paint
+        :param last: Last table to paint
+
+        """
+
+        tables = self.main_window.grid.model.shape[2]
+        first = max(0, min(tables - 1, first))
+        last = max(0, min(tables - 1, last))
+        if first == -1:
+            first = 0
+        if last == -1:
+            last = self.main_window.grid.model.shape[2]
+
+        return range(first, last + 1)
+
     def get_total_height(self, top: int, bottom: int) -> float:
         """Total height of paint_rows
 

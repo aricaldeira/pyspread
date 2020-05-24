@@ -361,38 +361,53 @@ class MainWindow(QMainWindow):
                                                   self.print_area.bottom))
         columns = list(self.workflows.get_paint_columns(self.print_area.left,
                                                         self.print_area.right))
-        if not rows or not columns:
+        tables = list(self.workflows.get_paint_tables(self.print_area.first,
+                                                      self.print_area.last))
+        if not all((rows, columns, tables)):
             return
 
-        zeroidx = self.grid.model.index(0, 0)
-        zeroidx_rect = self.grid.visualRect(zeroidx)
+        old_table = self.grid.table
 
-        minidx = self.grid.model.index(min(rows), min(columns))
-        minidx_rect = self.grid.visualRect(minidx)
+        for i, table in enumerate(tables):
+            self.grid.table = table
 
-        maxidx = self.grid.model.index(max(rows), max(columns))
-        maxidx_rect = self.grid.visualRect(maxidx)
+            zeroidx = self.grid.model.index(0, 0)
+            zeroidx_rect = self.grid.visualRect(zeroidx)
 
-        grid_width = maxidx_rect.x() + maxidx_rect.width() - minidx_rect.x()
-        grid_height = maxidx_rect.y() + maxidx_rect.height() - minidx_rect.y()
-        grid_rect = QRectF(minidx_rect.x() - zeroidx_rect.x(),
-                           minidx_rect.y() - zeroidx_rect.y(),
-                           grid_width, grid_height)
+            minidx = self.grid.model.index(min(rows), min(columns))
+            minidx_rect = self.grid.visualRect(minidx)
 
-        self.settings.print_zoom = min(page_rect.width() / grid_width,
-                                       page_rect.height() / grid_height)
+            maxidx = self.grid.model.index(max(rows), max(columns))
+            maxidx_rect = self.grid.visualRect(maxidx)
 
-        with painter_save(painter):
-            painter.scale(self.settings.print_zoom, self.settings.print_zoom)
+            grid_width = maxidx_rect.x() + maxidx_rect.width() \
+                - minidx_rect.x()
+            grid_height = maxidx_rect.y() + maxidx_rect.height() \
+                - minidx_rect.y()
+            grid_rect = QRectF(minidx_rect.x() - zeroidx_rect.x(),
+                               minidx_rect.y() - zeroidx_rect.y(),
+                               grid_width, grid_height)
 
-            # Translate so that the grid starts at upper left paper edge
-            painter.translate(zeroidx_rect.x() - minidx_rect.x(),
-                              zeroidx_rect.y() - minidx_rect.y())
+            self.settings.print_zoom = min(page_rect.width() / grid_width,
+                                           page_rect.height() / grid_height)
 
-            # Draw grid cells
-            self.workflows.paint(painter, option, grid_rect, rows, columns)
+            with painter_save(painter):
+                painter.scale(self.settings.print_zoom,
+                              self.settings.print_zoom)
 
-        self.settings.print_zoom = None
+                # Translate so that the grid starts at upper left paper edge
+                painter.translate(zeroidx_rect.x() - minidx_rect.x(),
+                                  zeroidx_rect.y() - minidx_rect.y())
+
+                # Draw grid cells
+                self.workflows.paint(painter, option, grid_rect, rows, columns)
+
+            self.settings.print_zoom = None
+
+            if i != len(tables) - 1:
+                printer.newPage()
+
+        self.grid.table = old_table
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
