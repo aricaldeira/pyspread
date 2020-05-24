@@ -18,6 +18,16 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Provides**
+
+* :class:`IconPath`
+* :class:`IconConverter`
+* :class:`Icon`
+
+"""
+
 
 from PyQt5.QtGui import QIcon
 
@@ -185,5 +195,3 @@ class IconConverter(type):
 
 class Icon(metaclass=IconConverter):
     """Provides QIcons as attributes for all attributes of IconPaths"""
-
-    pass

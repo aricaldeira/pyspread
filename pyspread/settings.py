@@ -127,7 +127,7 @@ class Settings:
 
     # Number of bytes for csv sniffer
     # sniff_size should be larger than 1st+2nd line
-    sniff_size = 65536  # TODO
+    sniff_size = 65536
 
     def __init__(self, parent: QWidget, reset_settings: bool = False):
         """

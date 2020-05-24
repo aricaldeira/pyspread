@@ -18,6 +18,14 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Provides**
+
+ * :class:`Entryline`
+
+"""
+
 from contextlib import contextmanager
 
 from PyQt5.QtCore import Qt, QEvent
@@ -127,7 +135,7 @@ class Entryline(SpellTextEdit):
 
         """
 
-        self.highlighter.enable_enchant = True if signal else False
+        self.highlighter.enable_enchant = bool(signal)
 
     def setPlainText(self, text: str):
         """Overides setPlainText

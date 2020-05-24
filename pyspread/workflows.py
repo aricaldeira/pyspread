@@ -90,6 +90,7 @@ except ImportError:
 
 
 class Workflows:
+    """Workflow container class"""
 
     cell2dialog = {}  # Stores acrive chart dialogs
 
@@ -422,7 +423,7 @@ class Workflows:
             try:
                 pys_writer = PysWriter(code_array)
                 try:
-                    for i, line in file_progress_gen(
+                    for _, line in file_progress_gen(
                             self.main_window, pys_writer, title, label,
                             len(pys_writer)):
                         line = bytes(line, "utf-8")
@@ -484,13 +485,13 @@ class Workflows:
         if not dial.file_path:
             return False  # Cancel pressed
 
-        fp = Path(dial.file_path)
+        filepath = Path(dial.file_path)
 
         # Extend filepath suffix if needed
-        if fp.suffix != dial.suffix:
-            fp = fp.with_suffix(dial.suffix)
+        if filepath.suffix != dial.suffix:
+            filepath = filepath.with_suffix(dial.suffix)
 
-        self._save(fp)
+        self._save(filepath)
 
     def file_import(self):
         """Import csv files"""
@@ -535,7 +536,7 @@ class Workflows:
             keep_header = dialect.hasheader and dialect.keepheader
         except AttributeError:
             keep_header = False
-        row, column, table = current = self.main_window.grid.current
+        row, column, _ = current = self.main_window.grid.current
         model = self.main_window.grid.model
         rows, columns, tables = model.shape
 
@@ -1253,7 +1254,7 @@ class Workflows:
             if not ok:
                 return
 
-        row, column, table = current = grid.current  # Target cell key
+        row, column, _ = current = grid.current  # Target cell key
 
         description_tpl = "Paste {} from clipboard into cell {}"
         description = description_tpl.format(item, current)
@@ -1325,13 +1326,14 @@ class Workflows:
         else:
             start_key = grid.row + 1, grid.column, grid.table
 
-        return find_string, findnextmatch(
-                start_key, find_string,
-                up=find_dialog.backward_checkbox.isChecked(),
-                word=find_dialog.word_checkbox.isChecked(),
-                case=find_dialog.case_checkbox.isChecked(),
-                regexp=find_dialog.regex_checkbox.isChecked(),
-                results=find_dialog.results_checkbox.isChecked())
+        match = findnextmatch(start_key, find_string,
+                              up=find_dialog.backward_checkbox.isChecked(),
+                              word=find_dialog.word_checkbox.isChecked(),
+                              case=find_dialog.case_checkbox.isChecked(),
+                              regexp=find_dialog.regex_checkbox.isChecked(),
+                              results=find_dialog.results_checkbox.isChecked())
+
+        return find_string, match
 
     def _display_match_msg(self, find_string: str, next_match: str,
                            regexp: str):
@@ -1508,7 +1510,7 @@ class Workflows:
 
         """
 
-        def remove_tabu_keys(attr: AttrDict):
+        def remove_tabu_keys(attrs: AttrDict):
             """Remove keys that are not copied from attr
 
             :param attr: Attribute dict that holds cell attributes
@@ -1526,8 +1528,6 @@ class Workflows:
         code_array = grid.model.code_array
         cell_attributes = code_array.cell_attributes
 
-        row, column, table = grid.current
-
         # Cell attributes
 
         new_cell_attributes = []
@@ -1537,7 +1537,7 @@ class Workflows:
         (top, left), (bottom, right) = \
             selection.get_grid_bbox(grid.model.shape)
 
-        table_cell_attributes = cell_attributes.for_table(table)
+        table_cell_attributes = cell_attributes.for_table(grid.table)
         for __selection, _, attrs in table_cell_attributes:
             new_selection = selection & __selection
             if new_selection:
@@ -1606,16 +1606,17 @@ class Workflows:
     def macro_insert_image(self):
         """Insert image workflow"""
 
+        grid = self.main_window.grid
+
         dial = ImageFileOpenDialog(self.main_window)
         if not dial.file_path:
             return  # Cancel pressed
 
         filepath = Path(dial.file_path)
 
-        index = self.main_window.grid.currentIndex()
-        self.main_window.grid.clearSelection()
-        self.main_window.grid.selectionModel().select(
-                index, QItemSelectionModel.Select)
+        index = grid.currentIndex()
+        grid.clearSelection()
+        grid.selectionModel().select(index, QItemSelectionModel.Select)
 
         if filepath.suffix == ".svg":
             try:
