@@ -682,17 +682,18 @@ class Workflows:
         """
 
         # Get area for csv export
-        csv_area = CsvExportAreaDialog(self.main_window,
-                                       self.main_window.grid).area
-        if csv_area is None:
+        area = CsvExportAreaDialog(self.main_window,
+                                   self.main_window.grid,
+                                   title="Csv export area").area
+        if area is None:
             return
 
-        top, left, bottom, right = csv_area
         code_array = self.main_window.grid.model.code_array
         table = self.main_window.grid.table
-        csv_data = code_array[top: bottom + 1, left: right + 1, table]
+        csv_data = code_array[area.top: area.bottom + 1,
+                              area.left: area.right + 1, table]
 
-        csv_dlg = CsvExportDialog(self.main_window, csv_area)
+        csv_dlg = CsvExportDialog(self.main_window, area)
 
         if not csv_dlg.exec():
             return
@@ -718,14 +719,15 @@ class Workflows:
             generator.setFileName(str(filepath))
 
             # Get area for svg export
-            svg_area = SvgExportAreaDialog(self.main_window, grid).area
+            svg_area = SvgExportAreaDialog(self.main_window, grid,
+                                           title="Svg export area").area
             if svg_area is None:
                 return
 
-            rows = self.get_paint_rows(svg_area)
-            columns = self.get_paint_columns(svg_area)
-            total_height = self.get_total_height(svg_area)
-            total_width = self.get_total_width(svg_area)
+            rows = self.get_paint_rows(svg_area.top, svg_area.bottom)
+            columns = self.get_paint_columns(svg_area.left, svg_area.right)
+            total_height = self.get_total_height(svg_area.top, svg_area.bottom)
+            total_width = self.get_total_width(svg_area.left, svg_area.right)
 
             generator.setSize(QSize(total_width, total_height))
             paint_rect = QRectF(0, 0, total_width, total_height)
@@ -751,15 +753,15 @@ class Workflows:
         yield
         self.main_window.grid.zoom = __zoom
 
-    def get_paint_rows(self, area: Tuple[int, int, int, int]) -> Iterable[int]:
+    def get_paint_rows(self, top: int, bottom: int) -> Iterable[int]:
         """Iterator of rows to paint
 
-        :param area: Area of cells to paint (top, left, bottom, right)
+        :param top: First row to paint
+        :param bottom: Last row to paint
 
         """
 
         rows = self.main_window.grid.model.shape[0]
-        top, _, bottom, _ = area
         top = max(0, min(rows - 1, top))
         bottom = max(0, min(rows - 1, bottom))
         if top == -1:
@@ -769,16 +771,15 @@ class Workflows:
 
         return range(top, bottom + 1)
 
-    def get_paint_columns(self,
-                          area: Tuple[int, int, int, int]) -> Iterable[int]:
+    def get_paint_columns(self, left: int, right: int) -> Iterable[int]:
         """Iterator of columns to paint
 
-        :param area: Area of cells to paint (top, left, bottom, right)
+        :param left: First column to paint
+        :param right: Last column to paint
 
         """
 
         columns = self.main_window.grid.model.shape[1]
-        _, left, _, right = area
         left = max(0, min(columns - 1, left))
         right = max(0, min(columns - 1, right))
         if left == -1:
@@ -788,26 +789,29 @@ class Workflows:
 
         return range(left, right + 1)
 
-    def get_total_height(self, area: Tuple[int, int, int, int]) -> float:
+    def get_total_height(self, top: int, bottom: int) -> float:
         """Total height of paint_rows
 
-        :param area: Area of cells to evaluate (top, left, bottom, right)
+        :param top: First row to evaluate
+        :param bottom: Last row to evaluate
 
         """
 
         grid = self.main_window.grid
-        return sum(grid.rowHeight(row) for row in self.get_paint_rows(area))
+        rows = self.get_paint_rows(top, bottom)
+        return sum(grid.rowHeight(row) for row in rows)
 
-    def get_total_width(self, area: Tuple[int, int, int, int]) -> float:
+    def get_total_width(self, left: int, right: int) -> float:
         """Total height of paint_columns
 
-        :param area: Area of cells to evaluate (top, left, bottom, right)
+        :param left: First column to evaluate
+        :param right: Last column to evaluate
 
         """
 
         grid = self.main_window.grid
-        return sum(grid.columnWidth(column)
-                   for column in self.get_paint_columns(area))
+        columns = self.get_paint_columns(left, right)
+        return sum(grid.columnWidth(column) for column in columns)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               paint_rect: QRectF, rows: Iterable[int], columns: Iterable[int]):

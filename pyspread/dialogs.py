@@ -28,8 +28,11 @@
  * :class:`ApproveWarningDialog`
  * :class:`DataEntryDialog`
  * :class:`GridShapeDialog`
- * :class:`PrintAreaDialog`
+ * :class:`SinglePageArea`
+ * :class:`MultiPageArea`
  * :class:`CsvExportAreaDialog`
+ * :class:`SvgExportAreaDialog`
+ * :class:`PrintAreaDialog`
  * (:class:`FileDialogBase`)
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
@@ -306,19 +309,37 @@ class GridShapeDialog(DataEntryDialog):
             pass
 
 
-class PrintAreaDialog(DataEntryDialog):
-    """Modal dialog for entering print area
+@dataclass
+class SinglePageArea:
+    """Holds single page area boundaries e.g. for export"""
+
+    top: int
+    left: int
+    bottom: int
+    right: int
+
+
+@dataclass
+class MultiPageArea(SinglePageArea):
+    """Holds multi page area boundaries e.g. for printing"""
+
+    first: int
+    last: int
+
+
+class CsvExportAreaDialog(DataEntryDialog):
+    """Modal dialog for entering csv export area
 
     Initially, this dialog is filled with the selection bounding box
     if present or with the visible area of <= 1 cell is selected.
 
     """
 
-    groupbox_title = "Print area"
+    groupbox_title = "Page area"
     labels = ["Top", "Left", "Bottom", "Right"]
+    area_cls = SinglePageArea
 
-    def __init__(self, parent: QWidget, grid: QTableView,
-                 title: str = "Print settings"):
+    def __init__(self, parent: QWidget, grid: QTableView, title: str):
         """
         :param parent: Parent widget, e.g. main window
         :param grid: The main grid widget
@@ -326,30 +347,56 @@ class PrintAreaDialog(DataEntryDialog):
 
         """
 
+        self.grid = grid
         self.shape = grid.model.shape
 
-        row_validator = QIntValidator()
-        row_validator.setBottom(0)  # Do not allow negative values
+        validators = [self._row_validator, self._column_validator] * 2
+
+        super().__init__(parent, title, self.labels, self._initial_values,
+                         self.groupbox_title, validators)
+
+    @property
+    def _validator(self):
+        """Returns int validator for positive numbers"""
+
+        validator = QIntValidator()
+        validator.setBottom(0)
+        return validator
+
+    @property
+    def _row_validator(self) -> QIntValidator:
+        """Returns row validator"""
+
+        row_validator = self._validator
         row_validator.setTop(self.shape[0] - 1)
-        column_validator = QIntValidator()
-        column_validator.setBottom(0)  # Do not allow negative values
+        return row_validator
+
+    @property
+    def _column_validator(self) -> QIntValidator:
+        """Returns column validator"""
+
+        column_validator = self._validator
         column_validator.setTop(self.shape[1] - 1)
+        return column_validator
+
+    @property
+    def _initial_values(self) -> Tuple[int, int, int, int]:
+        """Returns tuple of initial values"""
+
+        grid = self.grid
+        shape = grid.model.shape
 
         if grid.selection and len(grid.selected_idx) > 1:
             (bb_top, bb_left), (bb_bottom, bb_right) = \
-                grid.selection.get_grid_bbox(self.shape)
+                grid.selection.get_grid_bbox(shape)
         else:
             bb_top, bb_bottom = grid.rowAt(0), grid.rowAt(grid.height())
             bb_left, bb_right = grid.columnAt(0), grid.columnAt(grid.width())
 
-        initial_values = bb_top, bb_left, bb_bottom, bb_right
-
-        validators = [row_validator, column_validator] * 2
-        super().__init__(parent, title, self.labels, initial_values,
-                         self.groupbox_title, validators)
+        return bb_top, bb_left, bb_bottom, bb_right
 
     @property
-    def area(self) -> Tuple[int, int, int, int]:
+    def area(self) -> area_cls:
         """Executes the dialog and returns top, left, bottom, right
 
         Returns None if the dialog is canceled.
@@ -364,21 +411,69 @@ class PrintAreaDialog(DataEntryDialog):
 
         if data is not None:
             try:
-                return tuple(data)
+                return self.area_cls(*data)
             except ValueError:
                 return
 
 
-class CsvExportAreaDialog(PrintAreaDialog):
-    """Modal dialog for entering csv export area"""
+class SvgExportAreaDialog(CsvExportAreaDialog):
+    """Modal dialog for entering svg export area
 
-    groupbox_title = "CSV export area"
+    Initially, this dialog is filled with the selection bounding box
+    if present or with the visible area of <= 1 cell is selected.
 
-
-class SvgExportAreaDialog(PrintAreaDialog):
-    """Modal dialog for entering svg export area"""
+    """
 
     groupbox_title = "SVG export area"
+
+
+class PrintAreaDialog(CsvExportAreaDialog):
+    """Modal dialog for entering print area
+
+    Initially, this dialog is filled with the selection bounding box
+    if present or with the visible area of <= 1 cell is selected.
+    Initially, the current table is selected.
+
+    """
+
+    labels = ["Top", "Left", "Bottom", "Right", "First table", "Last table"]
+    area_cls = MultiPageArea
+
+    def __init__(self, parent: QWidget, grid: QTableView, title: str):
+        """
+        :param parent: Parent widget, e.g. main window
+        :param grid: The main grid widget
+        :param title: Dialog title
+
+        """
+
+        self.grid = grid
+
+        self.shape = grid.model.shape
+
+        validators = [self._row_validator, self._column_validator] * 2
+        validators += [self._table_validator] * 2
+
+        DataEntryDialog.__init__(self, parent, title, self.labels,
+                                 self._initial_values, self.groupbox_title,
+                                 validators)
+
+    @property
+    def _table_validator(self) -> QIntValidator:
+        """Returns column validator"""
+
+        table_validator = self._validator
+        table_validator.setTop(self.shape[1] - 1)
+        return table_validator
+
+    @property
+    def _initial_values(self) -> Tuple[int, int, int, int, int, int]:
+        """Returns tuple of initial values"""
+
+        bb_top, bb_left, bb_bottom, bb_right = super()._initial_values
+        table = self.grid.table
+
+        return bb_top, bb_left, bb_bottom, bb_right, table, table
 
 
 class PreferencesDialog(DataEntryDialog):
@@ -1409,10 +1504,10 @@ class CsvExportDialog(QDialog):
     title = "CSV export"
     maxrows = 10
 
-    def __init__(self, parent: QWidget, csv_area: Tuple[int, int, int, int]):
+    def __init__(self, parent: QWidget, csv_area: SinglePageArea):
         """
         :param parent: Parent window
-        :param csv_area: Grid area to be exported (top, left, bottom, right)
+        :param csv_area: Grid area to be exported
 
         """
 
@@ -1458,7 +1553,10 @@ class CsvExportDialog(QDialog):
     def apply(self):
         """Button event handler, applies parameters to csv_preview"""
 
-        top, left, bottom, right = self.csv_area
+        top = self.csv_area.top
+        left = self.csv_area.left
+        bottom = self.csv_area.bottom
+        right = self.csv_area.right
         table = self.parent.grid.table
 
         bottom = min(bottom-top, self.maxrows-1) + top

@@ -315,7 +315,8 @@ class MainWindow(QMainWindow):
         printer = QPrinter(mode=QPrinter.HighResolution)
 
         # Get print area
-        self.print_area = PrintAreaDialog(self, self.grid).area
+        self.print_area = PrintAreaDialog(self, self.grid,
+                                          title="Print area").area
         if self.print_area is None:
             return
 
@@ -331,7 +332,8 @@ class MainWindow(QMainWindow):
         printer = QPrinter(mode=QPrinter.HighResolution)
 
         # Get print area
-        self.print_area = PrintAreaDialog(self, self.grid).area
+        self.print_area = PrintAreaDialog(self, self.grid,
+                                          title="Print area").area
         if self.print_area is None:
             return
 
@@ -355,8 +357,10 @@ class MainWindow(QMainWindow):
 
         page_rect = printer.pageRect()
 
-        rows = list(self.workflows.get_paint_rows(self.print_area))
-        columns = list(self.workflows.get_paint_columns(self.print_area))
+        rows = list(self.workflows.get_paint_rows(self.print_area.top,
+                                                  self.print_area.bottom))
+        columns = list(self.workflows.get_paint_columns(self.print_area.left,
+                                                        self.print_area.right))
         if not rows or not columns:
             return
 
