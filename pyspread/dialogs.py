@@ -57,9 +57,9 @@ except ImportError:
 from functools import partial
 import io
 from pathlib import Path
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Tuple, Union
 
-from PyQt5.QtCore import Qt, QPoint, QSize, QEvent, QUrl
+from PyQt5.QtCore import Qt, QPoint, QSize, QEvent
 from PyQt5.QtWidgets \
     import (QApplication, QMessageBox, QFileDialog, QDialog, QLineEdit, QLabel,
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
@@ -85,7 +85,6 @@ try:
     from pyspread.widgets import HelpBrowser
     from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
                                   convert)
-    from pyspread.lib.markdown2 import markdown
     from pyspread.lib.spelltextedit import SpellTextEdit
     from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 except ImportError:
@@ -93,7 +92,6 @@ except ImportError:
     from toolbar import ChartTemplatesToolBar
     from widgets import HelpBrowser
     from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
-    from lib.markdown2 import markdown
     from lib.spelltextedit import SpellTextEdit
     from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 
@@ -133,7 +131,7 @@ class DiscardChangesDialog:
                                               self.default_choice)
         if button_approval == QMessageBox.Discard:
             return True
-        elif button_approval == QMessageBox.Save:
+        if button_approval == QMessageBox.Save:
             return False
 
 
@@ -176,7 +174,7 @@ class ApproveWarningDialog:
                                               self.default_choice)
         if button_approval == QMessageBox.Yes:
             return True
-        elif button_approval == QMessageBox.No:
+        if button_approval == QMessageBox.No:
             return False
 
 
@@ -350,10 +348,8 @@ class CsvExportAreaDialog(DataEntryDialog):
         self.grid = grid
         self.shape = grid.model.shape
 
-        validators = [self._row_validator, self._column_validator] * 2
-
         super().__init__(parent, title, self.labels, self._initial_values,
-                         self.groupbox_title, validators)
+                         self.groupbox_title, self.validator_list)
 
     @property
     def _validator(self):
@@ -380,6 +376,12 @@ class CsvExportAreaDialog(DataEntryDialog):
         return column_validator
 
     @property
+    def validator_list(self) -> List[QIntValidator]:
+        """Returns list of validators for dialog"""
+
+        return [self._row_validator, self._column_validator] * 2
+
+    @property
     def _initial_values(self) -> Tuple[int, int, int, int]:
         """Returns tuple of initial values"""
 
@@ -396,7 +398,7 @@ class CsvExportAreaDialog(DataEntryDialog):
         return bb_top, bb_left, bb_bottom, bb_right
 
     @property
-    def area(self) -> area_cls:
+    def area(self) -> Union[SinglePageArea, MultiPageArea]:
         """Executes the dialog and returns top, left, bottom, right
 
         Returns None if the dialog is canceled.
@@ -439,25 +441,6 @@ class PrintAreaDialog(CsvExportAreaDialog):
     labels = ["Top", "Left", "Bottom", "Right", "First table", "Last table"]
     area_cls = MultiPageArea
 
-    def __init__(self, parent: QWidget, grid: QTableView, title: str):
-        """
-        :param parent: Parent widget, e.g. main window
-        :param grid: The main grid widget
-        :param title: Dialog title
-
-        """
-
-        self.grid = grid
-
-        self.shape = grid.model.shape
-
-        validators = [self._row_validator, self._column_validator] * 2
-        validators += [self._table_validator] * 2
-
-        DataEntryDialog.__init__(self, parent, title, self.labels,
-                                 self._initial_values, self.groupbox_title,
-                                 validators)
-
     @property
     def _table_validator(self) -> QIntValidator:
         """Returns column validator"""
@@ -465,6 +448,14 @@ class PrintAreaDialog(CsvExportAreaDialog):
         table_validator = self._validator
         table_validator.setTop(self.shape[1] - 1)
         return table_validator
+
+    @property
+    def validator_list(self) -> List[QIntValidator]:
+        """Returns list of validators for dialog"""
+
+        validators = super().validator_list
+        validators += [self._table_validator] * 2
+        return validators
 
     @property
     def _initial_values(self) -> Tuple[int, int, int, int, int, int]:
@@ -571,7 +562,6 @@ class FileDialogBase:
     """
 
     file_path = None
-    suffix = None
 
     title = "Choose file"
 
@@ -593,8 +583,7 @@ class FileDialogBase:
 
         if self.filters_list.index(self.selected_filter):
             return ".pys"
-        else:
-            return ".pysu"
+        return ".pysu"
 
     def __init__(self, main_window: QMainWindow):
         """
@@ -610,7 +599,7 @@ class FileDialogBase:
     def show_dialog(self):
         """Sublasses must overload this method"""
 
-        raise Exception("show_dialog() - Needs method overload")
+        raise NotImplementedError
 
 
 class FileOpenDialog(FileDialogBase):
@@ -705,8 +694,6 @@ class CsvFileExportDialog(FileDialogBase):
 
         if self.filters_list.index(self.selected_filter):
             return ".svg"
-        else:
-            return
 
     def show_dialog(self):
         """Present dialog and update values"""
@@ -755,8 +742,9 @@ class FindDialog(QDialog):
         self.extension.hide()
 
         self.more_button.toggled.connect(self.extension.setVisible)
-        self.find_button.clicked.connect(
-                partial(workflows.find_dialog_on_find, self))
+
+        self.find_button.clicked.connect(partial(workflows.find_dialog_on_find,
+                                                 self))
 
         # Restore state
         state = self.main_window.settings.find_dialog_state
@@ -898,11 +886,11 @@ class ReplaceDialog(FindDialog):
         self.setTabOrder(self.search_text_editor, self.replace_text_editor)
         self.setTabOrder(self.more_button, self.replace_button)
 
-        self.replace_button.clicked.connect(
-                partial(workflows.replace_dialog_on_replace, self))
+        p_onreplace = partial(workflows.replace_dialog_on_replace, self)
+        self.replace_button.clicked.connect(p_onreplace)
 
-        self.replace_all_button.clicked.connect(
-                partial(workflows.replace_dialog_on_replace_all, self))
+        p_onreplaceall = partial(workflows.replace_dialog_on_replace_all, self)
+        self.replace_all_button.clicked.connect(p_onreplaceall)
 
 
 class ChartDialog(QDialog):
@@ -1300,6 +1288,8 @@ class CsvTable(QTableView):
         """
 
         class TypeCombo(QComboBox):
+            """ComboBox for type choice"""
+
             def __init__(self):
                 super().__init__()
 
@@ -1338,7 +1328,7 @@ class CsvTable(QTableView):
                 for i, row in enumerate(csv_reader(csvfile, dialect)):
                     if i >= self.no_rows:
                         break
-                    elif i == 0:
+                    if i == 0:
                         self.add_choice_row(len(row))
                     if digest_types is None:
                         item_row = map(QStandardItem, map(str, row))
@@ -1392,6 +1382,8 @@ class CsvImportDialog(QDialog):
         self.digest_types = digest_types
 
         self.sniff_size = parent.settings.sniff_size
+
+        self.dialect = None
 
         self.setWindowTitle(self.title)
 
