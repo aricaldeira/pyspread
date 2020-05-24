@@ -423,7 +423,7 @@ class MainWindowActions(AttrDict):
                                 shortcut='Ctrl+u',
                                 checkable=True,
                                 statustip='Toggle underline for the '
-                                             'selected cells')
+                                          'selected cells')
 
         self.strikethrough = Action(self.parent, "&Strikethrough",
                                     self.parent.grid.on_strikethrough_pressed,

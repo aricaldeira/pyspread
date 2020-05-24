@@ -50,7 +50,7 @@ from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME
-    from pyspread.cli import ArgumentParser
+    from pyspread.cli import PyspreadArgumentParser
     from pyspread.settings import Settings
     from pyspread.icons import Icon, IconPath
     from pyspread.grid import Grid
@@ -71,7 +71,7 @@ try:
     from pyspread.model.model import CellAttributes
 except ImportError:
     from __init__ import VERSION, APP_NAME
-    from cli import ArgumentParser
+    from cli import PyspreadArgumentParser
     from settings import Settings
     from icons import Icon, IconPath
     from grid import Grid
@@ -686,7 +686,7 @@ class MainWindow(QMainWindow):
 def main():
     """Pyspread main"""
 
-    parser = ArgumentParser()
+    parser = PyspreadArgumentParser()
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
