@@ -23,7 +23,7 @@ $ cd <pyspread main directory>
 $ ./bin/pyspread
 ```
 Result: Pyspread main window is shown.
-Rating: [ ]
+Rating: - [ ]
 
 Repetition after deleting config file
 ```
