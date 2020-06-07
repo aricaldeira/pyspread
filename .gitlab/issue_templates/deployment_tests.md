@@ -22,59 +22,60 @@ Test system:
 $ cd <pyspread main directory>
 $ ./bin/pyspread
 ```
-Result: Pyspread main window is shown.
-Rating: - [ ]
+Expected result: Pyspread main window is shown.
+
+- [ ] Test conducted and ok
 
 Repetition after deleting config file
 ```
 $ rm ~/.config/pyspread/pyspread.conf
 $ ./pyspread.sh
 ```
-Result: Pyspread main window is shown.
-Rating: [ ]
+Expected result: Pyspread main window is shown.
+- [ ] Test conducted and ok
 
 2. File -> New
 --------------
 Select File -> New via menubar
 Enter 1,1,1 in dialog
-Result: Grid with 1 cell shown
-Rating: [ ]
+Expected result: Grid with 1 cell shown
+- [ ] Test conducted and ok
 
 Select File -> New via toolbar
 Enter 1,1,1 in dialog
-Result: Grid with 1 cell shown
-Rating: [ ]
+Expected result: Grid with 1 cell shown
+- [ ] Test conducted and ok
 
 Select File -> New via toolbar
 Enter 0,0,0 in dialog
-Result: No change in grid, error message
-Rating: [ ]
+Expected result: No change in grid, error message
+- [ ] Test conducted and ok
 
 Select File -> New via toolbar
 Enter 9999999999,0,0 in dialog
-Result: No change in grid, error message
-Rating: [ ]
+Expected result: No change in grid, error message
+- [ ] Test conducted and ok
 
 Select File -> New via toolbar
 Enter 1000000,10000,10 in dialog
-Result: Grid with correct shape shown
+Expected result: Grid with correct shape shown
 Rating: OK (unit test)
 
 Select cell 999999, 9999, 9
 Select File -> New via toolbar
 Enter 2,2,2 in dialog
-Result: Grid with correct shape shown
-Rating: [ ]
+Expected result: Grid with correct shape shown
+- [ ] Test conducted and ok
 
 Select File -> New via toolbar
 Enter 1000,100,3 in dialog
-Result: Grid with correct shape shown
-Rating: [ ]
+Expected result: Grid with correct shape shown
+- [ ] Test conducted and ok
 
 Select File -> New via toolbar
 Cancel dialog
-Result: No changes
-Rating: [ ]
+Expected result: No changes
+- [ ] Test conducted and ok
 
 
 2. File -> Open
@@ -82,65 +83,65 @@ Rating: [ ]
 
 Select File -> Open via menubar
 Choose valid and signed file test.pysu
-Result: File loaded and displayed correctly
-Rating: [ ]
+Expected result: File loaded and displayed correctly
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose valid and unsigned file test.pysu
-Result: File loaded and put into safe mode
-Rating: [ ]
+Expected result: File loaded and put into safe mode
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Cancel dialog
-Result: No changes
-Rating: [ ]
+Expected result: No changes
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Enter invalid filename
-Result: Button is disabled
-Rating: [ ]
+Expected result: Button is disabled
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose valid and unsigned file test.pys
-Result: File loaded and put into safe mode
-Rating: [ ]
+Expected result: File loaded and put into safe mode
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose valid and signed file test.pys
-Result: File loaded and displayed correctly
-Rating: [ ]
+Expected result: File loaded and displayed correctly
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose invalid and unsigned file test_invalid.pysu with shape 0,100,3
-Result: Invalid grid is displayed in safe mode
-Rating: [ ]
+Expected result: Invalid grid is displayed in safe mode
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose invalid and unsigned file test_invalid.pysu with version 12.0 and shape 0,100,3
-Result: Crash with ValueError indicating invalid version
-Rating: [ ]
+Expected result: Crash with ValueError indicating invalid version
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose invalid and unsigned file test_invalid.pysu with cell out of shape
-Result: Grid is displayed in safe mode, crash on approve
-Rating: [ ]
+Expected result: Grid is displayed in safe mode, crash on approve
+- [ ] Test conducted and ok
 
 Select File -> Open via toolbar
 Choose valid and unsigned file without read permissions test_inaccessible.pysu
-Result: Crash with PermissionError [Errno 13] Permission denied
-Rating: [ ]
+Expected result: Crash with PermissionError [Errno 13] Permission denied
+- [ ] Test conducted and ok
 
 
 3. File -> Open recent
 ----------------------
 
 Select recent file test.pysu from menubar
-Result: File is loaded correctly
-Rating: [ ]
+Expected result: File is loaded correctly
+- [ ] Test conducted and ok
 
 Select recent file test.pys from menubar
-Result: File is loaded correctly
-Rating: [ ]
+Expected result: File is loaded correctly
+- [ ] Test conducted and ok
 
 
 4. File -> Save
@@ -150,8 +151,8 @@ Select recent file test.pys from menubar
 Enter 'Test' in cell 0,0,0
 Select File -> Save from menubar
 Select recent file test.pys from menubar
-Result: Change is still present, file is signed correctly and save moe is disabled
-Rating: [ ]
+Expected result: Change is still present, file is signed correctly and save moe is disabled
+- [ ] Test conducted and ok
 
 
 5. File -> Save as
@@ -160,20 +161,20 @@ Rating: [ ]
 Select recent file test.pysu from menubar
 Select File -> Save as from menubar
 Enter file test_empty.pysu and press OK
-Result: File is created
-Rating: [ ]
+Expected result: File is created
+- [ ] Test conducted and ok
 
 Delete content and remove merges
 Select File -> Save as from menubar
 Enter file test_empty.pysu and press OK
-Result: File overwriting is protected by dialog
-Rating: [ ]
+Expected result: File overwriting is protected by dialog
+- [ ] Test conducted and ok
 
 Select recent file test.pysu from menubar
 Select File -> Save as from menubar
 Enter file test_empty.pysu in folder '/' without write permissions and press OK
-Result: Crash with PermissionError
-Rating: [ ]
+Expected result: Crash with PermissionError
+- [ ] Test conducted and ok
 
 
 6. File -> Approve
@@ -181,67 +182,67 @@ Rating: [ ]
 Select File -> Open via toolbar
 Choose valid and unsigned file test.pysu
 Select File -> Approve via menubar
-Result: File loaded correctly but safe mode message is still shown in macro panel.
-Rating: [ ]
+Expected result: File loaded correctly but safe mode message is still shown in macro panel.
+- [ ] Test conducted and ok
 
 
 7. File -> Clear globals
 ------------------------
 Select File -> Clear globals from menubar
-Result: Message on_nothing >  &Clear globals <src.actions.Action object at 0x7f25a1614a50>
-Rating: [ ]
+Expected result: Message on_nothing >  &Clear globals <src.actions.Action object at 0x7f25a1614a50>
+- [ ] Test conducted and ok
 
 
 8. File -> Print preview
 ------------------------
 Select File -> Print preview from menubar
 Cancel dialog
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Press OK
-Result: Print Preview dialog
-Rating: [ ]
+Expected result: Print Preview dialog
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Enter 1111, 0, 1199, 5 (outside shape 1000, 100, 3)
 Press OK
-Result: Crash, ZeroDivisionError
-Rating: [ ]
+Expected result: Crash, ZeroDivisionError
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Enter 1, 1, 12, 5
 Press OK
-Result: Print preview dialog shows non-centered grid
-Rating: [ ]
+Expected result: Print preview dialog shows non-centered grid
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Enter 3, 3, 33, 33
 Press OK
-Result: Print preview dialog shows non-centered grid
-Rating: [ ]
+Expected result: Print preview dialog shows non-centered grid
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Insert png image into cell 0,0,0
 Enter 0, 0, 1, 1
 Press OK
-Result: Print preview dialog shows grid
-Rating: [ ]
+Expected result: Print preview dialog shows grid
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Insert png image into cell 0,0,0
 Enter 0, 0, 0, 0
 Press OK
-Result: Print preview dialog shows grid cell that is larger than the page
-Rating: [ ]
+Expected result: Print preview dialog shows grid cell that is larger than the page
+- [ ] Test conducted and ok
 
 Select File -> Print preview from menubar
 Insert png image into cell 0,0,0
 Enter 0, 0, 9999, 999
 Press OK
-Result: Long wait, Memory consumption > 3GB, test aborted by tester
-Rating: [ ]
+Expected result: Long wait, Memory consumption > 3GB, test aborted by tester
+- [ ] Test conducted and ok
 
 
 9. File -> Print
@@ -249,8 +250,8 @@ Rating: [ ]
 
 Select File -> Print from menubar
 Press OK
-Result: Printer dialog
-Rating: [ ]
+Expected result: Printer dialog
+- [ ] Test conducted and ok
 
 
 10. File -> Preferences
@@ -258,39 +259,39 @@ Rating: [ ]
 
 Select File -> Preferences from menubar
 Press Cancel
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Select File -> Preferences from menubar
 Change Signature key to "" and press OK
 Select File -> Preferences from menubar
-Result: Signature key is ""
-Rating: [ ]
+Expected result: Signature key is ""
+- [ ] Test conducted and ok
 
 Select File -> Preferences from menubar
 Change Signature key to empty string and press OK
 Select File -> Preferences from menubar
-Result: New signature key is visible
-Rating: [ ]
+Expected result: New signature key is visible
+- [ ] Test conducted and ok
 
 Select File -> Preferences from menubar
 Change Cell calculation timeout to 10000 and press OK
 Select File -> Preferences from menubar
-Result: New Cell calculation timeout is visible
-Rating: [ ]
+Expected result: New Cell calculation timeout is visible
+- [ ] Test conducted and ok
 
 Select File -> Preferences from menubar
 Change Frozen cell refresh period to 10000 and press OK
 Select File -> Preferences from menubar
-Result: New Frozen cell refresh period is visible
-Rating: [ ]
+Expected result: New Frozen cell refresh period is visible
+- [ ] Test conducted and ok
 
 
 Select File -> Preferences from menubar
 Change number of recent files to 2 and press OK
 Select File -> Preferences from menubar
-Result: Value has not changed and is still 5
-Rating: [ ]
+Expected result: Value has not changed and is still 5
+- [ ] Test conducted and ok
 
 
 11. File -> Quit
@@ -298,36 +299,36 @@ Rating: [ ]
 
 Open Pyspread
 Select File -> Quit from menubar
-Result: Application has closed
-Rating: [ ]
+Expected result: Application has closed
+- [ ] Test conducted and ok
 
 Open Pyspread
 Enter 1 in cell 0,0,0
 Select File -> Quit from menubar
-Result: Dialog unsaved changes is visible
-Rating: [ ]
+Expected result: Dialog unsaved changes is visible
+- [ ] Test conducted and ok
 
 Open Pyspread
 Enter 1 in cell 0,0,0
 Select File -> Quit from menubar
 Press Save in Dialog unsaved changes
-Result: Save as dialog is shown
-Rating: [ ]
+Expected result: Save as dialog is shown
+- [ ] Test conducted and ok
 
 Open Pyspread
 Enter 1 in cell 0,0,0
 Select File -> Quit from menubar
 Press Cancel in Dialog unsaved changes
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Open Pyspread
 Enter 1 in cell 0,0,0
 Select File -> Quit from menubar
 Press Save in Dialog unsaved changes
 Cancel Save dialog
-Result: Application has closed
-Rating: [ ]
+Expected result: Application has closed
+- [ ] Test conducted and ok
 
 
 12. Edit -> Undo
@@ -343,8 +344,8 @@ Align and justify cell 0,3,0 centered
 Select cells 0,1,0 to 2,2,0
 Change line color to blue and background color to yellow
 Undo all steps
-Result: Steps undone, border line coloring is undone in 2 steps
-Rating: [ ]
+Expected result: Steps undone, border line coloring is undone in 2 steps
+- [ ] Test conducted and ok
 
 
 13. Edit -> Redo
@@ -361,8 +362,8 @@ Select cells 0,1,0 to 2,2,0
 Change line color to blue and background color to yellow
 Undo all steps
 Redo all steps
-Result: Cells look like before the undo operation
-Rating: [ ]
+Expected result: Cells look like before the undo operation
+- [ ] Test conducted and ok
 
 
 14. Edit -> Cut
@@ -373,32 +374,32 @@ Select cell 0,0,0
 Select Edit -> Cut from menubar
 Select cell 1,0,0
 Select Edit -> Paste from menubar
-Result: Cell 0,0,0 is empty, cell 1,0,0 shows 1
-Rating: [ ]
+Expected result: Cell 0,0,0 is empty, cell 1,0,0 shows 1
+- [ ] Test conducted and ok
 
 Enter 1 in cell 0,0,0
 Select cell 0,0,0
 Press Ctrl+x
 Select cell 1,0,0
 Press Ctrl+v
-Result: Cell 0,0,0 is empty, cell 1,0,0 shows 1
-Rating: [ ]
+Expected result: Cell 0,0,0 is empty, cell 1,0,0 shows 1
+- [ ] Test conducted and ok
 
 Enter 1 in cell 0,0,0
 Select cell 0,0,0
 Select Cut from toolbar
 Select cell 1,0,0
 Select Paste from toolbar
-Result: Cell 0,0,0 is empty, cell 1,0,0 shows 1
-Rating: [ ]
+Expected result: Cell 0,0,0 is empty, cell 1,0,0 shows 1
+- [ ] Test conducted and ok
 
 Enter 1 in all cells between 0,0,0 and 3,2,0
 Select cells 0,0,0 to 3,2,0
 Select Edit -> Cut from menubar
 Select Cell 6,0,0
 Select Edit -> Paste from menubar
-Result: Cell 0,0,0 to 3,2,0 are empty, cells in the area at 6,0,0 show 1
-Rating: [ ]
+Expected result: Cell 0,0,0 to 3,2,0 are empty, cells in the area at 6,0,0 show 1
+- [ ] Test conducted and ok
 
 
 15. Edit -> Copy
@@ -409,32 +410,32 @@ Select cell 0,0,0
 Select Edit -> Copy from menubar
 Select cell 1,0,0
 Select Edit -> Paste from menubar
-Result: Cell 0,0,0 and cell 1,0,0 show 1
-Rating: [ ]
+Expected result: Cell 0,0,0 and cell 1,0,0 show 1
+- [ ] Test conducted and ok
 
 Enter 1 in cell 0,0,0
 Select cell 0,0,0
 Select Copy from toolbar
 Select cell 1,0,0
 Select Paste from toolbar
-Result: Cell 0,0,0 and cell 1,0,0 show 1
-Rating: [ ]
+Expected result: Cell 0,0,0 and cell 1,0,0 show 1
+- [ ] Test conducted and ok
 
 Enter 1+1 in cell 0,0,0
 Select cell 0,0,0
 Select Edit -> Copy from menubar
 Select cell 1,0,0
 Select Edit -> Paste from menubar
-Result: Cell 1,0,0 has the code 1+1 and shows 2
-Rating: [ ]
+Expected result: Cell 1,0,0 has the code 1+1 and shows 2
+- [ ] Test conducted and ok
 
 Enter 1+1 in cell 0,0,0
 Select cell 0,0,0
 Press Ctrl+c
 Select cell 1,0,0
 Press Ctrl+v
-Result: Cell 1,0,0 has the code 1+1 and shows 2
-Rating: [ ]
+Expected result: Cell 1,0,0 has the code 1+1 and shows 2
+- [ ] Test conducted and ok
 
 
 16. Edit -> Copy results
@@ -445,8 +446,8 @@ Select cell 0,0,0
 Select Edit -> Copy results from menubar
 Select cell 1,0,0
 Press Ctrl-v
-Result: Cell 1,0,0 has the code 2 and shows 2
-Rating: [ ]
+Expected result: Cell 1,0,0 has the code 2 and shows 2
+- [ ] Test conducted and ok
 
 
 17. Edit -> Paste
@@ -457,8 +458,8 @@ Select cells 0,0,0 and 1,0,0
 Select Edit -> Copy from menubar
 Select cell 999,0,0 (grid shape is 1000,100,3)
 Select Edit -> Paste from menubar
-Result: Cell 999,0,0 shows 1
-Rating: [ ]
+Expected result: Cell 999,0,0 shows 1
+- [ ] Test conducted and ok
 
 Enter 1 in cells 0,0,0 and 1,0,0
 Select cells 0,0,0 and 1,0,0
@@ -466,8 +467,8 @@ Select Edit -> Copy from menubar
 Select Table 1
 Select cell 0,0,1
 Select Edit -> Paste from menubar
-Result: Cells 0,0,1 and 1,0,1 show 1
-Rating: [ ]
+Expected result: Cells 0,0,1 and 1,0,1 show 1
+- [ ] Test conducted and ok
 
 
 18. Edit -> Paste as
@@ -478,40 +479,40 @@ Select cell 0,0,0
 Press Ctrl-c
 Select cell 1,0,0
 Select Edit -> Paste as from menubar
-Result: Cell 1,0,0 has the code 1+1 and shows 2
-Rating: [ ]
+Expected result: Cell 1,0,0 has the code 1+1 and shows 2
+- [ ] Test conducted and ok
 
 Enter 1+1 in cells 0,0,0 and 1,0,0
 Select cells 0,0,0 and 1,0,0
 Press Ctrl-c
 Select cell 3,0,0
 Select Edit -> Paste as from menubar
-Result: Cell 3,0,0 has the code 1+1\n1+1
-Rating: [ ]
+Expected result: Cell 3,0,0 has the code 1+1\n1+1
+- [ ] Test conducted and ok
 
 Load png image in cell 1,2,0
 Select cell 1,2,0
 Select Copy results from menubar
 Select cell 4,2,0
 Select Edit -> Paste as from menubar
-Result: Image appears in cell 4,2,0
-Rating: [ ]
+Expected result: Image appears in cell 4,2,0
+- [ ] Test conducted and ok
 
 Load svg image in cell 7,1,0
 Select cell 7,1,0
 Select Copy results from menubar
 Select cell 7,2,0
 Select Edit -> Paste as from menubar
-Result: Image appears in cell 7,2,0
-Rating: [ ]
+Expected result: Image appears in cell 7,2,0
+- [ ] Test conducted and ok
 
 Creat pie chart in cell 9,1,0
 Select cell 9,1,0
 Select Copy results from menubar
 Select cell 9,2,0
 Select Edit -> Paste as from menubar
-Result: Dialog appears with choices image svg+xml and x-qt-image
-Rating: [ ]
+Expected result: Dialog appears with choices image svg+xml and x-qt-image
+- [ ] Test conducted and ok
 
 Creat pie chart in cell 9,1,0
 Select cell 9,1,0
@@ -519,8 +520,8 @@ Select Copy results from menubar
 Select cell 9,2,0
 Select Edit -> Paste as from menubar
 Choose image svg+xml from dialog
-Result: Crash IndexError: list index out of range (cannot reproduce)
-Rating: [ ]
+Expected result: Crash IndexError: list index out of range (cannot reproduce)
+- [ ] Test conducted and ok
 
 Creat pie chart in cell 9,1,0
 Select cell 9,1,0
@@ -528,8 +529,8 @@ Select Copy results from menubar
 Select cell 9,2,0
 Select Edit -> Paste as from menubar
 Choose image x-qt-image from dialog
-Result: Chart appears in cell 9,2,0
-Rating: [ ]
+Expected result: Chart appears in cell 9,2,0
+- [ ] Test conducted and ok
 
 
 19. Edit -> Find
@@ -545,88 +546,88 @@ Enter 'Test' in cell 3,1,0
 Enter 2000+1 in cell 0,2,0
 
 Enter 1 in Search box and press <Enter>
-Result: Cell 0,0,0 is selected
-Rating: [ ]
+Expected result: Cell 0,0,0 is selected
+- [ ] Test conducted and ok
 
 Press <Enter> again
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Enter 1 in Search box and press <Enter>
-Result: Cell 1,0,0 is selected
-Rating: [ ]
+Expected result: Cell 1,0,0 is selected
+- [ ] Test conducted and ok
 
 Enter Te in Search box and press <Enter>
-Result: Cell 3,1,0 is selected
-Rating: [ ]
+Expected result: Cell 3,1,0 is selected
+- [ ] Test conducted and ok
 
 Enter test in Search box and press <Enter>
-Result: Cell 3,1,0 is selected
-Rating: [ ]
+Expected result: Cell 3,1,0 is selected
+- [ ] Test conducted and ok
 
 Select cell 1,0,0
 Toggle Match case On
 Enter test in Search box and press <Enter>
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Toggle Match case Off
 Enter 2001 in Search box and press <Enter>
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Toggle Code and Results On
 Enter 2001 in Search box and press <Enter>
-Result: Cell 0,2,0 is selected
-Rating: [ ]
+Expected result: Cell 0,2,0 is selected
+- [ ] Test conducted and ok
 
 Toggle Code and Results Off
 Select cell 5,2,0
 Enter 1 in Search box and press <Enter>
-Result: Cell 0,0,0 is selected
-Rating: [ ]
+Expected result: Cell 0,0,0 is selected
+- [ ] Test conducted and ok
 
 Select cell 5,2,0
 Toggle Search Backwards On
 Enter 1 in Search box and press <Enter>
-Result: Cell 0,2,0 is selected
-Rating: [ ]
+Expected result: Cell 0,2,0 is selected
+- [ ] Test conducted and ok
 
 Toggle Search Backwards Off
 Enter Te in Search box and press <Enter>
-Result: Cell 3,1,0 is selected
-Rating: [ ]
+Expected result: Cell 3,1,0 is selected
+- [ ] Test conducted and ok
 
 Toggle Whole Words On
 Select cell 0,0,0
 Enter Te in Search box and press <Enter>
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Toggle Whole Words On
 Select cell 0,0,0
 Enter Test in Search box and press <Enter>
-Result: Cell 3,1,0 is selected
-Rating: [ ]
+Expected result: Cell 3,1,0 is selected
+- [ ] Test conducted and ok
 
 Toggle Whole Words Off
 Toggle Regular expression On
 Select cell 10,0,0
 Enter .*[1-3] in Search box and press <Enter>
-Result: Cell 2,1,0 is selected
-Rating: [ ]
+Expected result: Cell 2,1,0 is selected
+- [ ] Test conducted and ok
 
 Enter .*[1-3] in Search box and press <Enter>
-Result: Cell 0,0,0 is selected
-Rating: [ ]
+Expected result: Cell 0,0,0 is selected
+- [ ] Test conducted and ok
 
 Enter .*[1-3] in Search box and press <Enter>
-Result: Cell 1,0,0 is selected
-Rating: [ ]
+Expected result: Cell 1,0,0 is selected
+- [ ] Test conducted and ok
 
 Enter .*[1-3] in Search box and press <Enter>
-Result: Cell 1,0,0 is selected
-Rating: [ ]
+Expected result: Cell 1,0,0 is selected
+- [ ] Test conducted and ok
 
 
 20. Edit -> Replace
@@ -637,17 +638,17 @@ Enter 1 in cell 1,0,0
 Enter 1 in cell 2,0,0
 Open Replace Dialog
 Search for Te and Replace with Tee
-Result: 'Teest' in cell 0,0,0
-Rating: [ ]
+Expected result: 'Teest' in cell 0,0,0
+- [ ] Test conducted and ok
 
 Search for Tee and Replace with Te
-Result: 'Test' in cell 0,0,0
-Rating: [ ]
+Expected result: 'Test' in cell 0,0,0
+- [ ] Test conducted and ok
 
 Select cell 0,0,0
 Search for 1 and Replace all with 222
-Result: 222 in cell 1,0,0
-Rating: [ ]
+Expected result: 222 in cell 1,0,0
+- [ ] Test conducted and ok
 
 
 21. Edit -> Quote
@@ -656,10 +657,10 @@ Enter Test in cell 0,0,0
 Select cell 0,0,0
 Press <Ctrl>+<Enter>
 Result 'Test' in cell 0,0,0
-Rating: [ ]
+- [ ] Test conducted and ok
 
 Type Test in 0,0,0 and press <Ctrl> + <Enter>
-Result: Code in cell is deleted
+Expected result: Code in cell is deleted
 Ratung: [ ]
 
 
@@ -670,13 +671,13 @@ Enter 1 in cell 1,0,0
 Enter 2 in cell 2,0,0
 Select row 2
 Select Insert rows
-Result: 2 is in cell 3,0,0
-Rating: [ ]
+Expected result: 2 is in cell 3,0,0
+- [ ] Test conducted and ok
 
 Select rows 2 and 3
 Select Insert rows
-Result: 2 is in cell 5,0,0
-Rating: [ ]
+Expected result: 2 is in cell 5,0,0
+- [ ] Test conducted and ok
 
 23. Edit -> Insert columns
 --------------------------
@@ -685,13 +686,13 @@ Enter 1 in cell 1,0,0
 Enter 2 in cell 1,1,0
 Select column 1
 Select Insert columns
-Result: 2 is in cell 1,2,0
-Rating: [ ]
+Expected result: 2 is in cell 1,2,0
+- [ ] Test conducted and ok
 
 Select columns 1 and 2
 Select Insert columns
-Result: 2 is in cell 1,4,0
-Rating: [ ]
+Expected result: 2 is in cell 1,4,0
+- [ ] Test conducted and ok
 
 
 24. Edit -> Insert table
@@ -701,8 +702,8 @@ Enter 0 in cell 0,0,0
 Enter 1 in cell 0,0,1
 Select Table 1
 Select Insert table
-Result: 1 is in cell 0,0,2
-Rating: [ ]
+Expected result: 1 is in cell 0,0,2
+- [ ] Test conducted and ok
 
 25. Edit -> Delete rows
 -----------------------
@@ -711,8 +712,8 @@ Enter 1 in cell 1,0,0
 Enter 2 in cell 3,0,0
 Select row 1
 Select Delete rows
-Result: Crash, IndexError: Grid index (1, 100, 0) outside grid shape (1000, 100, 3).
-Rating: [ ]
+Expected result: Crash, IndexError: Grid index (1, 100, 0) outside grid shape (1000, 100, 3).
+- [ ] Test conducted and ok
 
 
 26. Edit -> Delete columns
@@ -722,8 +723,8 @@ Enter 1 in cell 0,0,0
 Enter 2 in cell 0,2,0
 Select column 1
 Select Delete columns
-Result: Crash, IndexError: Grid index (1000, 1, 0) outside grid shape (1000, 100, 3)
-Rating: [ ]
+Expected result: Crash, IndexError: Grid index (1000, 1, 0) outside grid shape (1000, 100, 3)
+- [ ] Test conducted and ok
 
 
 27. Edit -> Delete table
@@ -733,8 +734,8 @@ Enter 0 in cell 0,0,0
 Enter 1 in cell 0,0,2
 Select Table 1
 Select Delete table
-Result: 1 is in cell 0,0,1
-Rating: [ ]
+Expected result: 1 is in cell 0,0,1
+- [ ] Test conducted and ok
 
 
 28. Edit -> Resize grid
@@ -742,49 +743,49 @@ Rating: [ ]
 
 Select Edit -> Resize grid
 Enter shape 5,5,1 and press ok
-Result: Grid with shape 5,5,1
-Rating: [ ]
+Expected result: Grid with shape 5,5,1
+- [ ] Test conducted and ok
 
 Select Edit -> Resize grid
 Enter shape 0,0,0 and press ok
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 
 29. View -> Fullscreen
 ----------------------
 
 Select View -> Fullscreen
-Result: Application is in fullscreen mode
-Rating: [ ]
+Expected result: Application is in fullscreen mode
+- [ ] Test conducted and ok
 
 Select View -> Fullscreen
-Result: Application is in normal mode again
-Rating: [ ]
+Expected result: Application is in normal mode again
+- [ ] Test conducted and ok
 
 
 30. View -> Toolbars
 --------------------
 
 Toggle each toolbar on and off via the View -> Toolbars menu
-Result: Each toolbar disappears and reappears as requested
-Rating: [ ]
+Expected result: Each toolbar disappears and reappears as requested
+- [ ] Test conducted and ok
 
 
 31. View -> Entry line
 ----------------------
 
 Toggle entry line on and off via View -> Entry line
-Result: The entry line disappears and reappears as requested
-Rating: [ ]
+Expected result: The entry line disappears and reappears as requested
+- [ ] Test conducted and ok
 
 
 32. View -> Macro panel
 -----------------------
 
 Toggle macro panel on and off via View -> Macro panel
-Result: The macro panel disappears and reappears as requested
-Rating: [ ]
+Expected result: The macro panel disappears and reappears as requested
+- [ ] Test conducted and ok
 
 
 33. View -> Go to cell
@@ -793,28 +794,28 @@ Rating: [ ]
 Select cell 0,0,0
 Select View -> Go to cell
 Enter 0,0,0 in dialog
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Select View -> Go to cell
 Enter nothing in dialog
-Result: Nothing
-Rating: [ ]
+Expected result: Nothing
+- [ ] Test conducted and ok
 
 Select View -> Go to cell
 Enter 1,0,0 in dialog
-Result: Cell 1,0,0 is selected
-Rating: [ ]
+Expected result: Cell 1,0,0 is selected
+- [ ] Test conducted and ok
 
 Select View -> Go to cell
 Enter 999,99,9 in dialog
-Result: Cell 999,99,0 is selected
-Rating: [ ]
+Expected result: Cell 999,99,0 is selected
+- [ ] Test conducted and ok
 
 Select View -> Go to cell
 Enter 999,99,1 in dialog
-Result: Cell 999,99,1 is selected
-Rating: [ ]
+Expected result: Cell 999,99,1 is selected
+- [ ] Test conducted and ok
 
 
 34. View -> Toggle spell checker
@@ -823,7 +824,7 @@ Rating: [ ]
 Select cell 0,0,0
 Enter Tes
 Select View -> Toggle spell checker
-Result: Nothing
+Expected result: Nothing
 Rating: Bug, minor inconvenience, immediate enabling of the spell checker would be better
 
 Select cell 0,0,0
@@ -831,15 +832,15 @@ Enter Tes
 Select cell 1,0,0
 Select View -> Toggle spell checker
 Select cell 0,0,0
-Result: Tes is marked as unknown word
-Rating: [ ]
+Expected result: Tes is marked as unknown word
+- [ ] Test conducted and ok
 
 
 35. View -> Zoom in
 -------------------
 
 Select View -> Zoom in
-Result: Grid is zoomed in
+Expected result: Grid is zoomed in
 Rating: OK
 
 
@@ -847,16 +848,16 @@ Rating: OK
 --------------------
 
 Select View -> Zoom out
-Result: Grid is zoomed out
-Rating: [ ]
+Expected result: Grid is zoomed out
+- [ ] Test conducted and ok
 
 
 37. View -> Original size
 -------------------------
 
 Select View -> Original size
-Result: Grid is zoomed to original size
-Rating: [ ]
+Expected result: Grid is zoomed to original size
+- [ ] Test conducted and ok
 
 
 38. View -> Refresh selected cells
@@ -867,7 +868,7 @@ Enter i=i+1 in cell 0,0,0
 Freeze cell 0,0,0
 Select View -> Refresh multiple times
 Results: Before Freezing, cell result is 1 after refreshing, it counts up
-Rating: [ ]
+- [ ] Test conducted and ok
 
 
 39. View -> Toggle periodic updates
@@ -878,7 +879,7 @@ Enter i=i+1 in cell 0,0,0
 Freeze cell 0,0,0
 Select View -> Toggle periodic updates
 Results: Cell result counts up once a second (dependent on preference setting)
-Rating: [ ]
+- [ ] Test conducted and ok
 
 
 40. View -> Show frozen
@@ -888,7 +889,7 @@ Freeze cell 0,0,0
 Select View -> Show frozen
 Select View -> Show frozen
 Results: Cell 0,0,0 shows blue diagonal pattern between When show frozen in toggled on.
-Rating: [ ]
+- [ ] Test conducted and ok
 
 
 41. Format -> Copy format
@@ -914,8 +915,8 @@ Select cells 1,2,0, 2,2,0, 1,3,0 and 2,3,0
 Copy format
 Select cell 5,2,0
 Paste format
-Result: Bold format is shown for cells 5,2,0 6,2,0 italics for  5,3,0, 6,3,0
-Rating: [ ]
+Expected result: Bold format is shown for cells 5,2,0 6,2,0 italics for  5,3,0, 6,3,0
+- [ ] Test conducted and ok
 
 
 43. Format -> Font
@@ -924,16 +925,16 @@ Rating: [ ]
 Enter 'Hello World' in cell 0,0,0
 Select Format -> Font
 Select Arial font, bold, 22 in dialog and press ok
-Result: The text in cell 0,0,0 is rendered accordingly.
-Rating: [ ]
+Expected result: The text in cell 0,0,0 is rendered accordingly.
+- [ ] Test conducted and ok
 
 44. Format -> Bold
 ------------------
 
 Enter 'Hello World' in cell 0,0,0
 Select Format -> Bold
-Result: The text in cell 0,0,0 is rendered accordingly.
-Rating: [ ]
+Expected result: The text in cell 0,0,0 is rendered accordingly.
+- [ ] Test conducted and ok
 
 
 45. Format -> Italics
@@ -941,8 +942,8 @@ Rating: [ ]
 
 Enter 'Hello World' in cell 0,0,0
 Select Format -> Italics
-Result: The text in cell 0,0,0 is rendered accordingly.
-Rating: [ ]
+Expected result: The text in cell 0,0,0 is rendered accordingly.
+- [ ] Test conducted and ok
 
 
 46. Format -> Underline
@@ -950,8 +951,8 @@ Rating: [ ]
 
 Enter 'Hello World' in cell 0,0,0
 Select Format -> Underline
-Result: The text in cell 0,0,0 is rendered accordingly.
-Rating: [ ]
+Expected result: The text in cell 0,0,0 is rendered accordingly.
+- [ ] Test conducted and ok
 
 
 47. Format -> Strikethrough
@@ -959,8 +960,8 @@ Rating: [ ]
 
 Enter 'Hello World' in cell 0,0,0
 Select Format -> Strikethrough
-Result: The text in cell 0,0,0 is rendered accordingly.
-Rating: [ ]
+Expected result: The text in cell 0,0,0 is rendered accordingly.
+- [ ] Test conducted and ok
 
 
 48. Format -> Cell renderer
@@ -968,18 +969,18 @@ Rating: [ ]
 
 Enter numpy.diag([255]*100) in cell 0,0,0
 Select Format -> Cell renderer ->  Image cell renderer
-Result: Black image with diagonal white line
-Rating: [ ]
+Expected result: Black image with diagonal white line
+- [ ] Test conducted and ok
 
 
 Enter '<b>Test</b>' in cell 0,0,0
 Select Format -> Cell renderer -> Markup cell renderer
-Result: Test is printed bold
-Rating: [ ]
+Expected result: Test is printed bold
+- [ ] Test conducted and ok
 
 Select Format -> Cell renderer -> Chart cell renderer
 Result nothing but message
-Rating: [ ]
+- [ ] Test conducted and ok
 
 
 49. Format -> Freeze cell
@@ -989,7 +990,7 @@ Select Cell 0,0,0
 Select Format -> Freeze cell
 Enter 1 in cell 0,0,0
 Results: Nothing
-Rating: [ ]
+- [ ] Test conducted and ok
 
 
 50. Format -> Lock cell
@@ -999,16 +1000,16 @@ Select Cell 0,0,0
 Enter 1 in cell 0,0,0
 Select Format -> Lock cell
 Try editing cell 0,0,0
-Result: Cell is not selected, editor does not appear.
-Rating: [ ]
+Expected result: Cell is not selected, editor does not appear.
+- [ ] Test conducted and ok
 
 Select Cell 0,0,0
 Enter 1 in cell 0,0,0
 Select Format -> Lock cell
 Select Cell 0,0,0
 press <Del>
-Result: Cell content is Deleted
-Rating: [ ]
+Expected result: Cell content is Deleted
+- [ ] Test conducted and ok
 
 
 51. Format -> Merge cells
@@ -1016,13 +1017,13 @@ Rating: [ ]
 
 Select cells 0,0,0 to 4,1,0
 Select Format -> Merge cells
-Result: Cells are merged
-Rating: [ ]
+Expected result: Cells are merged
+- [ ] Test conducted and ok
 
 Select cell 0,0,0
 Select Format -> Merge cells
-Result: Cells are unmerged
-Rating: [ ]
+Expected result: Cells are unmerged
+- [ ] Test conducted and ok
 
 
 52. Format -> Rotation
@@ -1030,8 +1031,8 @@ Rating: [ ]
 
 Enter 'Test' in cell 0,0,0
 Select each of the 4 rotation types
-Result: Cells are rotated as expected
-Rating: [ ]
+Expected result: Cells are rotated as expected
+- [ ] Test conducted and ok
 
 
 53. Format -> Justification
@@ -1039,8 +1040,8 @@ Rating: [ ]
 
 Enter 'Test' in cell 0,0,0
 Select each of the 4 justification types
-Result: Cells are justified as expected
-Rating: [ ]
+Expected result: Cells are justified as expected
+- [ ] Test conducted and ok
 
 
 54. Format -> Alignment
@@ -1048,8 +1049,8 @@ Rating: [ ]
 
 Enter 'Test' in cell 0,0,0
 Select each of the 4 alignment types
-Result: Cells are aligned as expected
-Rating: [ ]
+Expected result: Cells are aligned as expected
+- [ ] Test conducted and ok
 
 
 55. Format -> Formatted borders
@@ -1058,46 +1059,46 @@ Rating: [ ]
 Select cell 1,1,0
 Select Format -> Formatted borders -> Top border
 Select Format -> Border width -> 8
-Result: Top border is fat
-Rating: [ ]
+Expected result: Top border is fat
+- [ ] Test conducted and ok
 
 Select cell 1,1,0
 Select Format -> Formatted borders -> Bottom border
 Select Format -> Border width -> 8
-Result: Bottom border is fat
-Rating: [ ]
+Expected result: Bottom border is fat
+- [ ] Test conducted and ok
 
 Select cell 1,1,0
 Select Format -> Formatted borders -> Left border
 Select Format -> Border width -> 8
-Result: Left border is fat
-Rating: [ ]
+Expected result: Left border is fat
+- [ ] Test conducted and ok
 
 Select cell 1,1,0
 Select Format -> Formatted borders -> Right border
 Select Format -> Border width -> 8
-Result: Right border is fat
-Rating: [ ]
+Expected result: Right border is fat
+- [ ] Test conducted and ok
 
 Select cells 3,1,0 to 5,2,0
 Select Format -> Formatted borders -> Outer border
 Select Format -> Border width -> 8
-Result: Outer borders are fat
-Rating: [ ]
+Expected result: Outer borders are fat
+- [ ] Test conducted and ok
 
 Select Format -> Border width -> 1
 Select cells 3,1,0 to 5,2,0
 Select Format -> Formatted borders -> Inner border
 Select Format -> Border width -> 8
-Result: Inner borders are fat
-Rating: [ ]
+Expected result: Inner borders are fat
+- [ ] Test conducted and ok
 
 Select Format -> Border width -> 1
 Select cells 3,1,0 to 5,2,0
 Select Format -> Formatted borders -> Top and bottom borders
 Select Format -> Border width -> 8
-Result: Top and bottom borders are fat
-Rating: [ ]
+Expected result: Top and bottom borders are fat
+- [ ] Test conducted and ok
 
 
 56. Format -> Border width
@@ -1105,18 +1106,18 @@ Rating: [ ]
 
 Select cell 0,0,0
 Select Format -> Border width 0
-Result: Border width is a pixel line
-Rating: [ ]
+Expected result: Border width is a pixel line
+- [ ] Test conducted and ok
 
 Select cell 1,1,0
 Select Format -> Border width 1
-Result: Border width is light line
-Rating: [ ]
+Expected result: Border width is light line
+- [ ] Test conducted and ok
 
 Select cell 1,1,0
 Select Format -> Border width 64
-Result: Border width is a huge line
-Rating: [ ]
+Expected result: Border width is a huge line
+- [ ] Test conducted and ok
 
 
 57. Format -> Text color
@@ -1126,8 +1127,8 @@ Enter 'Test' in cell 0,0,0
 Select cell 0,0,0
 Select Format -> Text color
 Choose red color in dialog and press ok
-Result: Text is red
-Rating: [ ]
+Expected result: Text is red
+- [ ] Test conducted and ok
 
 
 58. Format -> Line color
@@ -1136,8 +1137,8 @@ Rating: [ ]
 Select cell 0,0,0
 Select Format -> Line color
 Choose blue color in dialog and press ok
-Result: Cell border line is blue
-Rating: [ ]
+Expected result: Cell border line is blue
+- [ ] Test conducted and ok
 
 
 59. Format -> Background color
@@ -1146,8 +1147,8 @@ Rating: [ ]
 Select cell 0,0,0
 Select Format -> Background color
 Choose yellow color in dialog and press ok
-Result: Cell background is yellow
-Rating: [ ]
+Expected result: Cell background is yellow
+- [ ] Test conducted and ok
 
 
 60. Macro -> Insert image
@@ -1156,14 +1157,14 @@ Rating: [ ]
 Select cell 1,1,0
 Select Macro -> Insert image
 Choose png image and press OK
-Result: Cell renderer is set to image and image appears
-Rating: [ ]
+Expected result: Cell renderer is set to image and image appears
+- [ ] Test conducted and ok
 
 Select cell 1,1,0
 Select Macro -> Insert image
 Choose svg image and press OK
-Result: Cell renderer is set to image and image appears
-Rating: [ ]
+Expected result: Cell renderer is set to image and image appears
+- [ ] Test conducted and ok
 
 
 61. Macro -> Link image
@@ -1171,8 +1172,8 @@ Rating: [ ]
 
 Select cell 1,1,0
 Select Macro -> Link image
-Result: Error message on_nothing >  Link image... <src.actions.Action object at 0x7f76a0e8f690>
-Rating: [ ]
+Expected result: Error message on_nothing >  Link image... <src.actions.Action object at 0x7f76a0e8f690>
+- [ ] Test conducted and ok
 
 
 62. Macro -> Insert chart
@@ -1181,39 +1182,39 @@ Rating: [ ]
 Select cell 1,1,0
 Select Macro -> Insert chart
 Choose Pie chart in chart dialog and press ok
-Result: Chart renderer is activated and pie chart is displayed.
-Rating: [ ]
+Expected result: Chart renderer is activated and pie chart is displayed.
+- [ ] Test conducted and ok
 
 
 63. Help -> First steps
 -----------------------
 Select Help -> First steps from menubar
-Result: Message on_nothing >  First steps... <src.actions.Action object at 0x7f78e1644550>
-Rating: [ ]
+Expected result: Message on_nothing >  First steps... <src.actions.Action object at 0x7f78e1644550>
+- [ ] Test conducted and ok
 
 64. Help -> Tutorial
 --------------------
 Select Help -> Tutorial from menubar
-Result: Message on_nothing >  Tutorial... <src.actions.Action object at 0x7f78e16445f0>
-Rating: [ ]
+Expected result: Message on_nothing >  Tutorial... <src.actions.Action object at 0x7f78e16445f0>
+- [ ] Test conducted and ok
 
 
 65. Help -> FAQ
 ---------------
 Select Help -> FAQ from menubar
-Result: Message on_nothing >  FAQ... <src.actions.Action object at 0x7f78e1644730>
-Rating: [ ]
+Expected result: Message on_nothing >  FAQ... <src.actions.Action object at 0x7f78e1644730>
+- [ ] Test conducted and ok
 
 66. Help -> Dependencies
 ------------------------
 
 Select Help -> Dependencies from menubar
-Result: Dependencies is displayed correctly
-Rating: [ ]
+Expected result: Dependencies is displayed correctly
+- [ ] Test conducted and ok
 
 67. Help -> About pyspread
 --------------------------
 
 Select Help -> About from menubar
-Result: About dialog is displayed correctly
-Rating: [ ]
+Expected result: About dialog is displayed correctly
+- [ ] Test conducted and ok
