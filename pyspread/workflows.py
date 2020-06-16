@@ -288,7 +288,7 @@ class Workflows:
                     for i, _ in file_progress_gen(self.main_window, reader,
                                                   title, label, filelines):
                         pass
-                except ValueError as error:
+                except Exception as error:
                     grid.model.reset()
                     self.main_window.statusBar().showMessage(str(error))
                     self.main_window.safe_mode = False
