@@ -1677,8 +1677,11 @@ class ManualDialog(TutorialDialog):
         self.setWindowTitle(self.window_title)
 
         layout = QHBoxLayout()
-        layout.addWidget(self.tabbar)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
+
+        layout.addWidget(self.tabbar)
+
 
 
 class PrintPreviewDialog(QPrintPreviewDialog):
