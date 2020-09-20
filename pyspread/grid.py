@@ -116,6 +116,8 @@ class Grid(QTableView):
         # Signals
         self.model.dataChanged.connect(self.on_data_changed)
         self.selectionModel().currentChanged.connect(self.on_current_changed)
+        self.selectionModel().selectionChanged.connect(
+            self.on_selection_changed)
 
         widgets = self.main_window.widgets
         widgets.text_color_button.colorChanged.connect(self.on_text_color)
@@ -559,6 +561,31 @@ class Grid(QTableView):
             code = self.model.code_array(self.current)
             self.main_window.entry_line.setPlainText(code)
             self.gui_update()
+
+    def on_selection_changed(self):
+        """Selection changed event handler"""
+
+        bbox = self.selection.get_bbox()
+        if bbox[0] != bbox[1]:
+            selected_cell_gen = self.selection.cell_generator(self.model.shape,
+                                                              self.table)
+            cell_list = list(selected_cell_gen)
+            msg = "{} cells selected".format(len(cell_list))
+
+            if self.main_window.settings.show_statusbar_sum:
+                res_gen = (self.model.code_array[key] for key in cell_list)
+                sum_list = [res for res in res_gen if res is not None]
+                msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
+                if sum_list:
+                    try:
+                        msg += msg_tpl.format(sum(sum_list),
+                                              max(sum_list), min(sum_list))
+                    except Exception:
+                        pass
+
+            self.main_window.statusBar().showMessage(msg)
+        else:
+            self.main_window.statusBar().clearMessage()
 
     def on_row_resized(self, row: int, old_height: float, new_height: float):
         """Row resized event handler

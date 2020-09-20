@@ -129,6 +129,9 @@ class Settings:
     # sniff_size should be larger than 1st+2nd line
     sniff_size = 65536
 
+    # Status bar cell result summation
+    show_statusbar_sum = True
+
     def __init__(self, parent: QWidget, reset_settings: bool = False):
         """
         :param parent: Parent widget, normally main window
