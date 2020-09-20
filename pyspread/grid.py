@@ -570,7 +570,7 @@ class Grid(QTableView):
             selected_cell_gen = self.selection.cell_generator(self.model.shape,
                                                               self.table)
             cell_list = list(selected_cell_gen)
-            msg = "{} cells selected".format(len(cell_list))
+            msg = "Selection: {} cells".format(len(cell_list))
 
             if self.main_window.settings.show_statusbar_sum:
                 res_gen = (self.model.code_array[key] for key in cell_list)
