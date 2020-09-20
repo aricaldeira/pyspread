@@ -1,28 +1,26 @@
-API/
-===================================
+API
+====================================
+
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 3
 
-    __init__.rst
-    __main__.rst
     actions.rst
     cli.rst
     commands.rst
     dialogs.rst
     entryline.rst
     grid.rst
-    grid_renderer.rst
     icons.rst
-    installer.rst
-    interfaces/index.rst
-    lib/index.rst
+    installer.rst 
     menus.rst
-    model/index.rst
     panels.rst
     pyspread.rst
     settings.rst
     toolbar.rst
     widgets.rst
     workflows.rst
+    model/index.rst
+    lib/index.rst
+    interfaces/index.rst
 
