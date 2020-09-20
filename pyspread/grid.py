@@ -1253,15 +1253,16 @@ class Grid(QTableView):
         if current_attr.frozen == toggled:
             return  # Something is wrong with the GUI update
 
+        cells = list(self.selection.cell_generator(shape=self.model.shape,
+                                                   table=self.table))
         if toggled:
             # We have an non-frozen cell that has to be frozen
-            description = "Freeze cell {}".format(self.current)
-            command = commands.FreezeCell(self.model, self.current,
-                                          description)
+            description = "Freeze cells {}".format(cells)
+            command = commands.FreezeCell(self.model, cells, description)
         else:
             # We have an frozen cell that has to be unfrozen
-            description = "Thaw cell {}".format(self.current)
-            command = commands.ThawCell(self.model, self.current, description)
+            description = "Thaw cells {}".format(cells)
+            command = commands.ThawCell(self.model, cells, description)
         self.main_window.undo_stack.push(command)
 
     def on_button_cell_pressed(self, toggled: bool):

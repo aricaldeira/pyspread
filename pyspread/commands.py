@@ -739,10 +739,10 @@ class FreezeCell(QUndoCommand):
     """Freezes cell in grid"""
 
     def __init__(self, model: QAbstractTableModel,
-                 current: Tuple[int, int, int], description: str):
+                 cells: List[Tuple[int, int, int]], description: str):
         """
         :param model: Model of the grid object
-        :param current: Index of the cell to be frozen
+        :param cells: List of indices of cells to be frozen
         :param description: Command description
 
         """
@@ -750,30 +750,32 @@ class FreezeCell(QUndoCommand):
         super().__init__(description)
 
         self.model = model
-        self.current = current
+        self.cells = cells
 
     def redo(self):
         """Redo cell freezing"""
 
-        row, column, table = self.current
+        for cell in self.cells:
+            row, column, table = cell
 
-        # Add frozen cache content
-        res_obj = self.model.code_array[self.current]
-        self.model.code_array.frozen_cache[repr(self.current)] = res_obj
+            # Add frozen cache content
+            res_obj = self.model.code_array[cell]
+            self.model.code_array.frozen_cache[repr(cell)] = res_obj
 
-        # Set the frozen state
-        selection = Selection([], [], [], [], [(row, column)])
-        attr_dict = AttrDict([("frozen", True)])
-        attr = CellAttribute(selection, table, attr_dict)
-        self.model.setData([], attr, Qt.DecorationRole)
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+            # Set the frozen state
+            selection = Selection([], [], [], [], [(row, column)])
+            attr_dict = AttrDict([("frozen", True)])
+            attr = CellAttribute(selection, table, attr_dict)
+            self.model.setData([], attr, Qt.DecorationRole)
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         """Undo cell freezing"""
 
-        self.model.code_array.frozen_cache.pop(repr(self.current))
-        self.model.code_array.cell_attributes.pop()
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        for cell in reversed(self.cells):
+            self.model.code_array.frozen_cache.pop(repr(cell))
+            self.model.code_array.cell_attributes.pop()
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class ThawCell(FreezeCell):
@@ -782,24 +784,30 @@ class ThawCell(FreezeCell):
     def redo(self):
         """Redo cell thawing"""
 
-        row, column, table = current = self.current
+        self.res_objs = []
 
-        # Remove and store frozen cache content
-        self.res_obj = self.model.code_array.frozen_cache.pop(repr(current))
+        for cell in self.cells:
+            row, column, table = cell
 
-        # Remove the frozen state
-        selection = Selection([], [], [], [], [(row, column)])
-        attr_dict = AttrDict([("frozen", False)])
-        attr = CellAttribute(selection, table, attr_dict)
-        self.model.setData([], attr, Qt.DecorationRole)
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+            # Remove and store frozen cache content
+            self.res_objs.append(
+                self.model.code_array.frozen_cache.pop(repr(cell)))
+
+            # Remove the frozen state
+            selection = Selection([], [], [], [], [(row, column)])
+            attr_dict = AttrDict([("frozen", False)])
+            attr = CellAttribute(selection, table, attr_dict)
+            self.model.setData([], attr, Qt.DecorationRole)
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         """Undo cell thawing"""
 
-        self.model.code_array.frozen_cache[repr(self.current)] = self.res_obj
-        self.model.code_array.cell_attributes.pop()
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        for cell, res_obj in zip(reversed(self.cells),
+                                 reversed(self.res_objs)):
+            self.model.code_array.frozen_cache[repr(cell)] = res_obj
+            self.model.code_array.cell_attributes.pop()
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class SetCellRenderer(QUndoCommand):
