@@ -1504,6 +1504,7 @@ class GridHeaderView(QHeaderView):
 
         super().__init__(orientation, grid)
         self.setSectionsClickable(True)
+        self.setHighlightSections(True)
         self.default_section_size = self.defaultSectionSize()
         self.grid = grid
 
