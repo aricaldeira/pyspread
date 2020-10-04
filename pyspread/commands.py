@@ -894,18 +894,14 @@ class MakeButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only add widget if we are in the right table
-            button = CellButton(self.text, self.grid, self.key)
-            self.grid.setIndexWidget(self.index, button)
-            self.grid.widget_indices.append(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
 
         self.grid.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
         """Undo button cell making"""
-
-        if self.index not in self.grid.widget_indices:
-            return
 
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
@@ -914,9 +910,10 @@ class MakeButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only remove widget if we are in the right table
-            self.grid.setIndexWidget(self.index, None)
-            self.grid.widget_indices.remove(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(self.index, self.index)
 
 
@@ -940,8 +937,6 @@ class RemoveButtonCell(QUndoCommand):
     def redo(self):
         """Redo button cell removal"""
 
-        if self.index not in self.grid.widget_indices:
-            return
         attr = self.grid.model.code_array.cell_attributes[self.key]
         self.text = attr.button_cell
         row, column, table = self.key
@@ -951,9 +946,10 @@ class RemoveButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only remove widget if we are in the right table
-            self.grid.setIndexWidget(self.index, None)
-            self.grid.widget_indices.remove(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
@@ -966,8 +962,8 @@ class RemoveButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only add widget if we are in the right table
-            button = CellButton(self.text, self.grid, self.key)
-            self.grid.setIndexWidget(self.index, button)
-            self.grid.widget_indices.append(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(self.index, self.index)

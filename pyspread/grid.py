@@ -1236,15 +1236,22 @@ class Grid(QTableView):
             self.setIndexWidget(index, None)
         self.widget_indices.clear()
 
-        # Add button cells for current table
+        # Get button cell candidates
         code_array = self.model.code_array
+        button_cell_candidates = []
         for selection, table, attr in code_array.cell_attributes:
             if table == self.table and 'button_cell' in attr \
                and attr['button_cell']:
                 row, column = selection.get_bbox()[0]
+                button_cell_candidates.append((row, column, table))
+
+        # Add button cells for current table
+        for key in set(button_cell_candidates):
+            text = code_array.cell_attributes[key]['button_cell']
+            if text is not False:  # False would be deleted button cell
+                row, column, table = key
                 index = self.model.index(row, column, QModelIndex())
-                text = attr['button_cell']
-                button = CellButton(text, self, (row, column, table))
+                button = CellButton(text, self, key)
                 self.setIndexWidget(index, button)
                 self.widget_indices.append(index)
 
