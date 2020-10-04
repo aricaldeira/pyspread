@@ -59,7 +59,7 @@ def getprop_other(getter):
 class QtDriver(object):
     DRIVERS = ('PyQt5', 'PyQt4', 'PySide', 'PySide2', 'PythonQt')
     DEFAULT = 'PyQt5'
-    
+
     @classmethod
     def detect_qt(cls):
         for drv in cls.DRIVERS:
@@ -95,7 +95,10 @@ class QtDriver(object):
             # too late to configure API
             pass
         else:
-            import sip
+            try:
+                from PyQt5 import sip
+            except ImportError:
+                import sip
             sip.setapi("QString", 2)
             sip.setapi("QVariant", 2)
 
@@ -109,11 +112,14 @@ class QtDriver(object):
         hand on doing so.)
         """
         if 'PyQt4.QtCore' in sys.modules:
-            import sip
+            try:
+                from PyQt5 import sip
+            except ImportError:
+                import sip
             for api in ('QVariant', 'QString'):
                 if sip.getapi(api) != 2:
                     raise RuntimeError('%s API already set to V%d, but should be 2' % (api, sip.getapi(api)))
-            
+
     def importMod(self, mod):
         if self._drv == 'PyQt4':
             self._initPyQt4()
