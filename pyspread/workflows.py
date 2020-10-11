@@ -209,13 +209,14 @@ class Workflows:
         self.main_window.grid.reset_selection()
 
         # Update cell spans and zoom because this is unsupported by the model
-        with self.main_window.grid.undo_resizing_row():
-            with self.main_window.grid.undo_resizing_column():
-                self.main_window.grid.update_cell_spans()
-                self.main_window.grid.update_zoom()
+        for grid in self.main_window.grid.main_window.grids:
+            with self.main_window.grid.undo_resizing_row():
+                with grid.undo_resizing_column():
+                    grid.update_cell_spans()
+                    grid.update_zoom()
 
-        # Update index widgets
-        self.main_window.grid.update_index_widgets()
+            # Update index widgets
+            grid.update_index_widgets()
 
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
@@ -320,16 +321,17 @@ class Workflows:
         grid.model.shape = shape
 
         # Update cell spans and zoom because this is unsupported by the model
-        with self.main_window.grid.undo_resizing_row():
-            with self.main_window.grid.undo_resizing_column():
-                self.main_window.grid.update_cell_spans()
-                self.main_window.grid.update_zoom()
+        for grid in self.main_window.grid.main_window.grids:
+            with grid.undo_resizing_row():
+                with grid.undo_resizing_column():
+                    grid.update_cell_spans()
+                    grid.update_zoom()
 
-        # Update index widgets
-        grid.update_index_widgets()
+            # Update index widgets
+            grid.update_index_widgets()
 
-        # Select upper left cell because initial selection behaves strangely
-        grid.reset_selection()
+            # Select upper left cell because initial selection oddities
+            grid.reset_selection()
 
         # Change the main window last input directory state
         self.main_window.settings.last_file_input_path = filepath
