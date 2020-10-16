@@ -404,7 +404,6 @@ class MainWindowActions(AttrDict):
         self.font = Action(self.parent, "&Font...",
                            self.parent.grid. on_font_dialog,
                            icon=Icon.font_dialog,
-                           shortcut='Ctrl+n',
                            statustip='Lauch font dialog')
 
         self.bold = Action(self.parent, "&Bold",
