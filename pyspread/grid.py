@@ -124,14 +124,6 @@ class Grid(QTableView):
         self.selectionModel().selectionChanged.connect(
             self.on_selection_changed)
 
-        widgets = self.main_window.widgets
-        widgets.text_color_button.colorChanged.connect(self.on_text_color)
-        widgets.background_color_button.colorChanged.connect(
-            self.on_background_color)
-        widgets.line_color_button.colorChanged.connect(self.on_line_color)
-        widgets.font_combo.fontChanged.connect(self.on_font)
-        widgets.font_size_combo.fontSizeChanged.connect(self.on_font_size)
-
         self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
         self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
 

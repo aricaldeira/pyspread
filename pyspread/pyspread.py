@@ -251,6 +251,17 @@ class MainWindow(QMainWindow):
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
+        # Connect widgets only to first grid
+        self.widgets.text_color_button.colorChanged.connect(
+            self.grid.on_text_color)
+        self.widgets.background_color_button.colorChanged.connect(
+            self.grid.on_background_color)
+        self.widgets.line_color_button.colorChanged.connect(
+            self.grid.on_line_color)
+        self.widgets.font_combo.fontChanged.connect(self.grid.on_font)
+        self.widgets.font_size_combo.fontSizeChanged.connect(
+            self.grid.on_font_size)
+
     def _layout(self):
         """Layouts for main window"""
 
