@@ -43,9 +43,14 @@ coverage:
   script:
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
-  - coverage run -m py.test-3 >> /dev/null
+  - coverage run -m py.test-3
   - coverage report -m
-  - coverage-badge
+  - coverage-badge > /tmp/badge.xml
+  artifacts:
+    reports:
+      coverage:
+        /tmp/badge.xml
+        
   only:
   - master
   - development
