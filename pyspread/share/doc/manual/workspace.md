@@ -90,6 +90,13 @@ Only cells of the current table can be selected at any time. Switching tables sw
 
 Be careful when selecting all cells in a large table. Operations may take considerable time.
 
+#### Secondary grid views
+You can pull out up to 3 secondary grid views from the righr and the lower border of the grid.
+These views display the same grid content but can be independently scrolled and zoomed
+in order to effectively work in separated sections of large grids.
+
+Note that actions that affect the grid such as formatting cells refer to the last focused grid.
+
 ## Macro editor
 
 Macros can be edited from within the macro editor. The editor allows editing a
