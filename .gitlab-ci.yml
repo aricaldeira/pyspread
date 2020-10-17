@@ -48,8 +48,7 @@ coverage:
   - coverage-badge > /tmp/badge.xml
   artifacts:
     reports:
-      coverage:
-        /tmp/badge.xml
+      coverage: /tmp/badge.xml
         
   only:
   - master
