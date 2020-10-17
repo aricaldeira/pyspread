@@ -143,6 +143,8 @@ class MainWindow(QMainWindow):
         attributes = cell_attributes[self.grid.current]
         self.on_gui_update(attributes)
 
+        self._last_focused_grid = self.grid
+
         self._loading = False
         self._previous_window_state = self.windowState()
 
@@ -344,11 +346,10 @@ class MainWindow(QMainWindow):
     def focused_grid(self):
         """Returns grid with focus or self if none has focus"""
 
-        for grid in self.grids:
-            if grid.hasFocus():
-                return grid
-
-        return self.grid
+        try:
+            return self._last_focused_grid
+        except AttributeError:
+            return self.grid
 
     @property
     def safe_mode(self) -> bool:

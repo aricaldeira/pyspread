@@ -386,6 +386,13 @@ class Grid(QTableView):
 
     # Overrides
 
+    def focusInEvent(self, event):
+        """Overrides focusInEvent storing last focused grid in main_window"""
+
+        self.main_window._last_focused_grid = self
+
+        super().focusInEvent(event)
+
     def closeEditor(self, editor: QWidget,
                     hint: QAbstractItemDelegate.EndEditHint):
         """Overrides QTableView.closeEditor
