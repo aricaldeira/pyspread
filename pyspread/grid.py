@@ -1294,7 +1294,9 @@ class Grid(QTableView):
 
         """
 
-        current_attr = self.model.code_array.cell_attributes[self.current]
+        grid = self.main_window.focused_grid
+
+        current_attr = grid.model.code_array.cell_attributes[grid.current]
         if not toggled and current_attr.button_cell is False \
            or toggled and current_attr.button_cell is not False:
             # Something is not syncronized in the menu
@@ -1308,20 +1310,22 @@ class Grid(QTableView):
                                                 QLineEdit.Normal, "")
             if accept and text:
                 description_tpl = "Make cell {} a button cell"
-                description = description_tpl.format(self.current)
+                description = description_tpl.format(grid.current)
                 command = commands.MakeButtonCell(self, text,
-                                                  self.currentIndex(),
+                                                  grid.currentIndex(),
                                                   description)
                 self.main_window.undo_stack.push(command)
         else:
             description_tpl = "Make cell {} a non-button cell"
-            description = description_tpl.format(self.current)
-            command = commands.RemoveButtonCell(self, self.currentIndex(),
+            description = description_tpl.format(grid.current)
+            command = commands.RemoveButtonCell(self, grid.currentIndex(),
                                                 description)
             self.main_window.undo_stack.push(command)
 
     def on_merge_pressed(self):
         """Merge cells button pressed event handler"""
+
+        grid = self.main_window.focused_grid
 
         # This is not done in the model because setSpan does not work there
 
@@ -1349,7 +1353,7 @@ class Grid(QTableView):
                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-        self.current = top, left
+        grid.current = top, left
 
     def on_quote(self):
         """Quote cells event handler"""
@@ -2565,7 +2569,7 @@ class TableChoice(QTabBar):
         """
 
         for grid in self.grid.main_window.grids:
-            grid.table = current
+            grid.table = current[2]
             grid.table_scrolls[self.last] = \
                 (grid.verticalScrollBar().value(),
                  grid.horizontalScrollBar().value())
