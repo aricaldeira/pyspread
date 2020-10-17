@@ -2,10 +2,12 @@ image: debian
 
 before_script:
   - apt update -qq
-  - apt install -y -qq python3-pip python3-dev python3-pyqt5 python3-pyqt5.qtsvg python3-matplotlib python3-numpy python3-pytest
+  - apt install -y -qq python3-pip python3-dev python3-pyqt5 python3-pyqt5.qtsvg python3-matplotlib python3-numpy  python3-pytest python3-coverage
+  - pip install coverage-badge
 
 stages:
   - test
+  - coverage
   - release
   - deploy
 
@@ -33,6 +35,22 @@ test_debian_experimental:
   - master
   - development
 
+  
+coverage:
+  image: debian:testing
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
+  script:
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
+  - coverage run -m py.test-3 >> /dev/null
+  - coverage report -m
+  - coverage-badge
+  only:
+  - master
+  - development
+
+  
 ## Release to pypi
 deploy_pypi:
   stage: release
