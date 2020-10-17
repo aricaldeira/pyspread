@@ -38,8 +38,7 @@ from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
 
 from PyQt5.QtCore import (
-    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize,
-    QItemSelectionModel)
+    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QItemSelectionModel)
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView)
@@ -547,8 +546,9 @@ class Workflows:
             keep_header = dialect.hasheader and dialect.keepheader
         except AttributeError:
             keep_header = False
-        row, column, _ = current = self.main_window.grid.current
-        model = self.main_window.grid.model
+        grid = self.main_window.focused_grid
+        row, column, _ = current = grid.current
+        model = grid.model
         rows, columns, tables = model.shape
 
         # Dialog accepted, now check if grid is large enough
@@ -672,8 +672,10 @@ class Workflows:
         # Determine what filters ae available
         filters_list = ["CSV (*.csv)"]
 
-        current = self.main_window.grid.current
-        code_array = self.main_window.grid.model.code_array
+        grid = self.main_window.focused_grid
+
+        current = grid.current
+        code_array = grid.model.code_array
 
         res = code_array[current]
 
@@ -725,15 +727,16 @@ class Workflows:
 
         """
 
+        grid = self.main_window.focused_grid
+
         # Get area for csv export
-        area = CsvExportAreaDialog(self.main_window,
-                                   self.main_window.grid,
+        area = CsvExportAreaDialog(self.main_window, grid,
                                    title="Csv export area").area
         if area is None:
             return
 
-        code_array = self.main_window.grid.model.code_array
-        table = self.main_window.grid.table
+        code_array = grid.model.code_array
+        table = grid.table
         csv_data = code_array[area.top: area.bottom + 1,
                               area.left: area.right + 1, table]
 
@@ -757,8 +760,9 @@ class Workflows:
 
         """
 
-        code_array = self.main_window.grid.model.code_array
-        qimage = code_array[self.main_window.grid.current]
+        grid = self.main_window.focused_grid
+        code_array = grid.model.code_array
+        qimage = code_array[grid.current]
 
         try:
             if not qimage.save(filepath, file_format):
@@ -779,8 +783,9 @@ class Workflows:
             # matplotlib is not installed
             return
 
-        code_array = self.main_window.grid.model.code_array
-        figure = code_array[self.main_window.grid.current]
+        grid = self.main_window.focused_grid
+        code_array = grid.model.code_array
+        figure = code_array[grid.current]
 
         try:
             figure.savefig(filepath, format=file_format)
@@ -795,10 +800,11 @@ class Workflows:
 
         """
 
-        __zoom = self.main_window.grid.zoom
-        self.main_window.grid.zoom = zoom
+        grid = self.main_window.focused_grid
+        __zoom = grid.zoom
+        grid.zoom = zoom
         yield
-        self.main_window.grid.zoom = __zoom
+        grid.zoom = __zoom
 
     def get_paint_rows(self, top: int, bottom: int) -> Iterable[int]:
         """Iterator of rows to paint
@@ -808,13 +814,14 @@ class Workflows:
 
         """
 
-        rows = self.main_window.grid.model.shape[0]
+        grid = self.main_window.focused_grid
+        rows = grid.model.shape[0]
         top = max(0, min(rows - 1, top))
         bottom = max(0, min(rows - 1, bottom))
         if top == -1:
             top = 0
         if bottom == -1:
-            bottom = self.main_window.grid.model.shape[0]
+            bottom = grid.model.shape[0]
 
         return range(top, bottom + 1)
 
@@ -826,13 +833,14 @@ class Workflows:
 
         """
 
-        columns = self.main_window.grid.model.shape[1]
+        grid = self.main_window.focused_grid
+        columns = grid.model.shape[1]
         left = max(0, min(columns - 1, left))
         right = max(0, min(columns - 1, right))
         if left == -1:
             left = 0
         if right == -1:
-            right = self.main_window.grid.model.shape[1]
+            right = grid.model.shape[1]
 
         return range(left, right + 1)
 
@@ -844,13 +852,14 @@ class Workflows:
 
         """
 
-        tables = self.main_window.grid.model.shape[2]
+        grid = self.main_window.focused_grid
+        tables = grid.model.shape[2]
         first = max(0, min(tables - 1, first))
         last = max(0, min(tables - 1, last))
         if first == -1:
             first = 0
         if last == -1:
-            last = self.main_window.grid.model.shape[2]
+            last = grid.model.shape[2]
 
         return range(first, last + 1)
 
@@ -862,7 +871,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         rows = self.get_paint_rows(top, bottom)
         return sum(grid.rowHeight(row) for row in rows)
 
@@ -874,7 +883,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         columns = self.get_paint_columns(left, right)
         return sum(grid.columnWidth(column) for column in columns)
 
@@ -890,7 +899,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         code_array = grid.model.code_array
         cell_attributes = code_array.cell_attributes
 
@@ -950,7 +959,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         model = grid.model
         selection = grid.selection
 
@@ -977,7 +986,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         table = grid.table
         selection = grid.selection
         bbox = selection.get_grid_bbox(grid.model.shape)
@@ -1097,7 +1106,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
 
         if grid.has_selection():
             self._copy_results_selection(grid)
@@ -1112,7 +1121,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         model = grid.model
         (top, left), (bottom, right) = selection.get_grid_bbox(model.shape)
         table = grid.table
@@ -1155,7 +1164,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         model = grid.model
         top, left, table = current = grid.current
         code_array = grid.model.code_array
@@ -1198,7 +1207,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
 
         clipboard = QApplication.clipboard()
         data = clipboard.text()
@@ -1221,15 +1230,17 @@ class Workflows:
 
         """
 
+        grid = self.main_window.focused_grid
+
         codelines = svg.splitlines()
         codelines[0] = '"""' + codelines[0]
         codelines[-1] = codelines[-1] + '"""'
         code = "\n".join(codelines)
 
-        model = self.main_window.grid.model
+        model = grid.model
         description = "Insert svg image into cell {}".format(index)
 
-        self.main_window.grid.on_image_renderer_pressed(True)
+        grid.on_image_renderer_pressed(True)
         with self.disable_entryline_updates():
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
@@ -1253,6 +1264,8 @@ class Workflows:
             for i in range(0, len(string), length):
                 yield string[i:i+length]
 
+        grid = self.main_window.focused_grid
+
         repr_image_data = repr(b85encode(bz2.compress(image_data)))
         newline = "'\n+b'"
 
@@ -1269,10 +1282,10 @@ class Workflows:
 
         code = "\n".join(code_lines)
 
-        model = self.main_window.grid.model
+        model = grid.model
         description = "Insert image into cell {}".format(index)
 
-        self.main_window.grid.on_image_renderer_pressed(True)
+        grid.on_image_renderer_pressed(True)
         with self.disable_entryline_updates():
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
@@ -1280,7 +1293,7 @@ class Workflows:
     def edit_paste_as(self):
         """Pastes clipboard into one cell using a user specified mime type"""
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         model = grid.model
 
         # The mimetypes that are supported by pyspread
@@ -1359,7 +1372,7 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         findnextmatch = grid.model.code_array.findnextmatch
 
         find_editor = find_dialog.search_text_editor
@@ -1405,10 +1418,12 @@ class Workflows:
 
         """
 
+        grid = self.main_window.focused_grid
+
         find_string, next_match = self._get_next_match(find_dialog)
 
         if next_match:
-            self.main_window.grid.current = next_match
+            grid.current = next_match
 
             regexp = find_dialog.regex_checkbox.isChecked()
             self._display_match_msg(find_string, next_match, regexp)
@@ -1419,7 +1434,8 @@ class Workflows:
     def edit_find_next(self):
         """Edit -> Find next workflow"""
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
+
         findnextmatch = grid.model.code_array.findnextmatch
 
         find_editor = self.main_window.find_toolbar.find_editor
@@ -1463,7 +1479,9 @@ class Workflows:
 
         """
 
-        model = self.main_window.grid.model
+        grid = self.main_window.focused_grid
+
+        model = grid.model
 
         find_string, next_match = self._get_next_match(replace_dialog)
         replace_string = replace_dialog.replace_text_editor.text()
@@ -1479,7 +1497,7 @@ class Workflows:
             command = commands.SetCellCode(new_code, model, index, description)
             self.main_window.undo_stack.push(command)
 
-            self.main_window.grid.current = next_match
+            grid.current = next_match
 
             self.main_window.statusBar().showMessage(description)
 
@@ -1501,8 +1519,10 @@ class Workflows:
     def edit_resize(self):
         """Edit -> Resize workflow"""
 
+        grid = self.main_window.focused_grid
+
         # Get grid shape from user
-        old_shape = self.main_window.grid.model.code_array.shape
+        old_shape = grid.model.code_array.shape
         title = "Resize grid"
         shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
         self._resize_grid(shape)
@@ -1514,8 +1534,9 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
-        old_shape = self.main_window.grid.model.code_array.shape
+        grid = self.main_window.focused_grid
+
+        old_shape = grid.model.code_array.shape
 
         # Check if shape is valid
         try:
@@ -1524,7 +1545,7 @@ class Workflows:
             self.main_window.statusBar().showMessage('Error: ' + str(err))
             return
 
-        self.main_window.grid.current = 0, 0, 0
+        grid.current = 0, 0, 0
 
         description = "Resize grid to {}".format(shape)
 
@@ -1533,19 +1554,21 @@ class Workflows:
             self.main_window.undo_stack.push(command)
 
         # Select upper left cell because initial selection behaves strangely
-        self.main_window.grid.reset_selection()
+        grid.reset_selection()
 
     # View menu
 
     def view_goto_cell(self):
         """View -> Go to cell workflow"""
 
+        grid = self.main_window.focused_grid
+
         # Get cell key from user
-        shape = self.main_window.grid.model.shape
+        shape = grid.model.shape
         key = CellKeyDialog(self.main_window, shape).key
 
         if key is not None:
-            self.main_window.grid.current = key
+            grid.current = key
 
     # Format menu
 
@@ -1570,7 +1593,7 @@ class Workflows:
                 except KeyError:
                     pass
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         code_array = grid.model.code_array
         cell_attributes = code_array.cell_attributes
 
@@ -1610,7 +1633,7 @@ class Workflows:
         clipboard = QApplication.clipboard()
         mime_data = clipboard.mimeData()
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
         model = grid.model
 
         row, column, table = grid.current
@@ -1652,7 +1675,7 @@ class Workflows:
     def macro_insert_image(self):
         """Insert image workflow"""
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
 
         dial = ImageFileOpenDialog(self.main_window)
         if not dial.file_path:
@@ -1688,9 +1711,12 @@ class Workflows:
     def macro_insert_chart(self):
         """Insert chart workflow"""
 
-        code_array = self.main_window.grid.model.code_array
-        code = code_array(self.main_window.grid.current)
-        current = self.main_window.grid.current
+        grid = self.main_window.focused_grid
+
+        model = grid.model
+        code_array = model.code_array
+        current = grid.current
+        code = code_array(current)
 
         if current in self.cell2dialog:
             self.cell2dialog[current].activateWindow()
@@ -1707,14 +1733,12 @@ class Workflows:
 
         if chart_dialog.exec_() == ChartDialog.Accepted:
             code = chart_dialog.editor.toPlainText()
-            self.main_window.grid.current = current
-            index = self.main_window.grid.currentIndex()
-            self.main_window.grid.clearSelection()
-            self.main_window.grid.selectionModel().select(
-                    index, QItemSelectionModel.Select)
-            self.main_window.grid.on_matplotlib_renderer_pressed(True)
+            grid.current = current
+            index = grid.currentIndex()
+            grid.clearSelection()
+            grid.selectionModel().select(index, QItemSelectionModel.Select)
+            grid.on_matplotlib_renderer_pressed(True)
 
-            model = self.main_window.grid.model
             description = "Insert chart into cell {}".format(index)
             command = commands.SetCellCode(code, model, index, description)
 
