@@ -45,8 +45,9 @@ coverage:
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - coverage run -m py.test
   - coverage report -m
-  - coverage-badge
-  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
+  artifacts:
+    reports:
+        cobertura: .coverage
         
   only:
   - master
