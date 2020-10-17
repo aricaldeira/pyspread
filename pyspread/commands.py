@@ -356,7 +356,7 @@ class InsertRows(QUndoCommand):
 
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo row insertion, updates screen"""
@@ -374,7 +374,7 @@ class InsertRows(QUndoCommand):
 
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class DeleteRows(QUndoCommand):
@@ -414,7 +414,7 @@ class DeleteRows(QUndoCommand):
 
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo row deletion, updates screen"""
@@ -432,7 +432,7 @@ class DeleteRows(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class InsertColumns(QUndoCommand):
@@ -477,7 +477,7 @@ class InsertColumns(QUndoCommand):
 
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo column insertion, updates screen"""
@@ -495,7 +495,7 @@ class InsertColumns(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class DeleteColumns(QUndoCommand):
@@ -537,7 +537,7 @@ class DeleteColumns(QUndoCommand):
 
         with self.model.removing_columns(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo column deletion, updates screen"""
@@ -555,7 +555,7 @@ class DeleteColumns(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class InsertTable(QUndoCommand):
@@ -591,7 +591,7 @@ class InsertTable(QUndoCommand):
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.insertTable(self.table)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo table insertion, updates row and column sizes and screen"""
@@ -610,7 +610,7 @@ class InsertTable(QUndoCommand):
                 for key in self.old_code:
                     self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class DeleteTable(QUndoCommand):
@@ -646,7 +646,7 @@ class DeleteTable(QUndoCommand):
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.removeTable(self.table)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo table deletion, updates row and column sizes and screen"""
@@ -665,7 +665,7 @@ class DeleteTable(QUndoCommand):
                 for key in self.old_code:
                     self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class SetCellFormat(QUndoCommand):

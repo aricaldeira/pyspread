@@ -2569,7 +2569,7 @@ class TableChoice(QTabBar):
         """
 
         for grid in self.grid.main_window.grids:
-            grid.table = current[2]
+            grid.table = current
             grid.table_scrolls[self.last] = \
                 (grid.verticalScrollBar().value(),
                  grid.horizontalScrollBar().value())
