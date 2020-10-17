@@ -795,16 +795,17 @@ class ThawCell(FreezeCell):
         for cell in self.cells:
             row, column, table = cell
 
-            # Remove and store frozen cache content
-            self.res_objs.append(
-                self.model.code_array.frozen_cache.pop(repr(cell)))
+            if repr(cell) in self.model.code_array.frozen_cache:
+                # Remove and store frozen cache content
+                self.res_objs.append(
+                    self.model.code_array.frozen_cache.pop(repr(cell)))
 
-            # Remove the frozen state
-            selection = Selection([], [], [], [], [(row, column)])
-            attr_dict = AttrDict([("frozen", False)])
-            attr = CellAttribute(selection, table, attr_dict)
-            self.model.setData([], attr, Qt.DecorationRole)
-            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+                # Remove the frozen state
+                selection = Selection([], [], [], [], [(row, column)])
+                attr_dict = AttrDict([("frozen", False)])
+                attr = CellAttribute(selection, table, attr_dict)
+                self.model.setData([], attr, Qt.DecorationRole)
+                self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         """Undo cell thawing"""

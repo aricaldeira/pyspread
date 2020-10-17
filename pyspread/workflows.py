@@ -1140,9 +1140,11 @@ class Workflows:
                 break
             for column, value in enumerate(cycle(line)):
                 paste_column = column + left
-                if ((paste_row, paste_column, table) in code_array
+                paste_key = paste_row, paste_column, table
+                if (paste_key in code_array
                         and paste_column <= right):
-                    if (paste_row, paste_column) in selection:
+                    if ((paste_row, paste_column) in selection and not
+                            code_array.cell_attributes[paste_key].locked):
                         index = model.index(paste_row, paste_column,
                                             QModelIndex())
                         # Preserve line breaks

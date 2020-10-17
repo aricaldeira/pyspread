@@ -1271,7 +1271,9 @@ class Grid(QTableView):
 
         """
 
-        current_attr = self.model.code_array.cell_attributes[self.current]
+        grid = self.main_window.focused_grid
+
+        current_attr = self.model.code_array.cell_attributes[grid.current]
         if current_attr.frozen == toggled:
             return  # Something is wrong with the GUI update
 
@@ -1471,7 +1473,7 @@ class Grid(QTableView):
 
         index = self.currentIndex()
         description_tpl = "Insert {} columns left of column {}"
-        description = description_tpl.format(count, self.column)
+        description = description_tpl.format(count, left)
         command = commands.InsertColumns(self, self.model, index, left, count,
                                          description)
         self.main_window.undo_stack.push(command)
