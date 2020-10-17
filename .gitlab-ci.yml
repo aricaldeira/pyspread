@@ -43,7 +43,7 @@ coverage:
   script:
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
-  - coverage run -m py.test-3
+  - coverage run -m py.test
   - coverage report -m
   - coverage-badge
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
