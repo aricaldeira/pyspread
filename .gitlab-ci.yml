@@ -43,7 +43,7 @@ coverage:
   script:
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
-  - coverage run -m --omit="*/test*" --source=/tmp/runtime-pyspreadci/ py.test
+  - coverage run -m --omit="*/test*" --omit="*/usr/lib*" py.test
   - coverage report -m
   artifacts:
     reports:
