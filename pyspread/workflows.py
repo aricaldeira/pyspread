@@ -193,7 +193,10 @@ class Workflows:
             return
 
         # Set current cell to upper left corner
-        self.main_window.grid.current = 0, 0, 0
+        for grid in self.main_window.grids:
+            grid.current = 0, 0, 0
+            # Select upper left cell because initial selection behaves strange
+            grid.reset_selection()
 
         # Reset grid
         self.main_window.grid.model.reset()
@@ -204,12 +207,9 @@ class Workflows:
         # Set new shape
         self.main_window.grid.model.shape = shape
 
-        # Select upper left cell because initial selection behaves strange
-        self.main_window.grid.reset_selection()
-
         # Update cell spans and zoom because this is unsupported by the model
-        for grid in self.main_window.grid.main_window.grids:
-            with self.main_window.grid.undo_resizing_row():
+        for grid in self.main_window.grids:
+            with grid.undo_resizing_row():
                 with grid.undo_resizing_column():
                     grid.update_cell_spans()
                     grid.update_zoom()
@@ -320,7 +320,7 @@ class Workflows:
         grid.model.shape = shape
 
         # Update cell spans and zoom because this is unsupported by the model
-        for grid in self.main_window.grid.main_window.grids:
+        for grid in self.main_window.grids:
             with grid.undo_resizing_row():
                 with grid.undo_resizing_column():
                     grid.update_cell_spans()
