@@ -5,6 +5,8 @@ parent: ../
 title: The Workspace
 ---
 
+# The Workspace
+
 ## Starting and exiting pyspread
 
 ### On Linux or *nix systems, type
