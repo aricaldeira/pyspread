@@ -1,7 +1,7 @@
-lib.test.test_hashing.*
+lib.qimage2ndarray.*
 ==========================================================
 
-.. automodule:: lib.test.test_hashing
+.. automodule:: lib.qimage2ndarray
     :members:
     :undoc-members:
     :private-members:

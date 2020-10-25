@@ -1,0 +1,9 @@
+<a class="navbar-brand py-1" href="{{ pathto(master_doc) }}">
+    <img class="logo" src="{{pathto('_static/pyspread.png',1)}}" alt=""/>&nbsp;pyspread<span class="dev_docs">.api.docs</span><sup>{{release}}</sup>
+</a>
+{%- if version %}
+  <span class="navbar-text navbar-version pb-0 pt-1"><b>{{version}}</b></span>
+{%- endif %}
+<p>
+{% include "navbarsearch.html" %}
+<p>

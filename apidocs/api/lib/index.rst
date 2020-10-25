@@ -14,7 +14,7 @@ lib/
     hashing.rst
     markdown2.rst
     packaging/index.rst
-    qimage2ndarray/index.rst
+    qimage2ndarray.rst
     qimage_svg.rst
     selection.rst
     spelltextedit.rst
