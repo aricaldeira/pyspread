@@ -2,8 +2,10 @@
 layout: default
 section: manual
 parent: ../
-title: Advanced Topics
+title: Advanced topics
 ---
+
+# Advanced topics
 
 ## Conditional formatting
 

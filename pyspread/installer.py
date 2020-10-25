@@ -100,6 +100,10 @@ REQUIRED_DEPENDENCIES = [
     Module(name="PyQt5",
            description="Python bindings for the Qt application framework",
            required_version=version.parse("5.10")),
+    Module(name="setuptools",
+           description="Easily download, build, install, upgrade, and "
+                       "uninstall Python packages",
+           required_version=version.parse("40.0")),
 ]
 
 # Optional dependencies
@@ -114,6 +118,8 @@ OPTIONAL_DEPENDENCIES = [
            description="Spell checker",
            required_version=version.parse("1.1")),
 ]
+
+DEPENDENCIES = REQUIRED_DEPENDENCIES + OPTIONAL_DEPENDENCIES
 
 PIP_MODULE = Module(name="pip", description="pip installer",
                     required_version=version.parse("17.0"))
@@ -171,8 +177,12 @@ class DependenciesDialog(QDialog):
 
         self.tree.clear()
 
-        for idx, module in enumerate(OPTIONAL_DEPENDENCIES):
+        for module in DEPENDENCIES:
             item = QTreeWidgetItem()
+            if module in REQUIRED_DEPENDENCIES:
+                item.setText(self.column.button, "Required")
+            else:
+                item.setText(self.column.button, "Optional")
             item.setText(self.column.name, module.name)
             version = module.version if module.version else "Not installed"
             item.setText(self.column.version, str(version))
@@ -191,10 +201,10 @@ class DependenciesDialog(QDialog):
                 status = "Not installed"
                 color = "#F3FFBB"
                 butt = QToolButton()
-                butt.setText("Install")
+                butt.setText("Install optional")
                 butt.setEnabled(PIP_MODULE.is_installed())
                 self.tree.setItemWidget(item, self.column.button, butt)
-                self.buttGroup.addButton(butt, idx)
+                self.buttGroup.addButton(butt, DEPENDENCIES.index(module))
 
             item.setText(self.column.status, status)
             item.setBackground(self.column.status, QColor(color))
@@ -209,7 +219,7 @@ class DependenciesDialog(QDialog):
         butt.setDisabled(True)
         idx = self.buttGroup.id(butt)
 
-        dial = InstallPackageDialog(self, module=OPTIONAL_DEPENDENCIES[idx])
+        dial = InstallPackageDialog(self, module=DEPENDENCIES[idx])
         dial.exec_()
         self.update_load()
 

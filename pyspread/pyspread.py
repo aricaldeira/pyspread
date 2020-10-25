@@ -143,6 +143,8 @@ class MainWindow(QMainWindow):
         attributes = cell_attributes[self.grid.current]
         self.on_gui_update(attributes)
 
+        self._last_focused_grid = self.grid
+
         self._loading = False
         self._previous_window_state = self.windowState()
 
@@ -251,6 +253,17 @@ class MainWindow(QMainWindow):
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
+        # Connect widgets only to first grid
+        self.widgets.text_color_button.colorChanged.connect(
+            self.grid.on_text_color)
+        self.widgets.background_color_button.colorChanged.connect(
+            self.grid.on_background_color)
+        self.widgets.line_color_button.colorChanged.connect(
+            self.grid.on_line_color)
+        self.widgets.font_combo.fontChanged.connect(self.grid.on_font)
+        self.widgets.font_size_combo.fontSizeChanged.connect(
+            self.grid.on_font_size)
+
     def _layout(self):
         """Layouts for main window"""
 
@@ -333,11 +346,10 @@ class MainWindow(QMainWindow):
     def focused_grid(self):
         """Returns grid with focus or self if none has focus"""
 
-        for grid in self.grids:
-            if grid.hasFocus():
-                return grid
-
-        return self.grid
+        try:
+            return self._last_focused_grid
+        except AttributeError:
+            return self.grid
 
     @property
     def safe_mode(self) -> bool:

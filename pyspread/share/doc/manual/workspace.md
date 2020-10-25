@@ -5,6 +5,8 @@ parent: ../
 title: The Workspace
 ---
 
+# The Workspace
+
 ## Starting and exiting pyspread
 
 ### On Linux or *nix systems, type
@@ -56,13 +58,21 @@ Toolbar content can be shown or hidden using the toolbar menu at the right side 
 
 ## Entry line
 
-Code may be entered into the grid cells via the entry line. It is accepted and evaluated when `<Enter>` is pressed or when a new cell is selected. Multiple lines of code within one cell can be entered using `<Shift> + <Enter>`.
+Code may be entered into the grid cells via the entry line. The entry line can be detached, moved and attached at another location on the screen.
+
+Code is accepted and evaluated when `<Enter>` is pressed. It is discarded when a new cell is selected. Multiple lines of code within one cell can be entered using `<Shift> + <Enter>`.
 
 Code can also be entered by selecting a cell and then typing into the appearing cell editor. However, code highlighting and spell checking is displayed only in the entry line.
 
-When data shall be displayed as text, it has to be quoted so that the code represents a Python string. In order to make such data entry easier, quotation is automatically added if `<Ctrl>+<Enter>` is pressed after editing a cell. If multiple cells are selected then `<Ctrl>+<Enter>` quotes all selected cell.
+When data shall be displayed as text, it has to be quoted so that the code represents a Python string. In order to make such data entry easier, quotation is automatically added if `<Ctrl>+<Enter>` is pressed after editing a cell. If multiple cells are selected then `<Ctrl>+<Enter>` quotes all selected cells.
 
 ## Grid
+
+#### Navigating the grid
+The grid can be navigated via the arrow keys as well as using the scrollbars. Note that if a cell that is outside the view is newly selected, the view may jump to the cell.
+
+#### Multiple views
+The grid provides up to four views of the grid. These views can be accessed by dragging the splitters that initially reside at the lower and right corners of the grid. All views may be edited. Changes are immediately affecting all views. The relevant selection for editing the grid is always the view that is having focus. Note that it is not possible to have two views of two different tables at the same time.
 
 #### Changing cell content
 In order to change cell content, double-click on the cell or select the cell and edit the text in the entry line.
@@ -81,6 +91,13 @@ Cells can be selected by the following actions:
 Only cells of the current table can be selected at any time. Switching tables switches cell selections to the new table, i.e. the same cells in the new table are selected and no cells of the old table are selected.
 
 Be careful when selecting all cells in a large table. Operations may take considerable time.
+
+#### Secondary grid views
+You can pull out up to 3 secondary grid views from the righr and the lower border of the grid.
+These views display the same grid content but can be independently scrolled and zoomed
+in order to effectively work in separated sections of large grids.
+
+Note that actions that affect the grid such as formatting cells refer to the last focused grid.
 
 ## Macro editor
 

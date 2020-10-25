@@ -124,14 +124,6 @@ class Grid(QTableView):
         self.selectionModel().selectionChanged.connect(
             self.on_selection_changed)
 
-        widgets = self.main_window.widgets
-        widgets.text_color_button.colorChanged.connect(self.on_text_color)
-        widgets.background_color_button.colorChanged.connect(
-            self.on_background_color)
-        widgets.line_color_button.colorChanged.connect(self.on_line_color)
-        widgets.font_combo.fontChanged.connect(self.on_font)
-        widgets.font_size_combo.fontSizeChanged.connect(self.on_font_size)
-
         self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
         self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
 
@@ -368,14 +360,16 @@ class Grid(QTableView):
 
         """
 
+        grid = self.main_window.focused_grid
+
         if on:
-            self.current_selection_mode_start = tuple(self.current)
+            self.current_selection_mode_start = tuple(grid.current)
             self.setEditTriggers(QAbstractItemView.NoEditTriggers)
             self.main_window.selection_mode_widget.show()
         else:
             self.selection_mode_exiting = True
             if self.current_selection_mode_start is not None:
-                self.current = self.current_selection_mode_start
+                grid.current = self.current_selection_mode_start
                 self.current_selection_mode_start = None
             self.setEditTriggers(QAbstractItemView.DoubleClicked
                                  | QAbstractItemView.EditKeyPressed
@@ -390,9 +384,18 @@ class Grid(QTableView):
 
         """
 
-        self.selection_mode = value
+        # All grids must simultaneously got into or out of selection mode
+        for grid in self.main_window.grids:
+            grid.selection_mode = value
 
     # Overrides
+
+    def focusInEvent(self, event):
+        """Overrides focusInEvent storing last focused grid in main_window"""
+
+        self.main_window._last_focused_grid = self
+
+        super().focusInEvent(event)
 
     def closeEditor(self, editor: QWidget,
                     hint: QAbstractItemDelegate.EndEditHint):
@@ -643,23 +646,28 @@ class Grid(QTableView):
     def on_zoom_in(self):
         """Zoom in event handler"""
 
+        grid = self.main_window.focused_grid
+
         zoom_levels = self.main_window.settings.zoom_levels
-        larger_zoom_levels = [zl for zl in zoom_levels if zl > self.zoom]
+        larger_zoom_levels = [zl for zl in zoom_levels if zl > grid.zoom]
         if larger_zoom_levels:
-            self.zoom = min(larger_zoom_levels)
+            grid.zoom = min(larger_zoom_levels)
 
     def on_zoom_out(self):
         """Zoom out event handler"""
 
+        grid = self.main_window.focused_grid
+
         zoom_levels = self.main_window.settings.zoom_levels
-        smaller_zoom_levels = [zl for zl in zoom_levels if zl < self.zoom]
+        smaller_zoom_levels = [zl for zl in zoom_levels if zl < grid.zoom]
         if smaller_zoom_levels:
-            self.zoom = max(smaller_zoom_levels)
+            grid.zoom = max(smaller_zoom_levels)
 
     def on_zoom_1(self):
         """Sets zoom level ot 1.0"""
 
-        self.zoom = 1.0
+        grid = self.main_window.focused_grid
+        grid.zoom = 1.0
 
     def _refresh_frozen_cell(self, key: Tuple[int, int, int]):
         """Refreshes the frozen cell key
@@ -698,6 +706,7 @@ class Grid(QTableView):
 
         self.model.code_array.cell_attributes._attr_cache.clear()
         self.model.code_array.cell_attributes._table_cache.clear()
+        self.model.code_array.result_cache.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def on_show_frozen_pressed(self, toggled: bool):
@@ -1236,15 +1245,22 @@ class Grid(QTableView):
             self.setIndexWidget(index, None)
         self.widget_indices.clear()
 
-        # Add button cells for current table
+        # Get button cell candidates
         code_array = self.model.code_array
+        button_cell_candidates = []
         for selection, table, attr in code_array.cell_attributes:
             if table == self.table and 'button_cell' in attr \
                and attr['button_cell']:
                 row, column = selection.get_bbox()[0]
+                button_cell_candidates.append((row, column, table))
+
+        # Add button cells for current table
+        for key in set(button_cell_candidates):
+            text = code_array.cell_attributes[key]['button_cell']
+            if text is not False:  # False would be deleted button cell
+                row, column, table = key
                 index = self.model.index(row, column, QModelIndex())
-                text = attr['button_cell']
-                button = CellButton(text, self, (row, column, table))
+                button = CellButton(text, self, key)
                 self.setIndexWidget(index, button)
                 self.widget_indices.append(index)
 
@@ -1255,7 +1271,9 @@ class Grid(QTableView):
 
         """
 
-        current_attr = self.model.code_array.cell_attributes[self.current]
+        grid = self.main_window.focused_grid
+
+        current_attr = self.model.code_array.cell_attributes[grid.current]
         if current_attr.frozen == toggled:
             return  # Something is wrong with the GUI update
 
@@ -1278,7 +1296,9 @@ class Grid(QTableView):
 
         """
 
-        current_attr = self.model.code_array.cell_attributes[self.current]
+        grid = self.main_window.focused_grid
+
+        current_attr = grid.model.code_array.cell_attributes[grid.current]
         if not toggled and current_attr.button_cell is False \
            or toggled and current_attr.button_cell is not False:
             # Something is not syncronized in the menu
@@ -1292,20 +1312,22 @@ class Grid(QTableView):
                                                 QLineEdit.Normal, "")
             if accept and text:
                 description_tpl = "Make cell {} a button cell"
-                description = description_tpl.format(self.current)
+                description = description_tpl.format(grid.current)
                 command = commands.MakeButtonCell(self, text,
-                                                  self.currentIndex(),
+                                                  grid.currentIndex(),
                                                   description)
                 self.main_window.undo_stack.push(command)
         else:
             description_tpl = "Make cell {} a non-button cell"
-            description = description_tpl.format(self.current)
-            command = commands.RemoveButtonCell(self, self.currentIndex(),
+            description = description_tpl.format(grid.current)
+            command = commands.RemoveButtonCell(self, grid.currentIndex(),
                                                 description)
             self.main_window.undo_stack.push(command)
 
     def on_merge_pressed(self):
         """Merge cells button pressed event handler"""
+
+        grid = self.main_window.focused_grid
 
         # This is not done in the model because setSpan does not work there
 
@@ -1333,7 +1355,7 @@ class Grid(QTableView):
                                         self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-        self.current = top, left
+        grid.current = top, left
 
     def on_quote(self):
         """Quote cells event handler"""
@@ -1451,7 +1473,7 @@ class Grid(QTableView):
 
         index = self.currentIndex()
         description_tpl = "Insert {} columns left of column {}"
-        description = description_tpl.format(count, self.column)
+        description = description_tpl.format(count, left)
         command = commands.InsertColumns(self, self.model, index, left, count,
                                          description)
         self.main_window.undo_stack.push(command)

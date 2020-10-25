@@ -356,7 +356,7 @@ class InsertRows(QUndoCommand):
 
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo row insertion, updates screen"""
@@ -374,7 +374,7 @@ class InsertRows(QUndoCommand):
 
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class DeleteRows(QUndoCommand):
@@ -414,7 +414,7 @@ class DeleteRows(QUndoCommand):
 
         with self.model.removing_rows(self.index, self.first, self.last):
             self.model.removeRows(self.row, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo row deletion, updates screen"""
@@ -432,7 +432,7 @@ class DeleteRows(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class InsertColumns(QUndoCommand):
@@ -477,7 +477,7 @@ class InsertColumns(QUndoCommand):
 
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo column insertion, updates screen"""
@@ -495,7 +495,7 @@ class InsertColumns(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class DeleteColumns(QUndoCommand):
@@ -537,7 +537,7 @@ class DeleteColumns(QUndoCommand):
 
         with self.model.removing_columns(self.index, self.first, self.last):
             self.model.removeColumns(self.column, self.count)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo column deletion, updates screen"""
@@ -555,7 +555,7 @@ class DeleteColumns(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class InsertTable(QUndoCommand):
@@ -591,7 +591,7 @@ class InsertTable(QUndoCommand):
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.insertTable(self.table)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo table insertion, updates row and column sizes and screen"""
@@ -610,7 +610,7 @@ class InsertTable(QUndoCommand):
                 for key in self.old_code:
                     self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class DeleteTable(QUndoCommand):
@@ -646,7 +646,7 @@ class DeleteTable(QUndoCommand):
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.model.removeTable(self.table)
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
     def undo(self):
         """Undo table deletion, updates row and column sizes and screen"""
@@ -665,7 +665,7 @@ class DeleteTable(QUndoCommand):
                 for key in self.old_code:
                     self.model.code_array[key] = self.old_code[key]
 
-        self.grid.table_choice.on_table_changed(self.grid.current)
+        self.grid.table_choice.on_table_changed(self.grid.table)
 
 
 class SetCellFormat(QUndoCommand):
@@ -795,16 +795,17 @@ class ThawCell(FreezeCell):
         for cell in self.cells:
             row, column, table = cell
 
-            # Remove and store frozen cache content
-            self.res_objs.append(
-                self.model.code_array.frozen_cache.pop(repr(cell)))
+            if repr(cell) in self.model.code_array.frozen_cache:
+                # Remove and store frozen cache content
+                self.res_objs.append(
+                    self.model.code_array.frozen_cache.pop(repr(cell)))
 
-            # Remove the frozen state
-            selection = Selection([], [], [], [], [(row, column)])
-            attr_dict = AttrDict([("frozen", False)])
-            attr = CellAttribute(selection, table, attr_dict)
-            self.model.setData([], attr, Qt.DecorationRole)
-            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+                # Remove the frozen state
+                selection = Selection([], [], [], [], [(row, column)])
+                attr_dict = AttrDict([("frozen", False)])
+                attr = CellAttribute(selection, table, attr_dict)
+                self.model.setData([], attr, Qt.DecorationRole)
+                self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         """Undo cell thawing"""
@@ -894,18 +895,14 @@ class MakeButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only add widget if we are in the right table
-            button = CellButton(self.text, self.grid, self.key)
-            self.grid.setIndexWidget(self.index, button)
-            self.grid.widget_indices.append(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
 
         self.grid.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
         """Undo button cell making"""
-
-        if self.index not in self.grid.widget_indices:
-            return
 
         row, column, table = self.key
         selection = Selection([], [], [], [], [(row, column)])
@@ -914,9 +911,10 @@ class MakeButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only remove widget if we are in the right table
-            self.grid.setIndexWidget(self.index, None)
-            self.grid.widget_indices.remove(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(self.index, self.index)
 
 
@@ -940,8 +938,6 @@ class RemoveButtonCell(QUndoCommand):
     def redo(self):
         """Redo button cell removal"""
 
-        if self.index not in self.grid.widget_indices:
-            return
         attr = self.grid.model.code_array.cell_attributes[self.key]
         self.text = attr.button_cell
         row, column, table = self.key
@@ -951,9 +947,10 @@ class RemoveButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only remove widget if we are in the right table
-            self.grid.setIndexWidget(self.index, None)
-            self.grid.widget_indices.remove(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(self.index, self.index)
 
     def undo(self):
@@ -966,8 +963,8 @@ class RemoveButtonCell(QUndoCommand):
         self.grid.model.setData([self.index], ca, Qt.DecorationRole)
 
         if table == self.grid.table:
-            # Only add widget if we are in the right table
-            button = CellButton(self.text, self.grid, self.key)
-            self.grid.setIndexWidget(self.index, button)
-            self.grid.widget_indices.append(self.index)
+            # Only update widget if we are in the right table
+            for grid in self.grid.main_window.grids:
+                grid.update_index_widgets()
+
         self.grid.model.dataChanged.emit(self.index, self.index)

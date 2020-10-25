@@ -109,6 +109,8 @@ class Entryline(SpellTextEdit):
 
         """
 
+        grid = self.main_window.focused_grid
+
         self.last_key = event.key()
 
         if self.last_key in (Qt.Key_Enter, Qt.Key_Return):
@@ -116,21 +118,22 @@ class Entryline(SpellTextEdit):
                 self.insertPlainText('\n')
             else:
                 self.store_data()
-                self.main_window.grid.row += 1
+                grid.row += 1
         elif self.last_key == Qt.Key_Tab:
             self.store_data()
-            self.main_window.grid.column += 1
+            grid.column += 1
         elif self.last_key == Qt.Key_Insert:
-            self.main_window.grid.selection_mode = \
-                not self.main_window.grid.selection_mode
+            grid.selection_mode = not grid.selection_mode
         else:
             super().keyPressEvent(event)
 
     def store_data(self):
         """Stores current entry line data in grid model"""
 
-        index = self.main_window.grid.currentIndex()
-        model = self.main_window.grid.model
+        grid = self.main_window.focused_grid
+
+        index = grid.currentIndex()
+        model = grid.model
 
         description = "Set code for cell {}".format(index)
         command = commands.SetCellCode(self.toPlainText(), model, index,
