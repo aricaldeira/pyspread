@@ -2317,9 +2317,12 @@ class GridCellDelegate(QStyledItemDelegate):
             return
 
         # Save SVG in a fake file object.
-        filelike = BytesIO()
-        figure.savefig(filelike, format="svg")
-        svg_str = filelike.getvalue().decode()
+        with BytesIO() as filelike:
+            try:
+                figure.savefig(filelike, format="svg")
+            except Exception:
+                return
+            svg_str = filelike.getvalue().decode()
 
         self._render_qimage(painter, rect, index, qimage=svg_str)
 

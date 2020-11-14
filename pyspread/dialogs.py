@@ -1003,7 +1003,10 @@ class ChartDialog(QDialog):
         if isinstance(figure, Figure):
             canvas = FigureCanvasQTAgg(figure)
             self.splitter.replaceWidget(1, canvas)
-            canvas.draw()
+            try:
+                canvas.draw()
+            except Exception:
+                pass
         else:
             if isinstance(figure, Exception):
                 msg = stdout_str + "Error:\n{}".format(figure)

@@ -19,7 +19,7 @@ d2 = numpy.concatenate((spread, center, flier_high, flier_low))
 data.shape = (-1, 1)
 d2.shape = (-1, 1)
 
-data = [data, d2, d2[::2, 0]]
+data = [data.flatten(), d2.flatten(), d2[::2, 0].flatten()]
 
 # Multiple box plots on one Axes
 ax.boxplot(data)
