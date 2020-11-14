@@ -473,6 +473,12 @@ class Workflows:
         window_title = "{filename} - pyspread".format(filename=filepath.name)
         self.main_window.setWindowTitle(window_title)
 
+        # Add to file history
+        self.main_window.settings.add_to_file_history(filepath.as_posix())
+
+        # Update recent files in the file menu
+        self.main_window.menuBar().file_menu.history_submenu.update()
+
         self.sign_file(filepath)
 
     def file_save(self):
