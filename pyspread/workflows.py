@@ -1734,10 +1734,10 @@ class Workflows:
         chart_dialog = ChartDialog(self.main_window, current)
         self.cell2dialog[current] = chart_dialog
 
+        chart_dialog.show()
+
         if code is not None:
             chart_dialog.editor.setPlainText(code)
-
-        chart_dialog.show()
 
         if chart_dialog.exec_() == ChartDialog.Accepted:
             code = chart_dialog.editor.toPlainText()
