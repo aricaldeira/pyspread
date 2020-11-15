@@ -8,6 +8,7 @@ Note: This changelog does not comprise development of pyspread for Python2
 ------
 
 This is the fifth Beta release for pyspread 2.0.
+A feature freeze is introduced from this release until version 2.0.
 
 This version adds multiple grid views, a detachable entry line and statusbar information on selected cells.
 
@@ -17,12 +18,12 @@ Dependencies:
  * For building the apidocs with Sphinx see apidocs/requirements.txt            
 
 New functionality:
- * Line numbers in tery line can now be toggled
+ * Line numbers in entery line can now be toggled
  * Entry line made a QDockWidget
  * Various deployment fixes
  * Copy / paste format added to context menu
  * Multiple selected cells may now be frozen on one click
- * Multiple grid views added
+ * Multiple grid views added (drag from lower or right grid border)
  * Selected rows / columns, sum, min, max now displayed on selection in the statusbar
  
 1.99.4
