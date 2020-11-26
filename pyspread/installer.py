@@ -104,6 +104,10 @@ REQUIRED_DEPENDENCIES = [
            description="Easily download, build, install, upgrade, and "
                        "uninstall Python packages",
            required_version=version.parse("40.0")),
+    Module(name="python-dateutil",
+           description="The dateutil module provides powerful extensions to "
+                       "the standard datetime module, available in Python.",
+           required_version=version.parse("2.7.0")),
 ]
 
 # Optional dependencies
