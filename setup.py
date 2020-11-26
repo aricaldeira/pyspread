@@ -55,7 +55,10 @@ setup(
     license='GPL v3 :: GNU General Public License',
     keywords=['spreadsheet', 'pyspread'],
     python_requires='>=3.6',
-    requires=['numpy (>=1.1)', 'PyQt5 (>=5.10)', 'setuptools (>=40.0)', 'dateutil (>=2.7.0)'],
+    requires=['numpy (>=1.1)',
+              'PyQt5 (>=5.10)',
+              'setuptools (>=40.0)',
+              'python-dateutil (>=2.7.0)'],
     extras_require={
         'matplotlib': ['matplotlib (>=1.1.1)'],
         'pyenchant': ['pyenchant (>=1.1)'],
