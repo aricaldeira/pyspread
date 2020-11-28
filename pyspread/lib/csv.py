@@ -37,9 +37,13 @@
 
 import ast
 import csv
-from dateutil.parser import parse
 from pathlib import Path
 from typing import TextIO, Iterable, List
+
+try:
+    from dateutil.parser import parse
+except ImportError:
+    parse = None
 
 
 def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
@@ -121,19 +125,28 @@ def convert(string: str, digest_type: str) -> str:
 def date(obj):
     """Makes a date from comparable types"""
 
-    return parse(obj).date()
+    try:
+        return parse(obj).date()
+    except TypeError as err:
+        return err
 
 
 def datetime(obj):
     """Makes a datetime from comparable types"""
 
-    return parse(obj)
+    try:
+        return parse(obj)
+    except TypeError as err:
+        return err
 
 
 def time(obj):
     """Makes a time from comparable types"""
 
-    return parse(obj).time()
+    try:
+        return parse(obj).time()
+    except TypeError as err:
+        return err
 
 
 def make_object(obj):
@@ -151,7 +164,10 @@ typehandlers = {
     'complex': complex,
     'str': str,
     'bytes': bytes,
-    'date': date,
-    'datetime': datetime,
-    'time': time,
 }
+
+if parse is not None:
+    typehandlers.update({'date': date,
+                         'datetime': datetime,
+                         'time': time,
+                         })

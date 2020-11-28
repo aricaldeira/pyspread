@@ -57,12 +57,12 @@ setup(
     python_requires='>=3.6',
     requires=['numpy (>=1.1)',
               'PyQt5 (>=5.10)',
-              'setuptools (>=40.0)',
-              'python-dateutil (>=2.7.0)'],
+              'setuptools (>=40.0)'],
     extras_require={
         'matplotlib': ['matplotlib (>=1.1.1)'],
         'pyenchant': ['pyenchant (>=1.1)'],
         'pip': ['pip (>=18)'],
+        'python-dateutil': ['python-dateutil (>=2.7.0)'],
     },
     classifiers=[
         'Development Status :: 4 - Beta',

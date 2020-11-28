@@ -104,10 +104,6 @@ REQUIRED_DEPENDENCIES = [
            description="Easily download, build, install, upgrade, and "
                        "uninstall Python packages",
            required_version=version.parse("40.0")),
-    Module(name="python-dateutil",
-           description="The dateutil module provides powerful extensions to "
-                       "the standard datetime module, available in Python.",
-           required_version=version.parse("2.7.0")),
 ]
 
 # Optional dependencies
@@ -121,6 +117,10 @@ OPTIONAL_DEPENDENCIES = [
     Module(name="pyenchant",
            description="Spell checker",
            required_version=version.parse("1.1")),
+    Module(name="python-dateutil",
+           description="The dateutil module provides powerful extensions to "
+                       "the standard datetime module, available in Python.",
+           required_version=version.parse("2.7.0")),
 ]
 
 DEPENDENCIES = REQUIRED_DEPENDENCIES + OPTIONAL_DEPENDENCIES
