@@ -36,6 +36,7 @@ pyspread
 
 import os
 import sys
+import traceback
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication,
@@ -766,8 +767,19 @@ class MainWindow(QMainWindow):
         merge_cells_action.setChecked(attributes.merge_area is not None)
 
 
+def excepthook(exception_type, exception_value, exception_traceback):
+    """Exception hook that prevents pyspread from crashing on exceptions"""
+
+    traceback_msg = "".join(traceback.format_exception(exception_type,
+                                                       exception_value,
+                                                       exception_traceback))
+    print("Error: {}\n".format(traceback_msg))
+
+
 def main():
     """Pyspread main"""
+
+    sys.excepthook = excepthook
 
     parser = PyspreadArgumentParser()
     args, unknown = parser.parse_known_args()
@@ -778,6 +790,8 @@ def main():
     main_window.show()
 
     app.exec_()
+
+    sys.exit()
 
 
 if __name__ == '__main__':
