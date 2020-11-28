@@ -576,7 +576,8 @@ class Workflows:
                            "to increase the grid size so that as much data " +\
                            "from the csv file as possible fits in?"
                 text = text_tpl.format(filepath, csv_rows, csv_columns,
-                                       rows-row, columns-column, )
+                                       rows-row, columns-column, max_rows,
+                                       max_columns)
             else:
                 # Shall we resize the grid?
                 text_tpl = \
