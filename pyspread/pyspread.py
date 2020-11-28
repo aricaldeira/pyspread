@@ -111,7 +111,8 @@ class MainWindow(QMainWindow):
 
         super().__init__()
 
-        self._loading = True
+        self._loading = True  # For initial loading of pyspread
+        self.importing = False  # True while importing files
 
         self.settings = Settings(self, reset_settings=reset_settings)
         self.workflows = Workflows(self)

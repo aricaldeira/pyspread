@@ -117,6 +117,18 @@ class Workflows:
         yield
         QApplication.restoreOverrideCursor()
 
+    @contextmanager
+    def importing(self):
+        """:class:`~contextlib.contextmanager` that sets the importing state
+
+        The importing state prevents updates in main_window.grid.setData
+
+        """
+
+        self.main_window.importing = True
+        yield
+        self.main_window.importing = False
+
     def handle_changed_since_save(func, *args, **kwargs):
         """Decorator to handle changes since last saving the document
 
@@ -670,8 +682,10 @@ class Workflows:
             QMessageBox.warning(self.main_window, title, text)
             return
 
-        with self.busy_cursor():
-            self.main_window.undo_stack.push(command)
+        with self.disable_entryline_updates():
+            with self.busy_cursor():
+                with self.importing():
+                    self.main_window.undo_stack.push(command)
 
     def file_export(self):
         """Export csv and svg files"""
