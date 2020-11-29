@@ -58,25 +58,6 @@ class Settings:
     timeout = 1000
 
 
-class TestKeyValueStore(object):
-    """Unit tests for KeyValueStore"""
-
-    def setup_method(self, method):
-        """Creates empty KeyValueStore"""
-
-        self.k_v_store = KeyValueStore()
-
-    def test_missing(self):
-        """Test if missing value returns None"""
-
-        key = (1, 2, 3)
-        assert self.k_v_store[key] is None
-
-        self.k_v_store[key] = 7
-
-        assert self.k_v_store[key] == 7
-
-
 class TestCellAttributes(object):
     """Unit tests for CellAttributes"""
 
@@ -84,6 +65,15 @@ class TestCellAttributes(object):
         """Creates empty CellAttributes"""
 
         self.cell_attr = CellAttributes()
+
+        selection_1 = Selection([(2, 2)], [(4, 5)], [55], [55, 66], [(34, 56)])
+        selection_2 = Selection([], [], [], [], [(32, 53), (34, 56)])
+
+        ca1 = CellAttribute(selection_1, 0, AttrDict([("testattr", 3)]))
+        ca2 = CellAttribute(selection_2, 0, AttrDict([("testattr", 2)]))
+
+        self.cell_attr.append(ca1)
+        self.cell_attr.append(ca2)
 
     def test_append(self):
         """Test append"""
@@ -95,22 +85,39 @@ class TestCellAttributes(object):
         self.cell_attr.append(CellAttribute(selection, table, attr))
 
         # Check if 1 item - the actual action has been added
-        assert not self.cell_attr._attr_cache
+        assert len(self.cell_attr) == 3
 
     def test_getitem(self):
         """Test __getitem__"""
 
-        selection_1 = Selection([(2, 2)], [(4, 5)], [55], [55, 66], [(34, 56)])
-        selection_2 = Selection([], [], [], [], [(32, 53), (34, 56)])
-
-        ca1 = CellAttribute(selection_1, 0, AttrDict([("testattr", 3)]))
-        ca2 = CellAttribute(selection_2, 0, AttrDict([("testattr", 2)]))
-
-        self.cell_attr.append(ca1)
-        self.cell_attr.append(ca2)
-
         assert self.cell_attr[32, 53, 0].testattr == 2
         assert self.cell_attr[2, 2, 0].testattr == 3
+
+    def test_setitem(self):
+        """Test __setitem__"""
+
+        selection_3 = Selection([], [], [], [], [(2, 53), (34, 56)])
+        ca3 = CellAttribute(selection_3, 0, AttrDict([("testattr", 5)]))
+        self.cell_attr[1] = ca3
+
+        assert not self.cell_attr._attr_cache
+        assert not self.cell_attr._table_cache
+
+        assert self.cell_attr[2, 53, 0].testattr == 5
+
+    def test_len_table_cache(self):
+        """Test _len_table_cache"""
+
+        self.cell_attr[32, 53, 0]
+
+        assert self.cell_attr._len_table_cache() == 2
+
+    def test_update_table_cache(self):
+        """Test _update_table_cache"""
+
+        assert self.cell_attr._len_table_cache() == 0
+        self.cell_attr._update_table_cache()
+        assert self.cell_attr._len_table_cache() == 2
 
     def test_get_merging_cell(self):
         """Test get_merging_cell"""
@@ -139,6 +146,38 @@ class TestCellAttributes(object):
 
         # Cell 2. 2, 0 is merged to cell 2, 2, 0
         assert self.cell_attr.get_merging_cell((2, 2, 0)) == (2, 2, 0)
+
+    def test_for_table(self):
+        """Test for_table"""
+
+        selection_3 = Selection([], [], [], [], [(2, 53), (34, 56)])
+        ca3 = CellAttribute(selection_3, 2, AttrDict([("testattr", 5)]))
+        self.cell_attr.append(ca3)
+
+        assert len(self.cell_attr.for_table(0)) == 2
+
+        result_cas = CellAttributes()
+        result_cas.append(ca3)
+        assert self.cell_attr.for_table(2) == result_cas
+
+
+class TestKeyValueStore(object):
+    """Unit tests for KeyValueStore"""
+
+    def setup_method(self, method):
+        """Creates empty KeyValueStore"""
+
+        self.k_v_store = KeyValueStore()
+
+    def test_missing(self):
+        """Test if missing value returns None"""
+
+        key = (1, 2, 3)
+        assert self.k_v_store[key] is None
+
+        self.k_v_store[key] = 7
+
+        assert self.k_v_store[key] == 7
 
 
 class TestDictGrid(object):

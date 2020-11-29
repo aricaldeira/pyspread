@@ -71,7 +71,7 @@ class Selection(object):
 
         """
 
-        return "Selection" + repr(self.parameters)
+        return "Selection{}".format(self.parameters)
 
     def __eq__(self, other):
         """Eqality check
