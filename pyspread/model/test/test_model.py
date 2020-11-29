@@ -197,6 +197,16 @@ class TestDictGrid(object):
         self.dict_grid[(2, 4, 5)] = "Test"
         assert self.dict_grid[(2, 4, 5)] == "Test"
 
+    def test_missing(self):
+        """Test if missing value returns None"""
+
+        key = (1, 2, 3)
+        assert self.dict_grid[key] is None
+
+        self.dict_grid[key] = 7
+
+        assert self.dict_grid[key] == 7
+
 
 class TestDataArray(object):
     """Unit tests for DataArray"""
