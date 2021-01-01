@@ -41,7 +41,8 @@ from PyQt5.QtCore import (
     Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QItemSelectionModel)
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (
-    QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView)
+    QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView,
+    QUndoCommand)
 try:
     from PyQt5.QtSvg import QSvgGenerator
 except ImportError:
@@ -118,16 +119,16 @@ class Workflows:
         QApplication.restoreOverrideCursor()
 
     @contextmanager
-    def importing(self):
-        """:class:`~contextlib.contextmanager` that sets the importing state
+    def prevent_updates(self):
+        """:class:`~contextlib.contextmanager` sets the prevent_updates state
 
-        The importing state prevents updates in main_window.grid.setData
+        The prevent_updates state prevents updates in main_window.grid.setData
 
         """
 
-        self.main_window.importing = True
+        self.main_window.prevent_updates = True
         yield
-        self.main_window.importing = False
+        self.main_window.prevent_updates = False
 
     def handle_changed_since_save(func, *args, **kwargs):
         """Decorator to handle changes since last saving the document
@@ -684,7 +685,7 @@ class Workflows:
 
         with self.disable_entryline_updates():
             with self.busy_cursor():
-                with self.importing():
+                with self.prevent_updates():
                     self.main_window.undo_stack.push(command)
 
     def file_export(self):
@@ -1388,10 +1389,12 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def _get_next_match(self, find_dialog: FindDialog):
+    def _get_next_match(self, find_dialog: FindDialog,
+                        start_key: Tuple[int, int, int] = None):
         """Returns tuple of find string and next matching cell key
 
         :param find_dialog: Find dialog from which the search origins
+        :param start_key: Start search at given key
 
         """
 
@@ -1401,7 +1404,9 @@ class Workflows:
         find_editor = find_dialog.search_text_editor
         find_string = find_editor.text()
 
-        if find_dialog.from_start_checkbox.isChecked():
+        if start_key is not None:
+            pass
+        elif find_dialog.from_start_checkbox.isChecked():
             start_key = 0, 0, grid.table
         elif find_dialog.backward_checkbox.isChecked():
             start_key = grid.row - 1, grid.column, grid.table
@@ -1489,12 +1494,39 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
+    def _get_replace_command(self, next_match: Tuple[int, int, int],
+                             find_string: str,
+                             replace_string: str,
+                             max_: int = 1,
+                             description: str = None) -> QUndoCommand:
+        """Returns SetCellCode command for replace operations
+
+        :param next_match: Key of next matching cell
+        :param find_string: String to find
+        :param replace_string: Replacement string
+        :param max_: Maximum number of replace actions, -1 is unlimited
+        :param description: Forced command description string
+
+        """
+
+        model = self.main_window.focused_grid.model
+
+        old_code = model.code_array(next_match)
+        new_code = old_code.replace(find_string, replace_string, max_)
+
+        if description is None:
+            description_tpl = "Replaced {old} with {new} in cell {key}."
+            description = description_tpl.format(old=old_code, new=new_code,
+                                                 key=next_match)
+        index = model.index(*next_match[:2])
+        return commands.SetCellCode(new_code, model, index, description)
+
     def replace_dialog_on_replace(self, replace_dialog: ReplaceDialog,
                                   toggled: bool = False,
                                   max_: int = 1) -> bool:
         """Edit -> Replace workflow when pushing Replace in ReplaceDialog
 
-        Returns True if there is a match
+        Returns True if there is a match otherwise False
 
         :param replace_dialog: Replace dialog of origin
         :param toggled: Replace dialog toggle state
@@ -1504,30 +1536,24 @@ class Workflows:
 
         grid = self.main_window.focused_grid
 
-        model = grid.model
-
         find_string, next_match = self._get_next_match(replace_dialog)
         replace_string = replace_dialog.replace_text_editor.text()
 
         if next_match:
-            old_code = model.code_array(next_match)
-            new_code = old_code.replace(find_string, replace_string, max_)
-
-            description_tpl = "Replaced {old} with {new} in cell {key}."
-            description = description_tpl.format(old=old_code, new=new_code,
-                                                 key=next_match)
-            index = model.index(*next_match[:2])
-            command = commands.SetCellCode(new_code, model, index, description)
+            command = self._get_replace_command(next_match, find_string,
+                                                replace_string, max_=max_)
             self.main_window.undo_stack.push(command)
 
             grid.current = next_match
 
-            self.main_window.statusBar().showMessage(description)
+            self.main_window.statusBar().showMessage(command.description)
 
             if replace_dialog.from_start_checkbox.isChecked():
                 replace_dialog.from_start_checkbox.setChecked(False)
 
             return True
+
+        return False
 
     def replace_dialog_on_replace_all(self, replace_dialog: ReplaceDialog):
         """Edit -> Replace workflow when pushing ReplaceAll in ReplaceDialog
@@ -1536,8 +1562,45 @@ class Workflows:
 
         """
 
-        while self.replace_dialog_on_replace(replace_dialog, max_=-1):
-            pass
+        replace_string = replace_dialog.replace_text_editor.text()
+
+        command = None
+
+        replaced = []
+        next_match = 0, 0, 0
+
+        with self.busy_cursor():
+            with self.disable_entryline_updates():
+                with self.prevent_updates():
+                    while True:
+                        # TODO: ABORT ON USER REQUEST
+                        find_string, next_match = \
+                            self._get_next_match(replace_dialog,
+                                                 start_key=(next_match[0]+1,
+                                                            next_match[1],
+                                                            next_match[2]))
+                        if not next_match or next_match in replaced:
+                            break
+                        replaced.append(next_match)
+
+                        msg = "Replace all {} by {}".format(find_string,
+                                                            replace_string)
+                        _command = self._get_replace_command(next_match,
+                                                             find_string,
+                                                             replace_string,
+                                                             max_=-1,
+                                                             description=msg)
+
+                        if command is None:
+                            command = _command
+                        else:
+                            command.mergeWith(_command)
+
+            self.main_window.undo_stack.push(command)
+
+        msg_tpl = "{} replaced by {} in {} cells."
+        msg = msg_tpl.format(find_string, replace_string, len(replaced))
+        self.main_window.statusBar().showMessage(msg)
 
     def edit_resize(self):
         """Edit -> Resize workflow"""

@@ -1,0 +1,4 @@
+[run]
+branch = True
+command_line = -m pytest
+omit = *test*

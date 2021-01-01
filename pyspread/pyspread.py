@@ -103,19 +103,19 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, filepath: str = None, reset_settings: bool = False):
+    def __init__(self, filepath: str = None, default_settings: bool = False):
         """
         :param filepath: File path for inital file to be opened
-        :param reset_settings: Ignore stored `QSettings` and use defaults
+        :param default_settings: Ignore stored `QSettings` and use defaults
 
         """
 
         super().__init__()
 
         self._loading = True  # For initial loading of pyspread
-        self.importing = False  # True while importing files
+        self.prevent_updates = False  # Prevents setData updates in grid
 
-        self.settings = Settings(self, reset_settings=reset_settings)
+        self.settings = Settings(self, reset_settings=default_settings)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
         self.refresh_timer = QTimer()
@@ -785,7 +785,7 @@ def main():
     args, unknown = parser.parse_known_args()
 
     app = QApplication(sys.argv)
-    main_window = MainWindow(args.file, reset_settings=args.reset_settings)
+    main_window = MainWindow(args.file, default_settings=args.default_settings)
 
     main_window.show()
 

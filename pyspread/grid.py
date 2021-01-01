@@ -1956,7 +1956,7 @@ class GridTableModel(QAbstractTableModel):
             else:
                 self.code_array[key] = "{}".format(value)
 
-            if not self.main_window.importing:
+            if not self.main_window.prevent_updates:
                 self.dataChanged.emit(index, index)
 
             return True

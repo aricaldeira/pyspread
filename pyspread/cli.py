@@ -115,10 +115,10 @@ class PyspreadArgumentParser(ArgumentParser):
 
         self.add_argument('--version', action='version', version=VERSION)
 
-        reset_settings_help = 'start with default settings and save on exit'
+        default_settings_help = 'start with default settings and save on exit'
 
-        self.add_argument('--reset-settings', action='store_true',
-                          help=reset_settings_help)
+        self.add_argument('--default-settings', action='store_true',
+                          help=default_settings_help)
 
         file_help = 'open pyspread file in pys or pysu format'
         self.add_argument('file', action=PathAction, nargs="*", help=file_help)
