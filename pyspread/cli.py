@@ -55,7 +55,7 @@ def check_mandatory_dependencies():
 
         """
 
-        sys.stdout.write('warning: {}\n'.format(message))
+        sys.stdout.write('Warning: {}\n'.format(message))
 
     # Check Python version
     major = sys.version_info.major
