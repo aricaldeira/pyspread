@@ -50,7 +50,7 @@ from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 try:
-    from pyspread.__init__ import VERSION, APP_NAME
+    from pyspread.__init__ import VERSION, APP_NAME, WEB_URL
     from pyspread.cli import PyspreadArgumentParser
     from pyspread.settings import Settings
     from pyspread.icons import Icon, IconPath
@@ -71,7 +71,7 @@ try:
     from pyspread.lib.hashing import genkey
     from pyspread.model.model import CellAttributes
 except ImportError:
-    from __init__ import VERSION, APP_NAME
+    from __init__ import VERSION, APP_NAME, WEB_URL
     from cli import PyspreadArgumentParser
     from settings import Settings
     from icons import Icon, IconPath
@@ -662,25 +662,42 @@ class MainWindow(QMainWindow):
     def on_about(self):
         """Show about message box"""
 
-        about_msg_template = "<p>".join((
-            "<b>%s</b>" % APP_NAME,
-            "A non-traditional Python spreadsheet application",
-            "Version {version}",
-            "Created by:<br>{devs}",
-            "Documented by:<br>{doc_devs}",
-            "Copyright:<br>Martin Manns",
-            "License:<br>{license}",
-            '<a href="https://pyspread.gitlab.io">pyspread.gitlab.io</a>',
-            ))
+        def devs_string(devs: list) -> str:
+            """Get string from devs list"""
 
-        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho, " \
-               "Pete Morgan"
+            devs_str = "".join("<li>{}</li>".format(dev) for dev in devs)
+            return "<ul>{}</ul>".format(devs_str)
 
-        doc_devs = "Martin Manns, Bosko Markovic, Pete Morgan"
+        about_msg_template = \
+            """<b>{name}</b><><p>
+            A non-traditional Python spreadsheet application<p>
+            Version:&emsp;{version}<p>
+            Created by:&emsp;{devs}<p>
+            Documented by:&emsp;{doc_devs}<p>
+            Copyright:&emsp;{copyright_owner}<p>
+            License:&emsp;{license}<p>
+            Web site:&emsp;<a href="{web_url}">{web_url}</a>
+            """
 
-        about_msg = about_msg_template.format(version=VERSION, license=LICENSE,
-                                              devs=devs, doc_devs=doc_devs)
-        QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
+        devs = ("Martin Manns", "Jason Sexauer", "Vova Kolobok", "mgunyho",
+                "Pete Morgan")
+        devs_str = devs_string(devs)
+
+        doc_devs = ("Martin Manns", "Bosko Markovic", "Pete Morgan")
+        doc_devs_str = devs_string(doc_devs)
+
+        copyright_owner = "Martin Manns"
+
+        about_msg = about_msg_template.format(
+            name=APP_NAME,
+            version=VERSION,
+            license=LICENSE,
+            devs=devs_str,
+            doc_devs=doc_devs_str,
+            copyright_owner=copyright_owner,
+            web_url=WEB_URL)
+
+        QMessageBox.about(self, "About {}".format(APP_NAME), about_msg)
 
     def on_focus_changed(self, old: QWidget, now: QWidget):
         """Handles grid clicks from entry line"""

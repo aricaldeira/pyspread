@@ -43,7 +43,6 @@
  * :class:`ChartDialog`
  * :class:`CsvImportDialog`
  * :class:`CsvExportDialog`
- * (:class:`HelpDialogBase`)
  * :class:`TutorialDialog`
  * :class:`ManualDialog`
  * :class:`PrintPreviewDialog`

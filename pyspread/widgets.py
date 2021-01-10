@@ -42,6 +42,11 @@
 from pathlib import Path
 from typing import Tuple
 
+try:
+    from markdown2 import markdown
+except ImportError:
+    markdown = None
+
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
 from PyQt5.QtWidgets \
     import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
@@ -52,11 +57,11 @@ from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
 try:
     from pyspread.actions import Action
     from pyspread.icons import Icon
-    from pyspread.lib.markdown2 import markdown
+    from pyspread.settings import DOC_PATH
 except ImportError:
     from actions import Action
     from icons import Icon
-    from lib.markdown2 import markdown
+    from settings import DOC_PATH
 
 
 class MultiStateBitmapButton(QToolButton):
@@ -707,6 +712,10 @@ class HelpBrowser(QTextBrowser):
         :param path: Path to markdown file that is displayed
 
         """
+
+        if markdown is None or True:
+            # Fall back to online html
+            return f"{str(path)}, {DOC_PATH}"
 
         try:
             with open(path, encoding='utf-8') as helpfile:
