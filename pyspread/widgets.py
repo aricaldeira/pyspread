@@ -57,11 +57,11 @@ from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
 try:
     from pyspread.actions import Action
     from pyspread.icons import Icon
-    from pyspread.settings import DOC_PATH
+    from pyspread.settings import WEB_URL
 except ImportError:
     from actions import Action
     from icons import Icon
-    from settings import DOC_PATH
+    from settings import WEB_URL
 
 
 class MultiStateBitmapButton(QToolButton):
@@ -713,15 +713,16 @@ class HelpBrowser(QTextBrowser):
 
         """
 
-        if markdown is None or True:
-            # Fall back to online html
-            return f"{str(path)}, {DOC_PATH}"
-
         try:
             with open(path, encoding='utf-8') as helpfile:
                 help_text = helpfile.read()
         except IOError as err:
             return "Error opening file {}: {}".format(path, err)
+
+        if markdown is None:
+            error_msg = "<b>Warning: markdown2 is not installed.<br>" + \
+                        "Rendering as pain text.</b><p>"
+            return error_msg + help_text.replace("\n", "<br>")
 
         return markdown(help_text, extras=['metadata', 'code-friendly',
                                            'fenced-code-blocks'])

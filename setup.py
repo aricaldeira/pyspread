@@ -57,7 +57,8 @@ setup(
     python_requires='>=3.6',
     requires=['numpy (>=1.1)',
               'PyQt5 (>=5.10)',
-              'setuptools (>=40.0)'],
+              'setuptools (>=40.0)',
+              'markdown2 (>=2.3)'],
     extras_require={
         'matplotlib': ['matplotlib (>=1.1.1)'],
         'pyenchant': ['pyenchant (>=1.1)'],

@@ -104,6 +104,9 @@ REQUIRED_DEPENDENCIES = [
            description="Easily download, build, install, upgrade, and "
                        "uninstall Python packages",
            required_version=version.parse("40.0")),
+    Module(name="markdown2",
+           description="A fast and complete Python implementation of Markdown",
+           required_version=version.parse("2.3")),
 ]
 
 # Optional dependencies
@@ -205,7 +208,7 @@ class DependenciesDialog(QDialog):
                 status = "Not installed"
                 color = "#F3FFBB"
                 butt = QToolButton()
-                butt.setText("Install optional")
+                butt.setText("Install")
                 butt.setEnabled(PIP_MODULE.is_installed())
                 self.tree.setItemWidget(item, self.column.button, butt)
                 self.buttGroup.addButton(butt, DEPENDENCIES.index(module))

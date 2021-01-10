@@ -50,9 +50,9 @@ from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 try:
-    from pyspread.__init__ import VERSION, APP_NAME, WEB_URL
+    from pyspread.__init__ import VERSION, APP_NAME
     from pyspread.cli import PyspreadArgumentParser
-    from pyspread.settings import Settings
+    from pyspread.settings import Settings, WEB_URL
     from pyspread.icons import Icon, IconPath
     from pyspread.grid import Grid
     from pyspread.grid_renderer import painter_save
@@ -71,9 +71,9 @@ try:
     from pyspread.lib.hashing import genkey
     from pyspread.model.model import CellAttributes
 except ImportError:
-    from __init__ import VERSION, APP_NAME, WEB_URL
+    from __init__ import VERSION, APP_NAME
     from cli import PyspreadArgumentParser
-    from settings import Settings
+    from settings import Settings, WEB_URL
     from icons import Icon, IconPath
     from grid import Grid
     from grid_renderer import painter_save
