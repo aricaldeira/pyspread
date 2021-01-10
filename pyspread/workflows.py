@@ -230,6 +230,10 @@ class Workflows:
             # Update index widgets
             grid.update_index_widgets()
 
+        # Set current cell to upper left corner
+        for grid in self.main_window.grids:
+            grid.current = 0, 0, 0
+
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
 

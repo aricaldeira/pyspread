@@ -37,6 +37,12 @@ import pytest
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
+try:
+    from pyspread.dialogs import GridShapeDialog
+except ImportError:
+    from dialogs import GridShapeDialog
+
+
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
 LIBPATH = abspath(PYSPREADPATH + "/lib")
 
@@ -112,3 +118,51 @@ class TestWorkflows:
         main_window.settings.last_file_input_path = path
         self.workflows.update_main_window_title()
         assert main_window.windowTitle() == title
+
+    param_file_new = [
+        ((1000, 100, 3), (1000, 100, 3), None),
+        ((100, 100, 3), (100, 100, 3), None),
+        ((10000000, 100, 3), (1000, 100, 3),
+         "Error: Grid shape (10000000, 100, 3) exceeds (1000000, 100000, 100)."
+         ),
+        (None, (1000, 100, 3), None),
+    ]
+
+    @pytest.mark.parametrize("shape, res, msg", param_file_new)
+    def test_file_new(self, shape, res, msg, monkeypatch):
+        """Unit test for file_new"""
+
+        monkeypatch.setattr(GridShapeDialog, "shape", shape)
+        self.workflows.file_new()
+
+        assert main_window.grid.model.shape == res
+        assert main_window.grid.current == (0, 0, 0)
+        assert main_window.settings.last_file_input_path == Path.home()
+        assert main_window.settings.changed_since_save is False
+        assert main_window.safe_mode is False
+        if msg:
+            assert main_window.statusBar().currentMessage() == msg
+
+        monkeypatch.setattr(GridShapeDialog, "shape",
+                            main_window.settings.shape)
+        self.workflows.file_new()
+
+    param_count_file_lines = [
+        ("", 0, "counttest.txt", None),
+        ("\n"*100, 100, "counttest.txt", None),
+        ("Test"*100, 0, "counttest.txt", None),
+        ("Test\n"*10, 10, "counttest.txt", None),
+        ("Test\n"*10, None, "false_filename.txt", "Error"),
+    ]
+
+    @pytest.mark.parametrize("txt, res, filename, msg", param_count_file_lines)
+    def test_count_file_lines(self, txt, res, filename, msg, tmpdir):
+        """Unit test for count_file_lines"""
+
+        tmpfile = tmpdir / "counttest.txt"
+        tmpfile.write_text(txt, "utf-8")
+        testfile = tmpdir / filename
+        assert self.workflows.count_file_lines(testfile) == res
+        if msg:
+            assert str(testfile) in main_window.statusBar().currentMessage()
+        tmpfile.remove()

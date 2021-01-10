@@ -2110,7 +2110,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def _render_text(self, painter: QPainter, rect: QRectF,
                      option: QStyleOptionViewItem, index: QModelIndex):
-        """HTML markup renderer
+        """Text renderer
 
         :param painter: Painter with which markup is rendered
         :param rect: Cell rect of the cell to be painted
