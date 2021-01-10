@@ -87,7 +87,7 @@ def qimageview(image):
     else:
         tpl = ("qimageview can only handle 8- or 32-bit QImages "
                "(format was {})")
-        raise ValueError(tpl.formnat(format))
+        raise ValueError(tpl.format(format))
 
     image.__array_interface__ = {
         'shape': shape,
