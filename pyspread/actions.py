@@ -40,13 +40,16 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import enchant
+except ImportError:
+    enchant = None
+
+try:
     from pyspread.icons import Icon
     from pyspread.lib.attrdict import AttrDict
-    from pyspread.lib.dependencies import get_enchant_version
 except ImportError:
     from icons import Icon
     from lib.attrdict import AttrDict
-    from lib.dependencies import get_enchant_version
 
 
 class Action(QAction):
@@ -760,7 +763,7 @@ class MainWindowActions(AttrDict):
     def disable_unavailable(self):
         """Disables unavailable menu items e.g. due to missing dependencies"""
 
-        if get_enchant_version() is None:
+        if enchant is None:
             self.toggle_spell_checker.setEnabled(False)
 
 
