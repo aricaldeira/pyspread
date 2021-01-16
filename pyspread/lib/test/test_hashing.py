@@ -48,6 +48,29 @@ def test_genkey():
     assert len(set(KEYS)) == len(KEYS)
 
 
+param_test_sign = [
+    ("", None, "", ValueError),
+    ("2", "123", b"", TypeError),
+    (b"2", b"123", b"287715fdf85b987e2bc3f468b4a53346aee8da24305ff4456dd3390c"
+                   b"7ab5a7cdf5f5dbb6831310880909aedfd21e59f1b7c4421482a33b3"
+                   b"450c38ffcbf1bf11e", None),
+    ("2", "123", b"", TypeError),
+    (b"2", 123, "", ValueError),
+    (b"2", b"1"*1000, b"", UserWarning),
+]
+
+@pytest.mark.parametrize("data, key, res, error", param_test_sign)
+def test_sign(data, key, res, error):
+    """Unit test for sign"""
+    if error and issubclass(error, Exception):
+        with pytest.raises(error):
+            sign(data, key)
+    elif error and issubclass(error, UserWarning):
+        with pytest.warns(error):
+            sign(data, key)
+    else:
+        assert sign(data, key) ==  res
+
 param_test_sign_verify = [
     (b"Test", KEYS[0], b"Test", KEYS[0], True),
     (100*"\u2200".encode('utf-8'), KEYS[0], 100*"\u2200".encode('utf-8'),
@@ -57,7 +80,7 @@ param_test_sign_verify = [
     (b"Test", KEYS[0], b"TEST", KEYS[3], False),
     (b"", KEYS[0], b"", KEYS[3], False),
     (b"", KEYS[0], b"", KEYS[0], True),
-    (b"Hello World\n"*100000, KEYS[1], b"Hello World\n"*100000, KEYS[1], True),
+    (b"Hello World\n"*10, KEYS[1], b"Hello World\n"*10, KEYS[1], True),
 ]
 
 
