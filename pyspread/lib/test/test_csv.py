@@ -30,10 +30,13 @@ Unit tests for csv.py
 
 import datetime
 from pathlib import Path
+import inspect
 
 import pytest
 
-from ..csv import sniff, get_header, csv_reader, convert
+from ..csv import (sniff, get_header, csv_reader, convert, date, time,
+                   make_object)
+from ..csv import datetime as __datetime
 
 
 TESTPATH = Path(__file__).parent
@@ -102,6 +105,7 @@ param_convert = [
     ('12', 'int', "12"),
     ('12', 'float', "12.0"),
     ('12.0', 'repr', "'12.0'"),
+    ('12.0', None, "'12.0'"),
     ('12.0', 'object', "12.0"),
     ('2000-1-1', 'date', repr(datetime.date(2000, 1, 1))),
     ('1995-02-05 00:00', 'datetime',
@@ -115,3 +119,68 @@ def test_convert(string, digest_type, res):
     """Unit test for convert"""
 
     assert convert(string, digest_type) == res
+
+
+param_date = [
+    ("2011-11-1", datetime.date(2011, 11, 1)),
+    (42, TypeError),
+]
+
+
+@pytest.mark.parametrize("string, res", param_date)
+def test_date(string, res):
+    """Unit test for date"""
+
+    if inspect.isclass(res) and issubclass(res, Exception):
+        assert isinstance(date(string), res)
+    else:
+        assert date(string) == res
+
+
+param_datetime = [
+    ("2011-11-1-12:00:00", datetime.datetime(2011, 11, 1, 12, 0, 0)),
+    (42, TypeError),
+]
+
+
+param_time = [
+    ("12:00", datetime.time(12, 0)),
+    (42, TypeError),
+]
+
+
+@pytest.mark.parametrize("string, res", param_time)
+def test_time(string, res):
+    """Unit test for time"""
+
+    if inspect.isclass(res) and issubclass(res, Exception):
+        assert isinstance(time(string), res)
+    else:
+        assert time(string) == res
+
+
+@pytest.mark.parametrize("string, res", param_datetime)
+def test_datetime(string, res):
+    """Unit test for datetime"""
+
+    if inspect.isclass(res) and issubclass(res, Exception):
+        assert isinstance(__datetime(string), res)
+    else:
+        assert __datetime(string) == res
+
+
+param_make_object = [
+    ("42", 42),
+    (42, ValueError),
+]
+
+
+@pytest.mark.parametrize("string, res", param_make_object)
+def test_make_object(string, res):
+    """Unit test for make_object"""
+
+    if inspect.isclass(res) and issubclass(res, Exception):
+        with pytest.raises(res):
+            make_object(string)
+    else:
+        assert make_object(string) == res
