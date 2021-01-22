@@ -57,6 +57,14 @@ While the frozen attribute is stored in the `.pysu` / `.pys` save-file, the froz
 
 Lock toggles the current selection’s cell lock attribute. If no cell is selected, then the current cell is locked. Locking means that the cell cannot be edited from within pyspread until it is unlocked again.
 
+## Format → Button cell
+
+Creates a button cell from the current cell. Button cells may be employed to provide an intuitive interface for the user that allows executing functions from the macro editor by pressing a button in the grid. In this case, the respective function is called in the button cell code.
+
+On selecting button cell, a dialog for querying the user for a button text is displayed. Next, a button that is labeled with this text is displayed in the cell instead of cell results. The button cell's code is executed when activating the button (on release).
+
+Note that button cells can be activated even if they are locked.
+
 ## Format → Merge cells
 
 Merge cells merge all cells that are in the bounding box of the current selection. If there is no selection the the current cell will not be merged or unmerged if already merged. Merged cells act as one. Output is shown for the top left cell, which stays intact upon a merge.
