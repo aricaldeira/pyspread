@@ -29,7 +29,7 @@ After pressing `<Enter>`, the cell displays
 ```
 as expected. List comprehensions are also valid expessions.
 ```python
-[i ** 2 for i in xrange(100) if i % 3]
+[i ** 2 for i in range(100) if i % 3]
 ```
 works.
 
