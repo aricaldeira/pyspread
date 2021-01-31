@@ -1605,7 +1605,7 @@ class GridHeaderView(QHeaderView):
                     section_sizes = self.grid.row_heights
 
                 for section, size in section_sizes:
-                    self.resizeSection(section, size * self.grid.zoom)
+                    self.resizeSection(section, int(size * self.grid.zoom))
 
 
 class GridTableModel(QAbstractTableModel):

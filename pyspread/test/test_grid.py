@@ -108,8 +108,31 @@ class TestGrid:
         monkeypatch.setattr(self.grid, "current", (row, column, table))
         assert self.grid.current == (row_res, column_res, table_res)
 
-    param_test_zoom = [(1.0, 1.0), (2.0, 2.0), (8.0, 8.0), (0.0, 1.0),
-                       (100.0, 1.0), (-1.0, 1.0)]
+    def test_current_invalid(self):
+        """Unit test for current getter and setter with invalid parameters"""
+
+        with pytest.raises(ValueError):
+            self.grid.current = 1,2,3,4
+
+    param_test_row_heights = [
+        ({0: 23}, {0: 23}),
+        ({1: 3}, {1: 3.0}),
+        ({0: 23, 12: 200}, {0: 23, 12: 200}),
+    ]
+
+    @pytest.mark.parametrize("heights, heights_res", param_test_row_heights)
+    def test_row_heights(self, heights, heights_res):
+        """Unit test for row_heights"""
+
+        for row in heights:
+            self.grid.setRowHeight(row, heights[row])
+
+        row_heights = dict(self.grid.row_heights)
+        for row in heights_res:
+            assert row_heights[row] == heights_res[row]
+
+
+    param_test_zoom = [(1, 1), (2, 2), (8, 8), (0, 1), (100, 1), (-1, 1)]
 
     @pytest.mark.parametrize("zoom, zoom_res", param_test_zoom)
     def test_zoom(self, zoom, zoom_res, monkeypatch):
