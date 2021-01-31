@@ -298,6 +298,8 @@ class Grid(QTableView):
 
         block_top_left = []
         block_bottom_right = []
+        rows = []
+        columns = []
         cells = []
 
         # Selection are made of selection ranges that we call span
@@ -306,15 +308,22 @@ class Grid(QTableView):
             top, bottom = span.top(), span.bottom()
             left, right = span.left(), span.right()
 
-            # If the span is a single cell then append it
             if top == bottom and left == right:
+                # The span is a single cell
                 cells.append((top, right))
+            elif left == 0 and right == self.model.shape[1] - 1:
+                # The span consists of selected rows
+                rows += list(range(top, bottom + 1))
+            elif top == 0 and bottom == self.model.shape[0] - 1:
+                # The span consists of selected columns
+                columns += list(range(left, right + 1))
             else:
                 # Otherwise append a block
                 block_top_left.append((top, left))
                 block_bottom_right.append((bottom, right))
 
-        return Selection(block_top_left, block_bottom_right, [], [], cells)
+        return Selection(block_top_left, block_bottom_right,
+                         rows, columns, cells)
 
     @property
     def selected_idx(self) -> List[QModelIndex]:

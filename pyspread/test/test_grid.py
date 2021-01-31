@@ -33,7 +33,8 @@ import sys
 
 import pytest
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QItemSelectionModel, QItemSelection
+from PyQt5.QtWidgets import QApplication, QAbstractItemView
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
 LIBPATH = abspath(PYSPREADPATH + "/lib")
@@ -45,9 +46,17 @@ def insert_path(path):
     yield
     sys.path.pop(0)
 
+@contextmanager
+def multi_selection_mode(grid):
+    grid.clearSelection()
+    old_selection_mode = grid.selectionMode()
+    grid.setSelectionMode(QAbstractItemView.MultiSelection)
+    yield
+    grid.setSelectionMode(old_selection_mode)
 
 with insert_path(PYSPREADPATH):
     from ..pyspread import MainWindow
+    from ..lib.selection import Selection
 
 
 app = QApplication.instance()
@@ -131,6 +140,88 @@ class TestGrid:
         for row in heights_res:
             assert row_heights[row] == heights_res[row]
 
+    param_test_column_widths = [
+        ({0: 23}, {0: 23}),
+        ({1: 3}, {1: 3.0}),
+        ({0: 23, 12: 200}, {0: 23, 12: 200}),
+    ]
+
+    @pytest.mark.parametrize("widths, widths_res", param_test_column_widths)
+    def test_column_widths(self, widths, widths_res):
+        """Unit test for column_widths"""
+
+        for column in widths:
+            self.grid.setColumnWidth(column, widths[column])
+
+        column_widths = dict(self.grid.column_widths)
+        for column in widths_res:
+            assert column_widths[column] == widths_res[column]
+
+    param_test_selection_cells = [
+        (((0, 0),), Selection([], [], [], [], [(0, 0)])),
+        (((0, 0), (1, 0)), Selection([], [], [], [], [(0, 0), (1, 0)])),
+        (((0, 0), (999, 0)), Selection([], [], [], [], [(0, 0), (999, 0)])),
+        (((0, 0), (1, 0), (0, 1), (1, 1)),
+         Selection([], [], [], [], [(0, 0), (1, 0), (0, 1), (1, 1)])),
+    ]
+
+    @pytest.mark.parametrize("cells, res", param_test_selection_cells)
+    def test_selection_cells(self, cells, res):
+        """Unit test for selection getter using cells"""
+
+        with multi_selection_mode(self.grid):
+            for cell in cells:
+                idx = self.grid.model.index(*cell)
+                self.grid.selectionModel().select(idx,
+                                                  QItemSelectionModel.Select)
+            assert self.grid.selection == res
+
+    param_test_selection_blocks = [
+        ((0, 0, 1, 1), Selection([(0, 0)], [(1, 1)], [], [], [])),
+        ((1, 2, 14, 19), Selection([(1, 2)], [(14, 19)], [], [], [])),
+    ]
+
+    @pytest.mark.parametrize("block, res", param_test_selection_blocks)
+    def test_selection_blocks(self, block, res):
+        """Unit test for selection getter using blocks"""
+
+        with multi_selection_mode(self.grid):
+            top, left, bottom, right = block
+            idx_tl = self.grid.model.index(top, left)
+            idx_br = self.grid.model.index(bottom, right)
+            item_selection = QItemSelection(idx_tl, idx_br)
+            self.grid.selectionModel().select(item_selection,
+                                              QItemSelectionModel.Select)
+            assert self.grid.selection == res
+
+
+    param_test_selection_rows = [
+        ((0,), Selection([], [], [0], [], [])),
+        ((1, 2), Selection([], [], [1, 2], [], [])),
+    ]
+
+    @pytest.mark.parametrize("rows, res", param_test_selection_rows)
+    def test_selection_rows(self, rows, res):
+        """Unit test for selection getter using rows"""
+
+        with multi_selection_mode(self.grid):
+            for row in rows:
+                self.grid.selectRow(row)
+            assert self.grid.selection == res
+
+    param_test_selection_columns = [
+        ((0,), Selection([], [], [], [0], [])),
+        ((1, 2), Selection([], [], [], [1, 2], [])),
+    ]
+
+    @pytest.mark.parametrize("columns, res", param_test_selection_columns)
+    def test_selection_columns(self, columns, res):
+        """Unit test for selection getter using columns"""
+
+        with multi_selection_mode(self.grid):
+            for column in columns:
+                self.grid.selectColumn(column)
+            assert self.grid.selection == res
 
     param_test_zoom = [(1, 1), (2, 2), (8, 8), (0, 1), (100, 1), (-1, 1)]
 
