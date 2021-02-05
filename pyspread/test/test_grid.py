@@ -232,6 +232,44 @@ class TestGrid:
         monkeypatch.setattr(self.grid, "zoom", zoom)
         assert self.grid.zoom == zoom_res
 
+    param_test_set_selection_mode = [
+        (True, (0, 0, 0), (0, 0, 0), QAbstractItemView.NoEditTriggers),
+        (False, (1, 2, 3), None, QAbstractItemView.DoubleClicked
+                                 | QAbstractItemView.EditKeyPressed
+                                 | QAbstractItemView.AnyKeyPressed),
+    ]
+
+    @pytest.mark.parametrize("on, current, start, edit_mode",
+                             param_test_set_selection_mode)
+    def test_set_selection_mode(self, on, current, start, edit_mode):
+        """Unit test for set_selection_mode"""
+
+        self.grid.current = current
+        self.grid.set_selection_mode(on)
+        for grid in main_window.grids:
+            assert grid.selection_mode == on
+        assert self.grid.editTriggers() == edit_mode
+        assert self.grid.current_selection_mode_start == start
+
+    param_test_selected_idx_to_str = [
+        ([grid.model.createIndex(2, 4)], "(2, 4, 0)"),
+        ([grid.model.createIndex(2, 4), grid.model.createIndex(3, 4)],
+         "(2, 4, 0), (3, 4, 0)"),
+    ]
+
+    @pytest.mark.parametrize("sel_idx, res", param_test_selected_idx_to_str)
+    def test_selected_idx_to_str(self, sel_idx, res):
+        """Unit test for _selected_idx_to_str"""
+
+        assert self.grid._selected_idx_to_str(sel_idx) == res
+
+    def test_has_selection(self):
+        """Unit test for has_selection"""
+
+        assert not self.grid.has_selection()
+        self.grid.selectRow(2)
+        assert self.grid.has_selection()
+
 
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""

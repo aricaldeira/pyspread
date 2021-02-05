@@ -389,6 +389,8 @@ class Grid(QTableView):
     def set_selection_mode(self, value=True):
         """Setter for selection mode
 
+        This method is required for accessing selection mode from QActions.
+
         :param value: If True, selection mode is set, if False unset
 
         """
