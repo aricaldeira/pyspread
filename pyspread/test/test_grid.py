@@ -63,6 +63,7 @@ app = QApplication.instance()
 if app is None:
     app = QApplication([])
 main_window = MainWindow()
+zoom_levels = main_window.settings.zoom_levels
 
 
 class TestGrid:
@@ -244,12 +245,33 @@ class TestGrid:
     def test_set_selection_mode(self, on, current, start, edit_mode):
         """Unit test for set_selection_mode"""
 
+        self.grid.set_selection_mode(False)
         self.grid.current = current
         self.grid.set_selection_mode(on)
         for grid in main_window.grids:
             assert grid.selection_mode == on
         assert self.grid.editTriggers() == edit_mode
         assert self.grid.current_selection_mode_start == start
+
+    def test_focusInEvent(self):
+        """Unit test for focusInEvent"""
+
+        main_window.grids[0].setFocus()
+        main_window.grids[1].setFocus()
+        assert main_window._last_focused_grid == main_window.grids[0]
+
+    def test_adjust_size(self):
+        """Unit test for adjust_size"""
+
+        w = self.grid.horizontalHeader().length() + \
+            self.grid.verticalHeader().width()
+        h = self.grid.verticalHeader().length() + \
+            self.grid.horizontalHeader().height()
+
+        self.grid.resize(200, 200)
+        self.grid.adjust_size()
+        assert self.grid.size().width() == w
+        assert self.grid.size().height() == h
 
     param_test_selected_idx_to_str = [
         ([grid.model.createIndex(2, 4)], "(2, 4, 0)"),
@@ -269,7 +291,146 @@ class TestGrid:
         assert not self.grid.has_selection()
         self.grid.selectRow(2)
         assert self.grid.has_selection()
+        self.grid.clearSelection()
+        assert not self.grid.has_selection()
+        self.grid.selectColumn(2)
+        self.grid.on_merge_pressed()
+        self.grid.selectRow(2)
+        assert self.grid.has_selection()
+        self.grid.current = 2, 2, 0
+        self.grid.selectColumn(2)
+        assert self.grid.has_selection()
 
+    def test_on_current_changed(self):
+        """Unit test for on_current_changed"""
+
+        main_window.entry_line.setPlainText("Test")
+        self.grid.selection_mode_exiting = True
+        self.grid.current = 0, 1, 0
+        assert main_window.entry_line.toPlainText() == "Test"
+        self.grid.selection_mode_exiting = False
+
+        self.grid.selection_mode = True
+        self.grid.current = 2, 1, 0
+        assert main_window.entry_line.toPlainText() == "S[X + 2, Y + 0, Z]Test"
+        self.grid.selection_mode = False
+        main_window.entry_line.setPlainText("")
+
+    def test_on_selection_changed(self):
+        """Unit test for on_selection_changed"""
+
+        main_window.settings.show_statusbar_sum = False
+        self.grid.model.code_array[1, 0, 0] = "23"
+        self.grid.model.code_array[2, 0, 0] = "2"
+        self.grid.current = 0, 0, 0
+        idx_tl = self.grid.model.index(0, 0)
+        idx_br = self.grid.model.index(5, 0)
+        item_selection = QItemSelection(idx_tl, idx_br)
+        self.grid.selectionModel().select(item_selection,
+                                          QItemSelectionModel.Select)
+        assert main_window.statusBar().currentMessage() == "Selection: 6 cells"
+
+        self.grid.clearSelection()
+        main_window.settings.show_statusbar_sum = True
+        idx_tl = self.grid.model.index(0, 0)
+        idx_br = self.grid.model.index(4, 0)
+        item_selection = QItemSelection(idx_tl, idx_br)
+        self.grid.selectionModel().select(item_selection,
+                                          QItemSelectionModel.Select)
+        assert main_window.statusBar().currentMessage() == \
+               "Selection: 5 cells     Σ=25     max=23     min=2"
+
+
+    def test_on_row_resized(self):
+        """Unit test for on_row_resized"""
+
+        self.grid.setRowHeight(2, 45)
+        self.grid.setRowHeight(6, 45)
+
+        row_heights = dict(self.grid.row_heights)
+        assert row_heights[2] == 45
+        assert row_heights[6] == 45
+
+        self.grid.current = 3, 1, 0
+        idx_tl = self.grid.model.index(3, 1)
+        idx_br = self.grid.model.index(5, 2)
+        item_selection = QItemSelection(idx_tl, idx_br)
+        self.grid.selectionModel().select(item_selection,
+                                          QItemSelectionModel.Select)
+
+        self.grid.setRowHeight(3, 48)
+        row_heights = dict(self.grid.row_heights)
+        assert row_heights[2] == 45
+        assert row_heights[3] == 48
+        assert row_heights[4] == 48
+        assert row_heights[5] == 48
+        assert row_heights[6] == 45
+
+        self.grid.clearSelection()
+
+
+    def test_on_column_resized(self):
+        """Unit test for on_column_resized"""
+
+        self.grid.setColumnWidth(2, 45)
+        self.grid.setColumnWidth(6, 45)
+
+        col_widths = dict(self.grid.column_widths)
+        assert col_widths[2] == 45
+        assert col_widths[6] == 45
+
+        self.grid.current = 1, 3, 0
+        idx_tl = self.grid.model.index(1, 3)
+        idx_br = self.grid.model.index(2, 5)
+        item_selection = QItemSelection(idx_tl, idx_br)
+        self.grid.selectionModel().select(item_selection,
+                                          QItemSelectionModel.Select)
+
+        self.grid.setColumnWidth(3, 48)
+        col_widths = dict(self.grid.column_widths)
+        assert col_widths[2] == 45
+        assert col_widths[3] == 48
+        assert col_widths[4] == 48
+        assert col_widths[5] == 48
+        assert col_widths[6] == 45
+
+        self.grid.clearSelection()
+
+    param_test_on_zoom_in = list(zip(zoom_levels[:-1], zoom_levels[1:]))
+    param_test_on_zoom_in += [(max(zoom_levels), max(zoom_levels))]
+
+    @pytest.mark.parametrize("zoom, res", param_test_on_zoom_in)
+    def test_on_zoom_in(self, zoom, res):
+        """Unit test for on_zoom_in"""
+
+        for grid in main_window.grids:
+            main_window._last_focused_grid = grid
+            grid.zoom = zoom
+            self.grid.on_zoom_in()
+            assert grid.zoom == res
+
+    param_test_on_zoom_out = list(zip(zoom_levels[1:], zoom_levels[:-1]))
+    param_test_on_zoom_out += [(min(zoom_levels), min(zoom_levels))]
+
+    @pytest.mark.parametrize("zoom, res", param_test_on_zoom_out)
+    def test_on_zoom_out(self, zoom, res):
+        """Unit test for on_zoom_out"""
+
+        for grid in main_window.grids:
+            main_window._last_focused_grid = grid
+            grid.zoom = zoom
+            self.grid.on_zoom_out()
+            assert grid.zoom == res
+
+    @pytest.mark.parametrize("zoom", zoom_levels)
+    def test_on_zoom_1(self, zoom):
+        """Unit test for on_zoom_1"""
+
+        for grid in main_window.grids:
+            main_window._last_focused_grid = grid
+            grid.zoom = zoom
+            grid.on_zoom_1()
+            assert grid.zoom == 1.0
 
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""
