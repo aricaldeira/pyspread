@@ -448,11 +448,67 @@ class TestGrid:
         self.grid._refresh_frozen_cell((1, 0, 0))
         assert self.grid.model.code_array[1, 0, 0] == "Test"
 
+        self.grid.on_freeze_pressed(False)
+
+
     def test_refresh_frozen_cells(self):
         """Unit test for refresh_frozen_cells"""
 
+        self.grid.current = 1, 0, 0
+        self.grid.model.code_array[1, 0, 0] = "23"
+        self.grid.on_freeze_pressed(True)
+        self.grid.current = 2, 0, 0
+        self.grid.model.code_array[2, 0, 0] = "24"
+        self.grid.on_freeze_pressed(True)
+
+        assert self.grid.model.code_array[1, 0, 0] == 23
+        assert self.grid.model.code_array[2, 0, 0] == 24
+
+        self.grid.model.code_array[1, 0, 0] = "'Test1'"
+        self.grid.model.code_array[2, 0, 0] = "'Test2'"
+
+        assert self.grid.model.code_array[1, 0, 0] == 23
+        assert self.grid.model.code_array[2, 0, 0] == 24
+
+        self.grid.refresh_frozen_cells()
+
+        assert self.grid.model.code_array[1, 0, 0] == "Test1"
+        assert self.grid.model.code_array[2, 0, 0] == "Test2"
+
+        self.grid.current = 1, 0, 0
+        self.grid.on_freeze_pressed(False)
+        self.grid.current = 2, 0, 0
+        self.grid.on_freeze_pressed(False)
+
     def test_refresh_selected_frozen_cells(self):
         """Unit test for refresh_selected_frozen_cells"""
+
+        self.grid.current = 1, 0, 0
+        self.grid.model.code_array[1, 0, 0] = "23"
+        self.grid.on_freeze_pressed(True)
+        self.grid.current = 2, 0, 0
+        self.grid.model.code_array[2, 0, 0] = "24"
+        self.grid.on_freeze_pressed(True)
+
+        assert self.grid.model.code_array[1, 0, 0] == 23
+        assert self.grid.model.code_array[2, 0, 0] == 24
+
+        self.grid.model.code_array[1, 0, 0] = "'Test1'"
+        self.grid.model.code_array[2, 0, 0] = "'Test2'"
+
+        assert self.grid.model.code_array[1, 0, 0] == 23
+        assert self.grid.model.code_array[2, 0, 0] == 24
+
+        self.grid.selectRow(1)
+        self.grid.refresh_selected_frozen_cells()
+
+        assert self.grid.model.code_array[1, 0, 0] == "Test1"
+        assert self.grid.model.code_array[2, 0, 0] == 24
+
+        self.grid.current = 1, 0, 0
+        self.grid.on_freeze_pressed(False)
+        self.grid.current = 2, 0, 0
+        self.grid.on_freeze_pressed(False)
 
     def test_on_show_frozen_pressed(self):
         """Unit test for on_show_frozen_pressed"""
