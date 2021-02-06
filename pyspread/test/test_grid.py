@@ -513,6 +513,11 @@ class TestGrid:
     def test_on_show_frozen_pressed(self):
         """Unit test for on_show_frozen_pressed"""
 
+        self.grid.on_show_frozen_pressed(True)
+        assert main_window.settings.show_frozen
+        self.grid.on_show_frozen_pressed(False)
+        assert not main_window.settings.show_frozen
+
     def test_on_font(self):
         """Unit test for on_font"""
 
