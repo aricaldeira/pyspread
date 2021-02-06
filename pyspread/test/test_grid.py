@@ -408,6 +408,7 @@ class TestGrid:
             grid.zoom = zoom
             self.grid.on_zoom_in()
             assert grid.zoom == res
+        main_window._last_focused_grid = self.grid
 
     param_test_on_zoom_out = list(zip(zoom_levels[1:], zoom_levels[:-1]))
     param_test_on_zoom_out += [(min(zoom_levels), min(zoom_levels))]
@@ -421,6 +422,7 @@ class TestGrid:
             grid.zoom = zoom
             self.grid.on_zoom_out()
             assert grid.zoom == res
+        main_window._last_focused_grid = self.grid
 
     @pytest.mark.parametrize("zoom", zoom_levels)
     def test_on_zoom_1(self, zoom):
@@ -431,6 +433,139 @@ class TestGrid:
             grid.zoom = zoom
             grid.on_zoom_1()
             assert grid.zoom == 1.0
+        main_window._last_focused_grid = self.grid
+
+    def test_refresh_frozen_cell(self):
+        """Unit test for _refresh_frozen_cell"""
+
+        self.grid.current = 1, 0, 0
+        self.grid.model.code_array[1, 0, 0] = "23"
+        self.grid.on_freeze_pressed(True)
+        self.grid.model.code_array[1, 0, 0] = "'Test'"
+        assert self.grid.model.code_array.frozen_cache == {'(1, 0, 0)': 23}
+        assert self.grid.model.code_array[1, 0, 0] == 23
+
+        self.grid._refresh_frozen_cell((1, 0, 0))
+        assert self.grid.model.code_array[1, 0, 0] == "Test"
+
+    def test_refresh_frozen_cells(self):
+        """Unit test for refresh_frozen_cells"""
+
+    def test_refresh_selected_frozen_cells(self):
+        """Unit test for refresh_selected_frozen_cells"""
+
+    def test_on_show_frozen_pressed(self):
+        """Unit test for on_show_frozen_pressed"""
+
+    def test_on_font(self):
+        """Unit test for on_font"""
+
+    def test_on_font_size(self):
+        """Unit test for on_font_size"""
+
+    def test_on_bold_pressed(self):
+        """Unit test for on_bold_pressed"""
+
+    def test_on_italics_pressed(self):
+        """Unit test for on_italics_pressed"""
+
+    def test_on_underline_pressed(self):
+        """Unit test for on_underline_pressed"""
+
+    def test_on_strikethrough_pressed(self):
+        """Unit test for on_strikethrough_pressed"""
+
+    def test_on_text_renderer_pressed(self):
+        """Unit test for on_text_renderer_pressed"""
+
+    def test_on_image_renderer_pressed(self):
+        """Unit test for on_image_renderer_pressed"""
+
+    def test_on_markup_renderer_pressed(self):
+        """Unit test for on_markup_renderer_pressed"""
+
+    def test_on_matplotlib_renderer_pressed(self):
+        """Unit test for on_matplotlib_renderer_pressed"""
+
+    def test_on_lock_pressed(self):
+        """Unit test for on_lock_pressed"""
+
+    def test_on_rotate_0(self):
+        """Unit test for on_rotate_0"""
+
+    def test_on_rotate_90(self):
+        """Unit test for on_rotate_90"""
+
+    def test_on_rotate_180(self):
+        """Unit test for on_rotate_180"""
+
+    def test_on_rotate_270(self):
+        """Unit test for on_rotate_270"""
+
+    def test_on_justify_left(self):
+        """Unit test for on_justify_left"""
+
+    def test_on_justify_fill(self):
+        """Unit test for on_justify_fill"""
+
+    def test_on_justify_center(self):
+        """Unit test for on_justify_center"""
+
+    def test_on_justify_right(self):
+        """Unit test for on_justify_right"""
+
+    def test_on_align_top(self):
+        """Unit test for on_align_top"""
+
+    def test_on_align_middle(self):
+        """Unit test for on_align_middle"""
+
+    def test_on_align_bottom(self):
+        """Unit test for on_align_bottom"""
+
+    def test_update_cell_spans(self):
+        """Unit test for update_cell_spans"""
+
+    def test_update_index_widgets(self):
+        """Unit test for update_index_widgets"""
+
+    def test_on_freeze_pressed(self):
+        """Unit test for on_freeze_pressed"""
+
+    def test_on_merge_pressed(self):
+        """Unit test for on_merge_pressed"""
+
+    def test_on_quote(self):
+        """Unit test for on_quote"""
+
+    def test_is_row_data_discarded(self):
+        """Unit test for is_row_data_discarded"""
+
+    def test_is_column_data_discarded(self):
+        """Unit test for is_column_data_discarded"""
+
+    def test_is_table_data_discarded(self):
+        """Unit test for is_table_data_discarded"""
+
+    def test_on_insert_rows(self):
+        """Unit test for on_insert_rows"""
+
+    def test_on_delete_rows(self):
+        """Unit test for on_delete_rows"""
+
+    def test_on_insert_columns(self):
+        """Unit test for on_insert_columns"""
+
+    def test_on_delete_columns(self):
+        """Unit test for on_delete_columns"""
+
+    def test_on_insert_table(self):
+        """Unit test for on_insert_table"""
+
+    def test_on_delete_table(self):
+        """Unit test for on_delete_table"""
+
+
 
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""

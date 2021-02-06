@@ -693,7 +693,8 @@ class DataArray:
                 # Never change merged cells
                 merging_cell = \
                     self.cell_attributes.get_merging_cell(single_key)
-                if merging_cell is None or merging_cell == single_key:
+                if ((merging_cell is None or merging_cell == single_key) and
+                    isinstance(value, str)):
                     self.dict_grid[single_key] = value
             else:
                 # Value is empty --> delete cell
@@ -1525,8 +1526,6 @@ class CodeArray(DataArray):
         # Reset result cache
         self.result_cache.clear()
 
-        # Reset frozen cache
-        self.frozen_cache.clear()
         return results, errs
 
     def _sorted_keys(self, keys: Iterable[Tuple[int, int, int]],
