@@ -37,6 +37,7 @@ from PyQt5.QtCore import QItemSelectionModel, QItemSelection
 from PyQt5.QtWidgets import QApplication, QAbstractItemView
 from PyQt5.QtGui import QFont
 
+
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
 LIBPATH = abspath(PYSPREADPATH + "/lib")
 
@@ -57,6 +58,7 @@ def multi_selection_mode(grid):
 
 with insert_path(PYSPREADPATH):
     from ..pyspread import MainWindow
+    from ..commands import MakeButtonCell, RemoveButtonCell
     from ..lib.selection import Selection
 
 
@@ -732,6 +734,9 @@ class TestGrid:
         self.grid.clearSelection()
         self.grid.selectRow(2)
         self.grid.on_merge_pressed()
+        self.grid.table = 1
+        self.grid.update_cell_spans()
+        self.grid.table = 0
         self.grid.update_cell_spans()
 
         assert self.grid.columnSpan(2, 0) == 100
@@ -751,6 +756,25 @@ class TestGrid:
 
     def test_update_index_widgets(self):
         """Unit test for update_index_widgets"""
+
+        self.grid.current = 2, 2, 0
+        description_tpl = "Make cell {} a button cell"
+        description = description_tpl.format(self.grid.current)
+        command = MakeButtonCell(self.grid, "TestButton",
+                                 self.grid.currentIndex(), description)
+        main_window.undo_stack.push(command)
+
+        self.grid.update_index_widgets()
+        assert self.grid.widget_indices
+
+        description_tpl = "Make cell {} a non-button cell"
+        description = description_tpl.format(self.grid.current)
+        command = RemoveButtonCell(self.grid, self.grid.currentIndex(),
+                                   description)
+        main_window.undo_stack.push(command)
+
+        self.grid.update_index_widgets()
+        assert not self.grid.widget_indices
 
     def test_on_freeze_pressed(self):
         """Unit test for on_freeze_pressed"""
