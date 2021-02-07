@@ -1342,7 +1342,10 @@ class Grid(QTableView):
 
         # This is not done in the model because setSpan does not work there
 
-        bbox = self.selection.get_grid_bbox(self.model.shape)
+        shape = list(self.model.shape)
+        shape[0] -= 1
+        shape[1] -= 1
+        bbox = self.selection.get_grid_bbox(shape)
         (top, left), (bottom, right) = bbox
 
         # Check if current cell is already merged
