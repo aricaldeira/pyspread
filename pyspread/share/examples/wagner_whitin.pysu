@@ -374,16 +374,7 @@
 []	[]	[]	[]	[(2, 0)]	0	'renderer'	'markup'
 [(1, 0)]	[(2, 0)]	[]	[]	[]	0	'textfont'	'Serif'
 []	[]	[]	[]	[(2, 3)]	0	'textcolor'	(255, 255, 255)
-[]	[]	[]	[]	[(0, 0)]	0	'fontweight'	75	'textfont'	'Liberation Serif'	'fontstyle'	0
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'locked'	False
-[(0, 0)]	[(0, 3)]	[]	[]	[]	0	'locked'	True
-[]	[]	[]	[]	[(0, 0)]	0	'textfont'	'Inconsolata'	'locked'	False
-[(0, 0)]	[(0, 3)]	[]	[]	[]	0	'locked'	False
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'locked'	True
-[]	[]	[]	[]	[(0, 0)]	0	'pointsize'	24	'textfont'	'Junicode'	'locked'	False
-[(0, 0)]	[(0, 4)]	[]	[]	[]	0	'locked'	False
-[(0, 0)]	[(0, 9)]	[]	[]	[]	0	'locked'	True
-[]	[]	[]	[]	[(0, 0)]	0	'merge_area'	(0, 0, 0, 9)	'locked'	False
+[]	[]	[]	[]	[(0, 0)]	0	'fontweight'	75	'textfont'	'Junicode'	'fontstyle'	0	'pointsize'	24	'merge_area'	(0, 0, 0, 9)
 []	[]	[]	[]	[(0, 1)]	0	'justification'	'justify_right'
 []	[]	[]	[]	[(0, 0)]	0	'justification'	'justify_left'
 [(-1, 0)]	[(27, 23)]	[]	[]	[]	0	'borderwidth_bottom'	0
@@ -406,8 +397,6 @@
 [(4, 1)]	[(5, 23)]	[]	[]	[]	0	'vertical_align'	'align_center'	'justification'	'justify_right'
 [(6, 0)]	[(28, 23)]	[]	[]	[]	0	'vertical_align'	'align_center'
 []	[]	[]	[]	[(0, 0)]	0	'textfont'	'URW Chancery L'
-[]	[]	[]	[]	[(2, 1)]	0	'frozen'	True
-[]	[]	[]	[]	[(1, 1)]	0	'frozen'	True
 []	[]	[]	[]	[(4, 0), (5, 0), (4, 1), (5, 1)]	0	'renderer'	'text'	'vertical_align'	'align_center'
 [(3, 0)]	[(5, 23)]	[]	[]	[]	0	'bordercolor_bottom'	(0, 0, 0, 255)
 [(4, -1)]	[(5, 23)]	[]	[]	[]	0	'bordercolor_right'	(0, 0, 0, 255)

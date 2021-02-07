@@ -61,7 +61,7 @@ except ImportError:
 try:
     import pyspread.commands as commands
     from pyspread.dialogs import DiscardDataDialog
-    from pyspread.grid_renderer import painter_save, CellRenderer
+    from pyspread.grid_renderer import painter_save, CellRenderer, QColorCache
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
@@ -77,7 +77,7 @@ try:
 except ImportError:
     import commands
     from dialogs import DiscardDataDialog
-    from grid_renderer import painter_save, CellRenderer
+    from grid_renderer import painter_save, CellRenderer, QColorCache
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
     from lib.selection import Selection
@@ -104,6 +104,8 @@ class Grid(QTableView):
         super().__init__()
 
         self.main_window = main_window
+
+        self.qcolor_cache = QColorCache(self)
 
         shape = main_window.settings.shape
 
@@ -1578,8 +1580,8 @@ class GridHeaderView(QHeaderView):
         """
 
         unzoomed_rect = QRect(0, 0,
-                              rect.width()/self.grid.zoom,
-                              rect.height()/self.grid.zoom)
+                              rect.width()//self.grid.zoom,
+                              rect.height()//self.grid.zoom)
         with painter_save(painter):
             painter.translate(rect.x(), rect.y())
             painter.scale(self.grid.zoom, self.grid.zoom)

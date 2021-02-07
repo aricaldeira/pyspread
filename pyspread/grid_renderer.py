@@ -40,8 +40,6 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from typing import List, Tuple
 
-import numpy
-
 from PyQt5.QtCore import Qt, QModelIndex, QRectF, QLineF, QPointF
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPalette, QPen
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
@@ -247,18 +245,18 @@ class EdgeBorders:
     bottom_y: float
 
     @property
-    def widths(self) -> numpy.array:
-        """Numpy array of border widths in order left, right, top, bottom"""
+    def widths(self) -> Tuple[float, float, float, float]:
+        """Tuple of border widths in order left, right, top, bottom"""
 
-        return numpy.array([self.left_width, self.right_width,
-                            self.top_width, self.bottom_width])
+        return (self.left_width, self.right_width,
+                self.top_width, self.bottom_width)
 
     @property
-    def colors(self) -> numpy.array:
-        """Numpy array of border colors in order left, right, top, bottom"""
+    def colors(self) -> Tuple[QColor, QColor, QColor, QColor]:
+        """Tuple of border colors in order left, right, top, bottom"""
 
-        return numpy.array([self.left_color, self.right_color,
-                            self.top_color, self.bottom_color])
+        return (self.left_color, self.right_color,
+                self.top_color, self.bottom_color)
 
 
 class CellEdgeRenderer:
@@ -277,28 +275,19 @@ class CellEdgeRenderer:
         """
 
         self.painter = painter
-        self.center = center
 
-        self.widths = borders.widths
-        self.colors = borders.colors
         lines = [QLineF(center.x(), center.y(), borders.left_x, center.y()),
                  QLineF(center.x(), center.y(), borders.right_x, center.y()),
                  QLineF(center.x(), center.y(), center.x(), borders.top_y),
                  QLineF(center.x(), center.y(), center.x(), borders.bottom_y)]
-        self.lines = numpy.array(lines)
+
+        self.edge_data = list(zip(borders.widths, borders.colors, lines))
+        self.edge_data.sort(key=lambda edge: (-edge[1].lightnessF(), edge[0]))
 
     def paint(self):
         """Paints the edge"""
 
-        darknesses = [-color.lightnessF() for color in self.colors]
-
-        idxs = numpy.lexsort(numpy.array([darknesses, self.widths]))
-
-        widths = self.widths[idxs]
-        colors = self.colors[idxs]
-        lines = self.lines[idxs]
-
-        for width, color, line in zip(widths, colors, lines):
+        for width, color, line in self.edge_data:
             self.painter.setPen(QPen(QBrush(color), width,
                                      Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
             self.painter.drawLine(line)
@@ -355,7 +344,7 @@ class CellRenderer:
 
         self.cell_nav = GridCellNavigator(grid, self.key)
 
-        self.qcolor_cache = QColorCache(grid)
+        self.qcolor_cache = self.grid.qcolor_cache
 
     def inner_rect(self, rect: QRectF) -> QRectF:
         """Returns inner rect that is shrunk by border widths
