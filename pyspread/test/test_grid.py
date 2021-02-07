@@ -779,45 +779,165 @@ class TestGrid:
     def test_on_freeze_pressed(self):
         """Unit test for on_freeze_pressed"""
 
+        self.grid.current = 1, 0, 0
+        self.grid.model.code_array[1, 0, 0] = "23"
+        self.grid.on_freeze_pressed(False)
+        assert not self.cell_attributes[self.grid.current]["frozen"]
+        self.grid.on_freeze_pressed(True)
+        assert self.cell_attributes[self.grid.current]["frozen"]
+        self.grid.on_freeze_pressed(False)
+        assert not self.cell_attributes[self.grid.current]["frozen"]
+
     def test_on_merge_pressed(self):
         """Unit test for on_merge_pressed"""
+
+        self.grid.clearSelection()
+        self.grid.current = 1, 0, 0
+        self.grid.on_merge_pressed()
+
+        assert not self.cell_attributes[self.grid.current]["merge_area"]
 
     def test_on_quote(self):
         """Unit test for on_quote"""
 
+        self.grid.model.code_array[1, 0, 0] = "42"
+
+        self.grid.clearSelection()
+        self.grid.selectRow(1)
+
+        self.grid.on_quote()
+        assert self.grid.model.code_array((1, 0, 0)) == "'42'"
+
     def test_is_row_data_discarded(self):
         """Unit test for is_row_data_discarded"""
+
+        self.grid.model.code_array[998, 0, 0] = "Edge data"
+
+        assert not self.grid.is_row_data_discarded(0)
+        assert not self.grid.is_row_data_discarded(1)
+        assert self.grid.is_row_data_discarded(2)
+
+        self.grid.model.code_array[998, 0, 0] = None
 
     def test_is_column_data_discarded(self):
         """Unit test for is_column_data_discarded"""
 
+        self.grid.model.code_array[0, 98, 0] = "Edge data"
+
+        assert not self.grid.is_column_data_discarded(0)
+        assert not self.grid.is_column_data_discarded(1)
+        assert self.grid.is_column_data_discarded(2)
+
+        self.grid.model.code_array[0, 98, 0] = None
+
     def test_is_table_data_discarded(self):
         """Unit test for is_table_data_discarded"""
+
+        self.grid.model.code_array[0, 0, 1] = "Edge data"
+
+        assert not self.grid.is_table_data_discarded(0)
+        assert not self.grid.is_table_data_discarded(1)
+        assert self.grid.is_table_data_discarded(2)
+
+        self.grid.model.code_array[0, 0, 1] = None
 
     def test_on_insert_rows(self):
         """Unit test for on_insert_rows"""
 
+        self.grid.clearSelection()
+        self.grid.model.reset()
+
+        self.current = 0, 0, 0
+        self.grid.model.code_array[1, 0, 0] = "'Test data'"
+        self.grid.selectRow(0)
+        self.grid.on_insert_rows()
+        assert self.grid.model.code_array[1, 0, 0] is None
+        assert self.grid.model.code_array[2, 0, 0] == "Test data"
+
+        self.grid.clearSelection()
+        self.grid.selectRow(1)
+        self.grid.on_insert_rows()
+        assert self.grid.model.code_array[3, 0, 0] == "Test data"
+
     def test_on_delete_rows(self):
         """Unit test for on_delete_rows"""
+
+        self.grid.clearSelection()
+        self.grid.model.reset()
+
+        self.current = 0, 0, 0
+        self.grid.model.code_array[1, 0, 0] = "'Test data'"
+        self.grid.selectRow(0)
+        self.grid.on_delete_rows()
+        assert self.grid.model.code_array[1, 0, 0] is None
+        assert self.grid.model.code_array[0, 0, 0] == "Test data"
 
     def test_on_insert_columns(self):
         """Unit test for on_insert_columns"""
 
+        self.grid.clearSelection()
+        self.grid.model.reset()
+
+        self.current = 0, 0, 0
+        self.grid.model.code_array[0, 1, 0] = "'Test data'"
+        self.grid.selectColumn(0)
+        self.grid.on_insert_columns()
+        assert self.grid.model.code_array[0, 1, 0] is None
+        assert self.grid.model.code_array[0, 2, 0] == "Test data"
+
+        self.grid.clearSelection()
+        self.grid.selectColumn(1)
+        self.grid.on_insert_columns()
+        assert self.grid.model.code_array[0, 3, 0] == "Test data"
+
     def test_on_delete_columns(self):
         """Unit test for on_delete_columns"""
+
+        self.grid.clearSelection()
+        self.grid.model.reset()
+
+        self.current = 0, 0, 0
+        self.grid.model.code_array[0, 1, 0] = "'Test data'"
+        self.grid.selectColumn(0)
+        self.grid.on_delete_columns()
+        assert self.grid.model.code_array[0, 1, 0] is None
+        assert self.grid.model.code_array[0, 0, 0] == "Test data"
 
     def test_on_insert_table(self):
         """Unit test for on_insert_table"""
 
+        self.grid.clearSelection()
+        self.grid.model.reset()
+
+        self.current = 0, 0, 0
+        self.grid.model.code_array[0, 0, 1] = "'Test data'"
+        self.grid.on_insert_table()
+        assert self.grid.model.code_array[0, 0, 1] is None
+        assert self.grid.model.code_array[0, 0, 2] == "Test data"
+
     def test_on_delete_table(self):
         """Unit test for on_delete_table"""
 
+        self.grid.clearSelection()
+        self.grid.model.reset()
+
+        self.current = 0, 0, 0
+        self.grid.model.code_array[0, 0, 1] = "'Test data'"
+        self.grid.on_delete_table()
+        assert self.grid.model.code_array[0, 0, 1] is None
+        assert self.grid.model.code_array[0, 0, 0] == "Test data"
 
 
 class TestGridHeaderView:
     """Unit tests for GridHeaderView in grid.py"""
 
-    pass
+    def test_sectionSizeHint(self):
+        """Unit test for sectionSizeHint"""
+
+        hghview = main_window.grid.horizontalHeader()
+        assert hghview.sectionSizeHint(0) == 19
+        main_window.grid.zoom = 2.0
+        assert hghview.sectionSizeHint(0) == 38
 
 
 class TestGridTableModel:

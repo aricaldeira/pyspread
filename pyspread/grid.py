@@ -1388,7 +1388,7 @@ class Grid(QTableView):
             self.main_window.undo_stack.push(command)
 
     def is_row_data_discarded(self, count: int) -> bool:
-        """Shows user dialog if data is to be discarded
+        """True if row data is to be discarded on row insertion
 
         :param count: Rows to be inserted
 
@@ -1402,7 +1402,7 @@ class Grid(QTableView):
                    for key in sel_cell_gen)
 
     def is_column_data_discarded(self, count: int) -> bool:
-        """Shows user dialog if data is to be discarded
+        """True if column data is to be discarded on column insertion
 
         :param count: Columns to be inserted
 
@@ -1416,7 +1416,7 @@ class Grid(QTableView):
                    for key in sel_cell_gen)
 
     def is_table_data_discarded(self, count: int) -> bool:
-        """Shows user dialog if data is to be discarded
+        """True if table data is to be discarded  on table insertion
 
         :param count: Tables to be inserted
 
@@ -1558,7 +1558,7 @@ class GridHeaderView(QHeaderView):
         return QSize(int(unzoomed_size.width() * self.grid.zoom),
                      int(unzoomed_size.height() * self.grid.zoom))
 
-    def sectionSizeHint(self, logicalIndex: int) -> QSize:
+    def sectionSizeHint(self, logicalIndex: int) -> int:
         """Overrides sectionSizeHint, which supports zoom
 
         :param logicalIndex: Index of the section for the size hint
@@ -1566,8 +1566,7 @@ class GridHeaderView(QHeaderView):
         """
 
         unzoomed_size = super().sectionSizeHint(logicalIndex)
-        return QSize(int(unzoomed_size.width() * self.grid.zoom),
-                     int(unzoomed_size.height() * self.grid.zoom))
+        return int(unzoomed_size * self.grid.zoom)
 
     def paintSection(self, painter: QPainter, rect: QRect, logicalIndex: int):
         """Overrides paintSection, which supports zoom
