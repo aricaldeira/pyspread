@@ -935,9 +935,9 @@ class TestGridHeaderView:
         """Unit test for sectionSizeHint"""
 
         hghview = main_window.grid.horizontalHeader()
-        assert hghview.sectionSizeHint(0) == 19
+        size1 = hghview.sectionSizeHint(0)
         main_window.grid.zoom = 2.0
-        assert hghview.sectionSizeHint(0) == 38
+        assert hghview.sectionSizeHint(0) == 2 * size1
 
 
 class TestGridTableModel:
