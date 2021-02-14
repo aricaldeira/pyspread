@@ -1156,9 +1156,11 @@ class Grid(QTableView):
 
         border_choice = self.main_window.settings.border_choice
         bottom_selection = \
-            self.selection.get_bottom_borders_selection(border_choice)
+            self.selection.get_bottom_borders_selection(border_choice,
+                                                        self.model.shape)
         right_selection = \
-            self.selection.get_right_borders_selection(border_choice)
+            self.selection.get_right_borders_selection(border_choice,
+                                                       self.model.shape)
 
         line_color = self.main_window.widgets.line_color_button.color
         line_color_rgb = line_color.getRgb()
@@ -1204,9 +1206,11 @@ class Grid(QTableView):
 
         border_choice = self.main_window.settings.border_choice
         bottom_selection = \
-            self.selection.get_bottom_borders_selection(border_choice)
+            self.selection.get_bottom_borders_selection(border_choice,
+                                                        self.model.shape)
         right_selection = \
-            self.selection.get_right_borders_selection(border_choice)
+            self.selection.get_right_borders_selection(border_choice,
+                                                       self.model.shape)
 
         attr_dict_bottom = AttrDict([("borderwidth_bottom", width)])
         attr_bottom = CellAttribute(bottom_selection, self.table,

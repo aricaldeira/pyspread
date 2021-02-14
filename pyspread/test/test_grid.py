@@ -35,7 +35,7 @@ import pytest
 
 from PyQt5.QtCore import QItemSelectionModel, QItemSelection
 from PyQt5.QtWidgets import QApplication, QAbstractItemView
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QColor
 
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
@@ -48,6 +48,7 @@ def insert_path(path):
     yield
     sys.path.pop(0)
 
+
 @contextmanager
 def multi_selection_mode(grid):
     grid.clearSelection()
@@ -55,6 +56,7 @@ def multi_selection_mode(grid):
     grid.setSelectionMode(QAbstractItemView.MultiSelection)
     yield
     grid.setSelectionMode(old_selection_mode)
+
 
 with insert_path(PYSPREADPATH):
     from ..pyspread import MainWindow
@@ -126,7 +128,7 @@ class TestGrid:
         """Unit test for current getter and setter with invalid parameters"""
 
         with pytest.raises(ValueError):
-            self.grid.current = 1,2,3,4
+            self.grid.current = 1, 2, 3, 4
 
     param_test_row_heights = [
         ({0: 23}, {0: 23}),
@@ -199,7 +201,6 @@ class TestGrid:
                                               QItemSelectionModel.Select)
             assert self.grid.selection == res
 
-
     param_test_selection_rows = [
         ((0,), Selection([], [], [0], [], [])),
         ((1, 2), Selection([], [], [1, 2], [], [])),
@@ -239,9 +240,10 @@ class TestGrid:
 
     param_test_set_selection_mode = [
         (True, (0, 0, 0), (0, 0, 0), QAbstractItemView.NoEditTriggers),
-        (False, (1, 2, 3), None, QAbstractItemView.DoubleClicked
-                                 | QAbstractItemView.EditKeyPressed
-                                 | QAbstractItemView.AnyKeyPressed),
+        (False, (1, 2, 3), None,
+         QAbstractItemView.DoubleClicked
+         | QAbstractItemView.EditKeyPressed
+         | QAbstractItemView.AnyKeyPressed),
     ]
 
     @pytest.mark.parametrize("on, current, start, edit_mode",
@@ -344,7 +346,6 @@ class TestGrid:
         assert main_window.statusBar().currentMessage() == \
                "Selection: 5 cells     Σ=25     max=23     min=2"
 
-
     def test_on_row_resized(self):
         """Unit test for on_row_resized"""
 
@@ -371,7 +372,6 @@ class TestGrid:
         assert row_heights[6] == 45
 
         self.grid.clearSelection()
-
 
     def test_on_column_resized(self):
         """Unit test for on_column_resized"""
@@ -453,7 +453,6 @@ class TestGrid:
         assert self.grid.model.code_array[1, 0, 0] == "Test"
 
         self.grid.on_freeze_pressed(False)
-
 
     def test_refresh_frozen_cells(self):
         """Unit test for refresh_frozen_cells"""
@@ -726,6 +725,31 @@ class TestGrid:
             == "align_bottom"
         self.grid.on_align_top(True)
         assert self.cell_attributes[(2, 0, 0)]["vertical_align"] == "align_top"
+
+    def test_on_text_color(self):
+        """Unit test for on_text_color"""
+
+        self.grid.selectRow(2)
+        main_window.widgets.text_color_button.color = QColor(100, 100, 50)
+
+        self.grid.on_text_color()
+
+        assert self.cell_attributes[(2, 0, 0)]["textcolor"] \
+            == (100, 100, 50, 255)
+
+    def test_on_line_color(self):
+        """Unit test for on_line_color"""
+
+        self.grid.selectRow(2)
+        main_window.widgets.line_color_button.color = QColor(100, 100, 50)
+
+        self.grid.on_line_color()
+
+        assert self.cell_attributes[(2, 0, 0)]["bordercolor_bottom"] \
+            == (100, 100, 50, 255)
+
+        assert self.cell_attributes[(2, 99, 0)]["bordercolor_right"] \
+            == (100, 100, 50, 255)
 
     def test_update_cell_spans(self):
         """Unit test for update_cell_spans"""

@@ -542,7 +542,8 @@ class Selection(object):
         return Selection(shifted_block_tl, shifted_block_br, shifted_rows,
                          shifted_columns, shifted_cells)
 
-    def get_right_borders_selection(self, border_choice: str):
+    def get_right_borders_selection(self, border_choice: str,
+                                    shape: Tuple[int, int, int]):
         """Get selection of cells, for which the right border attributes
         need to be adjusted on border line and border color changes.
 
@@ -562,7 +563,7 @@ class Selection(object):
 
         """
 
-        (top, left), (bottom, right) = self.get_bbox()
+        (top, left), (bottom, right) = self.get_grid_bbox(shape)
 
         if border_choice == "All borders":
             return Selection([(top, left-1)], [(bottom, right)], [], [], [])
@@ -592,7 +593,8 @@ class Selection(object):
         else:
             raise ValueError("border_choice {} unknown.".format(border_choice))
 
-    def get_bottom_borders_selection(self, border_choice: str):
+    def get_bottom_borders_selection(self, border_choice: str,
+                                     shape: Tuple[int, int, int]):
         """Get selection of cells, for which the bottom border attributes
         need to be adjusted on border line and border color changes.
 
@@ -612,7 +614,7 @@ class Selection(object):
 
         """
 
-        (top, left), (bottom, right) = self.get_bbox()
+        (top, left), (bottom, right) = self.get_grid_bbox(shape)
 
         if border_choice == "All borders":
             return Selection([(top-1, left)], [(bottom, right)], [], [], [])

@@ -261,6 +261,64 @@ class TestSelection:
 
         assert sel.shifted(rows, cols) == res
 
+    param_test_get_right_borders_selection = [
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "All borders",
+         Selection([(0, -1)], [(2, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Top border",
+         Selection([], [], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Bottom border",
+         Selection([], [], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Left border",
+         Selection([(0, -1)], [(2, -1)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Right border",
+         Selection([(0, 2)], [(2, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Outer borders",
+         Selection([(0, 2), (0, -1)], [(2, 2), (2, -1)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Inner borders",
+         Selection([(0, 0)], [(2, 1)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Top and bottom borders",
+         Selection([], [], [], [], [])),
+        (Selection([], [], [2], [], []), "All borders",
+         Selection([(2, -1)], [(2, 100)], [], [], [])),
+    ]
+
+    @pytest.mark.parametrize("sel, border_choice, res",
+                             param_test_get_right_borders_selection)
+    def test_get_right_borders_selection(self, sel, border_choice, res):
+        """Unit test for get_right_borders_selection"""
+
+        shape = 1000, 100, 3
+        assert sel.get_right_borders_selection(border_choice, shape) == res
+
+    param_get_bottom_borders_selection = [
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "All borders",
+         Selection([(-1, 0)], [(2, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Top border",
+         Selection([(-1, 0)], [(-1, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Bottom border",
+         Selection([(2, 0)], [(2, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Left border",
+         Selection([], [], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Right border",
+         Selection([], [], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Outer borders",
+         Selection([(-1, 0), (2, 0)], [(-1, 2), (2, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Inner borders",
+         Selection([(0, 0)], [(1, 2)], [], [], [])),
+        (Selection([(0, 0)], [(2, 2)], [], [], []), "Top and bottom borders",
+         Selection([(-1, 0), (2, 0)], [(-1, 2), (2, 2)], [], [], [])),
+        (Selection([], [], [2], [], []), "All borders",
+         Selection([(1, 0)], [(2, 100)], [], [], [])),
+    ]
+
+    @pytest.mark.parametrize("sel, border_choice, res",
+                             param_get_bottom_borders_selection)
+    def test_get_bottom_borders_selection(self, sel, border_choice, res):
+        """Unit test for get_bottom_borders_selection"""
+
+        shape = 1000, 100, 3
+        assert sel.get_bottom_borders_selection(border_choice, shape) == res
+
     param_test_single_cell_selected = [
         (Selection([], [], [], [], [(32, 53)]), True),
         (Selection([], [], [], [], [(32, 53), (34, 56)]), False),
