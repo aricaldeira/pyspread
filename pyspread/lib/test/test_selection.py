@@ -280,6 +280,8 @@ class TestSelection:
          Selection([], [], [], [], [])),
         (Selection([], [], [2], [], []), "All borders",
          Selection([(2, -1)], [(2, 100)], [], [], [])),
+        (Selection([], [], [2], [], []), "WRONG",
+         ValueError),
     ]
 
     @pytest.mark.parametrize("sel, border_choice, res",
@@ -288,6 +290,17 @@ class TestSelection:
         """Unit test for get_right_borders_selection"""
 
         shape = 1000, 100, 3
+
+        try:
+            res_exception = issubclass(res, Exception)
+        except TypeError:
+            res_exception = False
+
+        if res_exception:
+            with pytest.raises(res):
+                sel.get_right_borders_selection(border_choice, shape)
+            return
+
         assert sel.get_right_borders_selection(border_choice, shape) == res
 
     param_get_bottom_borders_selection = [
@@ -309,6 +322,8 @@ class TestSelection:
          Selection([(-1, 0), (2, 0)], [(-1, 2), (2, 2)], [], [], [])),
         (Selection([], [], [2], [], []), "All borders",
          Selection([(1, 0)], [(2, 100)], [], [], [])),
+        (Selection([], [], [2], [], []), "WRONG",
+         ValueError),
     ]
 
     @pytest.mark.parametrize("sel, border_choice, res",
@@ -317,6 +332,17 @@ class TestSelection:
         """Unit test for get_bottom_borders_selection"""
 
         shape = 1000, 100, 3
+
+        try:
+            res_exception = issubclass(res, Exception)
+        except TypeError:
+            res_exception = False
+
+        if res_exception:
+            with pytest.raises(res):
+                sel.get_bottom_borders_selection(border_choice, shape)
+            return
+
         assert sel.get_bottom_borders_selection(border_choice, shape) == res
 
     param_test_single_cell_selected = [

@@ -35,7 +35,7 @@ import pytest
 
 from PyQt5.QtCore import QItemSelectionModel, QItemSelection
 from PyQt5.QtWidgets import QApplication, QAbstractItemView
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor, QFontDatabase
 
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
@@ -521,6 +521,32 @@ class TestGrid:
         self.grid.on_show_frozen_pressed(False)
         assert not main_window.settings.show_frozen
 
+    def test_on_font(self):
+        """Unit test for on_font"""
+
+        self.grid.selectRow(2)
+
+        fixed_font = QFontDatabase.systemFont(QFontDatabase.FixedFont).family()
+
+        main_window.widgets.font_combo.font = fixed_font
+        self.grid.on_font()
+        assert self.cell_attributes[(2, 0, 0)]["textfont"] == fixed_font
+        assert self.grid.model.font((2, 0, 0)).family() == fixed_font
+
+        self.grid.clearSelection()
+
+    def test_on_font_size(self):
+        """Unit test for on_font_size"""
+
+        self.grid.selectRow(2)
+
+        main_window.widgets.font_size_combo.size = 14
+        assert main_window.widgets.font_size_combo.size == 14
+        self.grid.on_font_size()
+        assert self.cell_attributes[(2, 0, 0)]["pointsize"] == 14
+
+        self.grid.clearSelection()
+
     def test_on_bold_pressed(self):
         """Unit test for on_bold_pressed"""
 
@@ -530,6 +556,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Bold
         self.grid.on_bold_pressed(False)
         assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Normal
+
+        self.grid.clearSelection()
 
     def test_on_italics_pressed(self):
         """Unit test for on_italics_pressed"""
@@ -543,6 +571,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["fontstyle"] \
             == QFont.StyleNormal
 
+        self.grid.clearSelection()
+
     def test_on_underline_pressed(self):
         """Unit test for on_underline_pressed"""
 
@@ -552,6 +582,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["underline"]
         self.grid.on_underline_pressed(False)
         assert not self.cell_attributes[(2, 0, 0)]["underline"]
+
+        self.grid.clearSelection()
 
     def test_on_strikethrough_pressed(self):
         """Unit test for on_strikethrough_pressed"""
@@ -563,6 +595,8 @@ class TestGrid:
         self.grid.on_strikethrough_pressed(False)
         assert not self.cell_attributes[(2, 0, 0)]["strikethrough"]
 
+        self.grid.clearSelection()
+
     def test_on_text_renderer_pressed(self):
         """Unit test for on_text_renderer_pressed"""
 
@@ -572,6 +606,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
         self.grid.on_text_renderer_pressed(True)
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
+
+        self.grid.clearSelection()
 
     def test_on_image_renderer_pressed(self):
         """Unit test for on_image_renderer_pressed"""
@@ -583,6 +619,8 @@ class TestGrid:
         self.grid.on_text_renderer_pressed(True)
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
 
+        self.grid.clearSelection()
+
     def test_on_markup_renderer_pressed(self):
         """Unit test for on_markup_renderer_pressed"""
 
@@ -592,6 +630,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "markup"
         self.grid.on_text_renderer_pressed(True)
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
+
+        self.grid.clearSelection()
 
     def test_on_matplotlib_renderer_pressed(self):
         """Unit test for on_matplotlib_renderer_pressed"""
@@ -603,6 +643,8 @@ class TestGrid:
         self.grid.on_text_renderer_pressed(True)
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
 
+        self.grid.clearSelection()
+
     def test_on_lock_pressed(self):
         """Unit test for on_lock_pressed"""
 
@@ -613,6 +655,8 @@ class TestGrid:
         self.grid.on_lock_pressed(False)
         assert not self.cell_attributes[(2, 0, 0)]["locked"]
 
+        self.grid.clearSelection()
+
     def test_on_rotate_0(self):
         """Unit test for on_rotate_0"""
 
@@ -620,6 +664,8 @@ class TestGrid:
 
         self.grid.on_rotate_0(True)
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
+
+        self.grid.clearSelection()
 
     def test_on_rotate_90(self):
         """Unit test for on_rotate_90"""
@@ -631,6 +677,8 @@ class TestGrid:
         self.grid.on_rotate_0(True)
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
 
+        self.grid.clearSelection()
+
     def test_on_rotate_180(self):
         """Unit test for on_rotate_180"""
 
@@ -640,6 +688,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 180.0
         self.grid.on_rotate_0(True)
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
+
+        self.grid.clearSelection()
 
     def test_on_rotate_270(self):
         """Unit test for on_rotate_270"""
@@ -651,6 +701,8 @@ class TestGrid:
         self.grid.on_rotate_0(True)
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
 
+        self.grid.clearSelection()
+
     def test_on_justify_left(self):
         """Unit test for on_justify_left"""
 
@@ -659,6 +711,8 @@ class TestGrid:
         self.grid.on_justify_left(True)
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
+
+        self.grid.clearSelection()
 
     def test_on_justify_fill(self):
         """Unit test for on_justify_fill"""
@@ -672,6 +726,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
 
+        self.grid.clearSelection()
+
     def test_on_justify_center(self):
         """Unit test for on_justify_center"""
 
@@ -684,6 +740,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
 
+        self.grid.clearSelection()
+
     def test_on_justify_right(self):
         """Unit test for on_justify_right"""
 
@@ -695,6 +753,8 @@ class TestGrid:
         self.grid.on_justify_left(True)
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
+
+        self.grid.clearSelection()
 
     def test_on_align_top(self):
         """Unit test for on_align_top"""
@@ -737,6 +797,8 @@ class TestGrid:
         assert self.cell_attributes[(2, 0, 0)]["textcolor"] \
             == (100, 100, 50, 255)
 
+        self.grid.clearSelection()
+
     def test_on_line_color(self):
         """Unit test for on_line_color"""
 
@@ -750,6 +812,20 @@ class TestGrid:
 
         assert self.cell_attributes[(2, 99, 0)]["bordercolor_right"] \
             == (100, 100, 50, 255)
+
+        self.grid.clearSelection()
+
+    def test_on_background_color(self):
+        """Unit test for on_background_color"""
+
+        self.grid.selectRow(2)
+        main_window.widgets.background_color_button.color = QColor(100, 10, 5)
+
+        self.grid.on_background_color()
+
+        assert self.cell_attributes[(2, 0, 0)]["bgcolor"] == (100, 10, 5, 255)
+
+        self.grid.clearSelection()
 
     def test_update_cell_spans(self):
         """Unit test for update_cell_spans"""
