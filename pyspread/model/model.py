@@ -171,7 +171,7 @@ class CellAttributes(list):
 
         if not isinstance(cell_attribute, CellAttribute):
             msg = "{} not instance of CellAttribute".format(cell_attribute)
-            raise Warning(msg)
+            raise UserWarning(msg)
             return
 
         # We need to clean up merge areas

@@ -36,18 +36,19 @@ class TestSelection:
     """Unit tests for Selection"""
 
     param_test_nonzero = [
-        (Selection([], [], [], [], [(32), (34)]),),
-        (Selection([], [], [], [], [(32, 53), (34, 56)]),),
-        (Selection([], [], [], [3], []),),
-        (Selection([], [], [2], [], []),),
-        (Selection([(1, 43)], [(2, 354)], [], [], []),),
+        (Selection([], [], [], [], []), False),
+        (Selection([], [], [], [], [(32), (34)]), True),
+        (Selection([], [], [], [], [(32, 53), (34, 56)]), True),
+        (Selection([], [], [], [3], []), True),
+        (Selection([], [], [2], [], []), True),
+        (Selection([(1, 43)], [(2, 354)], [], [], []), True),
     ]
 
-    @pytest.mark.parametrize("selection", param_test_nonzero)
-    def test_nonzero(self, selection):
-        """Unit test for __nonzero__"""
+    @pytest.mark.parametrize("selection, res", param_test_nonzero)
+    def test_bool(self, selection, res):
+        """Unit test for __bool__"""
 
-        assert selection
+        assert bool(selection) == res
 
     def test_repr(self):
         """Unit test for __repr__"""
@@ -116,6 +117,12 @@ class TestSelection:
         # Combinations
         (Selection([(0, 0)], [(90, 23)], [0], [0, 34], [((0, 0))]), (0, 0),
          True),
+        (Selection([(None, None)], [(90, 23)], [0], [0, 34], [((0, 0))]),
+         (0, 0), True),
+        (Selection([(None, None)], [(90, None)], [0], [0, 34], [((0, 0))]),
+         (0, 0), True),
+        (Selection([(None, None)], [(None, 23)], [0], [0, 34], [((0, 0))]),
+         (0, 0), True),
     ]
 
     @pytest.mark.parametrize("sel, key, res", param_test_contains)
@@ -171,6 +178,25 @@ class TestSelection:
         (Selection([(0, 0)], [(1000, 200)], [], [], []),
          Selection([], [], [], [(5)], []),
          [(0, 5), (1000, 5)]),
+        (Selection([], [], [1, 3], [], []),
+         Selection([], [], [], [], [(1, 1)]),
+         Selection([], [], [], [], [(1, 1)])),
+        (Selection([], [], [], [1, 2], []),
+         Selection([], [], [], [], [(1, 1)]),
+         Selection([], [], [], [], [(1, 1)])),
+        (Selection([], [], [1, 3], [], []),
+         Selection([], [], [3], [], [(1, 1)]),
+         Selection([], [], [3], [], [(1, 1)])),
+        (Selection([], [], [], [1, 2], []),
+         Selection([], [], [], [1], [(1, 1)]),
+         Selection([], [], [], [1], [])),
+        (Selection([], [], [1, 3], [], []),
+         Selection([(2, 0)], [(4, 2)], [], [], [(1, 1)]),
+         Selection([(3, 0)], [(3, 2)], [], [], [(1, 1)])),
+        (Selection([], [], [], [1, 2], []),
+         Selection([(0, 0)], [(3, 3)], [], [], [(1, 1)]),
+         Selection([(0, 1), (0, 2)], [(3, 1), (3, 2)], [], [], [(1, 1)])),
+
     ]
 
     @pytest.mark.parametrize("s1, s2, res", param_test_and)
@@ -199,6 +225,9 @@ class TestSelection:
 
         sel.insert(point, number, axis)
         assert sel == res
+
+        with pytest.raises(ValueError):
+            sel.insert(point, number, 12)
 
     param_test_get_bbox = [
         (Selection([], [], [], [], [(32, 53), (34, 56)]),
