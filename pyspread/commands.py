@@ -237,7 +237,11 @@ class SetRowsHeight(QUndoCommand):
         for grid in self.grid.main_window.grids:
             for row in self.rows:
                 if self.old_height == self.default_size:
-                    grid.model.code_array.row_heights.pop((row, self.table))
+                    try:
+                        grid.model.code_array.row_heights.pop((row,
+                                                               self.table))
+                    except KeyError:
+                        pass
                 else:
                     grid.model.code_array.row_heights[(row, self.table)] = \
                         self.old_height / grid.zoom
@@ -306,7 +310,11 @@ class SetColumnsWidth(QUndoCommand):
         for grid in self.grid.main_window.grids:
             for column in self.columns:
                 if self.old_width == self.default_size:
-                    grid.model.code_array.col_widths.pop((column, self.table))
+                    try:
+                        grid.model.code_array.col_widths.pop((column,
+                                                              self.table))
+                    except KeyError:
+                        pass
                 else:
                     grid.model.code_array.col_widths[(column, self.table)] = \
                         self.old_width / grid.zoom
