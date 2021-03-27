@@ -278,10 +278,16 @@ class SpellTextEdit(QPlainTextEdit):
     def update_line_number_area_width(self):
         """Updates width of line_number_area"""
 
+        if self.line_number_area.isHidden():
+            return
+
         self.setViewportMargins(self.get_line_number_area_width(), 0, 0, 0)
 
     def update_line_number_area(self, rect, dy):
         """Handle updates for line_number_area"""
+
+        if self.line_number_area.isHidden():
+            return
 
         if dy:
             self.line_number_area.scroll(0, dy)
