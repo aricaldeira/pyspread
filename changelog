@@ -4,6 +4,26 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.6
+------
+
+This is the first release candidate for pyspread 2.0.
+
+Unit tests coverage has been improved. 
+Documentation has been improved.
+Several bugs have been fixed.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt   
+
+New functionality:
+ * CSV import speedup
+ * Replace all now works faster
+ * Macro execution no longer empties frozen cell cache
+ * Traceback hook prevents pyspread from crashing under various circumstances
+
 1.99.5
 ------
 
