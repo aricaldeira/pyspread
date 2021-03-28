@@ -43,7 +43,11 @@ setup(
         "Source Code": "https://gitlab.com/pyspread/pyspread",
     },
     packages=find_packages(),
-    scripts=['bin/pyspread'],
+    entry_points={
+        'console_scripts': {
+            'pyspread = pyspread.pyspread:main'
+        }
+    },
     package_data={'pyspread': [
             'share/*',
             'share/*/*',
