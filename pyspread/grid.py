@@ -510,7 +510,8 @@ class Grid(QTableView):
 
         """
 
-        return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
+        return ", ".join(str(self.model.current(idx))
+                         for idx in selected_idx[:10])
 
     def update_zoom(self):
         """Updates the zoom level visualization to the current zoom factor"""
