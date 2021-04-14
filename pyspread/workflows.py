@@ -100,17 +100,6 @@ class Workflows:
         self.main_window = main_window
 
     @contextmanager
-    def disable_entryline_updates(self):
-        """:class:`~contextlib.contextmanager` that temporarily disables the
-        :class:`entryline.Entryline`
-
-        """
-
-        self.main_window.entry_line.setUpdatesEnabled(False)
-        yield
-        self.main_window.entry_line.setUpdatesEnabled(True)
-
-    @contextmanager
     def busy_cursor(self):
         """:class:`~contextlib.contextmanager` that displays a busy cursor"""
 
@@ -687,7 +676,7 @@ class Workflows:
             QMessageBox.warning(self.main_window, title, text)
             return
 
-        with self.disable_entryline_updates():
+        with self.main_window.entry_line.disable_updates():
             with self.busy_cursor():
                 with self.prevent_updates():
                     self.main_window.undo_stack.push(command)
@@ -1269,7 +1258,7 @@ class Workflows:
         description = "Insert svg image into cell {}".format(index)
 
         grid.on_image_renderer_pressed(True)
-        with self.disable_entryline_updates():
+        with self.main_window.entry_line.disable_updates():
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
@@ -1314,7 +1303,7 @@ class Workflows:
         description = "Insert image into cell {}".format(index)
 
         grid.on_image_renderer_pressed(True)
-        with self.disable_entryline_updates():
+        with self.main_window.entry_line.disable_updates():
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
@@ -1574,7 +1563,7 @@ class Workflows:
         next_match = 0, 0, 0
 
         with self.busy_cursor():
-            with self.disable_entryline_updates():
+            with self.main_window.entry_line.disable_updates():
                 with self.prevent_updates():
                     while True:
                         # TODO: ABORT ON USER REQUEST
@@ -1639,7 +1628,7 @@ class Workflows:
 
         description = "Resize grid to {}".format(shape)
 
-        with self.disable_entryline_updates():
+        with self.main_window.entry_line.disable_updates():
             command = commands.SetGridSize(grid, old_shape, shape, description)
             self.main_window.undo_stack.push(command)
 

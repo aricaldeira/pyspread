@@ -159,7 +159,7 @@ class SetCellCode(QUndoCommand):
 
         """
 
-        with self.model.main_window.entry_line.disable_highlighter():
+        with self.model.main_window.entry_line.disable_updates():
             for index, new_code in zip(self.indices, self.new_codes):
                 self.model.setData(index, new_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
@@ -171,7 +171,7 @@ class SetCellCode(QUndoCommand):
 
         """
 
-        with self.model.main_window.entry_line.disable_highlighter():
+        with self.model.main_window.entry_line.disable_updates():
             for index, old_code in zip(self.indices, self.old_codes):
                 self.model.setData(index, old_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())

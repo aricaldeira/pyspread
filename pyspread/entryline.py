@@ -94,12 +94,14 @@ class Entryline(SpellTextEdit):
         return QWidget.eventFilter(self, source, event)
 
     @contextmanager
-    def disable_highlighter(self):
-        """Disables highlighter"""
+    def disable_updates(self):
+        """Disables updates and highlighter"""
 
         doc = self.highlighter.document()
         self.highlighter.setDocument(None)
+        self.main_window.entry_line.setUpdatesEnabled(False)
         yield
+        self.main_window.entry_line.setUpdatesEnabled(True)
         self.highlighter.setDocument(doc)
 
     def keyPressEvent(self, event: QKeyEvent):

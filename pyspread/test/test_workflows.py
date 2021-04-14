@@ -69,16 +69,6 @@ class TestWorkflows:
 
     workflows = main_window.workflows
 
-    def test_disable_entryline_updates(self):
-        """Unit test for disable_entryline_updates"""
-
-        assert main_window.entry_line.updatesEnabled()
-
-        with self.workflows.disable_entryline_updates():
-            assert not main_window.entry_line.updatesEnabled()
-
-        assert main_window.entry_line.updatesEnabled()
-
     def test_busy_cursor(self):
         """Unit test for busy_cursor"""
 

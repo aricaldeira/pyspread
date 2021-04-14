@@ -510,8 +510,12 @@ class Grid(QTableView):
 
         """
 
-        return ", ".join(str(self.model.current(idx))
-                         for idx in selected_idx[:10])
+        if len(selected_idx) <= 6:
+            return ", ".join(str(self.model.current(idx))
+                             for idx in selected_idx)
+        else:
+            return ", ".join(str(self.model.current(idx))
+                             for idx in selected_idx[:6]) + "..."
 
     def update_zoom(self):
         """Updates the zoom level visualization to the current zoom factor"""
@@ -1988,8 +1992,11 @@ class GridTableModel(QAbstractTableModel):
                 raise Warning(msg)
             self.code_array.cell_attributes.append(value)
             # We have a selection and no single cell
-            for idx in index:
-                self.dataChanged.emit(idx, idx)
+            with self.main_window.workflows.busy_cursor():
+                with self.main_window.entry_line.disable_updates():
+                    with self.main_window.workflows.prevent_updates():
+                        for idx in index:
+                            self.dataChanged.emit(idx, idx)
             return True
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
