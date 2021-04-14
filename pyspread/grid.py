@@ -588,6 +588,9 @@ class Grid(QTableView):
     def on_selection_changed(self):
         """Selection changed event handler"""
 
+        if not self.main_window.settings.show_statusbar_sum:
+            return
+
         try:
             bbox = self.selection.get_bbox()
         except AttributeError:
@@ -599,16 +602,15 @@ class Grid(QTableView):
             cell_list = list(selected_cell_gen)
             msg = "Selection: {} cells".format(len(cell_list))
 
-            if self.main_window.settings.show_statusbar_sum:
-                res_gen = (self.model.code_array[key] for key in cell_list)
-                sum_list = [res for res in res_gen if res is not None]
-                msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
-                if sum_list:
-                    try:
-                        msg += msg_tpl.format(sum(sum_list),
-                                              max(sum_list), min(sum_list))
-                    except Exception:
-                        pass
+            res_gen = (self.model.code_array[key] for key in cell_list)
+            sum_list = [res for res in res_gen if res is not None]
+            msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
+            if sum_list:
+                try:
+                    msg += msg_tpl.format(sum(sum_list),
+                                          max(sum_list), min(sum_list))
+                except Exception:
+                    pass
 
             self.main_window.statusBar().showMessage(msg)
         else:
