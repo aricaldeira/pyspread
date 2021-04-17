@@ -675,5 +675,5 @@ class Selection(object):
                 if (row, column) in self:
                     if table is None:
                         yield row, column
-                    elif table < tables - 1:
+                    elif table < tables:
                         yield row, column, table
