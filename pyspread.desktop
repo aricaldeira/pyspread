@@ -1,11 +1,11 @@
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Categories=Math;Spreadsheet;Office
-Comment[en_US]=A Python based spreadsheet
-Comment=A Python based spreadsheet
+Comment[en_US]=Use Python expressions in grid cells and make spreadsheet specific language obsolete
+Comment=Use Python expressions in grid cells and make spreadsheet specific language obsolete
 Exec=/usr/bin/pyspread %f
-GenericName[en_US]=
-GenericName=
+GenericName[en_US]=Python based Spreadsheet
+GenericName=Python based Spreadsheet
 Keywords=python;spreadsheet;matplotlib;math;
 Icon=pyspread
 MimeType=application/x-pyspread-spreadsheet;application/x-pyspread-bz-spreadsheet
