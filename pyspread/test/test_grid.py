@@ -334,7 +334,7 @@ class TestGrid:
         item_selection = QItemSelection(idx_tl, idx_br)
         self.grid.selectionModel().select(item_selection,
                                           QItemSelectionModel.Select)
-        assert main_window.statusBar().currentMessage() == "Selection: 6 cells"
+        assert main_window.statusBar().currentMessage() == ""
 
         self.grid.clearSelection()
         main_window.settings.show_statusbar_sum = True
