@@ -768,6 +768,12 @@ class MainWindow(QMainWindow):
             text_color = QColor(*attributes.textcolor)
         widgets.text_color_button.color = text_color
 
+        if attributes.bordercolor_bottom is None:
+            line_color = self.grid.palette().color(QPalette.Mid)
+        else:
+            line_color = QColor(*attributes.textcolor)
+        widgets.line_color_button.color = line_color
+
         if attributes.bgcolor is None:
             bgcolor = self.grid.palette().color(QPalette.Base)
         else:

@@ -59,7 +59,6 @@ class Settings:
     # Note that `safe_mode` is not listed here but inside
     # :class:`model.model.DataArray`
 
-
     widget_names = ["main_window", "main_toolbar", "find_toolbar",
                     "format_toolbar", "macro_toolbar", "entry_line",
                     "entry_line_dock"]
@@ -69,62 +68,47 @@ class Settings:
     shape = 1000, 100, 3
     """Default shape of initial grid (rows, columns, tables)"""
 
-
     maxshape = 1000000, 100000, 100
     """"Maximum shape of the grid"""
-
 
     changed_since_save = False
     """If `True` then File actions trigger a dialog"""
 
-
     last_file_input_path = Path.home()
     """Initial :class:`~pathlib.Path` for opening files"""
-
 
     last_file_output_path = Path.home()
     """Initial :class:`~pathlib.Path` for saving files"""
 
-
     last_file_import_path = Path.home()
     """Initial :class:`~pathlib.Path` for importing files"""
-
 
     last_file_export_path = Path.home()
     """Initial :class:`~pathlib.Path` for exporting files"""
 
-
     max_file_history = 5
     """Maximum number of files in file history"""
-
 
     file_history = []
     """Files in file history"""
 
-
     digest_types = None
     """List of default digest types for preprocessing values from CSV import"""
-
 
     highlighter_limit = 1000000
     """Maximum length of code, for which the netry line enables highlighting"""
 
-
     border_choice = "All borders"
     """The state of the border choice button"""
-
 
     timeout = 1000
     """Timeout for cell calculations in milliseconds"""
 
-
     refresh_timeout = 1000
     """Timeout for frozen cell updates in milliseconds"""
 
-
     signature_key = None
     """Key for signing save files"""
-
 
     font_sizes = (6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32)
     """Sizes"""
@@ -137,14 +121,11 @@ class Settings:
 
     print_zoom = None
 
-
     show_frozen = False
     """If `True` then frozen cell background is striped"""
 
-
     find_dialog_state = None
     """Find dialog state - needs to be stored when dialog is closed"""
-
 
     sniff_size = 65536
     """Number of bytes for csv sniffer
