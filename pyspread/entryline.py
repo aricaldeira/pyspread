@@ -85,12 +85,12 @@ class Entryline(SpellTextEdit):
            and event.key() in (Qt.Key_Return, Qt.Key_Enter):
 
             code = quote(source.toPlainText())
-            index = self.main_window.grid.currentIndex()
+            index = self.main_window.focused_grid.currentIndex()
             description = "Quote code for cell {}".format(index)
             cmd = commands.SetCellCode(code, self.main_window.grid.model,
                                        index, description)
             self.main_window.undo_stack.push(cmd)
-            self.main_window.grid.setFocus()
+            self.main_window.focused_grid.setFocus()
 
         return QWidget.eventFilter(self, source, event)
 
