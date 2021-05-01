@@ -90,6 +90,7 @@ class Entryline(SpellTextEdit):
             cmd = commands.SetCellCode(code, self.main_window.grid.model,
                                        index, description)
             self.main_window.undo_stack.push(cmd)
+            self.main_window.grid.setFocus()
 
         return QWidget.eventFilter(self, source, event)
 
