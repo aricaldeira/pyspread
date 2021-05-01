@@ -116,7 +116,7 @@ class Grid(QTableView):
 
         self.setModel(self.model)
 
-        self.table_choice = TableChoice(self, shape[2])
+        self.table_choice = main_window.table_choice
 
         self.widget_indices = []  # Store each index with an indexWidget here
 
@@ -2523,9 +2523,9 @@ class GridCellDelegate(QStyledItemDelegate):
 class TableChoice(QTabBar):
     """The TabBar below the main grid"""
 
-    def __init__(self, grid: Grid, no_tables: int):
+    def __init__(self, main_window: QMainWindow, no_tables: int):
         """
-        :param grid: The main grid widget
+        :param main_window: Application main window
         :param no_tables: Number of tables to be initially created
 
         """
@@ -2533,7 +2533,7 @@ class TableChoice(QTabBar):
         super().__init__(shape=QTabBar.RoundedSouth)
         self.setExpanding(False)
 
-        self.grid = grid
+        self.main_window = main_window
         self.no_tables = no_tables
 
         self.last = 0
@@ -2590,7 +2590,7 @@ class TableChoice(QTabBar):
 
         """
 
-        actions = self.grid.main_window.main_window_actions
+        actions = self.main_window.main_window_actions
 
         menu = TableChoiceContextMenu(actions)
         menu.exec_(self.mapToGlobal(event.pos()))
@@ -2604,7 +2604,7 @@ class TableChoice(QTabBar):
 
         """
 
-        for grid in self.grid.main_window.grids:
+        for grid in self.main_window.grids:
             grid.table = current
             grid.table_scrolls[self.last] = \
                 (grid.verticalScrollBar().value(),

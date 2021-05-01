@@ -54,7 +54,7 @@ try:
     from pyspread.cli import PyspreadArgumentParser
     from pyspread.settings import Settings, WEB_URL
     from pyspread.icons import Icon, IconPath
-    from pyspread.grid import Grid
+    from pyspread.grid import Grid, TableChoice
     from pyspread.grid_renderer import painter_save
     from pyspread.entryline import Entryline
     from pyspread.menus import MenuBar
@@ -75,7 +75,7 @@ except ImportError:
     from cli import PyspreadArgumentParser
     from settings import Settings, WEB_URL
     from icons import Icon, IconPath
-    from grid import Grid
+    from grid import Grid, TableChoice
     from grid_renderer import painter_save
     from entryline import Entryline
     from menus import MenuBar
@@ -223,6 +223,12 @@ class MainWindow(QMainWindow):
         self.hsplitter_1 = QSplitter(Qt.Horizontal, self)
         self.hsplitter_2 = QSplitter(Qt.Horizontal, self)
 
+        # Set up the table choice first
+        _no_tables = self.settings.shape[2]
+        self.table_choice = TableChoice(self, _no_tables)
+
+
+        # We have one main view that is used as default view
         self.grid = Grid(self)
         # Further views of the grid
         self.grid_2 = Grid(self, self.grid.model)
