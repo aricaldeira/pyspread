@@ -777,7 +777,7 @@ class MainWindow(QMainWindow):
         if attributes.bordercolor_bottom is None:
             line_color = self.grid.palette().color(QPalette.Mid)
         else:
-            line_color = QColor(*attributes.textcolor)
+            line_color = QColor(*attributes.bordercolor_bottom)
         widgets.line_color_button.color = line_color
 
         if attributes.bgcolor is None:
