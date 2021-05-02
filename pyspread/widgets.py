@@ -245,6 +245,7 @@ class ColorButton(QToolButton):
 
     colorChanged = pyqtSignal()
     title = "Select Color"
+    default_color = None
 
     def __init__(self, color: QColor, icon: QIcon = None,
                  max_size: QSize = QSize(28, 28)):
@@ -309,6 +310,8 @@ class ColorButton(QToolButton):
         dlg = QColorDialog(self.parent())
 
         dlg.setCurrentColor(self.color)
+        if self.default_color is not None:
+            dlg.setCustomColor(15, self.default_color)
         dlg.setWindowTitle(self.title)
 
         dlg.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
@@ -343,6 +346,8 @@ class TextColorButton(ColorButton):
         self.setStatusTip("Text color")
         self.setToolTip("Text color")
 
+        self.default_color = self.palette().color(QPalette.Text)
+
 
 class LineColorButton(ColorButton):
     """Color button with text icon"""
@@ -362,6 +367,8 @@ class LineColorButton(ColorButton):
         self.setStatusTip("Cell border line color")
         self.setToolTip("Cell border line color")
 
+        self.default_color = self.palette().color(QPalette.Mid)
+
 
 class BackgroundColorButton(ColorButton):
     """Color button with text icon"""
@@ -380,6 +387,8 @@ class BackgroundColorButton(ColorButton):
         self.title = "Select cell background color"
         self.setStatusTip("Cell background color")
         self.setToolTip("Cell background color")
+
+        self.default_color = self.palette().color(QPalette.Base)
 
 
 class FontChoiceCombo(QFontComboBox):
