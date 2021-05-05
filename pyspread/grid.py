@@ -548,10 +548,6 @@ class Grid(QTableView):
     def on_data_changed(self):
         """Event handler for data changes"""
 
-        code = self.model.code_array(self.current)
-
-        self.main_window.entry_line.setPlainText(code)
-
         if not self.main_window.settings.changed_since_save:
             self.main_window.settings.changed_since_save = True
             main_window_title = "* " + self.main_window.windowTitle()

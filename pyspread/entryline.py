@@ -93,6 +93,10 @@ class Entryline(SpellTextEdit):
                                        description)
             self.main_window.undo_stack.push(cmd)
             focused_grid.setFocus()
+            focused_grid.selectionModel().clearSelection()
+            focused_grid.current = (focused_grid.row + 1, focused_grid.column,
+                                    focused_grid.table)
+            return False
 
         return QWidget.eventFilter(self, source, event)
 
