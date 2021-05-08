@@ -4,6 +4,34 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.7
+------
+
+This is the second release candidate for pyspread 2.0.
+
+For starting up pyspread, the scripts have been replaced by entry_points.
+Speed of several operations has been improved.
+Several bugs have been fixed.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt   
+
+New functionality:
+ * Speed improvement when working with large cell content such as images.
+ * Use entry_points instead of custom script for startup
+ * GenericName has been added to desktop entry 
+ * Undo descriptions are limited to mention 10 cells for performance
+ * Speedup for changes on many selected cells
+ * Speedup ommitting Statusbar updates on disable toggle
+ * Cell information in statusbar fixed
+ * Line color button is now updated (to bottom color) when selecting a cell
+ * Scroll positions are now restored when switching tables
+ * The default color now appears as the last custom color in the color choice dialog
+ * The entry line now is updated less often for better performance
+      
+      
 1.99.6
 ------
 
