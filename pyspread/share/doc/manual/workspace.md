@@ -9,19 +9,17 @@ title: The Workspace
 
 ## Starting and exiting pyspread
 
-### On Linux or *nix systems, type
+Type
 
 `$ pyspread`
 
-from the command prompt. If you want to run *pyspread* without installation then cd into the pyspread directory and type
+from the command prompt. 
 
-`$ pyspread.sh`
+If you want to run *pyspread* without installation then cd into the pyspread directory and type
 
-### On Windows, type
+`$ ./pyspread/pyspread.py`
 
-`> pyspread.bat`
-
-in the command line or launch the file via the Windows Explorer (click or double click)
+You can also launch the file via a file manager (e.g. the Windows Explorer on Widnows).
 
 You can exit pyspread by closing the main window or by selecting `File -> Quit` from the menu.
 
