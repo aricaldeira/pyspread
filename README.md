@@ -74,7 +74,7 @@ from any directory.
 In order to start pyspread without installation directly from the cloned
 repository or the extracted tarball or zip, run
 ```
-$ ./bin/pyspread
+$ ./pyspread/pyspread.py
 ```
 or
 ```
