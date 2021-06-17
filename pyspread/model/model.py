@@ -1142,6 +1142,9 @@ class DataArray:
                     new_keys[tuple(new_key)] = self(key)
                     del_keys.append(key)
 
+        self._adjust_rowcol(deletion_point, -no_to_delete, axis, tab=tab)
+        self._adjust_cell_attributes(deletion_point, -no_to_delete, axis, tab)
+
         # Now re-insert moved keys
 
         for key in new_keys:
@@ -1150,9 +1153,6 @@ class DataArray:
         for key in del_keys:
             if key not in new_keys and self(key) is not None:
                 self.pop(key)
-
-        self._adjust_rowcol(deletion_point, -no_to_delete, axis, tab=tab)
-        self._adjust_cell_attributes(deletion_point, -no_to_delete, axis, tab)
 
     def set_row_height(self, row: int, tab: int, height: float):
         """Sets row height
