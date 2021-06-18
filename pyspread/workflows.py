@@ -1044,7 +1044,7 @@ class Workflows:
         renderer = grid.model.code_array.cell_attributes[current].renderer
 
         if renderer == "text":
-            clipboard.setText(repr(data))
+            clipboard.setText(str(data))
 
         elif renderer == "image":
             if isinstance(data, QImage):
@@ -1086,18 +1086,18 @@ class Workflows:
             clipboard.setMimeData(mime_data)
 
     def _copy_results_selection(self, grid: QTableView):
-        """Copy repr of selected cells result objects to the clipboard
+        """Copy selected cells result objects to the clipboard
 
         :param grid: Main grid
 
         """
 
-        def repr_nn(ele):
-            """repr which returns '' if ele is None"""
+        def str_nn(ele):
+            """str which returns '' if ele is None"""
 
             if ele is None:
                 return ''
-            return repr(ele)
+            return str(ele)
 
         table = grid.table
         selection = grid.selection
@@ -1105,7 +1105,7 @@ class Workflows:
         (top, left), (bottom, right) = bbox
 
         data = grid.model.code_array[top:bottom+1, left:right+1, table]
-        data_string = "\n".join("\t".join(map(repr_nn, line)) for line in data)
+        data_string = "\n".join("\t".join(map(str_nn, line)) for line in data)
 
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
