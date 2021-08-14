@@ -35,7 +35,7 @@ import pytest
 
 from PyQt5.QtCore import QItemSelectionModel, QItemSelection
 from PyQt5.QtWidgets import QApplication, QAbstractItemView
-from PyQt5.QtGui import QFont, QColor, QFontDatabase
+from PyQt5.QtGui import QFont, QColor, QFontDatabase, QFontInfo
 
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
@@ -527,11 +527,14 @@ class TestGrid:
         self.grid.selectRow(2)
 
         fixed_font = QFontDatabase.systemFont(QFontDatabase.FixedFont).family()
+        # systemFont might return only an alias, instantiate it to get the
+        # effective font name to check on later
+        effective_font = QFontInfo(QFont(fixed_font)).family()
 
         main_window.widgets.font_combo.font = fixed_font
         self.grid.on_font()
-        assert self.cell_attributes[(2, 0, 0)]["textfont"] == fixed_font
-        assert self.grid.model.font((2, 0, 0)).family() == fixed_font
+        assert self.cell_attributes[(2, 0, 0)]["textfont"] == effective_font
+        assert self.grid.model.font((2, 0, 0)).family() == effective_font
 
         self.grid.clearSelection()
 
