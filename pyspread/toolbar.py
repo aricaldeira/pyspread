@@ -118,7 +118,7 @@ class MainToolBar(ToolBarBase):
         super().__init__("Main toolbar", main_window)
 
         self.setObjectName("Main Toolbar")
-        self._create_toolbar(main_window.main_window_actions)
+        self._create_toolbar(main_window.main_window_toolbar_actions)
 
     def _create_toolbar(self, actions: MainWindowActions):
         """Fills the main toolbar with QActions
@@ -172,7 +172,7 @@ class MacroToolbar(ToolBarBase):
         super().__init__("Macro toolbar", main_window)
 
         self.setObjectName("Macro toolbar")
-        self._create_toolbar(main_window.main_window_actions)
+        self._create_toolbar(main_window.main_window_toolbar_actions)
 
     def _create_toolbar(self, actions: MainWindowActions):
         """Fills the macro toolbar with QActions
@@ -201,7 +201,7 @@ class FindToolbar(ToolBarBase):
 
         self.main_window = main_window
         self.setObjectName("Find Toolbar")
-        self._create_toolbar(main_window.main_window_actions)
+        self._create_toolbar(main_window.main_window_toolbar_actions)
 
     def _create_toolbar(self, actions: MainWindowActions):
         """Fills the find toolbar with QActions
@@ -233,7 +233,7 @@ class FormatToolbar(ToolBarBase):
 
         self.main_window = main_window
         self.setObjectName("Format Toolbar")
-        self._create_toolbar(main_window.main_window_actions)
+        self._create_toolbar(main_window.main_window_toolbar_actions)
 
     def _create_toolbar(self, actions: MainWindowActions):
         """Fills the format toolbar with QActions

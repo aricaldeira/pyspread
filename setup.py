@@ -70,7 +70,7 @@ setup(
         'python-dateutil': ['python-dateutil (>=2.7.0)'],
     },
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 4 - Beta',
         'Environment :: X11 Applications :: Qt',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: End Users/Desktop',
