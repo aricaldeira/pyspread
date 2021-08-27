@@ -91,14 +91,16 @@ class Action(QAction):
 class MainWindowActions(AttrDict):
     """Holds all QActions for the main window"""
 
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: QWidget, shortcuts: bool = True):
         """
         :param parent: The parent object, normally :class:`pyspread.MainWindow`
+        :param shortcuts: Enable shortcuts for actions
 
         """
 
         super().__init__()
         self.parent = parent
+        self.shortcuts = shortcuts
 
         self.create_file_actions()
         self.create_edit_actions()
@@ -115,7 +117,7 @@ class MainWindowActions(AttrDict):
         self.new = Action(self.parent, "&New",
                           self.parent.workflows.file_new,
                           icon=Icon.new,
-                          shortcut='Ctrl+n',
+                          shortcut='Ctrl+n' if self.shortcuts else "",
                           statustip='Create a new, empty spreadsheet')
 
         self.open = Action(self.parent, "&Open",
@@ -125,12 +127,15 @@ class MainWindowActions(AttrDict):
 
         self.save = Action(self.parent, "&Save",
                            self.parent.workflows.file_save,
-                           icon=Icon.save, shortcut='Ctrl+s',
+                           icon=Icon.save,
+                           shortcut='Ctrl+s' if self.shortcuts else "",
                            statustip='Save spreadsheet')
 
         self.save_as = Action(self.parent, "Save &As",
                               self.parent.workflows.file_save_as,
-                              icon=Icon.save_as, shortcut='Shift+Ctrl+s',
+                              icon=Icon.save_as,
+                              shortcut='Shift+Ctrl+s' if self.shortcuts \
+                                  else "",
                               statustip='Save spreadsheet to a new file')
 
         self.imprt = Action(self.parent, "&Import",
@@ -163,7 +168,7 @@ class MainWindowActions(AttrDict):
 
         self.print = Action(self.parent, "Print", self.parent.on_print,
                             icon=Icon.print,
-                            shortcut='Ctrl+p',
+                            shortcut='Ctrl+p' if self.shortcuts else "",
                             statustip='Print current spreadsheet')
 
         self.preferences = Action(self.parent, "Preferences...",
@@ -173,7 +178,7 @@ class MainWindowActions(AttrDict):
 
         self.quit = Action(self.parent, "&Quit", self.parent.closeEvent,
                            icon=Icon.quit,
-                           shortcut='Ctrl+Q',
+                           shortcut='Ctrl+Q' if self.shortcuts else "",
                            statustip='Exit pyspread')
 
     def create_edit_actions(self):
@@ -182,64 +187,67 @@ class MainWindowActions(AttrDict):
         self.undo = Action(self.parent, "&Undo",
                            self.parent.on_undo,
                            icon=Icon.undo,
-                           shortcut='Ctrl+z',
+                           shortcut='Ctrl+z' if self.shortcuts else "",
                            statustip='Undo last step')
 
         self.redo = Action(self.parent, "&Redo",
                            self.parent.on_redo,
                            icon=Icon.redo,
-                           shortcut='Shift+Ctrl+z',
+                           shortcut='Shift+Ctrl+z' if self.shortcuts else "",
                            statustip='Redo last undone step')
 
         self.cut = Action(self.parent, "Cut",
                           self.parent.workflows.edit_cut,
                           icon=Icon.cut,
-                          shortcut='Ctrl+x',
+                          shortcut='Ctrl+x' if self.shortcuts else "",
                           statustip='Cut cell to the clipboard')
 
         self.copy = Action(self.parent, "&Copy",
                            self.parent.workflows.edit_copy,
                            icon=Icon.copy,
-                           shortcut='Ctrl+c',
+                           shortcut='Ctrl+c' if self.shortcuts else "",
                            statustip='Copy the input strings of the cells '
                                      'to the clipboard')
 
         self.copy_results = Action(self.parent, "Copy results",
                                    self.parent.workflows.edit_copy_results,
                                    icon=Icon.copy_results,
-                                   shortcut='Shift+Ctrl+c',
+                                   shortcut='Shift+Ctrl+c' if self.shortcuts \
+                                       else "",
                                    statustip='Copy the result strings of '
                                              'the cells to the clipboard')
 
         self.paste = Action(self.parent, "&Paste",
                             self.parent.workflows.edit_paste,
                             icon=Icon.paste,
-                            shortcut='Ctrl+v',
+                            shortcut='Ctrl+v' if self.shortcuts else "",
                             statustip='Paste cells from the clipboard')
 
         self.paste_as = Action(self.parent, "Paste as...",
                                self.parent.workflows.edit_paste_as,
                                icon=Icon.paste_as,
-                               shortcut='Shift+Ctrl+v',
+                               shortcut='Shift+Ctrl+v' if self.shortcuts \
+                                   else "",
                                statustip='Transform clipboard and paste '
                                          'results')
 
         self.find = Action(self.parent, "&Find...",
                            self.parent.workflows.edit_find,
                            icon=Icon.find,
-                           shortcut='Ctrl+f',
+                           shortcut='Ctrl+f' if self.shortcuts else "",
                            statustip='Find dialog')
 
         self.find_next = Action(self.parent, "&Find next",
                                 self.parent.workflows.edit_find_next,
                                 icon=Icon.find_next,
-                                shortcut='F3',
+                                shortcut='F3' if self.shortcuts else "",
                                 statustip='Find next matching cell')
 
         self.replace = Action(self.parent, "&Replace...",
                               self.parent.workflows.edit_replace,
                               icon=Icon.replace,
-                              shortcut='Shift+Ctrl+f',
+                              shortcut='Shift+Ctrl+f' if self.shortcuts \
+                                  else "",
                               statustip='Replace sub-strings in cells')
 
         self.toggle_selection_mode = Action(
@@ -251,7 +259,7 @@ class MainWindowActions(AttrDict):
         self.quote = Action(self.parent, "&Quote",
                             self.parent.grid.on_quote,
                             icon=Icon.quote,
-                            shortcut='Ctrl+Return',
+                            shortcut='Ctrl+Return' if self.shortcuts else "",
                             statustip="Convert cells' code to strings by "
                                       "addding quotes")
 
@@ -301,7 +309,7 @@ class MainWindowActions(AttrDict):
         self.fullscreen = Action(self.parent, "Fullscreen",
                                  self.parent.on_fullscreen,
                                  icon=Icon.fullscreen,
-                                 shortcut='F11',
+                                 shortcut='F11' if self.shortcuts else "",
                                  statustip='Show grid in fullscreen mode '
                                            '(press <F11> to leave)')
 
@@ -335,13 +343,13 @@ class MainWindowActions(AttrDict):
 
         self.toggle_macro_dock = Action(
             self.parent, "Macro panel", self.parent.on_toggle_macro_dock,
-            checkable=True, shortcut='F4',
+            checkable=True, shortcut='F4' if self.shortcuts else "",
             statustip='Show/hide the macro panel')
 
         self.goto_cell = Action(self.parent, "Go to cell",
                                 self.parent.workflows.view_goto_cell,
                                 icon=Icon.goto_cell,
-                                shortcut='Ctrl+g',
+                                shortcut='Ctrl+g' if self.shortcuts else "",
                                 statustip='Select a cell and put it into view')
 
         self.toggle_spell_checker = \
@@ -354,25 +362,26 @@ class MainWindowActions(AttrDict):
         self.zoom_in = Action(self.parent, "Zoom in",
                               self.parent.grid.on_zoom_in,
                               icon=Icon.zoom_in,
-                              shortcut='Ctrl++',
+                              shortcut='Ctrl++' if self.shortcuts else "",
                               statustip='Zoom in the grid')
 
         self.zoom_out = Action(self.parent, "Zoom out",
                                self.parent.grid.on_zoom_out,
                                icon=Icon.zoom_out,
-                               shortcut='Ctrl+-',
+                               shortcut='Ctrl+-' if self.shortcuts else "",
                                statustip='Zoom out the grid')
 
         self.zoom_1 = Action(self.parent, "Original size",
                              self.parent.grid.on_zoom_1,
                              icon=Icon.zoom_1,
-                             shortcut='Ctrl+0',
+                             shortcut='Ctrl+0' if self.shortcuts else "",
                              statustip='Show grid on standard zoom level')
 
         self.refresh_cells = \
             Action(self.parent, "Refresh selected cells",
                    self.parent.grid.refresh_selected_frozen_cells,
-                   icon=Icon.refresh, shortcut=QKeySequence.Refresh,
+                   icon=Icon.refresh,
+                   shortcut=QKeySequence.Refresh  if self.shortcuts else "",
                    statustip='Refresh selected cells even when frozen')
 
         self.toggle_periodic_updates = \
@@ -412,7 +421,7 @@ class MainWindowActions(AttrDict):
         self.bold = Action(self.parent, "&Bold",
                            self.parent.grid.on_bold_pressed,
                            icon=Icon.bold,
-                           shortcut='Ctrl+b',
+                           shortcut='Ctrl+b' if self.shortcuts else "",
                            checkable=True,
                            statustip='Toggle bold font weight for the '
                                      'selected cells')
@@ -420,7 +429,7 @@ class MainWindowActions(AttrDict):
         self.italics = Action(self.parent, "&Italics",
                               self.parent.grid.on_italics_pressed,
                               icon=Icon.italics,
-                              shortcut='Ctrl+i',
+                              shortcut='Ctrl+i' if self.shortcuts else "",
                               checkable=True,
                               statustip='Toggle italics font style for the '
                                         'selected cells')
@@ -428,7 +437,7 @@ class MainWindowActions(AttrDict):
         self.underline = Action(self.parent, "&Underline",
                                 self.parent.grid.on_underline_pressed,
                                 icon=Icon.underline,
-                                shortcut='Ctrl+u',
+                                shortcut='Ctrl+u' if self.shortcuts else "",
                                 checkable=True,
                                 statustip='Toggle underline for the '
                                           'selected cells')
@@ -742,7 +751,7 @@ class MainWindowActions(AttrDict):
         self.manual = Action(self.parent, "Manual...",
                              self.parent.on_manual,
                              icon=Icon.help,
-                             shortcut='F1',
+                             shortcut='F1' if self.shortcuts else "",
                              statustip='Display the pyspread manual')
 
         self.tutorial = Action(self.parent, "Tutorial...",

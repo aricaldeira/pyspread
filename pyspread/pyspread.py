@@ -123,7 +123,8 @@ class MainWindow(QMainWindow):
         self._init_widgets()
 
         self.main_window_actions = MainWindowActions(self)
-        self.main_window_toolbar_actions = MainWindowActions(self)
+        self.main_window_toolbar_actions = MainWindowActions(self,
+                                                             shortcuts=False)
 
         self._init_window()
         self._init_toolbars()
