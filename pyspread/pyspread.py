@@ -229,7 +229,6 @@ class MainWindow(QMainWindow):
         _no_tables = self.settings.shape[2]
         self.table_choice = TableChoice(self, _no_tables)
 
-
         # We have one main view that is used as default view
         self.grid = Grid(self)
         # Further views of the grid

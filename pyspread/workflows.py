@@ -203,6 +203,9 @@ class Workflows:
         # Reset grid
         self.main_window.grid.model.reset()
 
+        # Empty undo stack
+        self.main_window.undo_stack.clear()
+
         # Delete old filepath
         self.main_window.settings.last_file_input_path = Path.home()
 
@@ -263,6 +266,9 @@ class Workflows:
 
         # Reset grid
         grid.model.reset()
+
+        # Empty undo stack
+        self.main_window.undo_stack.clear()
 
         # Reset macro editor
         self.main_window.macro_panel.macro_editor.clear()
