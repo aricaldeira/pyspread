@@ -118,7 +118,7 @@ After pressing o.k., a second dialog window displays the print preview.
 
 ## File → Print
 
-**Print** prints the spreadsheet. First, a dialog similar to **Print preview** is opened, in which the spreadsheet extents (rows, columns and tables) can be selected. After pressing o.k., a operation system specific print dialog is opened. This dialog provied an option to start printing.
+**Print** prints the spreadsheet. First, a dialog similar to **Print preview** is opened, in which the spreadsheet extents (rows, columns and tables) can be selected. After pressing o.k., a operation system specific print dialog is opened. This dialog provided an option to start printing.
 
 ----------
 

@@ -75,7 +75,7 @@ Merge cells merge all cells that are in the bounding box of the current selectio
 
 ## Format → Rotation
 
-Opens a sub-menu, in which cell rotatation can be chosen from 0, 90, 180 and 270 degree. The chosen rotatation is applied to all cells in the current selection. If no cell is selected, then it is applied to the current cell. Besides text output, rotatation also applied to bitmap and vector graphics that are displayed in the cell. Matplotlib charts may be dislocated in rotatated cells.
+Opens a sub-menu, in which cell rotation can be chosen from 0, 90, 180 and 270 degree. The chosen rotation is applied to all cells in the current selection. If no cell is selected, then it is applied to the current cell. Besides text output, rotation also applied to bitmap and vector graphics that are displayed in the cell. Matplotlib charts may be dislocated in rotated cells.
 
 ## Format → Justification
 
@@ -104,7 +104,7 @@ behaviour by providing the following options:
 
 ## Format → Border width
 
-Choice box that changes cell border widthes. The section Border choice box explains, which borders are affected. There are eleven different border widths. The first width is `0`, which means that no border is drawn.
+Choice box that changes cell border widths. The section Border choice box explains, which borders are affected. There are eleven different border widths. The first width is `0`, which means that no border is drawn.
 
 ----------
 

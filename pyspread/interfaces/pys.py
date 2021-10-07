@@ -111,7 +111,7 @@ class PysReader:
             "[macros]\n": self._pys2macros,
         }
 
-        # When converting old versions, cell attributes are rquired that
+        # When converting old versions, cell attributes are required that
         # take place after the cell attribute readout
         self.cell_attributes_postfixes = []
 

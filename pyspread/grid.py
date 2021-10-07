@@ -1321,7 +1321,7 @@ class Grid(QTableView):
         current_attr = grid.model.code_array.cell_attributes[grid.current]
         if not toggled and current_attr.button_cell is False \
            or toggled and current_attr.button_cell is not False:
-            # Something is not syncronized in the menu
+            # Something is not synchronized in the menu
             return
 
         if toggled:

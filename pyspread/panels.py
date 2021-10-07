@@ -91,7 +91,7 @@ class MacroPanel(QDialog):
         """Preliminary code check
 
         Returns a string with the error message if code is not valid Python.
-        If the code runs without errors, an empty string is retruned.
+        If the code runs without errors, an empty string is returned.
 
         """
 

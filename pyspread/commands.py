@@ -836,7 +836,7 @@ class SetCellRenderer(QUndoCommand):
                  index: QModelIndex, selected_idx: Iterable[QModelIndex],
                  description: str):
         """
-        :param attr: Cell format that cointains traget renderer information
+        :param attr: Cell format that cointains target renderer information
         :param model: Model of the grid object
         :param entry_line: Entry line in main window
         :param highlighter_document: Document for entry line

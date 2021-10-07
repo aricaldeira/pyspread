@@ -259,7 +259,7 @@ class Workflows:
         grid = self.main_window.grid
         code_array = grid.model.code_array
 
-        # Get number of lines for progess dialog
+        # Get number of lines for progress dialog
         filelines = self.count_file_lines(filepath)
         if not filelines:  # May not be None or 0
             return
