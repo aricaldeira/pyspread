@@ -4,6 +4,27 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.8
+------
+
+This is the third release candidate for pyspread 2.0.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt  
+ 
+Bug fixes:
+ * Keyboard shortcuts now work if the respective panel is hidden
+ * Undo stack is now cleared on File-New and File-Open
+ * Deleting rows and columns with merged cells now works as expected
+ * Copy results now copies str instead of repr of result to the clipboard
+ * Font aliases have been fixed in a unit test that failed on Debian CI.
+ * Two tests for image handling that are failing on big endian systems removed
+ * README updated
+ * Typos in docstrings fixed 
+
+
 1.99.7
 ------
 
@@ -24,7 +45,7 @@ New functionality:
  * GenericName has been added to desktop entry 
  * Undo descriptions are limited to mention 10 cells for performance
  * Speedup for changes on many selected cells
- * Speedup ommitting Statusbar updates on disable toggle
+ * Speedup omitting Statusbar updates on disable toggle
  * Cell information in statusbar fixed
  * Line color button is now updated (to bottom color) when selecting a cell
  * Scroll positions are now restored when switching tables
