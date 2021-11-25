@@ -76,9 +76,9 @@ Importing a file always activates safe mode because code in the CSV file might p
 
 ## File → Export
 
-*pyspread* can export spreadsheets to `.csv` and `.svg` files.
+*pyspread* can export spreadsheets to `.csv` files.
 
-When exporting a file then a dialog is displayed, in which te area to be exported can be chosen.
+When exporting a file then a dialog is displayed, in which the area to be exported can be chosen.
 
 When exporting a `.csv` file then an export dialog is shown next, in which the format of the csv file may be specified. The start of the exported file is shown below the options.
 
