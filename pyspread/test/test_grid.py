@@ -521,23 +521,6 @@ class TestGrid:
         self.grid.on_show_frozen_pressed(False)
         assert not main_window.settings.show_frozen
 
-    def test_on_font(self):
-        """Unit test for on_font"""
-
-        self.grid.selectRow(2)
-
-        fixed_font = QFontDatabase.systemFont(QFontDatabase.FixedFont).family()
-        # systemFont might return only an alias, instantiate it to get the
-        # effective font name to check on later
-        effective_font = QFontInfo(QFont(fixed_font)).family()
-
-        main_window.widgets.font_combo.font = fixed_font
-        self.grid.on_font()
-        assert self.cell_attributes[(2, 0, 0)]["textfont"] == effective_font
-        assert self.grid.model.font((2, 0, 0)).family() == effective_font
-
-        self.grid.clearSelection()
-
     def test_on_font_size(self):
         """Unit test for on_font_size"""
 
