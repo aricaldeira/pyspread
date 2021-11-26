@@ -32,6 +32,7 @@
  * :class:`SinglePageArea`
  * :class:`MultiPageArea`
  * :class:`CsvExportAreaDialog`
+ * :class:`SvgExportAreaDialog`
  * :class:`PrintAreaDialog`
  * (:class:`FileDialogBase`)
  * :class:`FileOpenDialog`
@@ -438,6 +439,17 @@ class CsvExportAreaDialog(DataEntryDialog):
                 return self.area_cls(*data)
             except ValueError:
                 return
+
+
+class SvgExportAreaDialog(CsvExportAreaDialog):
+    """Modal dialog for entering svg export area
+
+    Initially, this dialog is filled with the selection bounding box
+    if present or with the visible area of <= 1 cell is selected.
+
+    """
+
+    groupbox_title = "SVG export area"
 
 
 class PrintAreaDialog(CsvExportAreaDialog):

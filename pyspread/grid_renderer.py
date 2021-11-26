@@ -41,7 +41,8 @@ except ImportError:
 from typing import List, Tuple
 
 from PyQt5.QtCore import Qt, QModelIndex, QRectF, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPalette, QPen
+from PyQt5.QtGui import (QBrush, QColor, QPainter, QPalette, QPen,
+                         QPainterPath)
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
 
 
@@ -263,7 +264,7 @@ class CellEdgeRenderer:
     """Paints cell edges"""
 
     def __init__(self, painter: QPainter, center: QPointF,
-                 borders: EdgeBorders):
+                 borders: EdgeBorders, clip_path: QPainterPath):
         """
 
         Borders are provided by EdgeBorders in order: left, right, top, bottom
@@ -271,6 +272,7 @@ class CellEdgeRenderer:
         :param painter: Painter with which edge is drawn
         :param center: Edge center
         :param borders: Border widths and colors
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
@@ -387,10 +389,11 @@ class CellRenderer:
             self.grid.delegate.paint_(self.painter, zrect, self.option,
                                       self.index)
 
-    def paint_bottom_border(self, rect: QRectF):
+    def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
 
         :param rect: Cell rect of the cell to be painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
@@ -408,10 +411,11 @@ class CellRenderer:
                                     rect.y() + rect.height())
         self.painter.drawLine(bottom_border_line)
 
-    def paint_right_border(self, rect: QRectF):
+    def paint_right_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint right border of cell
 
         :param rect: Cell rect of the cell to be painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
@@ -429,10 +433,11 @@ class CellRenderer:
                                    rect.y() + rect.height())
         self.painter.drawLine(right_border_line)
 
-    def paint_above_borders(self, rect: QRectF):
+    def paint_above_borders(self, rect: QRectF, clip_path: QPainterPath):
         """Paint lower borders of all above cells
 
         :param rect: Cell rect of below cell, in which the borders are painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
@@ -459,10 +464,11 @@ class CellRenderer:
                                        rect.y())
             self.painter.drawLine(above_border_line)
 
-    def paint_left_borders(self, rect: QRectF):
+    def paint_left_borders(self, rect: QRectF, clip_path: QPainterPath):
         """Paint right borders of all left cells
 
         :param rect: Cell rect of right cell, in which the borders are painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
@@ -488,10 +494,11 @@ class CellRenderer:
                                        left_rect_y + left_rect_height)
             self.painter.drawLine(above_border_line)
 
-    def paint_top_left_edge(self, rect: QRectF):
+    def paint_top_left_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints top left edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                   top
                TL  |  T
@@ -530,13 +537,14 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
         renderer.paint()
 
-    def paint_top_right_edge(self, rect: QRectF):
+    def paint_top_right_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints top right edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                   top
                 T  |  TR
@@ -573,13 +581,14 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
         renderer.paint()
 
-    def paint_bottom_left_edge(self, rect: QRectF):
+    def paint_bottom_left_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints bottom left edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                   top
                L   |  C
@@ -617,13 +626,14 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
         renderer.paint()
 
-    def paint_bottom_right_edge(self, rect: QRectF):
+    def paint_bottom_right_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints bottom right edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                  top
                C  |  R
@@ -660,21 +670,24 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
         renderer.paint()
 
     def paint_borders(self, rect):
         """Paint cell borders"""
 
-        self.paint_bottom_border(rect)
-        self.paint_right_border(rect)
-        self.paint_above_borders(rect)
-        self.paint_left_borders(rect)
+        clip_path = QPainterPath()  # Required for clipping in SVG export
+        clip_path.addRect(rect)
 
-        self.paint_top_left_edge(rect)
-        self.paint_top_right_edge(rect)
-        self.paint_bottom_left_edge(rect)
-        self.paint_bottom_right_edge(rect)
+        self.paint_bottom_border(rect, clip_path)
+        self.paint_right_border(rect, clip_path)
+        self.paint_above_borders(rect, clip_path)
+        self.paint_left_borders(rect, clip_path)
+
+        self.paint_top_left_edge(rect, clip_path)
+        self.paint_top_right_edge(rect, clip_path)
+        self.paint_bottom_left_edge(rect, clip_path)
+        self.paint_bottom_right_edge(rect, clip_path)
 
     def paint(self):
         """Paints the cell"""
