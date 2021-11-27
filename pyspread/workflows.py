@@ -38,7 +38,8 @@ from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
 
 from PyQt5.QtCore import (
-    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QItemSelectionModel)
+    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QItemSelectionModel,
+    QSize)
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView,
@@ -62,7 +63,7 @@ try:
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
                 CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
-                FileExportDialog)
+                FileExportDialog, SvgExportAreaDialog)
     from pyspread.interfaces.pys import PysReader, PysWriter
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
@@ -79,7 +80,7 @@ except ImportError:
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
                 CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
-                FileExportDialog)
+                FileExportDialog, SvgExportAreaDialog)
     from interfaces.pys import PysReader, PysWriter
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
@@ -691,7 +692,7 @@ class Workflows:
         """Export csv and svg files"""
 
         # Determine what filters ae available
-        filters_list = ["CSV (*.csv)"]
+        filters_list = ["CSV (*.csv)", "SVG (*.svg)"]
 
         grid = self.main_window.focused_grid
 
@@ -721,6 +722,13 @@ class Workflows:
 
         if "CSV" in dial.selected_filter:
             self._csv_export(filepath)
+            return
+
+        elif "SVG" in dial.selected_filter:
+            # Extend filepath suffix if needed
+            if filepath.suffix != dial.suffix:
+                filepath = filepath.with_suffix(dial.suffix)
+            self._svg_export(filepath)
             return
 
         # Extend filepath suffix if needed
@@ -772,6 +780,42 @@ class Workflows:
                 writer.writerows(csv_data)
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
+
+    def _svg_export(self, filepath: Path):
+        """Export to svg file filepath
+
+        :param filepath: Path of file to be exported
+
+        """
+
+        with self.print_zoom():
+            grid = self.main_window.grid
+
+            generator = QSvgGenerator()
+            generator.setFileName(str(filepath))
+
+            # Get area for svg export
+            svg_area = SvgExportAreaDialog(self.main_window, grid,
+                                           title="Svg export area").area
+            if svg_area is None:
+                return
+
+            rows = self.get_paint_rows(svg_area.top, svg_area.bottom)
+            columns = self.get_paint_columns(svg_area.left, svg_area.right)
+            total_height = self.get_total_height(svg_area.top, svg_area.bottom)
+            total_width = self.get_total_width(svg_area.left, svg_area.right)
+
+            generator.setSize(QSize(total_width, total_height))
+            paint_rect = QRectF(0, 0, total_width, total_height)
+            generator.setViewBox(paint_rect)
+            option = QStyleOptionViewItem()
+
+            painter = QPainter(generator)
+
+            self.paint(painter, option, paint_rect, rows, columns)
+
+            painter.end()
+
 
     def _qimage_export(self, filepath: Path, file_format: str):
         """Export to png file filepath
