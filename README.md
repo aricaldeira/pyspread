@@ -1,5 +1,9 @@
-pyspread
-====================
+# pyspread
+
+[![pypi version](https://img.shields.io/pypi/v/pyspread.svg)](https://pypi.python.org/pypi/pyspread)
+[![CI pipeline](https://gitlab.com/pyspread/pyspread/badges/master/pipeline.svg)](https://gitlab.com/pyspread/pyspread/-/pipelines?page=1&scope=branches&ref=master)
+[![pyspread community board](https://badges.gitter.im/pyspread/community.svg)](https://gitter.im/pyspread/community)
+[![pyspread](https://snyk.io/advisor/python/pyspread/badge.svg)](https://snyk.io/advisor/python/pyspread)
 
 **pyspread** is a non-traditional spreadsheet that is
 based on and written in the programming language Python.

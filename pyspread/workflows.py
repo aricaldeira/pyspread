@@ -816,7 +816,6 @@ class Workflows:
 
             painter.end()
 
-
     def _qimage_export(self, filepath: Path, file_format: str):
         """Export to png file filepath
 
