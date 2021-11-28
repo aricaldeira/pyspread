@@ -17,45 +17,37 @@ It is released under the [GPL v3. LICENSE](LICENSE)
 
 # Installation
 
-## On Debian bullseye
+The table below shows for which operating systems, pyspread is available in which version.
+If pyspread is unavailable or outdated for your operating system, you can install it using one of the three methods below.
 
-On Debian bullseye, pyspread is available as a package.
-Note that the version number for the Python3 beta release is >=1.99.1.
-
-```bash
-su -
-apt install pyspread
-```
-
-## Other platforms with packaged releases
-
-![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4)
-
-## Other platforms
-
-### Prerequisites
-
-Get the prerequisites:
-- Python (>=3.6)
-- PyQt5 (>=5.10) (must include PyQtSvg)
-- numpy (>=1.1)
-- setuptools (>=40.0)
-
-and if needed the suggested modules:
-- matplotlib (>=1.1.1)
-- pyenchant (>=1.1)
-- pip (>=18)
-
-Should the package pkg_resources be missing in your setup (e.g. on Ubuntu),
-then you may need to reinstall pip for Python3.
+![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4){:class="w3-card-4 w3-mobile"}
 
 ### With pip
 
-The example installs the dependencies for the current user. Make sure that
-you are using the Python3 version of pip.
-
 ```bash
-pip3 install --user requirements.txt
+pip install pyspread
+```
+
+### From git
+
+It is assumed that python3 and git are installed.
+
+**Get sources and enter dir**
+```bash
+git clone https://gitlab.com/pyspread/pyspread.git
+# or
+git clone git@gitlab.com:pyspread/pyspread.git
+# then
+cd pyspread
+```
+
+**Install dependencies and pyspread**
+```bash
+pip3 install -r requirements.txt
+# or if pip3 is not present
+pip install -r requirements.txt
+# next
+python3 setup.py install
 ```
 
 ## Getting the bleeding edge version from the code repository
