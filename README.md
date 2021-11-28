@@ -20,7 +20,7 @@ It is released under the [GPL v3. LICENSE](LICENSE)
 The table below shows for which operating systems, pyspread is available in which version.
 If pyspread is unavailable or outdated for your operating system, you can install it using one of the three methods below.
 
-![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4){:class="w3-card-4 w3-mobile"}
+![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4)
 
 ### With pip
 
