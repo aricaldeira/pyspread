@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.gitlab.pyspread.pyspread</id>
+
+  <name>pyspread</name>
+  <summary>pyspread is a non-traditional spreadsheet application that is based on and written in the programming language Python</summary>
+
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <description>
+    <p>
+      <em>pyspread</em> is a non-traditional spreadsheet application that is based on and written in the programming language Python. The goal of <em>pyspread</em> is to be the most pythonic spreadsheet.
+      </p>
+      <p>
+        <em>pyspread</em> expects Python expressions in its grid cells, which makes a spreadsheet specific language obsolete. Each cell returns a Python object that can be accessed from other cells. These objects can represent anything including lists or matrices.
+        </p>
+        <p>
+          <em>pyspread</em> is free software. It is released under the GPL v3 licence.
+          </p>
+        </description>
+
+        <launchable type="desktop-id">io.gitlab.pyspread.pyspread.desktop</launchable>
+        <screenshots>
+          <screenshot type="default">
+            <image>https://pyspread.gitlab.io/images/screenshot_sinus_large.png</image>
+          </screenshot>
+        </screenshots>
+      </component>
