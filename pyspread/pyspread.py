@@ -35,6 +35,7 @@ pyspread
 """
 
 import os
+from pathlib import Path
 import sys
 import traceback
 
@@ -103,7 +104,8 @@ class MainWindow(QMainWindow):
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, filepath: str = None, default_settings: bool = False):
+    def __init__(self, filepath: Path = Path(),
+                 default_settings: bool = False):
         """
         :param filepath: File path for inital file to be opened
         :param default_settings: Ignore stored `QSettings` and use defaults
@@ -153,7 +155,7 @@ class MainWindow(QMainWindow):
         self._previous_window_state = self.windowState()
 
         # Open initial file if provided by the command line
-        if filepath is not None:
+        if filepath != Path():
             if self.workflows.filepath_open(filepath):
                 self.workflows.update_main_window_title()
             else:

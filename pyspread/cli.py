@@ -82,18 +82,6 @@ def check_mandatory_dependencies():
         dependency_warning(msg)
 
 
-class PathAction(Action):
-    """Action that handles paths with spaces and provides a pathlib Path"""
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        """Overrides __call__ to enable spaces in path names"""
-
-        if values:
-            setattr(namespace, self.dest, Path(" ".join(values)))
-        else:
-            setattr(namespace, self.dest, None)
-
-
 class PyspreadArgumentParser(ArgumentParser):
     """Parser for the command line"""
 
@@ -117,5 +105,5 @@ class PyspreadArgumentParser(ArgumentParser):
         self.add_argument('--default-settings', action='store_true',
                           help=default_settings_help)
 
-        file_help = 'open pyspread file in pys or pysu format'
-        self.add_argument('file', action=PathAction, nargs="*", help=file_help)
+        self.add_argument('file', type=Path, nargs='?', default=Path(),
+                          help='open pyspread file in pys or pysu format')
