@@ -50,7 +50,10 @@ from PyQt5.QtGui \
             QWheelEvent, QContextMenuEvent, QTextCursor)
 from PyQt5.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
-            QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel)
+            QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel,
+            QByteArray)
+
+from PyQt5.QtSvg import QSvgRenderer
 
 try:
     import matplotlib
@@ -66,13 +69,12 @@ try:
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.selection import Selection
-    from pyspread.lib.string_helpers import quote, wrap_text, get_svg_size
+    from pyspread.lib.string_helpers import quote, wrap_text
     from pyspread.lib.qimage2ndarray import array2qimage
-    from pyspread.lib.qimage_svg import QImageSvg
     from pyspread.lib.typechecks import is_svg, check_shape_validity
-    from pyspread.menus \
-        import (GridContextMenu, TableChoiceContextMenu,
-                HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
+    from pyspread.menus import (GridContextMenu, TableChoiceContextMenu,
+                                HorizontalHeaderContextMenu,
+                                VerticalHeaderContextMenu)
     from pyspread.widgets import CellButton
 except ImportError:
     import commands
@@ -81,13 +83,11 @@ except ImportError:
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
     from lib.selection import Selection
-    from lib.string_helpers import quote, wrap_text, get_svg_size
+    from lib.string_helpers import quote, wrap_text
     from lib.qimage2ndarray import array2qimage
-    from lib.qimage_svg import QImageSvg
     from lib.typechecks import is_svg, check_shape_validity
-    from menus \
-        import (GridContextMenu, TableChoiceContextMenu,
-                HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
+    from menus import (GridContextMenu, TableChoiceContextMenu,
+                       HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
     from widgets import CellButton
 
 
@@ -2236,62 +2236,23 @@ class GridCellDelegate(QStyledItemDelegate):
         return QRectF(image_x, image_y, image_width, image_height)
 
     def _render_qimage(self, painter: QPainter, rect: QRectF,
-                       index: QModelIndex, qimage: Union[str, QImage] = None):
+                       index: QModelIndex, qimage: QImage = None):
         """QImage renderer
 
         :param painter: Painter with which qimage is rendered
         :param rect: Cell rect of the cell to be painted
         :param index: Index of cell for which qimage is rendered
-        :param qimage: Image to be rendered, may be svg string
+        :param qimage: Image to be rendered, decoration drawn if not provided
 
         """
 
         if qimage is None:
             qimage = index.data(Qt.DecorationRole)
 
-        if isinstance(qimage, QImage):
-            img_width, img_height = qimage.width(), qimage.height()
-        else:
-            if qimage is None:
-                return
-            try:
-                svg_bytes = bytes(qimage)
-            except TypeError:
-                try:
-                    svg_bytes = bytes(qimage, encoding='utf-8')
-                except TypeError:
-                    return
+        if not isinstance(qimage, QImage):
+            raise TypeError("{} not of type QImage".format(qimage))
 
-            if not is_svg(svg_bytes):
-                return
-
-            svg_width, svg_height = get_svg_size(svg_bytes)
-
-            try:
-                svg_aspect = svg_width / svg_height
-            except ZeroDivisionError:
-                svg_aspect = 1
-            try:
-                rect_aspect = rect.width() / rect.height()
-            except ZeroDivisionError:
-                rect_aspect = 1
-
-            if svg_aspect > rect_aspect:
-                # svg is wider than rect --> shrink height
-                img_width = rect.width()
-                img_height = rect.width() / svg_aspect
-            else:
-                img_width = rect.height() * svg_aspect
-                img_height = rect.height()
-
-            if self.main_window.settings.print_zoom is not None:
-                img_width *= self.main_window.settings.print_zoom
-                img_height *= self.main_window.settings.print_zoom
-            else:  # Adjust for HiDpi
-                img_width *= 3
-                img_height *= 3
-            qimage = QImageSvg(img_width, img_height, QImage.Format_ARGB32)
-            qimage.from_svg_bytes(svg_bytes)
+        img_width, img_height = qimage.width(), qimage.height()
 
         img_rect = self._get_aligned_image_rect(rect, index,
                                                 img_width, img_height)
@@ -2323,6 +2284,85 @@ class GridCellDelegate(QStyledItemDelegate):
             painter.scale(scale_x, scale_y)
             painter.drawImage(0, 0, qimage)
 
+    def _render_svg(self, painter: QPainter, rect: QRectF, index: QModelIndex,
+                    svg_str: str = None):
+        """SVG renderer
+
+        :param painter: Painter with which qimage is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param index: Index of cell for which qimage is rendered
+        :param svg_str: SVG string
+
+        """
+
+        if svg_str is None:
+            svg_str = index.data(Qt.DecorationRole)
+
+        if svg_str is None:
+            return
+        try:
+            svg_bytes = bytes(svg_str)
+        except TypeError:
+            try:
+                svg_bytes = bytes(svg_str, encoding='utf-8')
+            except TypeError:
+                return
+
+        if not is_svg(svg_bytes):
+            return
+
+        svg = QSvgRenderer(QByteArray(svg_bytes))
+        svg.setAspectRatioMode(Qt.KeepAspectRatio)
+        svg.render(painter, rect)
+
+        # try:
+        #     svg_aspect = svg_size.width() / svg_size.height()
+        # except ZeroDivisionError:
+        #     svg_aspect = 1
+        # try:
+        #     rect_aspect = rect.width() / rect.height()
+        # except ZeroDivisionError:
+        #     rect_aspect = 1
+
+        # if svg_aspect > rect_aspect:
+        #     # svg is wider than rect --> shrink height
+        #     img_width = rect.width()
+        #     img_height = rect.width() / svg_aspect
+        # else:
+        #     img_width = rect.height() * svg_aspect
+        #     img_height = rect.height()
+
+        # img_rect = self._get_aligned_image_rect(rect, index,
+        #                                         img_width, img_height)
+        # print(img_rect, img_width, img_height)
+        # if img_rect is None:
+        #     return
+
+        # key = index.row(), index.column(), self.grid.table
+        # justification = self.cell_attributes[key].justification
+
+        # if justification == "justify_fill":
+        #     qimage = qimage.scaled(img_width, img_height,
+        #                            Qt.IgnoreAspectRatio,
+        #                            Qt.SmoothTransformation)
+        # else:
+        #     qimage = qimage.scaled(img_width, img_height,
+        #                            Qt.KeepAspectRatio,
+        #                            Qt.SmoothTransformation)
+
+        # with painter_save(painter):
+        #     try:
+        #         scale_x = rect.width() / svg_size.width()
+        #     except ZeroDivisionError:
+        #         scale_x = 1
+        #     try:
+        #         scale_y = rect.height() / svg_size.height()
+        #     except ZeroDivisionError:
+        #         scale_y = 1
+        #     painter.translate(rect.x(), rect.y())
+        #     painter.scale(scale_x, scale_y)
+
+
     def _render_matplotlib(self, painter: QPainter, rect: QRectF,
                            index: QModelIndex):
         """Matplotlib renderer
@@ -2351,7 +2391,7 @@ class GridCellDelegate(QStyledItemDelegate):
                 return
             svg_str = filelike.getvalue().decode()
 
-        self._render_qimage(painter, rect, index, qimage=svg_str)
+        self._render_svg(painter, rect, index, svg_str=svg_str)
 
     def paint_(self, painter: QPainter, rect: QRectF,
                option: QStyleOptionViewItem, index: QModelIndex):
@@ -2379,7 +2419,11 @@ class GridCellDelegate(QStyledItemDelegate):
             self._render_markup(painter, rect, option, index)
 
         elif renderer == "image":
-            self._render_qimage(painter, rect, index)
+            image = index.data(Qt.DecorationRole)
+            if isinstance(image, QImage):
+                self._render_qimage(painter, rect, index)
+            elif isinstance(image, str):
+                self._render_svg(painter, rect, index)
 
         elif renderer == "matplotlib":
             self._render_matplotlib(painter, rect, index)

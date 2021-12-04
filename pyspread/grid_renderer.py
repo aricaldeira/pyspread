@@ -40,7 +40,7 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from typing import List, Tuple
 
-from PyQt5.QtCore import Qt, QModelIndex, QRectF, QLineF, QPointF
+from PyQt5.QtCore import Qt, QModelIndex, QRectF, QPointF
 from PyQt5.QtGui import (QBrush, QColor, QPainter, QPalette, QPen,
                          QPainterPath, QPolygonF, QPainterPathStroker)
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
