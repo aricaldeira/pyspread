@@ -2311,57 +2311,46 @@ class GridCellDelegate(QStyledItemDelegate):
         if not is_svg(svg_bytes):
             return
 
+        key = index.row(), index.column(), self.grid.table
+        justification = self.cell_attributes[key].justification
+
         svg = QSvgRenderer(QByteArray(svg_bytes))
+
+        if justification == "justify_fill":
+            svg.setAspectRatioMode(Qt.IgnoreAspectRatio)
+            svg_rect = rect
+            svg.render(painter, svg_rect)
+            return
+
         svg.setAspectRatioMode(Qt.KeepAspectRatio)
-        svg.render(painter, rect)
 
-        # try:
-        #     svg_aspect = svg_size.width() / svg_size.height()
-        # except ZeroDivisionError:
-        #     svg_aspect = 1
-        # try:
-        #     rect_aspect = rect.width() / rect.height()
-        # except ZeroDivisionError:
-        #     rect_aspect = 1
+        svg_size = svg.defaultSize()
 
-        # if svg_aspect > rect_aspect:
-        #     # svg is wider than rect --> shrink height
-        #     img_width = rect.width()
-        #     img_height = rect.width() / svg_aspect
-        # else:
-        #     img_width = rect.height() * svg_aspect
-        #     img_height = rect.height()
+        try:
+            svg_aspect = svg_size.width() / svg_size.height()
+        except ZeroDivisionError:
+            svg_aspect = 1
+        try:
+            rect_aspect = rect.width() / rect.height()
+        except ZeroDivisionError:
+            rect_aspect = 1
 
-        # img_rect = self._get_aligned_image_rect(rect, index,
-        #                                         img_width, img_height)
-        # print(img_rect, img_width, img_height)
-        # if img_rect is None:
-        #     return
+        if svg_aspect > rect_aspect:
+            # svg is wider than rect
+            svg_width = rect.width()
+            svg_height = rect.width() / svg_aspect
+        else:
+            # svg is taller than rect
+            svg_width = rect.height() * svg_aspect
+            svg_height = rect.height()
 
-        # key = index.row(), index.column(), self.grid.table
-        # justification = self.cell_attributes[key].justification
+        svg_rect = self._get_aligned_image_rect(rect, index,
+                                                svg_width, svg_height)
 
-        # if justification == "justify_fill":
-        #     qimage = qimage.scaled(img_width, img_height,
-        #                            Qt.IgnoreAspectRatio,
-        #                            Qt.SmoothTransformation)
-        # else:
-        #     qimage = qimage.scaled(img_width, img_height,
-        #                            Qt.KeepAspectRatio,
-        #                            Qt.SmoothTransformation)
+        if svg_rect is None:
+            return
 
-        # with painter_save(painter):
-        #     try:
-        #         scale_x = rect.width() / svg_size.width()
-        #     except ZeroDivisionError:
-        #         scale_x = 1
-        #     try:
-        #         scale_y = rect.height() / svg_size.height()
-        #     except ZeroDivisionError:
-        #         scale_y = 1
-        #     painter.translate(rect.x(), rect.y())
-        #     painter.scale(scale_x, scale_y)
-
+        svg.render(painter, svg_rect)
 
     def _render_matplotlib(self, painter: QPainter, rect: QRectF,
                            index: QModelIndex):
