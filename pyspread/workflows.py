@@ -1669,8 +1669,9 @@ class Workflows:
         sort_data = data[:, grid.current[1]]
 
         try:
-            indices = list(zip(*sorted((e, i)
-                                       for i, e in enumerate(sort_data))))[1]
+            pair_gen = ((i, ele) for i, ele in enumerate(sort_data))
+            sorted_pairs = sorted(pair_gen, key=lambda x: (x[1] is None, x[1]))
+            indices = list(zip(*sorted_pairs))[0]
         except TypeError as err:
             msg = "Could not sort selection: {}".format(err)
             self.main_window.statusBar().showMessage(msg)
