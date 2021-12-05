@@ -33,7 +33,6 @@ from itertools import cycle
 import io
 import os.path
 from pathlib import Path
-import numpy
 from shutil import move
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
@@ -1657,13 +1656,21 @@ class Workflows:
 
         bbox = grid.selection.get_bbox()
         (top, left), (bottom, right) = bbox
+        if top == bottom:
+            return
 
         data = grid.model.code_array[top:bottom+1, left:right+1, table]
+        old_code = {}
+        for row in range(top, bottom+1):
+            for column in range(left, right+1):
+                key = row, column, table
+                old_code[key] = grid.model.code_array(key)
 
         sort_data = data[:, grid.current[1]]
 
         try:
-            indices = numpy.argsort(numpy.argsort(sort_data))
+            indices = list(zip(*sorted((e, i)
+                                       for i, e in enumerate(sort_data))))[1]
         except TypeError as err:
             msg = "Could not sort selection: {}".format(err)
             self.main_window.statusBar().showMessage(msg)
@@ -1676,13 +1683,15 @@ class Workflows:
 
         command = None
         cell_gen = grid.selection.cell_generator(grid.model.shape, table=table)
-        for i, (row, column, __table) in enumerate(cell_gen):
-            index = model.index(indices[row], column)
-            code = grid.model.code_array((row, column, table))
+        for i, (row, column, _) in enumerate(cell_gen):
+            index = model.index(row, column)
+            code = old_code[(indices[row], column, table)]
+
             if ascending:
                 description = "Sort {} ascending".format(grid.selection)
             else:
                 description = "Sort {} descending".format(grid.selection)
+
             _command = commands.SetCellCode(code, model, index, description)
             if command is None:
                 command = _command

@@ -336,7 +336,7 @@ class Selection(object):
                 bb_left = left
             if bb_bottom is None or bb_bottom < bottom:
                 bb_bottom = bottom
-            if bb_right is None or bb_right > right:
+            if bb_right is None or bb_right < right:
                 bb_right = right
 
         # Row and column selections
