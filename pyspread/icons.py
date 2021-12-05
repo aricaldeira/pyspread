@@ -75,6 +75,8 @@ class IconPath:
     find = ACTION_PATH / 'edit-find.svg'
     find_next = ACTION_PATH / 'edit-find-next.svg'
     replace = ACTION_PATH / 'edit-find-replace.svg'
+    sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
+    sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
     quote = ACTION_PATH / 'edit-quote.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
     sort_descending = ACTION_PATH / 'edit-sort-descending.svg'

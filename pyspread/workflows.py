@@ -33,6 +33,7 @@ from itertools import cycle
 import io
 import os.path
 from pathlib import Path
+import numpy
 from shutil import move
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
@@ -1643,6 +1644,63 @@ class Workflows:
         msg_tpl = "{} replaced by {} in {} cells."
         msg = msg_tpl.format(find_string, replace_string, len(replaced))
         self.main_window.statusBar().showMessage(msg)
+
+    def _sort(self, ascending: bool = True):
+        """Edit -> Sort ascending
+
+        :param ascending: True for ascending sort, False for descending sort
+
+        """
+
+        grid = self.main_window.grid
+        table = grid.current[2]
+
+        bbox = grid.selection.get_bbox()
+        (top, left), (bottom, right) = bbox
+
+        data = grid.model.code_array[top:bottom+1, left:right+1, table]
+
+        sort_data = data[:, grid.current[1]]
+
+        try:
+            indices = numpy.argsort(numpy.argsort(sort_data))
+        except TypeError as err:
+            msg = "Could not sort selection: {}".format(err)
+            self.main_window.statusBar().showMessage(msg)
+            return
+
+        if not ascending:
+            indices = indices[::-1]
+
+        model = self.main_window.focused_grid.model
+
+        command = None
+        cell_gen = grid.selection.cell_generator(grid.model.shape, table=table)
+        for i, (row, column, __table) in enumerate(cell_gen):
+            index = model.index(indices[row], column)
+            code = grid.model.code_array((row, column, table))
+            if ascending:
+                description = "Sort {} ascending".format(grid.selection)
+            else:
+                description = "Sort {} descending".format(grid.selection)
+            _command = commands.SetCellCode(code, model, index, description)
+            if command is None:
+                command = _command
+            else:
+                command.mergeWith(_command)
+        self.main_window.undo_stack.push(command)
+        msg = "{} cells sorted.".format(i+1)
+        self.main_window.statusBar().showMessage(msg)
+
+    def edit_sort_ascending(self):
+        """Edit -> Sort ascending"""
+
+        self._sort()
+
+    def edit_sort_descending(self):
+        """Edit -> Sort descending"""
+
+        self._sort(ascending=False)
 
     def edit_resize(self):
         """Edit -> Resize workflow"""

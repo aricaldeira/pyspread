@@ -255,6 +255,20 @@ class MainWindowActions(AttrDict):
             shortcut='Shift+Ctrl+f' if self.shortcuts else "",
             statustip='Replace sub-strings in cells')
 
+        self.sort_ascending = Action(
+            self.parent, "Sort ascending",
+            self.parent.workflows.edit_sort_ascending,
+            icon=Icon.sort_ascending,
+            statustip='Sort selected cells. The sort order is ascending and '
+                      'follows the current column.')
+
+        self.sort_descending = Action(
+            self.parent, "Sort descending",
+            self.parent.workflows.edit_sort_descending,
+            icon=Icon.sort_descending,
+            statustip='Sort selected cells. The sort order is descending and '
+                      'follows the current column.')
+
         self.toggle_selection_mode = Action(
             self.parent, "Selection mode",
             self.parent.grid.set_selection_mode,

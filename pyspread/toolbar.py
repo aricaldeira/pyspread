@@ -155,6 +155,11 @@ class MainToolBar(ToolBarBase):
 
         self.addSeparator()
 
+        self.addAction(actions.sort_ascending)
+        self.addAction(actions.sort_descending)
+
+        self.addSeparator()
+
         self.addAction(actions.toggle_spell_checker)
 
         self.addWidget(self.get_manager_button())
