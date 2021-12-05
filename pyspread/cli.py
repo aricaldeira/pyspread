@@ -92,18 +92,13 @@ class PyspreadArgumentParser(ArgumentParser):
                       "based on and written in the programming language " \
                       "Python."
 
-        # Override usage because of the PathAction fix for paths with spaces
-        usage_tpl = "{} [-h] [--version] [--default-settings] [file]"
-        usage = usage_tpl.format(APP_NAME)
-
-        super().__init__(prog=APP_NAME, description=description, usage=usage)
+        super().__init__(prog=APP_NAME, description=description)
 
         self.add_argument('--version', action='version', version=VERSION)
 
-        default_settings_help = 'start with default settings and save on exit'
-
         self.add_argument('--default-settings', action='store_true',
-                          help=default_settings_help)
+                          help='start with default settings and save them on '
+                               'exit')
 
-        self.add_argument('file', type=Path, nargs='?', default=Path(),
+        self.add_argument('file', type=Path, nargs='?', default=None,
                           help='open pyspread file in pys or pysu format')

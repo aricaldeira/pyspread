@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
         self._previous_window_state = self.windowState()
 
         # Open initial file if provided by the command line
-        if filepath != Path():
+        if filepath is not None:
             if self.workflows.filepath_open(filepath):
                 self.workflows.update_main_window_title()
             else:
@@ -255,6 +255,7 @@ class MainWindow(QMainWindow):
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 
+        self.central_layout = QVBoxLayout(self.main_panel)
         self._layout()
 
         self.entry_line_dock.installEventFilter(self)
@@ -278,7 +279,6 @@ class MainWindow(QMainWindow):
     def _layout(self):
         """Layouts for main window"""
 
-        self.central_layout = QVBoxLayout(self.main_panel)
         self.central_layout.addWidget(self.vsplitter)
         self.central_layout.addWidget(self.grid.table_choice)
 
@@ -814,7 +814,7 @@ def main():
     sys.excepthook = excepthook
 
     parser = PyspreadArgumentParser()
-    args, unknown = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
 
     app = QApplication(sys.argv)
     main_window = MainWindow(args.file, default_settings=args.default_settings)
