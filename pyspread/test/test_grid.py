@@ -35,7 +35,7 @@ import pytest
 
 from PyQt5.QtCore import QItemSelectionModel, QItemSelection
 from PyQt5.QtWidgets import QApplication, QAbstractItemView
-from PyQt5.QtGui import QFont, QColor, QFontDatabase, QFontInfo
+from PyQt5.QtGui import QFont, QColor
 
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))

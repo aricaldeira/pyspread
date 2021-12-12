@@ -1455,7 +1455,7 @@ class CodeArray(DataArray):
                      '__file__', 'sys', '__name__', 'QImage', 'defaultdict',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
-                     'signal', 'Any', 'Dict', 'Iterable', 'List',
+                     'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
                      'NamedTuple', 'Sequence', 'Tuple', 'Union']
 
         for key in list(globals().keys()):
