@@ -53,6 +53,8 @@ import bz2
 from collections import defaultdict
 from copy import copy
 import datetime
+import decimal
+from decimal import Decimal  # Needed
 from importlib import reload
 from inspect import isgenerator
 import io
@@ -65,7 +67,7 @@ from typing import (
         Any, Dict, Iterable, List, NamedTuple, Sequence, Tuple, Union)
 
 import numpy
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap  # Needed
 try:
     from matplotlib.figure import Figure
 except ImportError:
@@ -81,7 +83,7 @@ try:
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
-    import lib.charts as charts
+    import lib.charts as charts  # Needed
     from lib.exception_handling import get_user_codeframe
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
@@ -694,7 +696,7 @@ class DataArray:
                 merging_cell = \
                     self.cell_attributes.get_merging_cell(single_key)
                 if ((merging_cell is None or merging_cell == single_key) and
-                    isinstance(value, str)):
+                        isinstance(value, str)):
                     self.dict_grid[single_key] = value
             else:
                 # Value is empty --> delete cell
@@ -1436,7 +1438,7 @@ class CodeArray(DataArray):
     def reload_modules(self):
         """Reloads modules that are available in cells"""
 
-        modules = [bz2, base64, re, ast, sys, numpy, datetime]
+        modules = [bz2, base64, re, ast, sys, numpy, datetime, decimal]
 
         for module in modules:
             reload(module)
@@ -1452,9 +1454,9 @@ class CodeArray(DataArray):
                      'DefaultCellAttributeDict', 'ast', '__builtins__',
                      '__file__', 'sys', '__name__', 'QImage', 'defaultdict',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
-                     'numpy', 'CodeArray', 'DataArray', 'datetime', 'signal',
-                     'Any', 'Dict', 'Iterable', 'List', 'NamedTuple',
-                     'Sequence', 'Tuple', 'Union']
+                     'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
+                     'signal', 'Any', 'Dict', 'Iterable', 'List',
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union']
 
         for key in list(globals().keys()):
             if key not in base_keys:

@@ -1697,7 +1697,6 @@ class ManualDialog(TutorialDialog):
         layout.addWidget(self.tabbar)
 
 
-
 class PrintPreviewDialog(QPrintPreviewDialog):
     """Adds Mouse wheel functionality"""
 

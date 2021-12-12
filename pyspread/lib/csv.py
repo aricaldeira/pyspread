@@ -37,6 +37,7 @@
 
 import ast
 import csv
+from decimal import Decimal
 from pathlib import Path
 from typing import TextIO, Iterable, List
 
@@ -158,11 +159,12 @@ def make_object(obj):
 typehandlers = {
     'object': ast.literal_eval,
     'repr': lambda x: x,
-    'bool': bool,
+    'str': str,
     'int': int,
     'float': float,
+    'decimal': Decimal,
     'complex': complex,
-    'str': str,
+    'bool': bool,
     'bytes': bytes,
 }
 
