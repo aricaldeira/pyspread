@@ -1587,8 +1587,8 @@ class GridHeaderView(QHeaderView):
         """
 
         unzoomed_rect = QRect(0, 0,
-                              rect.width()//self.grid.zoom,
-                              rect.height()//self.grid.zoom)
+                              int(rect.width()//self.grid.zoom),
+                              int(rect.height()//self.grid.zoom))
         with painter_save(painter):
             painter.translate(rect.x(), rect.y())
             painter.scale(self.grid.zoom, self.grid.zoom)
@@ -2290,7 +2290,8 @@ class GridCellDelegate(QStyledItemDelegate):
             else:  # Adjust for HiDpi
                 img_width *= 3
                 img_height *= 3
-            qimage = QImageSvg(img_width, img_height, QImage.Format_ARGB32)
+            qimage = QImageSvg(int(img_width), int(img_height),
+                               QImage.Format_ARGB32)
             qimage.from_svg_bytes(svg_bytes)
 
         img_rect = self._get_aligned_image_rect(rect, index,
@@ -2302,11 +2303,11 @@ class GridCellDelegate(QStyledItemDelegate):
         justification = self.cell_attributes[key].justification
 
         if justification == "justify_fill":
-            qimage = qimage.scaled(img_width, img_height,
+            qimage = qimage.scaled(int(img_width), int(img_height),
                                    Qt.IgnoreAspectRatio,
                                    Qt.SmoothTransformation)
         else:
-            qimage = qimage.scaled(img_width, img_height,
+            qimage = qimage.scaled(int(img_width), int(img_height),
                                    Qt.KeepAspectRatio,
                                    Qt.SmoothTransformation)
 
