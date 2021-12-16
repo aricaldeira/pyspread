@@ -1436,7 +1436,7 @@ class CodeArray(DataArray):
     def reload_modules(self):
         """Reloads modules that are available in cells"""
 
-        modules = [bz2, base64, re, ast, sys, numpy, datetime]
+        modules = [bz2, base64, re, ast, sys, datetime]
 
         for module in modules:
             reload(module)
