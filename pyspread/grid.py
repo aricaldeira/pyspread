@@ -1587,8 +1587,8 @@ class GridHeaderView(QHeaderView):
         """
 
         unzoomed_rect = QRect(0, 0,
-                              rect.width()//self.grid.zoom,
-                              rect.height()//self.grid.zoom)
+                              int(rect.width()//self.grid.zoom),
+                              int(rect.height()//self.grid.zoom))
         with painter_save(painter):
             painter.translate(rect.x(), rect.y())
             painter.scale(self.grid.zoom, self.grid.zoom)
@@ -2392,6 +2392,11 @@ class GridCellDelegate(QStyledItemDelegate):
         :param index: Index of cell for which borders are drawn
 
         """
+
+        painter.setRenderHints(QPainter.LosslessImageRendering
+                               | QPainter.Antialiasing
+                               | QPainter.TextAntialiasing
+                               | QPainter.SmoothPixmapTransform)
 
         key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key].renderer

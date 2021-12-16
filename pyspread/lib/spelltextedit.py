@@ -118,7 +118,7 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 
 # pylint: disable=no-name-in-module
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import QEvent, QRegExp, QSize, QRect
+from PyQt5.QtCore import QEvent, QRegExp, QSize, QRect, QRectF
 from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
                          QTextCharFormat, QTextCursor, QColor, QFont,
                          QFontMetricsF, QPainter, QPalette)
@@ -197,8 +197,8 @@ class LineNumberArea(QWidget):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
                 painter.setPen(text_color)
-                painter.drawText(0, top, self.width(), height, Qt.AlignRight,
-                                 number)
+                text_rect = QRectF(0, top, self.width(), height)
+                painter.drawText(text_rect, Qt.AlignRight, number)
 
             block = block.next()
             top = bottom
