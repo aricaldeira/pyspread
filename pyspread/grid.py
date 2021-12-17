@@ -2263,11 +2263,11 @@ class GridCellDelegate(QStyledItemDelegate):
         justification = self.cell_attributes[key].justification
 
         if justification == "justify_fill":
-            qimage = qimage.scaled(img_width, img_height,
+            qimage = qimage.scaled(int(img_width), int(img_height),
                                    Qt.IgnoreAspectRatio,
                                    Qt.SmoothTransformation)
         else:
-            qimage = qimage.scaled(img_width, img_height,
+            qimage = qimage.scaled(int(img_width), int(img_height),
                                    Qt.KeepAspectRatio,
                                    Qt.SmoothTransformation)
 

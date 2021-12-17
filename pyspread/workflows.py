@@ -991,7 +991,8 @@ class Workflows:
                     if visual_rect.y() - y_offset < 0:
                         height += visual_rect.y() - y_offset
 
-                    option.rect = QRect(x, y, width, height)
+                    option.rect = QRect(int(x), int(y),
+                                        int(width), int(height))
                     option.rectf = QRectF(x, y, width, height)
 
                     max_width = max(max_width, x + width)

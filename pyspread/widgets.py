@@ -319,8 +319,8 @@ class ColorButton(QToolButton):
         dlg.setOptions(QColorDialog.DontUseNativeDialog)
 
         pos = self.mapFromGlobal(QCursor.pos())
-        pos.setX(pos.x() + (self.rect().width() / 2))
-        pos.setY(pos.y() + (self.rect().height() / 2))
+        pos.setX(pos.x() + int(self.rect().width() / 2))
+        pos.setY(pos.y() + int(self.rect().height() / 2))
         dlg.move(self.mapToGlobal(pos))
 
         if dlg.exec_():
