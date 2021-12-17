@@ -1062,7 +1062,10 @@ class Workflows:
             data.append([])
             for column in range(left, right + 1):
                 if (row, column) in selection:
-                    code = grid.model.code_array((row, column, table))
+                    try:
+                        code = grid.model.code_array((row, column, table))
+                    except IndexError:
+                        code = None
                     if code is None:
                         code = ""
                     code = code.replace("\n", "\u000C")  # Replace LF by FF
