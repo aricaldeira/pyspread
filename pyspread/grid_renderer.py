@@ -264,7 +264,7 @@ class CellEdgeRenderer:
     """Paints cell edges"""
 
     def __init__(self, painter: QPainter, center: QPointF,
-                 borders: EdgeBorders, clip_path: QPainterPath):
+                 borders: EdgeBorders, clip_path: QPainterPath, zoom: float):
         """
 
         Borders are provided by EdgeBorders in order: left, right, top, bottom
@@ -273,11 +273,13 @@ class CellEdgeRenderer:
         :param center: Edge center
         :param borders: Border widths and colors
         :param clip_path: Clip rectangle that is requuired for QtSVG clipping
+        :param zoom: Current zoom level
 
         """
 
         self.painter = painter
         self.clip_path = clip_path
+        self.zoom = zoom
 
         lines = [((center.x(), center.y()), (borders.left_x, center.y())),
                  ((center.x(), center.y()), (borders.right_x, center.y())),
@@ -291,17 +293,24 @@ class CellEdgeRenderer:
         """Paints the edge"""
 
         for width, color, line in self.edge_data:
+            if not width:
+                continue
+
             point1, point2 = line
             line_polygon = QPolygonF([QPointF(*point1), QPointF(*point2)])
             line_path = QPainterPath()
             line_path.addPolygon(line_polygon)
 
-            pen = QPen(QColor(255, 255, 255, 0), width, Qt.SolidLine,
-                       Qt.SquareCap, Qt.MiterJoin)
+            pen = QPen(QColor(255, 255, 255, 0), width,
+                       Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
             stroker = QPainterPathStroker(pen)
             stroked_path = stroker.createStroke(line_path)
 
-            self.painter.setPen(QPen(QColor(255, 255, 255, 0)))
+            alpha = max(0, round(255 - 255 * width * self.zoom))
+
+            # print(f"w: {width}, z: {self.zoom}, a: {alpha}")
+
+            self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
             self.painter.setBrush(QBrush(color))
             self.painter.drawPath(self.clip_path.intersected(stroked_path))
 
@@ -400,6 +409,19 @@ class CellRenderer:
             self.grid.delegate.paint_(self.painter, zrect, self.option,
                                       self.index)
 
+    def _get_border_pen(self, width, zoom):
+        """Gets zoomed border pen
+
+        :param width: Unzoomed line width
+        :param zoom: Current zoom level of grid
+
+        """
+
+        zoomed_width = max(1, width * zoom)
+
+        return QPen(QColor(255, 255, 255, 0), zoomed_width,
+                    Qt.SolidLine, Qt.SquareCap)
+
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
 
@@ -412,7 +434,6 @@ class CellRenderer:
             return
 
         line_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
-        line_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
 
         point1 = QPointF(rect.x(), rect.y() + rect.height())
         point2 = QPointF(rect.x() + rect.width(), rect.y() + rect.height())
@@ -420,12 +441,15 @@ class CellRenderer:
         line_path = QPainterPath()
         line_path.addPolygon(line_polygon)
 
-        pen = QPen(QColor(255, 255, 255, 0), line_width, Qt.SolidLine,
-                   Qt.SquareCap, Qt.MiterJoin)
+        pen = self._get_border_pen(self.cell_nav.borderwidth_bottom,
+                                   self.grid.zoom)
         stroker = QPainterPathStroker(pen)
         stroked_path = stroker.createStroke(line_path)
 
-        self.painter.setPen(QPen(QColor(255, 255, 255, 0)))
+        alpha = max(0, round(255 - 255 * self.cell_nav.borderwidth_bottom *
+                             self.grid.zoom))
+
+        self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
         self.painter.setBrush(QBrush(line_color))
         self.painter.drawPath(clip_path.intersected(stroked_path))
 
@@ -441,7 +465,6 @@ class CellRenderer:
             return
 
         line_color = self.qcolor_cache[self.cell_nav.border_color_right]
-        line_width = self.cell_nav.borderwidth_right * self.grid.zoom
 
         point1 = QPointF(rect.x() + rect.width(), rect.y())
         point2 = QPointF(rect.x() + rect.width(), rect.y() + rect.height())
@@ -449,12 +472,15 @@ class CellRenderer:
         line_path = QPainterPath()
         line_path.addPolygon(line_polygon)
 
-        pen = QPen(QColor(255, 255, 255, 0), line_width, Qt.SolidLine,
-                   Qt.SquareCap, Qt.MiterJoin)
+        pen = self._get_border_pen(self.cell_nav.borderwidth_right,
+                                   self.grid.zoom)
         stroker = QPainterPathStroker(pen)
         stroked_path = stroker.createStroke(line_path)
 
-        self.painter.setPen(QPen(QColor(255, 255, 255, 0)))
+        alpha = max(0, round(255 - 255 * self.cell_nav.borderwidth_bottom *
+                             self.grid.zoom))
+
+        self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
         self.painter.setBrush(QBrush(line_color))
         self.painter.drawPath(clip_path.intersected(stroked_path))
 
@@ -468,6 +494,9 @@ class CellRenderer:
 
         for above_key in self.cell_nav.above_keys():
             above_cell_nav = GridCellNavigator(self.grid, above_key)
+            if not above_cell_nav.borderwidth_bottom:
+                continue
+
             merge_area = above_cell_nav.merge_area
             if merge_area is None:
                 columns = [above_key[1]]
@@ -479,7 +508,6 @@ class CellRenderer:
                                    for column in columns)
 
             line_color = self.qcolor_cache[above_cell_nav.border_color_bottom]
-            line_width = above_cell_nav.borderwidth_bottom * self.grid.zoom
 
             point1 = QPointF(above_rect_x, rect.y())
             point2 = QPointF(above_rect_x + above_rect_width, rect.y())
@@ -487,12 +515,16 @@ class CellRenderer:
             line_path = QPainterPath()
             line_path.addPolygon(line_polygon)
 
-            pen = QPen(QColor(255, 255, 255, 0), line_width, Qt.SolidLine,
-                       Qt.SquareCap, Qt.MiterJoin)
+            pen = self._get_border_pen(above_cell_nav.borderwidth_bottom,
+                                       self.grid.zoom)
             stroker = QPainterPathStroker(pen)
             stroked_path = stroker.createStroke(line_path)
 
-            self.painter.setPen(QPen(QColor(255, 255, 255, 0)))
+            alpha = max(0, round(255 - 255 *
+                                 above_cell_nav.borderwidth_bottom *
+                                 self.grid.zoom))
+
+            self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
             self.painter.setBrush(QBrush(line_color))
             self.painter.drawPath(clip_path.intersected(stroked_path))
 
@@ -506,6 +538,9 @@ class CellRenderer:
 
         for left_key in self.cell_nav.left_keys():
             left_cell_nav = GridCellNavigator(self.grid, left_key)
+            if not left_cell_nav.borderwidth_right:
+                continue
+
             merge_area = left_cell_nav.merge_area
             if merge_area is None:
                 rows = [left_key[0]]
@@ -516,7 +551,6 @@ class CellRenderer:
             left_rect_height = sum(self.grid.rowHeight(row) for row in rows)
 
             line_color = self.qcolor_cache[left_cell_nav.border_color_right]
-            line_width = left_cell_nav.borderwidth_right * self.grid.zoom
 
             point1 = QPointF(rect.x(), left_rect_y)
             point2 = QPointF(rect.x(), left_rect_y + left_rect_height)
@@ -524,12 +558,16 @@ class CellRenderer:
             line_path = QPainterPath()
             line_path.addPolygon(line_polygon)
 
-            pen = QPen(QColor(255, 255, 255, 0), line_width, Qt.SolidLine,
-                       Qt.SquareCap, Qt.MiterJoin)
+            pen = self._get_border_pen(left_cell_nav.borderwidth_right,
+                                       self.grid.zoom)
             stroker = QPainterPathStroker(pen)
             stroked_path = stroker.createStroke(line_path)
 
-            self.painter.setPen(QPen(QColor(255, 255, 255, 0)))
+            alpha = max(0, round(255 - 255 *
+                                 left_cell_nav.borderwidth_right *
+                                 self.grid.zoom))
+
+            self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
             self.painter.setBrush(QBrush(line_color))
             self.painter.drawPath(clip_path.intersected(stroked_path))
 
@@ -557,10 +595,10 @@ class CellRenderer:
         left_cell_nav = GridCellNavigator(self.grid, left_key)
         top_cell_nav = GridCellNavigator(self.grid, top_key)
 
-        left_width = top_left_cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = top_cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = top_left_cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = left_cell_nav.borderwidth_right * self.grid.zoom
+        left_width = top_left_cell_nav.borderwidth_bottom
+        right_width = top_cell_nav.borderwidth_bottom
+        top_width = top_left_cell_nav.borderwidth_right
+        bottom_width = left_cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[top_left_cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[top_cell_nav.border_color_bottom]
@@ -576,7 +614,8 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
     def paint_top_right_edge(self, rect: QRectF, clip_path: QPainterPath):
@@ -601,10 +640,10 @@ class CellRenderer:
         top_cell_nav = GridCellNavigator(self.grid, top_key)
         top_right_cell_nav = GridCellNavigator(self.grid, top_right_key)
 
-        left_width = top_cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = top_right_cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = top_cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = self.cell_nav.borderwidth_right * self.grid.zoom
+        left_width = top_cell_nav.borderwidth_bottom
+        right_width = top_right_cell_nav.borderwidth_bottom
+        top_width = top_cell_nav.borderwidth_right
+        bottom_width = self.cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[top_cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[top_right_cell_nav.border_color_bottom]
@@ -620,7 +659,8 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
     def paint_bottom_left_edge(self, rect: QRectF, clip_path: QPainterPath):
@@ -645,10 +685,10 @@ class CellRenderer:
         left_cell_nav = GridCellNavigator(self.grid, left_key)
         bottom_left_cell_nav = GridCellNavigator(self.grid, bottom_left_key)
 
-        left_width = left_cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = left_cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = bottom_left_cell_nav.borderwidth_right * self.grid.zoom
+        left_width = left_cell_nav.borderwidth_bottom
+        right_width = self.cell_nav.borderwidth_bottom
+        top_width = left_cell_nav.borderwidth_right
+        bottom_width = bottom_left_cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[left_cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
@@ -665,7 +705,8 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
     def paint_bottom_right_edge(self, rect: QRectF, clip_path: QPainterPath):
@@ -690,10 +731,10 @@ class CellRenderer:
         right_cell_nav = GridCellNavigator(self.grid, right_key)
         bottom_cell_nav = GridCellNavigator(self.grid, bottom_key)
 
-        left_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = right_cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = self.cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = bottom_cell_nav.borderwidth_right * self.grid.zoom
+        left_width = self.cell_nav.borderwidth_bottom
+        right_width = right_cell_nav.borderwidth_bottom
+        top_width = self.cell_nav.borderwidth_right
+        bottom_width = bottom_cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[right_cell_nav.border_color_bottom]
@@ -709,7 +750,8 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
     def paint_borders(self, rect):
