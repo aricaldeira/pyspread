@@ -301,16 +301,15 @@ class CellEdgeRenderer:
             line_path = QPainterPath()
             line_path.addPolygon(line_polygon)
 
-            pen = QPen(QColor(255, 255, 255, 0), width,
+            pen = QPen(QColor(255, 255, 255, 0), width * self.zoom,
                        Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
             stroker = QPainterPathStroker(pen)
             stroked_path = stroker.createStroke(line_path)
 
             alpha = max(0, round(255 - 255 * width * self.zoom))
 
-            # print(f"w: {width}, z: {self.zoom}, a: {alpha}")
-
-            self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
+            self.painter.setPen(QPen(QColor(255, 255, 255, alpha),
+                                     width * self.zoom))
             self.painter.setBrush(QBrush(color))
             self.painter.drawPath(self.clip_path.intersected(stroked_path))
 
@@ -420,7 +419,7 @@ class CellRenderer:
         zoomed_width = max(1, width * zoom)
 
         return QPen(QColor(255, 255, 255, 0), zoomed_width,
-                    Qt.SolidLine, Qt.SquareCap)
+                    Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
 
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
