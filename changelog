@@ -5,7 +5,7 @@ Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
 
-2.0.1
+2.0.2
 -----
 
 This is a bugfix release for pyspread 2.0 for Python 3.10 compatibility.

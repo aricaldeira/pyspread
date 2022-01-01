@@ -228,7 +228,7 @@ class GridCellNavigator:
 
 @dataclass
 class EdgeBorders:
-    """Holds border data for an edge"""
+    """Holds border data for an edge and provides effective edge properties"""
 
     left_width: float
     right_width: float
@@ -246,18 +246,43 @@ class EdgeBorders:
     bottom_y: float
 
     @property
-    def widths(self) -> Tuple[float, float, float, float]:
+    def _border_widths(self) -> Tuple[float, float, float, float]:
         """Tuple of border widths in order left, right, top, bottom"""
 
         return (self.left_width, self.right_width,
                 self.top_width, self.bottom_width)
 
     @property
-    def colors(self) -> Tuple[QColor, QColor, QColor, QColor]:
+    def _border_colors(self) -> Tuple[QColor, QColor, QColor, QColor]:
         """Tuple of border colors in order left, right, top, bottom"""
 
         return (self.left_color, self.right_color,
                 self.top_color, self.bottom_color)
+
+    @property
+    def width(self) -> float:
+        """Edge width, i.e. thickest vertical border"""
+
+        return max(self.top_width, self.bottom_width)
+
+    @property
+    def height(self) -> float:
+        """Edge height, i.e. thickest horizontal border"""
+
+        return max(self.left_width, self.right_width)
+
+    @property
+    def color(self) -> QColor:
+        """Edge color, i.e. darkest color of thickest edge border"""
+
+        max_border_width = max(self.width, self.height)
+        colors = []
+        for width, color in zip(self._border_widths, self._border_colors):
+            if width == max_border_width:
+                colors.append(color)
+        colors.sort(key=lambda color: color.lightnessF())
+
+        return colors[0]
 
 
 class CellEdgeRenderer:
@@ -278,40 +303,30 @@ class CellEdgeRenderer:
         """
 
         self.painter = painter
+        self.center = center
+        self.borders = borders
         self.clip_path = clip_path
         self.zoom = zoom
-
-        lines = [((center.x(), center.y()), (borders.left_x, center.y())),
-                 ((center.x(), center.y()), (borders.right_x, center.y())),
-                 ((center.x(), center.y()), (center.x(), borders.top_y)),
-                 ((center.x(), center.y()), (center.x(), borders.bottom_y))]
-
-        self.edge_data = list(zip(borders.widths, borders.colors, lines))
-        self.edge_data.sort(key=lambda edge: (-edge[1].lightnessF(), edge[0]))
 
     def paint(self):
         """Paints the edge"""
 
-        for width, color, line in self.edge_data:
-            if not width:
-                continue
+        if not self.borders.width or not self.borders.height:
+            return  # Invisible edge
 
-            point1, point2 = line
-            line_polygon = QPolygonF([QPointF(*point1), QPointF(*point2)])
-            line_path = QPainterPath()
-            line_path.addPolygon(line_polygon)
+        x, y = self.center.x(), self.center.y()
+        width = self.borders.width * self.zoom
+        height = self.borders.height * self.zoom
 
-            pen = QPen(QColor(255, 255, 255, 0), width * self.zoom,
-                       Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
-            stroker = QPainterPathStroker(pen)
-            stroked_path = stroker.createStroke(line_path)
+        rect = QRectF(x-width/2, y-height/2, width, height)
 
-            alpha = max(0, round(255 - 255 * width * self.zoom))
+        color = self.borders.color
 
-            self.painter.setPen(QPen(QColor(255, 255, 255, alpha),
-                                     width * self.zoom))
-            self.painter.setBrush(QBrush(color))
-            self.painter.drawPath(self.clip_path.intersected(stroked_path))
+        self.painter.setPen(QPen(Qt.NoPen))
+        self.painter.setBrush(QBrush(color))
+
+        self.painter.drawRect(rect)
+        self.painter.setPen(QPen(Qt.SolidLine))
 
 
 class QColorCache(dict):
@@ -419,7 +434,7 @@ class CellRenderer:
         zoomed_width = max(1, width * zoom)
 
         return QPen(QColor(255, 255, 255, 0), zoomed_width,
-                    Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
+                    Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
 
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
@@ -759,6 +774,8 @@ class CellRenderer:
         clip_path = QPainterPath()  # Required for clipping in SVG export
         clip_path.addRect(rect)
 
+        self.painter.save()
+
         self.paint_bottom_border(rect, clip_path)
         self.paint_right_border(rect, clip_path)
         self.paint_above_borders(rect, clip_path)
@@ -768,6 +785,8 @@ class CellRenderer:
         self.paint_top_right_edge(rect, clip_path)
         self.paint_bottom_left_edge(rect, clip_path)
         self.paint_bottom_right_edge(rect, clip_path)
+
+        self.painter.restore()
 
     def paint(self):
         """Paints the cell"""
