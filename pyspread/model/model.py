@@ -1485,7 +1485,8 @@ class CodeArray(DataArray):
         self.macros = self.macros.replace('\r\n', '\n')
 
         # Set up environment for evaluation
-        globals().update(self._get_updated_environment())
+        env_dict = {'X': None, 'Y': None, 'Z': None}
+        globals().update(self._get_updated_environment(env_dict=env_dict))
 
         # Create file-like string to capture output
         code_out = io.StringIO()
