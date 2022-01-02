@@ -67,11 +67,18 @@ from typing import (
         Any, Dict, Iterable, List, NamedTuple, Sequence, Tuple, Union)
 
 import numpy
+
 from PyQt5.QtGui import QImage, QPixmap  # Needed
+
 try:
     from matplotlib.figure import Figure
 except ImportError:
     Figure = None
+
+try:
+    from moneyed import Money
+except ImportError:
+    Money = None
 
 try:
     from pyspread.settings import Settings
@@ -1457,6 +1464,14 @@ class CodeArray(DataArray):
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
                      'NamedTuple', 'Sequence', 'Tuple', 'Union']
+
+        try:
+            from moneyed import Money
+        except ImportError:
+            Money = None
+
+        if Money is not None:
+            base_keys.append('Money')
 
         for key in list(globals().keys()):
             if key not in base_keys:

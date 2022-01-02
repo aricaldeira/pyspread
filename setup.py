@@ -68,6 +68,7 @@ setup(
         'pyenchant': ['pyenchant (>=1.1)'],
         'pip': ['pip (>=18)'],
         'python-dateutil': ['python-dateutil (>=2.7.0)'],
+        'py-moneyed': ['py-moneyed (>=2.0)'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
