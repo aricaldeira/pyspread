@@ -184,6 +184,8 @@ if Money is not None:
     typehandlers.update({'Money': money})
 
     currencies = list_all_currencies()
+else:
+    currencies = []
 
 
 if parse is not None:
