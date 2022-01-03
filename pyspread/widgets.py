@@ -60,12 +60,10 @@ from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
 try:
     from pyspread.actions import Action
     from pyspread.icons import Icon
-    from pyspread.settings import WEB_URL
     from pyspread.lib.csv import typehandlers, currencies
 except ImportError:
     from actions import Action
     from icons import Icon
-    from settings import WEB_URL
     from lib.csv import typehandlers, currencies
 
 
@@ -91,6 +89,8 @@ class MultiStateBitmapButton(QToolButton):
 
     @property
     def current_action_idx(self) -> int:
+        """Index of current action"""
+
         return self._current_action_idx
 
     @current_action_idx.setter
@@ -500,7 +500,7 @@ class FontChoiceCombo(QFontComboBox):
 
         """
 
-        super().__init__()
+        super().__init__(main_window)
 
         self.setMaximumWidth(150)
 
@@ -528,7 +528,7 @@ class FontChoiceCombo(QFontComboBox):
 
         return Icon.font_dialog
 
-    def on_font(self, font: QFont):
+    def on_font(self):
         """Font choice event handler"""
 
         self.fontChanged.emit()
@@ -564,6 +564,8 @@ class FontSizeCombo(QComboBox):
 
     @property
     def size(self) -> int:
+        """Size of current text"""
+
         return int(self.currentText())
 
     @size.setter
@@ -583,7 +585,7 @@ class FontSizeCombo(QComboBox):
 
         return Icon.font_dialog
 
-    def on_text(self, size: int):
+    def on_text(self):
         """Font size choice event handler"""
 
         try:

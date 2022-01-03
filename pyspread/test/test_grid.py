@@ -588,9 +588,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_text_renderer_pressed(True)
+        self.grid.on_text_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
-        self.grid.on_text_renderer_pressed(True)
+        self.grid.on_text_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
 
         self.grid.clearSelection()
@@ -600,9 +600,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_image_renderer_pressed(True)
+        self.grid.on_image_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "image"
-        self.grid.on_text_renderer_pressed(True)
+        self.grid.on_text_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
 
         self.grid.clearSelection()
@@ -612,9 +612,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_markup_renderer_pressed(True)
+        self.grid.on_markup_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "markup"
-        self.grid.on_text_renderer_pressed(True)
+        self.grid.on_text_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
 
         self.grid.clearSelection()
@@ -624,9 +624,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_matplotlib_renderer_pressed(True)
+        self.grid.on_matplotlib_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "matplotlib"
-        self.grid.on_text_renderer_pressed(True)
+        self.grid.on_text_renderer_pressed()
         assert self.cell_attributes[(2, 0, 0)]["renderer"] == "text"
 
         self.grid.clearSelection()

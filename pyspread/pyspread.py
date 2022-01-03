@@ -159,7 +159,7 @@ class MainWindow(QMainWindow):
             if self.workflows.filepath_open(filepath):
                 self.workflows.update_main_window_title()
             else:
-                msg = "File '{}' could not be opened.".format(filepath)
+                msg = f"File '{filepath}' could not be opened."
                 self.statusBar().showMessage(msg)
 
     def _init_window(self):
@@ -171,7 +171,7 @@ class MainWindow(QMainWindow):
         # Safe mode widget
         self.safe_mode_widget = QSvgWidget(str(IconPath.safe_mode),
                                            self.statusBar())
-        msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
+        msg = f"{APP_NAME} is in safe mode.\nExpressions are not evaluated."
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
         self.safe_mode_widget.hide()
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
         if self._loading:
             return
 
-        super(MainWindow, self).resizeEvent(event)
+        super().resizeEvent(event)
 
     def closeEvent(self, event: QEvent = None):
         """Overloaded, allows saving changes or canceling close
@@ -674,19 +674,8 @@ class MainWindow(QMainWindow):
         def devs_string(devs: list) -> str:
             """Get string from devs list"""
 
-            devs_str = "".join("<li>{}</li>".format(dev) for dev in devs)
-            return "<ul>{}</ul>".format(devs_str)
-
-        about_msg_template = \
-            """<b>{name}</b><><p>
-            A non-traditional Python spreadsheet application<p>
-            Version:&emsp;{version}<p>
-            Created by:&emsp;{devs}<p>
-            Documented by:&emsp;{doc_devs}<p>
-            Copyright:&emsp;{copyright_owner}<p>
-            License:&emsp;{license}<p>
-            Web site:&emsp;<a href="{web_url}">{web_url}</a>
-            """
+            devs_str = "".join(f"<li>{dev}</li>" for dev in devs)
+            return f"<ul>{devs_str}</ul>"
 
         devs = ("Martin Manns", "Jason Sexauer", "Vova Kolobok", "mgunyho",
                 "Pete Morgan")
@@ -697,16 +686,18 @@ class MainWindow(QMainWindow):
 
         copyright_owner = "Martin Manns"
 
-        about_msg = about_msg_template.format(
-            name=APP_NAME,
-            version=VERSION,
-            license=LICENSE,
-            devs=devs_str,
-            doc_devs=doc_devs_str,
-            copyright_owner=copyright_owner,
-            web_url=WEB_URL)
+        about_msg = \
+            f"""<b>{APP_NAME}</b><><p>
+            A non-traditional Python spreadsheet application<p>
+            Version:&emsp;{VERSION}<p>
+            Created by:&emsp;{devs_str}<p>
+            Documented by:&emsp;{doc_devs_str}<p>
+            Copyright:&emsp;{copyright_owner}<p>
+            License:&emsp;{LICENSE}<p>
+            Web site:&emsp;<a href="{WEB_URL}">{WEB_URL}</a>
+            """
 
-        QMessageBox.about(self, "About {}".format(APP_NAME), about_msg)
+        QMessageBox.about(self, f"About {APP_NAME}", about_msg)
 
     def on_focus_changed(self, old: QWidget, now: QWidget):
         """Handles grid clicks from entry line"""
@@ -750,7 +741,7 @@ class MainWindow(QMainWindow):
         button_action = self.main_window_actions.button_cell
         button_action.setChecked(attributes.button_cell is not False)
 
-        rotation = "rotate_{angle}".format(angle=int(attributes.angle))
+        rotation = f"rotate_{int(attributes.angle)}"
         widgets.rotate_button.set_current_action(rotation)
         widgets.rotate_button.set_menu_checked(rotation)
         widgets.justify_button.set_current_action(attributes.justification)
@@ -805,7 +796,7 @@ def excepthook(exception_type, exception_value, exception_traceback):
     traceback_msg = "".join(traceback.format_exception(exception_type,
                                                        exception_value,
                                                        exception_traceback))
-    print("Error: {}\n".format(traceback_msg))
+    print(f"Error: {traceback_msg}\n")
 
 
 def main():

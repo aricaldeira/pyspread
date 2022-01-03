@@ -179,8 +179,11 @@ typehandlers = {
 
 
 if Money is not None:
-    def money(amount, currency="EUR"):
+    def money(amount, currency="USD"):
+        """Money wrapper defining a standard currency"""
+
         return Money(amount, currency=currency)
+
     typehandlers.update({'Money': money})
 
     currencies = list_all_currencies()

@@ -155,8 +155,7 @@ class Settings:
         """
 
         if not hasattr(self, key):
-            raise AttributeError("{self} has no attribute {key}.".format(
-                                 self=self, key=key))
+            raise AttributeError(f"{self} has no attribute {key}.")
         super().__setattr__(key, value)
 
     def add_to_file_history(self, filename: Path):
@@ -171,6 +170,8 @@ class Settings:
         self.file_history = self.file_history[:self.max_file_history]
 
     def reset(self):
+        """Reset to defaults"""
+
         cls_attrs = (attr for attr in dir(self)
                      if (not attr.startswith("__")
                          and attr not in ("reset", "parent", "save",
@@ -261,7 +262,8 @@ class Settings:
             if attr is None:
                 attr = setting_name
             if mapper is None:
-                def mapper(x): return x
+                def mapper(x):
+                    return x
             setattr(self, attr, mapper(value))
 
         # Application state
