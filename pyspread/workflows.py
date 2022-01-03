@@ -57,7 +57,7 @@ except ImportError:
     matplotlib_figure = None
 
 try:
-    import pyspread.commands as commands
+    from pyspread import commands
     from pyspread.dialogs \
         import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
@@ -145,7 +145,7 @@ class Workflows:
                 choice = DiscardChangesDialog(self.main_window).choice
                 if choice is None:
                     return
-                elif not choice:
+                if not choice:
                     # We try to save to a file
                     if self.file_save() is False:
                         # File could not be saved --> Abort
@@ -704,8 +704,7 @@ class Workflows:
         if isinstance(res, QImage):
             filters_list.append("JPG of current cell (*.jpg)")
 
-        if isinstance(res, QImage) \
-           or isinstance(res, matplotlib.figure.Figure):
+        if isinstance(res, (QImage, matplotlib.figure.Figure)):
             filters_list.append("PNG of current cell (*.png)")
 
         if isinstance(res, matplotlib.figure.Figure):
@@ -1310,7 +1309,7 @@ class Workflows:
         model = grid.model
         description = "Insert svg image into cell {}".format(index)
 
-        grid.on_image_renderer_pressed(True)
+        grid.on_image_renderer_pressed()
         with self.main_window.entry_line.disable_updates():
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
@@ -1355,7 +1354,7 @@ class Workflows:
         model = grid.model
         description = "Insert image into cell {}".format(index)
 
-        grid.on_image_renderer_pressed(True)
+        grid.on_image_renderer_pressed()
         with self.main_window.entry_line.disable_updates():
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
@@ -1414,7 +1413,7 @@ class Workflows:
             html = mime_data.html()
             command = commands.SetCellCode(html, model, index, description)
             self.main_window.undo_stack.push(command)
-            grid.on_markup_renderer_pressed(True)
+            grid.on_markup_renderer_pressed()
 
         elif item == "text/plain":
             # Normal code
@@ -1803,8 +1802,7 @@ class Workflows:
         selection = grid.selection
 
         # Format content is shifted so that the top left corner is 0,0
-        (top, left), (bottom, right) = \
-            selection.get_grid_bbox(grid.model.shape)
+        (top, left), (_, _) = selection.get_grid_bbox(grid.model.shape)
 
         table_cell_attributes = cell_attributes.for_table(grid.table)
         for __selection, _, attrs in table_cell_attributes:
@@ -1937,7 +1935,7 @@ class Workflows:
             index = grid.currentIndex()
             grid.clearSelection()
             grid.selectionModel().select(index, QItemSelectionModel.Select)
-            grid.on_matplotlib_renderer_pressed(True)
+            grid.on_matplotlib_renderer_pressed()
 
             description = "Insert chart into cell {}".format(index)
             command = commands.SetCellCode(code, model, index, description)
