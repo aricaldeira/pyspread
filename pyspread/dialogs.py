@@ -66,7 +66,7 @@ from PyQt5.QtWidgets \
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
-            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QMenu)
+            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget)
 from PyQt5.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
@@ -83,17 +83,15 @@ except ImportError:
 try:
     from pyspread.actions import ChartDialogActions
     from pyspread.toolbar import ChartTemplatesToolBar
-    from pyspread.widgets import HelpBrowser
-    from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
-                                  convert, currencies)
+    from pyspread.widgets import HelpBrowser, TypeMenuComboBox
+    from pyspread.lib.csv import sniff, csv_reader, get_header, convert
     from pyspread.lib.spelltextedit import SpellTextEdit
     from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 except ImportError:
     from actions import ChartDialogActions
     from toolbar import ChartTemplatesToolBar
-    from widgets import HelpBrowser
-    from lib.csv import (sniff, csv_reader, get_header, typehandlers, convert,
-                         currencies)
+    from widgets import HelpBrowser, TypeMenuComboBox
+    from lib.csv import sniff, csv_reader, get_header, convert
     from lib.spelltextedit import SpellTextEdit
     from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 
@@ -150,7 +148,8 @@ class DiscardDataDialog(DiscardChangesDialog):
         :param text: Message text
 
         """
-        self.main_window = main_window
+
+        super().__init__(main_window)
         self.text = text
 
 
@@ -666,7 +665,7 @@ class ImageFileOpenDialog(FileDialogBase):
     img_format_strings = ("*." + fmt.data().decode('utf-8')
                           for fmt in img_formats)
     img_format_string = " ".join(img_format_strings)
-    name_filter = "Images ({})".format(img_format_string) + ";;" \
+    name_filter = f"Images ({img_format_string})" + ";;" \
                   "Scalable Vector Graphics (*.svg *.svgz)"
 
     def show_dialog(self):
@@ -723,7 +722,7 @@ class FileExportDialog(FileDialogBase):
     def suffix(self) -> str:
         """Suffix for filepath"""
 
-        return ".{}".format(self.selected_filter.split()[0].lower())
+        return f".{self.selected_filter.split()[0].lower()}"
 
     def show_dialog(self):
         """Present dialog and update values"""
@@ -946,7 +945,7 @@ class ChartDialog(QDialog):
 
         self.chart_templates_toolbar = ChartTemplatesToolBar(self)
 
-        self.setWindowTitle("Chart dialog for cell {}".format(key))
+        self.setWindowTitle(f"Chart dialog for cell {key}")
 
         self.resize(*size)
         self.parent = parent
@@ -1021,7 +1020,7 @@ class ChartDialog(QDialog):
                 pass
         else:
             if isinstance(figure, Exception):
-                msg = stdout_str + "Error:\n{}".format(figure)
+                msg = stdout_str + f"Error:\n{figure}"
                 self.message.setText(msg)
             else:
                 msg = stdout_str
@@ -1239,8 +1238,7 @@ class CsvParameterGroupBox(QGroupBox):
 
         """
 
-        for parameter in self.csv_parameter2widget:
-            widget = self.csv_parameter2widget[parameter]
+        for parameter, widget in self.csv_parameter2widget.items():
             if hasattr(widget, "currentText"):
                 value = widget.currentText()
             elif hasattr(widget, "isChecked"):
@@ -1248,7 +1246,7 @@ class CsvParameterGroupBox(QGroupBox):
             elif hasattr(widget, "text"):
                 value = widget.text()
             else:
-                raise AttributeError("{} unsupported".format(widget))
+                raise AttributeError(f"{widget} unsupported")
 
             # Convert strings to csv constants
             if parameter == "quoting" and isinstance(value, str):
@@ -1286,7 +1284,7 @@ class CsvParameterGroupBox(QGroupBox):
                 elif hasattr(widget, "setText"):
                     widget.setText(value)
                 else:
-                    raise AttributeError("{} unsupported".format(widget))
+                    raise AttributeError(f"{widget} unsupported")
         if not self.hasheader_widget.isChecked():
             self.keepheader_widget.setEnabled(False)
 
@@ -1320,58 +1318,8 @@ class CsvTable(QTableView):
 
         """
 
-        class TypeCombo(QComboBox):
-            """ComboBox for type choice"""
-
-            money_tpl = "Money ({})"
-
-            def __init__(self):
-                super().__init__()
-
-                self.menu = QMenu(self)
-                self.menu.triggered.connect(self.on_menu_selected)
-
-                for typehandler in typehandlers:
-                    if typehandler == "Money":
-                        self.submenu = self.menu.addMenu(typehandler)
-                        for currency in currencies:
-                            self.submenu.addAction(currency.code)
-                            item_text = self.money_tpl.format(currency.code)
-                            self.addItem(item_text)
-                    else:
-                        self.menu.addAction(typehandler)
-                        self.addItem(typehandler)
-
-            def showPopup(self):
-                """Show combo menu"""
-
-                rect = self.rect()
-
-                pos = QPoint(rect.x(), rect.y()+rect.height())
-                self.menu.popup(self.mapToGlobal(pos))
-
-            def hidePopup(self):
-                """Hide combo menu"""
-
-                self.menu.hideTearOffMenu()
-                super().hidePopup()
-
-            @property
-            def combobox_item_list(self) -> list[str]:
-                """List of combobox item texts"""
-
-                return [self.itemText(i) for i in range(self.count())]
-
-            def on_menu_selected(self, action):
-                """Event handler for menu"""
-
-                combo_text = action.text()
-                if combo_text in (currency.code for currency in currencies):
-                    combo_text = self.money_tpl.format(combo_text)
-                self.setCurrentIndex(self.combobox_item_list.index(combo_text))
-
         item_row = map(QStandardItem, [''] * length)
-        self.comboboxes = [TypeCombo() for _ in range(length)]
+        self.comboboxes = [TypeMenuComboBox() for _ in range(length)]
         self.model.appendRow(item_row)
         for i, combobox in enumerate(self.comboboxes):
             self.setIndexWidget(self.model.index(0, i), combobox)
@@ -1723,8 +1671,7 @@ class ManualDialog(TutorialDialog):
         """Creates tabbar and dialog browser"""
 
         self.tabbar = QTabWidget(self)
-        for title in self.title2path:
-            path = self.title2path[title]
+        for title, path in self.title2path.items():
             self.tabbar.addTab(HelpBrowser(self, path), title)
 
     def _layout(self):
