@@ -685,7 +685,8 @@ class Workflows:
         with self.main_window.entry_line.disable_updates():
             with self.busy_cursor():
                 with self.prevent_updates():
-                    self.main_window.undo_stack.push(command)
+                    if command is not None:
+                        self.main_window.undo_stack.push(command)
 
     def file_export(self):
         """Export csv and svg files"""
@@ -1223,7 +1224,9 @@ class Workflows:
                             command.mergeWith(cmd)
                 else:
                     break
-        undo_stack.push(command)
+
+        if command is not None:
+            undo_stack.push(command)
 
     def _paste_to_current(self, data: str):
         """Pastes data into grid starting from the current cell
@@ -1262,7 +1265,8 @@ class Workflows:
                         command.mergeWith(cmd)
                 else:
                     break
-        undo_stack.push(command)
+        if command is not None:
+            undo_stack.push(command)
 
     def edit_paste(self):
         """Edit -> Paste workflow
@@ -1606,43 +1610,48 @@ class Workflows:
 
         """
 
+        find_string = replace_dialog.search_text_editor.text()
         replace_string = replace_dialog.replace_text_editor.text()
+
+        word = replace_dialog.word_checkbox.isChecked()
+        case = replace_dialog.case_checkbox.isChecked()
+        regexp = replace_dialog.regex_checkbox.isChecked()
 
         command = None
 
-        replaced = []
-        next_match = 0, 0, 0
+        grid = self.main_window.focused_grid
+        code_array = grid.model.code_array
+        keys = code_array.keys()
+
+        matches = []
 
         with self.busy_cursor():
             with self.main_window.entry_line.disable_updates():
                 with self.prevent_updates():
-                    while True:
-                        # TODO: ABORT ON USER REQUEST
-                        find_string, next_match = \
-                            self._get_next_match(replace_dialog,
-                                                 start_key=(next_match[0]+1,
-                                                            next_match[1],
-                                                            next_match[2]))
-                        if not next_match or next_match in replaced:
-                            break
-                        replaced.append(next_match)
+                    for key in keys:
+                        code = code_array(key)
 
+                        if code_array.string_match(code, find_string, word,
+                                                   case, regexp) is not None:
+                            matches.append(key)
+
+                    for match in matches:
                         msg = f"Replace all {find_string} by {replace_string}"
-                        _command = self._get_replace_command(next_match,
+                        _command = self._get_replace_command(match,
                                                              find_string,
                                                              replace_string,
                                                              max_=-1,
                                                              description=msg)
-
                         if command is None:
                             command = _command
                         else:
                             command.mergeWith(_command)
 
-            self.main_window.undo_stack.push(command)
+                    if command is not None:
+                        self.main_window.undo_stack.push(command)
 
-        msg_tpl = "{} replaced by {} in {} cells."
-        msg = msg_tpl.format(find_string, replace_string, len(replaced))
+        msg = f"{find_string} replaced by {replace_string} in {len(matches)} "\
+              f"cell{'s' if len(matches) != 1 else ''}."
         self.main_window.statusBar().showMessage(msg)
 
     def _sort(self, ascending: bool = True):
@@ -1699,8 +1708,11 @@ class Workflows:
                 command = _command
             else:
                 command.mergeWith(_command)
-        self.main_window.undo_stack.push(command)
-        msg = f"{i+1} cells sorted."
+
+        if command is not None:
+            self.main_window.undo_stack.push(command)
+
+        msg = f"{i+1} cell{'s' if i == 0 else ''} sorted."
         self.main_window.statusBar().showMessage(msg)
 
     def edit_sort_ascending(self):

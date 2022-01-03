@@ -781,7 +781,11 @@ class FindDialog(QDialog):
             self.restore(state)
 
     def _create_widgets(self):
-        """Create find dialog widgets"""
+        """Create find dialog widgets
+
+        :param results_checkbox: Show find results checkbox
+
+        """
 
         self.search_text_label = QLabel("Search for:")
         self.search_text_editor = QLineEdit()
@@ -896,6 +900,8 @@ class ReplaceDialog(FindDialog):
         workflows = main_window.workflows
 
         self.setWindowTitle("Replace")
+
+        self.results_checkbox.setDisabled(True)
 
         self.replace_text_label = QLabel("Replace with:")
         self.replace_text_editor = QLineEdit()
