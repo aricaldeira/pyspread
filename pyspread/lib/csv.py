@@ -46,6 +46,11 @@ try:
 except ImportError:
     parse = None
 
+try:
+    from moneyed import Money, list_all_currencies
+except ImportError:
+    Money = None
+
 
 def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
     """Sniffs CSV dialect and header info
@@ -116,6 +121,10 @@ def convert(string: str, digest_type: str) -> str:
     if digest_type is None:
         digest_type = 'repr'
 
+    if digest_type.split()[0] == "Money":
+        currency = digest_type.split()[1][1:-1]
+        return repr(typehandlers["Money"](string, currency=currency))
+
     try:
         return repr(typehandlers[digest_type](string))
 
@@ -167,6 +176,15 @@ typehandlers = {
     'bool': bool,
     'bytes': bytes,
 }
+
+
+if Money is not None:
+    def money(amount, currency="EUR"):
+        return Money(amount, currency=currency)
+    typehandlers.update({'Money': money})
+
+    currencies = list_all_currencies()
+
 
 if parse is not None:
     typehandlers.update({'date': date,

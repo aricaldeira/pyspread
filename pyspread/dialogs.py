@@ -66,7 +66,7 @@ from PyQt5.QtWidgets \
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
-            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget)
+            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QMenu)
 from PyQt5.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
@@ -85,14 +85,15 @@ try:
     from pyspread.toolbar import ChartTemplatesToolBar
     from pyspread.widgets import HelpBrowser
     from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
-                                  convert)
+                                  convert, currencies)
     from pyspread.lib.spelltextedit import SpellTextEdit
     from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 except ImportError:
     from actions import ChartDialogActions
     from toolbar import ChartTemplatesToolBar
     from widgets import HelpBrowser
-    from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
+    from lib.csv import (sniff, csv_reader, get_header, typehandlers, convert,
+                         currencies)
     from lib.spelltextedit import SpellTextEdit
     from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 
@@ -1322,11 +1323,50 @@ class CsvTable(QTableView):
         class TypeCombo(QComboBox):
             """ComboBox for type choice"""
 
+            money_tpl = "Money ({})"
+
             def __init__(self):
                 super().__init__()
 
+                self.menu = QMenu(self)
+                self.menu.triggered.connect(self.on_menu_selected)
+
+                self.items = []
+
                 for typehandler in typehandlers:
-                    self.addItem(typehandler)
+                    if typehandler == "Money":
+                        self.submenu = self.menu.addMenu(typehandler)
+                        for currency in currencies:
+                            self.submenu.addAction(currency.code)
+                            item_text = self.money_tpl.format(currency.code)
+                            self.addItem(item_text)
+                            self.items.append(item_text)
+                    else:
+                        self.menu.addAction(typehandler)
+                        self.addItem(typehandler)
+                        self.items.append(typehandler)
+
+            def showPopup(self):
+                """Show combo menu"""
+
+                rect = self.rect()
+
+                pos = QPoint(rect.x(), rect.y()+rect.height())
+                self.menu.popup(self.mapToGlobal(pos))
+
+            def hidePopup(self):
+                """Hide combo menu"""
+
+                self.menu.hideTearOffMenu()
+                super().hidePopup()
+
+            def on_menu_selected(self, action):
+                """Event handler for menu"""
+
+                combo_text = action.text()
+                if combo_text in (currency.code for currency in currencies):
+                    combo_text = self.money_tpl.format(combo_text)
+                self.setCurrentIndex(self.items.index(combo_text))
 
         item_row = map(QStandardItem, [''] * length)
         self.comboboxes = [TypeCombo() for _ in range(length)]
