@@ -173,7 +173,7 @@ class Workflows:
         if filepath == Path.home():
             title = "pyspread"
         else:
-            title = "{filename} - pyspread".format(filename=filepath.name)
+            title = f"{filepath.name} - pyspread"
         self.main_window.setWindowTitle(title)
 
     @handle_changed_since_save
@@ -298,7 +298,7 @@ class Workflows:
 
         # Load file into grid
         title = "File open progress"
-        label = "Opening {}...".format(filepath.name)
+        label = f"Opening {filepath.name}..."
 
         try:
             with fopen(filepath, "rb") as infile:
@@ -313,7 +313,7 @@ class Workflows:
                     self.main_window.safe_mode = False
                     return
                 except ProgressDialogCanceled:
-                    msg = "File open stopped by user at line {}.".format(i)
+                    msg = f"File open stopped by user at line {i}."
                     self.main_window.statusBar().showMessage(msg)
                     grid.model.reset()
                     self.main_window.safe_mode = False
@@ -402,12 +402,12 @@ class Workflows:
             with open(filepath, "rb") as infile:
                 signature = sign(infile.read(), signature_key)
         except OSError as err:
-            msg = "Error signing file: {}".format(err)
+            msg = f"Error signing file: {err}"
             self.main_window.statusBar().showMessage(msg)
             return
 
         if signature is None or not signature:
-            msg = 'Error signing file. '
+            msg = 'Error signing file.'
             self.main_window.statusBar().showMessage(msg)
             return
 
@@ -439,7 +439,7 @@ class Workflows:
         # Save grid to temporary file
 
         title = "File save progress"
-        label = "Saving {}...".format(filepath.name)
+        label = f"Saving {filepath.name}..."
 
         with NamedTemporaryFile(delete=False) as tempfile:
             filename = tempfile.name
@@ -467,7 +467,7 @@ class Workflows:
                 return False
         try:
             if filepath.exists() and not os.access(filepath, os.W_OK):
-                raise PermissionError("No write access to {}".format(filepath))
+                raise PermissionError(f"No write access to {filepath}")
             move(filename, filepath)
 
         except OSError as err:
@@ -483,8 +483,7 @@ class Workflows:
         self.main_window.settings.last_file_output_path = filepath
 
         # Change the main window title
-        window_title = "{filename} - pyspread".format(filename=filepath.name)
-        self.main_window.setWindowTitle(window_title)
+        self.main_window.setWindowTitle(f"{filepath.name} - pyspread")
 
         # Add to file history
         self.main_window.settings.add_to_file_history(filepath.as_posix())
@@ -543,7 +542,7 @@ class Workflows:
         filelines = self.count_file_lines(filepath)
         if not filelines:  # May not be None or 0
             title = "CSV Import Error"
-            text = "File {} seems to be empty.".format(filepath)
+            text = f"File {filepath} seems to be empty."
             QMessageBox.warning(self.main_window, title, text)
             return
 
@@ -628,7 +627,7 @@ class Workflows:
         command = None
 
         title = "csv import progress"
-        label = "Importing {}...".format(filepath.name)
+        label = f"Importing {filepath.name}..."
 
         try:
             with open(filepath, newline='', encoding='utf-8') as csvfile:
@@ -669,7 +668,7 @@ class Workflows:
 
                 except ProgressDialogCanceled:
                     title = "CSV Import Stopped"
-                    text = "Import stopped by user at line {}.".format(i)
+                    text = f"Import stopped by user at line {i}."
                     QMessageBox.warning(self.main_window, title, text)
                     return
 
@@ -723,7 +722,7 @@ class Workflows:
             self._csv_export(filepath)
             return
 
-        elif "SVG" in dial.selected_filter:
+        if "SVG" in dial.selected_filter:
             # Extend filepath suffix if needed
             if filepath.suffix != dial.suffix:
                 filepath = filepath.with_suffix(dial.suffix)
@@ -829,7 +828,7 @@ class Workflows:
 
         try:
             if not qimage.save(filepath, file_format):
-                msg = "Could not save {}".format(filepath)
+                msg = f"Could not save {filepath}"
                 self.main_window.statusBar().showMessage(msg)
         except Exception as error:
             self.main_window.statusBar().showMessage(str(error))
@@ -1307,7 +1306,7 @@ class Workflows:
         code = "\n".join(codelines)
 
         model = grid.model
-        description = "Insert svg image into cell {}".format(index)
+        description = f"Insert svg image into cell {index}"
 
         grid.on_image_renderer_pressed()
         with self.main_window.entry_line.disable_updates():
@@ -1352,7 +1351,7 @@ class Workflows:
         code = "\n".join(code_lines)
 
         model = grid.model
-        description = "Insert image into cell {}".format(index)
+        description = f"Insert image into cell {index}"
 
         grid.on_image_renderer_pressed()
         with self.main_window.entry_line.disable_updates():
@@ -1373,7 +1372,7 @@ class Workflows:
         items = [fmt for fmt in formats if any(m in fmt for m in mimetypes)]
         if not items:
             return
-        elif len(items) == 1:
+        if len(items) == 1:
             item = items[0]
         else:
             item, ok = QInputDialog.getItem(self.main_window, "Paste as",
@@ -1628,8 +1627,7 @@ class Workflows:
                             break
                         replaced.append(next_match)
 
-                        msg = "Replace all {} by {}".format(find_string,
-                                                            replace_string)
+                        msg = f"Replace all {find_string} by {replace_string}"
                         _command = self._get_replace_command(next_match,
                                                              find_string,
                                                              replace_string,
@@ -1676,7 +1674,7 @@ class Workflows:
             sorted_pairs = sorted(pair_gen, key=lambda x: (x[1] is None, x[1]))
             indices = list(zip(*sorted_pairs))[0]
         except TypeError as err:
-            msg = "Could not sort selection: {}".format(err)
+            msg = f"Could not sort selection: {err}"
             self.main_window.statusBar().showMessage(msg)
             return
 
@@ -1692,9 +1690,9 @@ class Workflows:
             code = old_code[(indices[row], column, table)]
 
             if ascending:
-                description = "Sort {} ascending".format(grid.selection)
+                description = f"Sort {grid.selection} ascending"
             else:
-                description = "Sort {} descending".format(grid.selection)
+                description = f"Sort {grid.selection} descending"
 
             _command = commands.SetCellCode(code, model, index, description)
             if command is None:
@@ -1702,7 +1700,7 @@ class Workflows:
             else:
                 command.mergeWith(_command)
         self.main_window.undo_stack.push(command)
-        msg = "{} cells sorted.".format(i+1)
+        msg = f"{i+1} cells sorted."
         self.main_window.statusBar().showMessage(msg)
 
     def edit_sort_ascending(self):
@@ -1746,7 +1744,7 @@ class Workflows:
 
         grid.current = 0, 0, 0
 
-        description = "Resize grid to {}".format(shape)
+        description = f"Resize grid to {shape}"
 
         with self.main_window.entry_line.disable_updates():
             command = commands.SetGridSize(grid, old_shape, shape, description)
@@ -1937,7 +1935,7 @@ class Workflows:
             grid.selectionModel().select(index, QItemSelectionModel.Select)
             grid.on_matplotlib_renderer_pressed()
 
-            description = "Insert chart into cell {}".format(index)
+            description = f"Insert chart into cell {index}"
             command = commands.SetCellCode(code, model, index, description)
 
             self.main_window.undo_stack.push(command)
