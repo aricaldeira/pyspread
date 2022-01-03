@@ -1331,8 +1331,6 @@ class CsvTable(QTableView):
                 self.menu = QMenu(self)
                 self.menu.triggered.connect(self.on_menu_selected)
 
-                self.items = []
-
                 for typehandler in typehandlers:
                     if typehandler == "Money":
                         self.submenu = self.menu.addMenu(typehandler)
@@ -1340,11 +1338,9 @@ class CsvTable(QTableView):
                             self.submenu.addAction(currency.code)
                             item_text = self.money_tpl.format(currency.code)
                             self.addItem(item_text)
-                            self.items.append(item_text)
                     else:
                         self.menu.addAction(typehandler)
                         self.addItem(typehandler)
-                        self.items.append(typehandler)
 
             def showPopup(self):
                 """Show combo menu"""
@@ -1360,13 +1356,19 @@ class CsvTable(QTableView):
                 self.menu.hideTearOffMenu()
                 super().hidePopup()
 
+            @property
+            def combobox_item_list(self) -> list[str]:
+                """List of combobox item texts"""
+
+                return [self.itemText(i) for i in range(self.count())]
+
             def on_menu_selected(self, action):
                 """Event handler for menu"""
 
                 combo_text = action.text()
                 if combo_text in (currency.code for currency in currencies):
                     combo_text = self.money_tpl.format(combo_text)
-                self.setCurrentIndex(self.items.index(combo_text))
+                self.setCurrentIndex(self.combobox_item_list.index(combo_text))
 
         item_row = map(QStandardItem, [''] * length)
         self.comboboxes = [TypeCombo() for _ in range(length)]
