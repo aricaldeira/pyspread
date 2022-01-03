@@ -648,7 +648,7 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_rotate_0(True)
+        self.grid.on_rotate_0()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
 
         self.grid.clearSelection()
@@ -658,9 +658,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_rotate_90(True)
+        self.grid.on_rotate_90()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 90.0
-        self.grid.on_rotate_0(True)
+        self.grid.on_rotate_0()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
 
         self.grid.clearSelection()
@@ -670,9 +670,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_rotate_180(True)
+        self.grid.on_rotate_180()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 180.0
-        self.grid.on_rotate_0(True)
+        self.grid.on_rotate_0()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
 
         self.grid.clearSelection()
@@ -682,9 +682,9 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_rotate_270(True)
+        self.grid.on_rotate_270()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 270.0
-        self.grid.on_rotate_0(True)
+        self.grid.on_rotate_0()
         assert self.cell_attributes[(2, 0, 0)]["angle"] == 0.0
 
         self.grid.clearSelection()
@@ -694,7 +694,7 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_justify_left(True)
+        self.grid.on_justify_left()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
 
@@ -705,10 +705,10 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_justify_fill(True)
+        self.grid.on_justify_fill()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_fill"
-        self.grid.on_justify_left(True)
+        self.grid.on_justify_left()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
 
@@ -719,10 +719,10 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_justify_center(True)
+        self.grid.on_justify_center()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_center"
-        self.grid.on_justify_left(True)
+        self.grid.on_justify_left()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
 
@@ -733,10 +733,10 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_justify_right(True)
+        self.grid.on_justify_right()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_right"
-        self.grid.on_justify_left(True)
+        self.grid.on_justify_left()
         assert self.cell_attributes[(2, 0, 0)]["justification"] \
             == "justify_left"
 
@@ -747,7 +747,7 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_align_top(True)
+        self.grid.on_align_top()
         assert self.cell_attributes[(2, 0, 0)]["vertical_align"] == "align_top"
 
     def test_on_align_middle(self):
@@ -755,10 +755,10 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_align_middle(True)
+        self.grid.on_align_middle()
         assert self.cell_attributes[(2, 0, 0)]["vertical_align"] \
             == "align_center"
-        self.grid.on_align_top(True)
+        self.grid.on_align_top()
         assert self.cell_attributes[(2, 0, 0)]["vertical_align"] == "align_top"
 
     def test_on_align_bottom(self):
@@ -766,10 +766,10 @@ class TestGrid:
 
         self.grid.selectRow(2)
 
-        self.grid.on_align_bottom(True)
+        self.grid.on_align_bottom()
         assert self.cell_attributes[(2, 0, 0)]["vertical_align"] \
             == "align_bottom"
-        self.grid.on_align_top(True)
+        self.grid.on_align_top()
         assert self.cell_attributes[(2, 0, 0)]["vertical_align"] == "align_top"
 
     def test_on_text_color(self):
@@ -1190,10 +1190,6 @@ class TestGridTableModel:
 class TestGridCellDelegate:
     """Unit tests for GridCellDelegate in grid.py"""
 
-    pass
-
 
 class TestTableChoice:
     """Unit tests for TableChoice in grid.py"""
-
-    pass

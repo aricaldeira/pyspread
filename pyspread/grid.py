@@ -499,9 +499,13 @@ class Grid(QTableView):
     def adjust_size(self):
         """Adjusts size to header maxima"""
 
-        w = self.horizontalHeader().length() + self.verticalHeader().width()
-        h = self.verticalHeader().length() + self.horizontalHeader().height()
-        self.resize(w, h)
+        horizontal_header = self.horizontalHeader()
+        vertical_header = self.verticalHeader()
+
+        width = horizontal_header.length() + vertical_header.width()
+        height = vertical_header.length() + horizontal_header.height()
+
+        self.resize(width, height)
 
     def _selected_idx_to_str(self, selected_idx: Iterable[QModelIndex]) -> str:
         """Converts selected_idx to string with cell indices
@@ -931,12 +935,8 @@ class Grid(QTableView):
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_rotate_0(self, toggled: bool):
-        """Set cell rotation to 0° left button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_rotate_0(self):
+        """Set cell rotation to 0° left button pressed event handler"""
 
         attr_dict = AttrDict([("angle", 0.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -947,12 +947,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_rotate_90(self, toggled: bool):
-        """Set cell rotation to 90° left button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_rotate_90(self):
+        """Set cell rotation to 90° left button pressed event handler"""
 
         attr_dict = AttrDict([("angle", 90.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -963,12 +959,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_rotate_180(self, toggled: bool):
-        """Set cell rotation to 180° left button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_rotate_180(self):
+        """Set cell rotation to 180° left button pressed event handler"""
 
         attr_dict = AttrDict([("angle", 180.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -979,12 +971,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_rotate_270(self, toggled: bool):
-        """Set cell rotation to 270° left button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_rotate_270(self):
+        """Set cell rotation to 270° left button pressed event handler"""
 
         attr_dict = AttrDict([("angle", 270.0)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -995,12 +983,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_justify_left(self, toggled: bool):
-        """Justify left button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_justify_left(self):
+        """Justify left button pressed event handler"""
 
         attr_dict = AttrDict([("justification", "justify_left")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1011,12 +995,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_justify_fill(self, toggled: bool):
-        """Justify fill button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_justify_fill(self):
+        """Justify fill button pressed event handler"""
 
         attr_dict = AttrDict([("justification", "justify_fill")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1027,12 +1007,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_justify_center(self, toggled: bool):
-        """Justify center button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_justify_center(self):
+        """Justify center button pressed event handler"""
 
         attr_dict = AttrDict([("justification", "justify_center")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1043,12 +1019,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_justify_right(self, toggled: bool):
-        """Justify right button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_justify_right(self):
+        """Justify right button pressed event handler"""
 
         attr_dict = AttrDict([("justification", "justify_right")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1059,12 +1031,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_align_top(self, toggled: bool):
-        """Align top button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_align_top(self):
+        """Align top button pressed event handler"""
 
         attr_dict = AttrDict([("vertical_align", "align_top")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1075,12 +1043,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_align_middle(self, toggled: bool):
-        """Align centere button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_align_middle(self):
+        """Align centere button pressed event handler"""
 
         attr_dict = AttrDict([("vertical_align", "align_center")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1091,12 +1055,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_align_bottom(self, toggled: bool):
-        """Align bottom button pressed event handler
-
-        :param toggled: Toggle state
-
-        """
+    def on_align_bottom(self):
+        """Align bottom button pressed event handler"""
 
         attr_dict = AttrDict([("vertical_align", "align_bottom")])
         attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -1107,12 +1067,8 @@ class Grid(QTableView):
                                                 self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
-    def on_border_choice(self, event: QEvent):
-        """Border choice style event handler
-
-        :param event: Any event
-
-        """
+    def on_border_choice(self):
+        """Border choice style event handler"""
 
         self.main_window.settings.border_choice = self.sender().text()
         self.gui_update()
@@ -1216,7 +1172,7 @@ class Grid(QTableView):
 
         spans = {}  # Dict of (top, left): (bottom, right)
 
-        for selection, table, attrs in self.model.code_array.cell_attributes:
+        for _, table, attrs in self.model.code_array.cell_attributes:
             if table == self.table:
                 try:
                     if "merge_area" in attrs and attrs.merge_area is not None:
@@ -2404,7 +2360,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         key = index.row(), index.column(), self.grid.table
         if not self.cell_attributes[key].renderer == "markup":
-            return super(GridCellDelegate, self).sizeHint(option, index)
+            return super().sizeHint(option, index)
 
         # HTML
         options = QStyleOptionViewItem(option)
@@ -2451,8 +2407,7 @@ class GridCellDelegate(QStyledItemDelegate):
             self.main_window.workflows.macro_insert_chart()
             return
 
-        self.editor = super(GridCellDelegate, self).createEditor(parent,
-                                                                 option, index)
+        self.editor = super().createEditor(parent, option, index)
         self.editor.setPalette(self.editor.style().standardPalette())
         self.editor.installEventFilter(self)
         return self.editor
