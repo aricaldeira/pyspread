@@ -32,6 +32,7 @@
  * :class:`LineColorButton`
  * :class:`BackgroundColorButton`
  * :class:`FontChoiceCombo`
+ * :class:`FontSizeCombo`
  * :class:`Widgets`
  * :class:`FindEditor`
  * :class:`CellButton`
