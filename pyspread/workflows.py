@@ -1676,27 +1676,28 @@ class Workflows:
                 key = row, column, table
                 old_code[key] = grid.model.code_array(key)
 
-        sort_data = data[:, grid.current[1]]
+        sort_data = data[:, grid.current[1]-left]
+        print(sort_data)
 
         try:
             pair_gen = ((i, ele) for i, ele in enumerate(sort_data))
-            sorted_pairs = sorted(pair_gen, key=lambda x: (x[1] is None, x[1]))
+            sorted_pairs = sorted(pair_gen, key=lambda x: (x[1] is None, x[1]),
+                                  reverse=not ascending)
             indices = list(zip(*sorted_pairs))[0]
         except TypeError as err:
             msg = f"Could not sort selection: {err}"
             self.main_window.statusBar().showMessage(msg)
             return
 
-        if not ascending:
-            indices = indices[::-1]
-
+        print(indices)
         model = self.main_window.focused_grid.model
 
         command = None
         cell_gen = grid.selection.cell_generator(grid.model.shape, table=table)
         for i, (row, column, _) in enumerate(cell_gen):
-            index = model.index(row, column)
-            code = old_code[(indices[row], column, table)]
+            index = model.index(row+top, column)
+            print(index, (indices[row], column, table))
+            code = old_code[(indices[row-top]+top, column, table)]
 
             if ascending:
                 description = f"Sort {grid.selection} ascending"

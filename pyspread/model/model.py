@@ -1500,8 +1500,12 @@ class CodeArray(DataArray):
         self.macros = self.macros.replace('\r\n', '\n')
 
         # Set up environment for evaluation
-        env_dict = {'X': None, 'Y': None, 'Z': None}
-        globals().update(self._get_updated_environment(env_dict=env_dict))
+        globals().update(self._get_updated_environment())
+        for var in "XYZRCT":
+            try:
+                del globals()[var]
+            except KeyError:
+                pass
 
         # Create file-like string to capture output
         code_out = io.StringIO()
