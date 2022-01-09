@@ -41,7 +41,7 @@ except ImportError:
 class IconPath:
     """Holds icon paths as attributes"""
 
-    pyspread = ICON_PATH / 'pyspread.svg'
+    pyspread = ICON_PATH / 'hicolor' / 'svg' / 'pyspread.svg'
 
     # Status icons
     safe_mode = STATUS_PATH / 'status-safe-mode.svg'
