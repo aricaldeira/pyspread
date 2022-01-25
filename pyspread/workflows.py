@@ -63,7 +63,7 @@ try:
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
                 CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
-                FileExportDialog, SvgExportAreaDialog)
+                FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from pyspread.interfaces.pys import PysReader, PysWriter
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
@@ -80,7 +80,7 @@ except ImportError:
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
                 CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
-                FileExportDialog, SvgExportAreaDialog)
+                FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from interfaces.pys import PysReader, PysWriter
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
@@ -727,7 +727,7 @@ class Workflows:
             # Extend filepath suffix if needed
             if filepath.suffix != dial.suffix:
                 filepath = filepath.with_suffix(dial.suffix)
-            self._svg_export(filepath)
+            self.svg_export(filepath)
             return
 
         # Extend filepath suffix if needed
@@ -780,10 +780,11 @@ class Workflows:
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
 
-    def _svg_export(self, filepath: Path):
+    def svg_export(self, filepath: Path, svg_area: SinglePageArea = None):
         """Export to svg file filepath
 
         :param filepath: Path of file to be exported
+        :param svg_area: Area of the grid to be exported
 
         """
 
@@ -793,9 +794,10 @@ class Workflows:
             generator = QSvgGenerator()
             generator.setFileName(str(filepath))
 
-            # Get area for svg export
-            svg_area = SvgExportAreaDialog(self.main_window, grid,
-                                           title="Svg export area").area
+            if svg_area is None:
+                # Get area for svg export
+                svg_area = SvgExportAreaDialog(self.main_window, grid,
+                                               title="Svg export area").area
             if svg_area is None:
                 return
 
