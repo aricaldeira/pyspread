@@ -31,6 +31,7 @@ from contextlib import contextmanager
 import csv
 from itertools import cycle
 import io
+import numpy
 import os.path
 from pathlib import Path
 from shutil import move
@@ -1663,49 +1664,44 @@ class Workflows:
 
         """
 
-        grid = self.main_window.grid
+        grid = self.main_window.focused_grid
+        model = grid.model
         table = grid.current[2]
+        selection = grid.selection
 
-        bbox = grid.selection.get_bbox()
-        (top, left), (bottom, right) = bbox
+        (top, left), (bottom, right) = selection.get_bbox()
         if top == bottom:
             return
 
-        data = grid.model.code_array[top:bottom+1, left:right+1, table]
-        old_code = {}
-        for row in range(top, bottom+1):
-            for column in range(left, right+1):
-                key = row, column, table
-                old_code[key] = grid.model.code_array(key)
-
-        sort_data = data[:, grid.current[1]-left]
-        print(sort_data)
+        data = grid.model.code_array[top:bottom+1, left:right+1, table].copy()
+        if ascending:
+            data[data == None] = numpy.inf  # `is` does not work here
+        else:
+            data[data == None] = -numpy.inf  # `is` does not work here
 
         try:
-            pair_gen = ((i, ele) for i, ele in enumerate(sort_data))
-            sorted_pairs = sorted(pair_gen, key=lambda x: (x[1] is None, x[1]),
-                                  reverse=not ascending)
-            indices = list(zip(*sorted_pairs))[0]
+            if ascending:
+                sorted_idx = data[:, grid.current[1]-left].argsort()
+            else:
+                sorted_idx = data[:, grid.current[1]-left].argsort()[::-1]
         except TypeError as err:
             msg = f"Could not sort selection: {err}"
             self.main_window.statusBar().showMessage(msg)
             return
 
-        print(indices)
-        model = self.main_window.focused_grid.model
+        old_code = {}
+        for key in selection.cell_generator(model.shape, table):
+            old_code[key] = grid.model.code_array(key)
 
         command = None
-        cell_gen = grid.selection.cell_generator(grid.model.shape, table=table)
-        for i, (row, column, _) in enumerate(cell_gen):
-            index = model.index(row+top, column)
-            print(index, (indices[row], column, table))
-            code = old_code[(indices[row-top]+top, column, table)]
+        if ascending:
+            description = f"Sort {grid.selection} ascending"
+        else:
+            description = f"Sort {grid.selection} descending"
 
-            if ascending:
-                description = f"Sort {grid.selection} ascending"
-            else:
-                description = f"Sort {grid.selection} descending"
-
+        for row, column in selection.cell_generator(model.shape):
+            code = old_code[(sorted_idx[row-top]+top, column, table)]
+            index = model.index(row, column)
             _command = commands.SetCellCode(code, model, index, description)
             if command is None:
                 command = _command
@@ -1715,7 +1711,7 @@ class Workflows:
         if command is not None:
             self.main_window.undo_stack.push(command)
 
-        msg = f"{i+1} cell{'s' if i == 0 else ''} sorted."
+        msg = "Selection sorted."
         self.main_window.statusBar().showMessage(msg)
 
     def edit_sort_ascending(self):
