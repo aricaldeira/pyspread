@@ -1960,7 +1960,6 @@ class Workflows:
         selection.
 
         """
-        return
 
         grid = self.main_window.focused_grid
         selection = grid.selection
@@ -1975,10 +1974,8 @@ class Workflows:
 
         key = bottom + 1, right, grid.table
 
-        selection_code = f"{repr(selection)}"
-        access_string = \
-            f"{selection_code}.get_relative_access_string({shape}, (X, Y, Z))"
-        code = f"sum(eval(access_string))"
+        code = f"numpy.sum(eval({repr(selection)}.get_absolute_access_string"+\
+               f"({shape}, Z)))"
 
         grid.current = key
         index = grid.currentIndex()
