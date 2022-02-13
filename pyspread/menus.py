@@ -285,7 +285,8 @@ class MacroMenu(QMenu):
         self.addAction(actions.insert_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
-
+        self.addSeparator()
+        self.addAction(actions.insert_sum)
 
 class HelpMenu(QMenu):
     """Help menu for the main menubar"""

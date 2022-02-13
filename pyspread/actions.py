@@ -764,6 +764,13 @@ class MainWindowActions(AttrDict):
                                    statustip='Create and display matplotlib '
                                              'chart')
 
+        self.insert_sum = Action(self.parent, "Insert sum",
+                                 self.parent.workflows.macro_insert_sum,
+                                 icon=Icon.insert_sum,
+                                 statustip='Insert sum of selection into the'
+                                           'cell below the bottom right cell '
+                                           'of the selection')
+
     def create_help_actions(self):
         """actions for Help menu"""
 

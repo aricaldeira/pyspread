@@ -153,6 +153,7 @@ class IconPath:
     insert_image = ACTION_PATH / 'macro-insert-image.svg'
     link_image = ACTION_PATH / 'macro-link-image.svg'
     insert_chart = ACTION_PATH / 'macro-insert-chart.svg'
+    insert_sum = ACTION_PATH / 'macro-insert-chart.svg'
 
     # Help menu icons
     help = ACTION_PATH / 'help-browser.svg'

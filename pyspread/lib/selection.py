@@ -33,7 +33,7 @@ from builtins import zip, range, object
 from typing import Generator, List, Tuple
 
 
-class Selection(object):
+class Selection:
     """Represents grid selection"""
 
     def __init__(self,
@@ -71,7 +71,7 @@ class Selection(object):
 
         """
 
-        return "Selection{}".format(self.parameters)
+        return f"Selection{self.parameters}"
 
     def __eq__(self, other):
         """Eqality check
@@ -410,51 +410,35 @@ class Selection(object):
 
         """
 
-        rows, columns, tables = shape
-
-        # Negative dimensions cannot be
-        if any(dim <= 0 for dim in shape):
-            raise Warning("Invalid shape {}".format(shape))
-            return
-
-        # Current table has to be in dimensions
-        if not 0 <= table < tables:
-            raise Warning("Table {} not in grid".format(table))
-            return
-
-        string_list = []
+        rows, columns, _ = shape
+        strings = []
 
         # Block selections
-        templ = "[(r, c, {}) for r in range({}, {}) for c in range({}, {})]"
         for (top, left), (bottom, right) in zip(self.block_tl, self.block_br):
-            string_list += [templ.format(table, top, bottom + 1,
-                                         left, right + 1)]
+            strings += [f"[(r, c, {table})"
+                        f" for r in range({top}, {bottom + 1})"
+                        f" for c in range({left}, {right + 1})]"]
 
         # Fully selected rows
-        template = "[({}, c, {}) for c in range({})]"
         for row in self.rows:
-            string_list += [template.format(row, table, columns)]
+            strings += [f"[({row}, c, {table}) for c in range({columns})]"]
 
         # Fully selected columns
-        template = "[(r, {}, {}) for r in range({})]"
         for column in self.columns:
-            string_list += [template.format(column, table, rows)]
+            strings += [f"[(r, {column}, {table}) for r in range({rows})]"]
 
         # Single cells
         for row, column in self.cells:
-            string_list += [repr([(row, column, table)])]
+            strings += [f"[({row}, {column}, {table})]"]
 
-        key_string = " + ".join(string_list)
-
-        if len(string_list) == 0:
+        if not strings:
             return ""
 
-        elif len(self.cells) == 1 and len(string_list) == 1:
-            return "S[{}]".format(string_list[0][1:-1])
+        if len(self.cells) == 1 and len(strings) == 1:
+            return f"S[{strings[0][2:-2]}]"
 
-        else:
-            template = "[S[key] for key in {} if S[key] is not None]"
-            return template.format(key_string)
+        key_string = " + ".join(strings)
+        return f"[S[key] for key in {key_string} if S[key] is not None]"
 
     def get_relative_access_string(self, shape: Tuple[int, int, int],
                                    current: Tuple[int, int, int]) -> str:
@@ -472,50 +456,37 @@ class Selection(object):
         rows, columns, tables = shape
         crow, ccolumn, ctable = current
 
-        # Negative dimensions cannot be
-        if any(dim <= 0 for dim in shape):
-            raise Warning("Invalid shape {}".format(shape))
-            return
-
-        if any(dim < 0 for dim in current):
-            raise Warning("Invalid cell {}".format(current))
-            return
-
-        string_list = []
+        strings = []
 
         # Block selections
-        tpl = "[(X + dr, Y + dc, Z) for dr in range({}, {})" + \
-              " for dc in range({}, {})]"
         for (top, left), (bottom, right) in zip(self.block_tl, self.block_br):
-            string_list += [tpl.format(top - crow, bottom - crow + 1,
-                                       left - ccolumn, right - ccolumn + 1)]
+            strings += [
+                "[(X + dr, Y + dc, Z)" +
+                f" for dr in range({top - crow}, {bottom - crow + 1})"
+                f" for dc in range({left - ccolumn}, {right - ccolumn + 1})]"]
 
         # Fully selected rows
-        template = "[(X + {}, c, Z) for c in range({})]"
         for row in self.rows:
-            string_list += [template.format(row - crow, columns)]
+            strings += [
+                f"[(X + {row - crow}, c, Z) for c in range({columns})]"]
 
         # Fully selected columns
-        template = "[(r, {}, Z) for r in range({})]"
         for column in self.columns:
-            string_list += [template.format(column - ccolumn, rows)]
+            strings += [f"[(r, {column - ccolumn}, Z) for r in range({rows})]"]
 
         # Single cells
         for row, column in self.cells:
-            cell_str = "[X + {}, Y + {}, Z]".format(row-crow, column-ccolumn)
-            string_list.append(cell_str)
+            strings += [f"[(X + {row-crow}, Y + {column-ccolumn}, Z)]"]
 
-        key_string = " + ".join(string_list)
+        key_string = " + ".join(strings)
 
-        if len(string_list) == 0:
+        if not strings:
             return ""
 
-        elif len(self.cells) == 1 and len(string_list) == 1:
-            return "S[{}]".format(string_list[0][1:-1])
+        if len(self.cells) == 1 and len(strings) == 1:
+            return f"S[{strings[0][2:-2]}]"
 
-        else:
-            template = "[S[key] for key in {} if S[key] is not None]"
-            return template.format(key_string)
+        return f"[S[key] for key in {key_string} if S[key] is not None]"
 
     def shifted(self, rows: int, columns: int):
         """Get a shifted selection
@@ -568,30 +539,24 @@ class Selection(object):
         if border_choice == "All borders":
             return Selection([(top, left-1)], [(bottom, right)], [], [], [])
 
-        elif border_choice == "Top border":
+        if border_choice in ("Top border", "Bottom border",
+                             "Top and bottom borders"):
             return Selection([], [], [], [], [])
 
-        elif border_choice == "Bottom border":
-            return Selection([], [], [], [], [])
-
-        elif border_choice == "Left border":
+        if border_choice == "Left border":
             return Selection([(top, left-1)], [(bottom, left-1)], [], [], [])
 
-        elif border_choice == "Right border":
+        if border_choice == "Right border":
             return Selection([(top, right)], [(bottom, right)], [], [], [])
 
-        elif border_choice == "Outer borders":
+        if border_choice == "Outer borders":
             return Selection([(top, right), (top, left-1)],
                              [(bottom, right), (bottom, left-1)], [], [], [])
 
-        elif border_choice == "Inner borders":
+        if border_choice == "Inner borders":
             return Selection([(top, left)], [(bottom, right-1)], [], [], [])
 
-        elif border_choice == "Top and bottom borders":
-            return Selection([], [], [], [], [])
-
-        else:
-            raise ValueError("border_choice {} unknown.".format(border_choice))
+        raise ValueError(f"border_choice {border_choice} unknown.")
 
     def get_bottom_borders_selection(self, border_choice: str,
                                      shape: Tuple[int, int, int]):
@@ -619,31 +584,27 @@ class Selection(object):
         if border_choice == "All borders":
             return Selection([(top-1, left)], [(bottom, right)], [], [], [])
 
-        elif border_choice == "Top border":
+        if border_choice == "Top border":
             return Selection([(top-1, left)], [(top-1, right)], [], [], [])
 
-        elif border_choice == "Bottom border":
+        if border_choice == "Bottom border":
             return Selection([(bottom, left)], [(bottom, right)], [], [], [])
 
-        elif border_choice == "Left border":
+        if border_choice in ("Left border", "Right border"):
             return Selection([], [], [], [], [])
 
-        elif border_choice == "Right border":
-            return Selection([], [], [], [], [])
-
-        elif border_choice == "Outer borders":
+        if border_choice == "Outer borders":
             return Selection([(top-1, left), (bottom, left)],
                              [(top-1, right), (bottom, right)], [], [], [])
 
-        elif border_choice == "Inner borders":
+        if border_choice == "Inner borders":
             return Selection([(top, left)], [(bottom-1, right)], [], [], [])
 
-        elif border_choice == "Top and bottom borders":
+        if border_choice == "Top and bottom borders":
             return Selection([(top-1, left), (bottom, left)],
                              [(top-1, right), (bottom, right)], [], [], [])
 
-        else:
-            raise ValueError("border_choice {} unknown.".format(border_choice))
+        raise ValueError(f"border_choice {border_choice} unknown.")
 
     def single_cell_selected(self) -> bool:
         """

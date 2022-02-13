@@ -1952,3 +1952,37 @@ class Workflows:
             self.main_window.undo_stack.push(command)
 
         self.cell2dialog.pop(current)
+
+    def macro_insert_sum(self):
+        """Sum up selection area
+
+        The sum is inserted into the cell below the bottom right cell of the
+        selection.
+
+        """
+        return
+
+        grid = self.main_window.focused_grid
+        selection = grid.selection
+        shape = grid.model.shape
+
+        (top, left), (bottom, right) = selection.get_grid_bbox(shape)
+
+        if bottom >= shape[0] - 1:
+            self.main_window.statusBar().showMessage(
+                f"ValueError: Target cell is beyond grid limits")
+            return
+
+        key = bottom + 1, right, grid.table
+
+        selection_code = f"{repr(selection)}"
+        access_string = \
+            f"{selection_code}.get_relative_access_string({shape}, (X, Y, Z))"
+        code = f"sum(eval(access_string))"
+
+        grid.current = key
+        index = grid.currentIndex()
+        description = f"Insert sum of {selection} into cell {key}"
+        command = commands.SetCellCode(code, grid.model, index, description)
+
+        self.main_window.undo_stack.push(command)

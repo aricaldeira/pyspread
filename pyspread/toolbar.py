@@ -190,6 +190,10 @@ class MacroToolbar(ToolBarBase):
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
 
+        self.addSeparator()
+
+        self.addAction(actions.insert_sum)
+
         self.addWidget(self.get_manager_button())
 
 
