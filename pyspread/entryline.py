@@ -126,13 +126,16 @@ class Entryline(SpellTextEdit):
             if event.modifiers() == Qt.ShiftModifier:
                 self.insertPlainText('\n')
             else:
-                self.store_data()
-                grid.row += 1
+                if grid.selection_mode:
+                    grid.set_selection_mode(False)
+                else:
+                    self.store_data()
+                    grid.row += 1
         elif self.last_key == Qt.Key_Tab:
             self.store_data()
             grid.column += 1
         elif self.last_key == Qt.Key_Insert:
-            grid.selection_mode = not grid.selection_mode
+            grid.set_selection_mode(not grid.selection_mode)
         else:
             super().keyPressEvent(event)
 

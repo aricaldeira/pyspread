@@ -362,7 +362,7 @@ class Grid(QTableView):
 
     @selection_mode.setter
     def selection_mode(self, on: bool):
-        """Sets or unsets selection mode
+        """Sets or unsets selection mode for this grid
 
         In selection mode, cells cannot be edited.
         This triggers the selection_mode icon in the statusbar.
@@ -387,9 +387,10 @@ class Grid(QTableView):
                                  | QAbstractItemView.AnyKeyPressed)
             self.selection_mode_exiting = False
             self.main_window.selection_mode_widget.hide()
+            self.main_window.entry_line.setFocus()
 
     def set_selection_mode(self, value=True):
-        """Setter for selection mode
+        """Setter for selection mode for all grids
 
         This method is required for accessing selection mode from QActions.
 
@@ -400,6 +401,11 @@ class Grid(QTableView):
         # All grids must simultaneously got into or out of selection mode
         for grid in self.main_window.grids:
             grid.selection_mode = value
+
+        # Adjust the menu
+        toggle_selection_mode = \
+            self.main_window.main_window_actions.toggle_selection_mode
+        toggle_selection_mode.setChecked(value)
 
     # Overrides
 

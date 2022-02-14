@@ -1974,8 +1974,8 @@ class Workflows:
 
         key = bottom + 1, right, grid.table
 
-        code = f"numpy.sum(eval({repr(selection)}.get_absolute_access_string"+\
-               f"({shape}, Z)))"
+        code = f"numpy.sum(eval({repr(selection)}" + \
+               f".get_absolute_access_string({shape}, Z)))"
 
         grid.current = key
         index = grid.currentIndex()
