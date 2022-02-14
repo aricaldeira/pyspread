@@ -2440,7 +2440,7 @@ class GridCellDelegate(QStyledItemDelegate):
             cmd = commands.SetCellCode(code, self.grid.model, index,
                                        description)
             self.main_window.undo_stack.push(cmd)
-        return QWidget.eventFilter(self, source, event)
+        return super().eventFilter(source, event)
 
     def setEditorData(self, editor: QWidget, index: QModelIndex):
         """Overloads `setEditorData` to use code_array data

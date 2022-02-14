@@ -134,6 +134,9 @@ class Entryline(SpellTextEdit):
         elif self.last_key == Qt.Key_Tab:
             self.store_data()
             grid.column += 1
+        elif self.last_key == Qt.Key_Escape:
+            grid.on_current_changed()
+            grid.setFocus()
         elif self.last_key == Qt.Key_Insert:
             grid.set_selection_mode(not grid.selection_mode)
         else:
