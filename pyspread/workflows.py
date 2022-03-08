@@ -807,13 +807,21 @@ class Workflows:
             total_height = self.get_total_height(svg_area.top, svg_area.bottom)
             total_width = self.get_total_width(svg_area.left, svg_area.right)
 
+            x_offset = grid.columnViewportPosition(0)
+            y_offset = grid.rowViewportPosition(0)
+
+            top_left_idx = grid.model.index(svg_area.top, svg_area.left)
+            top_left_visual_rect = grid.visualRect(top_left_idx)
+
             generator.setSize(QSize(total_width, total_height))
-            paint_rect = QRectF(0, 0, total_width, total_height)
+            paint_rect = QRectF(top_left_visual_rect.x() - x_offset,
+                                top_left_visual_rect.y() - y_offset,
+                                total_width,
+                                total_height)
             generator.setViewBox(paint_rect)
             option = QStyleOptionViewItem()
 
             painter = QPainter(generator)
-
             self.paint(painter, option, paint_rect, rows, columns)
 
             painter.end()
