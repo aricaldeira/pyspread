@@ -297,6 +297,9 @@ class Workflows:
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
 
+        # Change into file directory
+        os.chdir(filepath.parent)
+
         # Load file into grid
         title = "File open progress"
         label = f"Opening {filepath.name}..."
