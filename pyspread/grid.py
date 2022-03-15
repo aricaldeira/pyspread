@@ -1517,10 +1517,10 @@ class GridHeaderView(QHeaderView):
         """
 
         unzoomed_rect = QRect(0, 0,
-                              int(rect.width()//self.grid.zoom),
-                              int(rect.height()//self.grid.zoom))
+                              int(round(rect.width()/self.grid.zoom)),
+                              int(round(rect.height()/self.grid.zoom)))
         with painter_save(painter):
-            painter.translate(rect.x(), rect.y())
+            painter.translate(rect.x()+1, rect.y()+1)
             painter.scale(self.grid.zoom, self.grid.zoom)
             super().paintSection(painter, unzoomed_rect, logicalIndex)
 
