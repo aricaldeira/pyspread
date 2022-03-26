@@ -36,6 +36,7 @@ Pyspread undoable commands
 """
 
 from copy import copy
+from math import isclose
 from typing import List, Iterable, Tuple
 
 from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
@@ -220,30 +221,43 @@ class SetRowsHeight(QUndoCommand):
     def redo(self):
         """Redo row height setting"""
 
+        unzoomed_new_height = self.new_height / self.grid.zoom
+        default_size = self.default_size / self.grid.zoom
+        code_array = self.grid.model.code_array
+
+        # Update all grids
         for grid in self.grid.main_window.grids:
+            with grid.undo_resizing_row():
+                for row in self.rows:
+                    grid.setRowHeight(row, int(unzoomed_new_height*grid.zoom))
+
+        with self.grid.undo_resizing_row():
             for row in self.rows:
-                if self.new_height != self.default_size:
-                    grid.model.code_array.row_heights[(row, self.table)] = \
-                        self.new_height / grid.zoom
-                if grid.rowHeight(row) != self.new_height:
-                    with grid.undo_resizing_row():
-                        grid.setRowHeight(row, self.new_height)
+                if isclose(unzoomed_new_height, default_size):
+                    try:
+                        code_array.row_heights.pop((row, self.table))
+                    except KeyError:
+                        pass
+                else:
+                    code_array.row_heights[(row, self.table)] = \
+                        unzoomed_new_height
 
     def undo(self):
         """Undo row height setting"""
 
         for grid in self.grid.main_window.grids:
             for row in self.rows:
-                if self.old_height == self.default_size:
-                    try:
-                        grid.model.code_array.row_heights.pop((row,
-                                                               self.table))
-                    except KeyError:
-                        pass
-                else:
-                    grid.model.code_array.row_heights[(row, self.table)] = \
-                        self.old_height / grid.zoom
                 if grid.rowHeight(row) != self.old_height:
+                    if self.old_height == self.default_size:
+                        try:
+                            grid.model.code_array.row_heights.pop((row,
+                                                                   self.table))
+                        except KeyError:
+                            pass
+                    else:
+                        grid.model.code_array.row_heights[(row, self.table)] =\
+                            self.old_height / grid.zoom
+
                     with grid.undo_resizing_row():
                         grid.setRowHeight(row, self.old_height)
 
@@ -295,7 +309,13 @@ class SetColumnsWidth(QUndoCommand):
 
         for grid in self.grid.main_window.grids:
             for column in self.columns:
-                if self.new_width != self.default_size:
+                if self.new_width == self.default_size:
+                    try:
+                        grid.model.code_array.col_widths.pop((column,
+                                                              self.table))
+                    except KeyError:
+                        pass
+                else:
                     grid.model.code_array.col_widths[(column, self.table)] = \
                         self.new_width / grid.zoom
                 if grid.columnWidth(column) != self.new_width:
