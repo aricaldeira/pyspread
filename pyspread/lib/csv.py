@@ -52,26 +52,33 @@ except ImportError:
     Money = None
 
 
-def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
+def sniff(filepath: Path, sniff_size: int, encoding: str) -> csv.Dialect:
     """Sniffs CSV dialect and header info
 
     :param filepath: Path of file to sniff
     :param sniff_size: Maximum no. bytes to use for sniffing
+    :param encoding: File encoding
     :return: csv.Dialect object with additional attribute `has_header`
 
     """
 
-    with open(filepath, newline='', encoding='utf-8') as csvfile:
+    with open(filepath, newline='', encoding=encoding) as csvfile:
         csv_str = csvfile.read(sniff_size)
 
     dialect = csv.Sniffer().sniff(csv_str)
     setattr(dialect, "hasheader", csv.Sniffer().has_header(csv_str))
+    setattr(dialect, "encoding", encoding)
 
     return dialect
 
 
 def get_header(csvfile: TextIO, dialect: csv.Dialect) -> List[str]:
-    """Returns list of first line items of file filepath"""
+    """Returns list of first line items of file filepath
+
+    :param csvfile: CSV file
+    :param dialect: Dialect of CSV file
+
+    """
 
     csvfile.seek(0)
     csvreader = csv.reader(csvfile, dialect=dialect)

@@ -66,7 +66,7 @@ from PyQt5.QtWidgets \
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
-            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget)
+            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QInputDialog)
 from PyQt5.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
@@ -662,8 +662,7 @@ class ImageFileOpenDialog(FileDialogBase):
     title = "Insert image"
 
     img_formats = QImageWriter.supportedImageFormats()
-    img_format_strings = ("*." + fmt.data().decode('utf-8')
-                          for fmt in img_formats)
+    img_format_strings = (f"*.{fmt.data().decode()}" for fmt in img_formats)
     img_format_string = " ".join(img_format_strings)
     name_filter = f"Images ({img_format_string})" + ";;" \
                   "Scalable Vector Graphics (*.svg *.svgz)"
@@ -1056,25 +1055,6 @@ class CsvParameterGroupBox(QGroupBox):
 
     title = "Parameters"
 
-    encodings = (
-        "ascii", "big5", "big5hkscs", "cp037", "cp424", "cp437",
-        "cp500", "cp720", "cp737", "cp775", "cp850", "cp852", "cp855", "cp856",
-        "cp857", "cp858", "cp860", "cp861", "cp862", "cp863", "cp864", "cp865",
-        "cp866", "cp869", "cp874", "cp875", "cp932", "cp949", "cp950",
-        "cp1006", "cp1026", "cp1140", "cp1250", "cp1251", "cp1252", "cp1253",
-        "cp1254", "cp1255", "cp1256", "cp1257", "cp1258", "euc-jp",
-        "euc-jis-2004", "euc-jisx0213", "euc-kr", "gb2312", "gbk", "gb18030",
-        "hz", "iso2022-jp", "iso2022-jp-1", "iso2022-jp-2", "iso2022-jp-2004",
-        "iso2022-jp-3", "iso2022-jp-ext", "iso2022-kr", "latin-1", "iso8859-2",
-        "iso8859-3", "iso8859-4", "iso8859-5", "iso8859-6", "iso8859-7",
-        "iso8859-8", "iso8859-9", "iso8859-10", "iso8859-13", "iso8859-14",
-        "iso8859-15", "iso8859-16", "johab", "koi8-r", "koi8-u",
-        "mac-cyrillic", "mac-greek", "mac-iceland", "mac-latin2", "mac-roman",
-        "mac-turkish", "ptcp154", "shift-jis", "shift-jis-2004",
-        "shift-jisx0213", "utf-32", "utf-32-be", "utf-32-le", "utf-16",
-        "utf-16-be", "utf-16-le", "utf-7", "utf-8", "utf-8-sig",
-    )
-
     quotings = "QUOTE_ALL", "QUOTE_MINIMAL", "QUOTE_NONNUMERIC", "QUOTE_NONE"
 
     # Tooltips
@@ -1104,7 +1084,6 @@ class CsvParameterGroupBox(QGroupBox):
         "the delimiter is ignored."
 
     # Default values that are displayed if the sniffer fails
-    default_encoding = "utf-8"
     default_quoting = "QUOTE_MINIMAL"
     default_quotechar = '"'
     default_delimiter = ','
@@ -1117,6 +1096,8 @@ class CsvParameterGroupBox(QGroupBox):
 
         super().__init__(parent)
         self.parent = parent
+        self.default_encoding = parent.csv_encoding
+        self.encodings = parent.parent.settings.encodings
 
         self.setTitle(self.title)
         self._create_widgets()
@@ -1345,26 +1326,36 @@ class CsvTable(QTableView):
         self.verticalHeader().hide()
 
         try:
-            with open(filepath, newline='', encoding='utf-8') as csvfile:
-                if hasattr(dialect, 'hasheader') and dialect.hasheader:
-                    header = get_header(csvfile, dialect)
-                    self.model.setHorizontalHeaderLabels(header)
-                    self.horizontalHeader().show()
-                else:
-                    self.horizontalHeader().hide()
-
-                for i, row in enumerate(csv_reader(csvfile, dialect)):
-                    if i >= self.no_rows:
-                        break
-                    if i == 0:
-                        self.add_choice_row(len(row))
-                    if digest_types is None:
-                        item_row = map(QStandardItem, map(str, row))
+            if hasattr(dialect, "encoding"):
+                encoding = dialect.encoding
+            else:
+                encoding = self.parent.csv_encoding
+            try:
+                with open(filepath, newline='', encoding=encoding) as csvfile:
+                    if hasattr(dialect, 'hasheader') and dialect.hasheader:
+                        header = get_header(csvfile, dialect)
+                        self.model.setHorizontalHeaderLabels(header)
+                        self.horizontalHeader().show()
                     else:
-                        codes = (convert(ele, t)
-                                 for ele, t in zip(row, digest_types))
-                        item_row = map(QStandardItem, codes)
-                    self.model.appendRow(item_row)
+                        self.horizontalHeader().hide()
+
+                    for i, row in enumerate(csv_reader(csvfile, dialect)):
+                        if i >= self.no_rows:
+                            break
+                        if i == 0:
+                            self.add_choice_row(len(row))
+                        if digest_types is None:
+                            item_row = map(QStandardItem, map(str, row))
+                        else:
+                            codes = (convert(ele, t)
+                                     for ele, t in zip(row, digest_types))
+                            item_row = map(QStandardItem, codes)
+                        self.model.appendRow(item_row)
+            except UnicodeDecodeError:
+                QMessageBox.warning(self.parent, "Encoding error",
+                                    f"File is not encoded in {encoding}.")
+                self.model.clear()
+
         except (OSError, csv.Error) as error:
             title = "CSV Import Error"
             text_tpl = "Error importing csv file {path}.\n \n" +\
@@ -1376,7 +1367,10 @@ class CsvTable(QTableView):
     def get_digest_types(self) -> List[str]:
         """Returns list of digest types from comboboxes"""
 
-        return [cbox.currentText() for cbox in self.comboboxes]
+        try:
+            return [cbox.currentText() for cbox in self.comboboxes]
+        except RuntimeError:
+            return []
 
     def update_comboboxes(self, digest_types: List[str]):
         """Updates the cono boxes to show digest_types
@@ -1411,6 +1405,7 @@ class CsvImportDialog(QDialog):
 
         self.sniff_size = parent.settings.sniff_size
 
+        self.csv_encoding = 'utf-8'
         self.dialect = None
 
         self.setWindowTitle(self.title)
@@ -1442,20 +1437,33 @@ class CsvImportDialog(QDialog):
 
         return button_box
 
+    def _sniff_dialect(self):
+        """"""
+
+        try:
+            return sniff(self.filepath, self.sniff_size, self.csv_encoding)
+        except UnicodeError:
+            self.csv_encoding, ok = QInputDialog().getItem(
+                self, f"{self.filepath} not encoded in utf-8",
+                f"Encoding of {self.filepath}",
+                self.parent.settings.encodings)
+            if ok:
+                return self._sniff_dialect()
+        except (OSError, csv.Error) as error:
+            title = "CSV Import Error"
+            text = f"Error sniffing csv file {self.filepath}.\n \n" + \
+                   f"{type(error).__name__}: {error}"
+            QMessageBox.warning(self.parent, title, text)
+
     # Button event handlers
 
     def reset(self):
         """Button event handler, resets parameter_groupbox and csv_table"""
 
-        try:
-            dialect = sniff(self.filepath, self.sniff_size)
-        except (OSError, csv.Error) as error:
-            title = "CSV Import Error"
-            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
-            text = text_tpl.format(path=self.filepath,
-                                   errtype=type(error).__name__, error=error)
-            QMessageBox.warning(self.parent, title, text)
+        dialect = self._sniff_dialect()
+        if dialect is None:
             return
+
         self.parameter_groupbox.set_csvdialect(dialect)
         self.csv_table.fill(self.filepath, dialect)
         if self.digest_types is not None:
@@ -1464,15 +1472,10 @@ class CsvImportDialog(QDialog):
     def apply(self):
         """Button event handler, applies parameters to csv_table"""
 
-        try:
-            sniff_dialect = sniff(self.filepath, self.sniff_size)
-        except (OSError, csv.Error) as error:
-            title = "CSV Import Error"
-            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
-            text = text_tpl.format(path=self.filepath,
-                                   errtype=type(error).__name__, error=error)
-            QMessageBox.warning(self.parent, title, text)
+        sniff_dialect = self._sniff_dialect()
+        if sniff_dialect is None:
             return
+
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
@@ -1491,15 +1494,10 @@ class CsvImportDialog(QDialog):
     def accept(self):
         """Button event handler, starts csv import"""
 
-        try:
-            sniff_dialect = sniff(self.filepath, self.sniff_size)
-        except csv.Error as error:
-            title = "CSV Import Error"
-            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
-            text = text_tpl.format(path=self.filepath,
-                                   errtype=type(error).__name__, error=error)
-            QMessageBox.warning(self.parent, title, text)
+        sniff_dialect = self._sniff_dialect()
+        if sniff_dialect is None:
             return
+
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:

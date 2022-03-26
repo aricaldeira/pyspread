@@ -634,7 +634,11 @@ class Workflows:
         label = f"Importing {filepath.name}..."
 
         try:
-            with open(filepath, newline='', encoding='utf-8') as csvfile:
+            if hasattr(dialect, "encoding"):
+                __encoding = dialect.encoding
+            else:
+                __encoding = csv_dlg.csv_encoding
+            with open(filepath, newline='', encoding=__encoding) as csvfile:
                 try:
                     reader = csv_reader(csvfile, dialect)
                     for i, line in file_progress_gen(self.main_window, reader,
