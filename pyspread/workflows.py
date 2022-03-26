@@ -1017,10 +1017,6 @@ class Workflows:
 
                     grid.itemDelegate().paint(painter, option, idx)
 
-        # Draw outer boundary rect
-        painter.setPen(QPen(QBrush(Qt.gray), 2))
-        painter.drawRect(paint_rect)
-
     @handle_changed_since_save
     def file_quit(self):
         """Program exit workflow"""

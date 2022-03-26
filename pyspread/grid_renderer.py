@@ -320,12 +320,15 @@ class CellEdgeRenderer:
 
         rect = QRectF(x-width/2, y-height/2, width, height)
 
+        rect_path = QPainterPath()  # Required for clipping in SVG export
+        rect_path.addRect(rect)
+
         color = self.borders.color
 
         self.painter.setPen(QPen(Qt.NoPen))
         self.painter.setBrush(QBrush(color))
 
-        self.painter.drawRect(rect)
+        self.painter.drawPath(self.clip_path.intersected(rect_path))
         self.painter.setPen(QPen(Qt.SolidLine))
 
 
@@ -440,7 +443,7 @@ class CellRenderer:
         """Paint bottom border of cell
 
         :param rect: Cell rect of the cell to be painted
-        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
+        :param clip_path: Clip rectangle that is required for QtSVG clipping
 
         """
 
