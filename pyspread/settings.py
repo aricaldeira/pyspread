@@ -145,7 +145,7 @@ class Settings:
         "shift-jisx0213", "utf-32", "utf-32-be", "utf-32-le", "utf-16",
         "utf-16-be", "utf-16-le", "utf-7", "utf-8", "utf-8-sig",
     )
-    """Encoding for importing files (e.g. CSV or SVG)"""
+    """Encodings for importing files (e.g. CSV or SVG)"""
 
     sniff_size = 65536
     """Number of bytes for csv sniffer

@@ -1888,7 +1888,29 @@ class Workflows:
                                                  selected_idx, description)
                 self.main_window.undo_stack.push(command)
 
-    # Macro menu
+    # Macro menufilepath
+
+    def _read_svg_str(self, filepath, encoding):
+        """Returns svg string from filepath
+
+        :param filepath: Path of SVG file to read
+
+        """
+
+        try:
+            with open(filepath, "r", encoding=encoding) as svgfile:
+                return svgfile.read()
+        except UnicodeError:
+            encoding, ok = QInputDialog().getItem(
+                self, f"{filepath} not encoded in utf-8",
+                f"Encoding of {filepath}",
+                self.main_window.settings.encodings)
+            if ok:
+                return self._read_svg_str(filepath, encoding)
+        except OSError as err:
+            msg_tpl = "Error opening file {filepath}: {err}."
+            msg = msg_tpl.format(filepath=filepath, err=err)
+            self.main_window.statusBar().showMessage(msg)
 
     def macro_insert_image(self):
         """Insert image workflow"""
@@ -1906,14 +1928,10 @@ class Workflows:
         grid.selectionModel().select(index, QItemSelectionModel.Select)
 
         if filepath.suffix == ".svg":
-            try:
-                with open(filepath, "r", encoding='utf-8') as svgfile:
-                    svg = svgfile.read()
-            except OSError as err:
-                msg_tpl = "Error opening file {filepath}: {err}."
-                msg = msg_tpl.format(filepath=filepath, err=err)
-                self.main_window.statusBar().showMessage(msg)
+            svg = self._read_svg_str(filepath, encoding='utf-8')
+            if not svg:
                 return
+
             self._paste_svg(svg, index)
         else:
             try:

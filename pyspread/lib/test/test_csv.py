@@ -57,7 +57,7 @@ def test_sniff(filepath, hasheader, delimiter, doublequote, quoting, quotechar,
                lineterminator, skipinitialspace):
     """Unit test for sniff"""
 
-    dialect = sniff(filepath, 1024)
+    dialect = sniff(filepath, 1024, encoding='utf-8')
     assert dialect.hasheader == hasheader
     assert dialect.delimiter == delimiter
     assert dialect.doublequote == doublequote
@@ -76,7 +76,7 @@ param_get_header = [
 def test_get_header(filepath, header):
     """Unit test for get_first_line"""
 
-    dialect = sniff(filepath, 1024)
+    dialect = sniff(filepath, 1024, encoding='utf-8')
     with open(filepath) as csvfile:
         __header = get_header(csvfile, dialect)
 
@@ -87,7 +87,7 @@ def test_csv_reader():
     """Unit test for csv_reader"""
 
     filepath = TESTPATH / 'valid1.csv'
-    dialect = sniff(filepath, 1024)
+    dialect = sniff(filepath, 1024, encoding='utf-8')
     result = [["1", "2", "3"], ["4", "5", "6"]]
 
     with open(filepath) as csvfile:
