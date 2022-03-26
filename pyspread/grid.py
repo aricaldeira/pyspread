@@ -641,8 +641,9 @@ class Grid(QTableView):
             rows = [row]
 
         description = f"Resize rows {rows} to {new_height}"
-        command = commands.SetRowsHeight(self, rows, self.table, old_height,
-                                         new_height, description)
+        command = commands.SetRowsHeight(self, rows, self.table,
+                                         old_height / self.zoom,
+                                         new_height / self.zoom, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column: int, old_width: float,
@@ -666,7 +667,8 @@ class Grid(QTableView):
 
         description = f"Resize columns {columns} to {new_width}"
         command = commands.SetColumnsWidth(self, columns, self.table,
-                                           old_width, new_width, description)
+                                           old_width / self.zoom,
+                                           new_width / self.zoom, description)
         self.main_window.undo_stack.push(command)
 
     def on_zoom_in(self):

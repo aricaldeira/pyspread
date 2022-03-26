@@ -199,7 +199,8 @@ class SetRowsHeight(QUndoCommand):
         self.old_height = old_height
         self.new_height = new_height
 
-        self.default_size = self.grid.verticalHeader().defaultSectionSize()
+        self.default_size = \
+            self.grid.verticalHeader().defaultSectionSize() / self.grid.zoom
 
     def id(self) -> int:
         """Command id that enables command merging"""
@@ -221,45 +222,42 @@ class SetRowsHeight(QUndoCommand):
     def redo(self):
         """Redo row height setting"""
 
-        unzoomed_new_height = self.new_height / self.grid.zoom
-        default_size = self.default_size / self.grid.zoom
-        code_array = self.grid.model.code_array
-
-        # Update all grids
+        # Update all frontend grids
         for grid in self.grid.main_window.grids:
             with grid.undo_resizing_row():
                 for row in self.rows:
-                    grid.setRowHeight(row, int(unzoomed_new_height*grid.zoom))
+                    grid.setRowHeight(row, int(self.new_height * grid.zoom))
 
+        code_array = self.grid.model.code_array
         with self.grid.undo_resizing_row():
             for row in self.rows:
-                if isclose(unzoomed_new_height, default_size):
+                if isclose(self.new_height, self.default_size):
                     try:
                         code_array.row_heights.pop((row, self.table))
                     except KeyError:
                         pass
                 else:
-                    code_array.row_heights[(row, self.table)] = \
-                        unzoomed_new_height
+                    code_array.row_heights[(row, self.table)] = self.new_height
 
     def undo(self):
         """Undo row height setting"""
 
+        # Update all frontend grids
         for grid in self.grid.main_window.grids:
-            for row in self.rows:
-                if grid.rowHeight(row) != self.old_height:
-                    if self.old_height == self.default_size:
-                        try:
-                            grid.model.code_array.row_heights.pop((row,
-                                                                   self.table))
-                        except KeyError:
-                            pass
-                    else:
-                        grid.model.code_array.row_heights[(row, self.table)] =\
-                            self.old_height / grid.zoom
+            with grid.undo_resizing_row():
+                for row in self.rows:
+                    grid.setRowHeight(row, int(self.old_height * grid.zoom))
 
-                    with grid.undo_resizing_row():
-                        grid.setRowHeight(row, self.old_height)
+        code_array = self.grid.model.code_array
+        with self.grid.undo_resizing_row():
+            for row in self.rows:
+                if isclose(self.old_height, self.default_size):
+                    try:
+                        code_array.row_heights.pop((row, self.table))
+                    except KeyError:
+                        pass
+                else:
+                    code_array.row_heights[(row, self.table)] = self.old_height
 
 
 class SetColumnsWidth(QUndoCommand):
@@ -285,7 +283,8 @@ class SetColumnsWidth(QUndoCommand):
         self.old_width = old_width
         self.new_width = new_width
 
-        self.default_size = self.grid.horizontalHeader().defaultSectionSize()
+        self.default_size = \
+            self.grid.horizontalHeader().defaultSectionSize() / self.grid.zoom
 
     def id(self) -> int:
         """Command id that enables command merging"""
@@ -307,38 +306,45 @@ class SetColumnsWidth(QUndoCommand):
     def redo(self):
         """Redo column width setting"""
 
+        # Update all frontend grids
         for grid in self.grid.main_window.grids:
+            with grid.undo_resizing_column():
+                for column in self.columns:
+                    grid.setColumnWidth(column,
+                                        int(self.new_width * grid.zoom))
+
+        code_array = self.grid.model.code_array
+        with self.grid.undo_resizing_column():
             for column in self.columns:
-                if self.new_width == self.default_size:
+                if isclose(self.new_width, self.default_size):
                     try:
-                        grid.model.code_array.col_widths.pop((column,
-                                                              self.table))
+                        code_array.col_widths.pop((column, self.table))
                     except KeyError:
                         pass
                 else:
-                    grid.model.code_array.col_widths[(column, self.table)] = \
-                        self.new_width / grid.zoom
-                if grid.columnWidth(column) != self.new_width:
-                    with grid.undo_resizing_column():
-                        grid.setColumnWidth(column, self.new_width)
+                    code_array.col_widths[(column, self.table)] = \
+                        self.new_width
 
     def undo(self):
         """Undo column width setting"""
 
+        # Update all frontend grids
         for grid in self.grid.main_window.grids:
+            with grid.undo_resizing_column():
+                for column in self.columns:
+                    grid.setColumnWidth(column, int(self.old_width*grid.zoom))
+
+        code_array = self.grid.model.code_array
+        with self.grid.undo_resizing_column():
             for column in self.columns:
-                if self.old_width == self.default_size:
+                if isclose(self.old_width, self.default_size):
                     try:
-                        grid.model.code_array.col_widths.pop((column,
-                                                              self.table))
+                        code_array.col_widths.pop((column, self.table))
                     except KeyError:
                         pass
                 else:
-                    grid.model.code_array.col_widths[(column, self.table)] = \
-                        self.old_width / grid.zoom
-                if grid.columnWidth(column) != self.old_width:
-                    with grid.undo_resizing_column():
-                        grid.setColumnWidth(column, self.old_width)
+                    code_array.col_widths[(column, self.table)] = \
+                        self.old_width
 
 
 class InsertRows(QUndoCommand):
