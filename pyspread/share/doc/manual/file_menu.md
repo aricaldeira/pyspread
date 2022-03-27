@@ -70,9 +70,11 @@ Macro text
 
 A csv file can be imported via `File → Import`.
 
-After selecting a file, the CSV file import dialog opens. In this dialog, CSV import options can be set. Furthermore, target Python types can be specified, so that import of dates becomes possible. The grid of the import dialog only shows the first few rows of the csv files in order to give an impression how import data will look like in *pyspread*.
+If the selected file is not encoded in UTF-8, an encoding has to be chosen in a dialog. If the file is encoded in UTF-8 or if the chosen encoding can be read, the CSV file import dialog opens. In this dialog, CSV import options can be set. Furthermore, target Python types can be specified, so that import of dates becomes possible. The grid of the import dialog only shows the first few rows of the csv files in order to give an impression how import data will look like in *pyspread*.
 
-Importing a file always activates safe mode because code in the CSV file might prove harmful.
+Be careful when importing a file that contains code, because code in the CSV file might prove harmful.
+
+For importing money data, it is recommended to use the decimal or the Money datatype. The latter supports specific currencies and requires the optional dependency [py-moneyed](https://pypi.org/project/py-moneyed/).
 
 ## File → Export
 

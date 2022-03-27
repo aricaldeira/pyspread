@@ -7,6 +7,10 @@ title: Advanced topics
 
 # Advanced topics
 
+## Accessing the current cell from a macro
+
+The variables X, Y, Z, R, C and T are set to None inside the macro panel. In order to access the row, column or table of the cell that is calling a function inside the macro panel or inside an external library, the respective variables have to be provided as parameters.
+
 ## Conditional formatting
 
 For conditionally formatting the background color of a cell, enter
