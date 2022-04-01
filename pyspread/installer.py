@@ -124,6 +124,9 @@ OPTIONAL_DEPENDENCIES = [
            description="The dateutil module provides powerful extensions to "
                        "the standard datetime module, available in Python.",
            required_version=version.parse("2.7.0")),
+    Module(name="py-moneyed",
+           description="Import money from csv using the py-moneyed module",
+           required_version=version.parse("2.0")),
 ]
 
 DEPENDENCIES = REQUIRED_DEPENDENCIES + OPTIONAL_DEPENDENCIES

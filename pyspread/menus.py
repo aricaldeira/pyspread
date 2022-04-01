@@ -144,6 +144,9 @@ class EditMenu(QMenu):
         self.addAction(actions.find)
         self.addAction(actions.replace)
         self.addSeparator()
+        self.addAction(actions.sort_ascending)
+        self.addAction(actions.sort_descending)
+        self.addSeparator()
         self.addAction(actions.toggle_selection_mode)
         self.addSeparator()
         self.addAction(actions.quote)
@@ -282,7 +285,8 @@ class MacroMenu(QMenu):
         self.addAction(actions.insert_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
-
+        self.addSeparator()
+        self.addAction(actions.insert_sum)
 
 class HelpMenu(QMenu):
     """Help menu for the main menubar"""

@@ -40,8 +40,9 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from typing import List, Tuple
 
-from PyQt5.QtCore import Qt, QModelIndex, QRectF, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPalette, QPen
+from PyQt5.QtCore import Qt, QModelIndex, QRectF, QPointF
+from PyQt5.QtGui import (QBrush, QColor, QPainter, QPalette, QPen,
+                         QPainterPath, QPolygonF, QPainterPathStroker)
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
 
 
@@ -227,7 +228,7 @@ class GridCellNavigator:
 
 @dataclass
 class EdgeBorders:
-    """Holds border data for an edge"""
+    """Holds border data for an edge and provides effective edge properties"""
 
     left_width: float
     right_width: float
@@ -245,25 +246,50 @@ class EdgeBorders:
     bottom_y: float
 
     @property
-    def widths(self) -> Tuple[float, float, float, float]:
+    def _border_widths(self) -> Tuple[float, float, float, float]:
         """Tuple of border widths in order left, right, top, bottom"""
 
         return (self.left_width, self.right_width,
                 self.top_width, self.bottom_width)
 
     @property
-    def colors(self) -> Tuple[QColor, QColor, QColor, QColor]:
+    def _border_colors(self) -> Tuple[QColor, QColor, QColor, QColor]:
         """Tuple of border colors in order left, right, top, bottom"""
 
         return (self.left_color, self.right_color,
                 self.top_color, self.bottom_color)
+
+    @property
+    def width(self) -> float:
+        """Edge width, i.e. thickest vertical border"""
+
+        return max(self.top_width, self.bottom_width)
+
+    @property
+    def height(self) -> float:
+        """Edge height, i.e. thickest horizontal border"""
+
+        return max(self.left_width, self.right_width)
+
+    @property
+    def color(self) -> QColor:
+        """Edge color, i.e. darkest color of thickest edge border"""
+
+        max_border_width = max(self.width, self.height)
+        colors = []
+        for width, color in zip(self._border_widths, self._border_colors):
+            if width == max_border_width:
+                colors.append(color)
+        colors.sort(key=lambda color: color.lightnessF())
+
+        return colors[0]
 
 
 class CellEdgeRenderer:
     """Paints cell edges"""
 
     def __init__(self, painter: QPainter, center: QPointF,
-                 borders: EdgeBorders):
+                 borders: EdgeBorders, clip_path: QPainterPath, zoom: float):
         """
 
         Borders are provided by EdgeBorders in order: left, right, top, bottom
@@ -271,26 +297,39 @@ class CellEdgeRenderer:
         :param painter: Painter with which edge is drawn
         :param center: Edge center
         :param borders: Border widths and colors
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
+        :param zoom: Current zoom level
 
         """
 
         self.painter = painter
-
-        lines = [QLineF(center.x(), center.y(), borders.left_x, center.y()),
-                 QLineF(center.x(), center.y(), borders.right_x, center.y()),
-                 QLineF(center.x(), center.y(), center.x(), borders.top_y),
-                 QLineF(center.x(), center.y(), center.x(), borders.bottom_y)]
-
-        self.edge_data = list(zip(borders.widths, borders.colors, lines))
-        self.edge_data.sort(key=lambda edge: (-edge[1].lightnessF(), edge[0]))
+        self.center = center
+        self.borders = borders
+        self.clip_path = clip_path
+        self.zoom = zoom
 
     def paint(self):
         """Paints the edge"""
 
-        for width, color, line in self.edge_data:
-            self.painter.setPen(QPen(QBrush(color), width,
-                                     Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
-            self.painter.drawLine(line)
+        if not self.borders.width or not self.borders.height:
+            return  # Invisible edge
+
+        x, y = self.center.x(), self.center.y()
+        width = self.borders.width * self.zoom
+        height = self.borders.height * self.zoom
+
+        rect = QRectF(x-width/2, y-height/2, width, height)
+
+        rect_path = QPainterPath()  # Required for clipping in SVG export
+        rect_path.addRect(rect)
+
+        color = self.borders.color
+
+        self.painter.setPen(QPen(Qt.NoPen))
+        self.painter.setBrush(QBrush(color))
+
+        self.painter.drawPath(self.clip_path.intersected(rect_path))
+        self.painter.setPen(QPen(Qt.SolidLine))
 
 
 class QColorCache(dict):
@@ -387,10 +426,24 @@ class CellRenderer:
             self.grid.delegate.paint_(self.painter, zrect, self.option,
                                       self.index)
 
-    def paint_bottom_border(self, rect: QRectF):
+    def _get_border_pen(self, width, zoom):
+        """Gets zoomed border pen
+
+        :param width: Unzoomed line width
+        :param zoom: Current zoom level of grid
+
+        """
+
+        zoomed_width = max(1, width * zoom)
+
+        return QPen(QColor(255, 255, 255, 0), zoomed_width,
+                    Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
+
+    def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
 
         :param rect: Cell rect of the cell to be painted
+        :param clip_path: Clip rectangle that is required for QtSVG clipping
 
         """
 
@@ -398,20 +451,30 @@ class CellRenderer:
             return
 
         line_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
-        line_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
-        self.painter.setPen(QPen(QBrush(line_color), line_width,
-                                 Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
-        bottom_border_line = QLineF(rect.x(),
-                                    rect.y() + rect.height(),
-                                    rect.x() + rect.width(),
-                                    rect.y() + rect.height())
-        self.painter.drawLine(bottom_border_line)
+        point1 = QPointF(rect.x(), rect.y() + rect.height())
+        point2 = QPointF(rect.x() + rect.width(), rect.y() + rect.height())
+        line_polygon = QPolygonF((point1, point2))
+        line_path = QPainterPath()
+        line_path.addPolygon(line_polygon)
 
-    def paint_right_border(self, rect: QRectF):
+        pen = self._get_border_pen(self.cell_nav.borderwidth_bottom,
+                                   self.grid.zoom)
+        stroker = QPainterPathStroker(pen)
+        stroked_path = stroker.createStroke(line_path)
+
+        alpha = max(0, round(255 - 255 * self.cell_nav.borderwidth_bottom *
+                             self.grid.zoom))
+
+        self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
+        self.painter.setBrush(QBrush(line_color))
+        self.painter.drawPath(clip_path.intersected(stroked_path))
+
+    def paint_right_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint right border of cell
 
         :param rect: Cell rect of the cell to be painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
@@ -419,25 +482,38 @@ class CellRenderer:
             return
 
         line_color = self.qcolor_cache[self.cell_nav.border_color_right]
-        line_width = self.cell_nav.borderwidth_right * self.grid.zoom
-        self.painter.setPen(QPen(QBrush(line_color), line_width,
-                                 Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
-        right_border_line = QLineF(rect.x() + rect.width(),
-                                   rect.y(),
-                                   rect.x() + rect.width(),
-                                   rect.y() + rect.height())
-        self.painter.drawLine(right_border_line)
+        point1 = QPointF(rect.x() + rect.width(), rect.y())
+        point2 = QPointF(rect.x() + rect.width(), rect.y() + rect.height())
+        line_polygon = QPolygonF((point1, point2))
+        line_path = QPainterPath()
+        line_path.addPolygon(line_polygon)
 
-    def paint_above_borders(self, rect: QRectF):
+        pen = self._get_border_pen(self.cell_nav.borderwidth_right,
+                                   self.grid.zoom)
+        stroker = QPainterPathStroker(pen)
+        stroked_path = stroker.createStroke(line_path)
+
+        alpha = max(0, round(255 - 255 * self.cell_nav.borderwidth_bottom *
+                             self.grid.zoom))
+
+        self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
+        self.painter.setBrush(QBrush(line_color))
+        self.painter.drawPath(clip_path.intersected(stroked_path))
+
+    def paint_above_borders(self, rect: QRectF, clip_path: QPainterPath):
         """Paint lower borders of all above cells
 
         :param rect: Cell rect of below cell, in which the borders are painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
         for above_key in self.cell_nav.above_keys():
             above_cell_nav = GridCellNavigator(self.grid, above_key)
+            if not above_cell_nav.borderwidth_bottom:
+                continue
+
             merge_area = above_cell_nav.merge_area
             if merge_area is None:
                 columns = [above_key[1]]
@@ -449,25 +525,39 @@ class CellRenderer:
                                    for column in columns)
 
             line_color = self.qcolor_cache[above_cell_nav.border_color_bottom]
-            line_width = above_cell_nav.borderwidth_bottom * self.grid.zoom
-            self.painter.setPen(QPen(QBrush(line_color), line_width,
-                                     Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
-            above_border_line = QLineF(above_rect_x,
-                                       rect.y(),
-                                       above_rect_x + above_rect_width,
-                                       rect.y())
-            self.painter.drawLine(above_border_line)
+            point1 = QPointF(above_rect_x, rect.y())
+            point2 = QPointF(above_rect_x + above_rect_width, rect.y())
+            line_polygon = QPolygonF((point1, point2))
+            line_path = QPainterPath()
+            line_path.addPolygon(line_polygon)
 
-    def paint_left_borders(self, rect: QRectF):
+            pen = self._get_border_pen(above_cell_nav.borderwidth_bottom,
+                                       self.grid.zoom)
+            stroker = QPainterPathStroker(pen)
+            stroked_path = stroker.createStroke(line_path)
+
+            alpha = max(0, round(255 - 255 *
+                                 above_cell_nav.borderwidth_bottom *
+                                 self.grid.zoom))
+
+            self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
+            self.painter.setBrush(QBrush(line_color))
+            self.painter.drawPath(clip_path.intersected(stroked_path))
+
+    def paint_left_borders(self, rect: QRectF, clip_path: QPainterPath):
         """Paint right borders of all left cells
 
         :param rect: Cell rect of right cell, in which the borders are painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
         """
 
         for left_key in self.cell_nav.left_keys():
             left_cell_nav = GridCellNavigator(self.grid, left_key)
+            if not left_cell_nav.borderwidth_right:
+                continue
+
             merge_area = left_cell_nav.merge_area
             if merge_area is None:
                 rows = [left_key[0]]
@@ -478,20 +568,31 @@ class CellRenderer:
             left_rect_height = sum(self.grid.rowHeight(row) for row in rows)
 
             line_color = self.qcolor_cache[left_cell_nav.border_color_right]
-            line_width = left_cell_nav.borderwidth_right * self.grid.zoom
-            self.painter.setPen(QPen(QBrush(line_color), line_width,
-                                     Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin))
 
-            above_border_line = QLineF(rect.x(),
-                                       left_rect_y,
-                                       rect.x(),
-                                       left_rect_y + left_rect_height)
-            self.painter.drawLine(above_border_line)
+            point1 = QPointF(rect.x(), left_rect_y)
+            point2 = QPointF(rect.x(), left_rect_y + left_rect_height)
+            line_polygon = QPolygonF((point1, point2))
+            line_path = QPainterPath()
+            line_path.addPolygon(line_polygon)
 
-    def paint_top_left_edge(self, rect: QRectF):
+            pen = self._get_border_pen(left_cell_nav.borderwidth_right,
+                                       self.grid.zoom)
+            stroker = QPainterPathStroker(pen)
+            stroked_path = stroker.createStroke(line_path)
+
+            alpha = max(0, round(255 - 255 *
+                                 left_cell_nav.borderwidth_right *
+                                 self.grid.zoom))
+
+            self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
+            self.painter.setBrush(QBrush(line_color))
+            self.painter.drawPath(clip_path.intersected(stroked_path))
+
+    def paint_top_left_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints top left edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                   top
                TL  |  T
@@ -511,10 +612,10 @@ class CellRenderer:
         left_cell_nav = GridCellNavigator(self.grid, left_key)
         top_cell_nav = GridCellNavigator(self.grid, top_key)
 
-        left_width = top_left_cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = top_cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = top_left_cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = left_cell_nav.borderwidth_right * self.grid.zoom
+        left_width = top_left_cell_nav.borderwidth_bottom
+        right_width = top_cell_nav.borderwidth_bottom
+        top_width = top_left_cell_nav.borderwidth_right
+        bottom_width = left_cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[top_left_cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[top_cell_nav.border_color_bottom]
@@ -530,13 +631,15 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
-    def paint_top_right_edge(self, rect: QRectF):
+    def paint_top_right_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints top right edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                   top
                 T  |  TR
@@ -554,10 +657,10 @@ class CellRenderer:
         top_cell_nav = GridCellNavigator(self.grid, top_key)
         top_right_cell_nav = GridCellNavigator(self.grid, top_right_key)
 
-        left_width = top_cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = top_right_cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = top_cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = self.cell_nav.borderwidth_right * self.grid.zoom
+        left_width = top_cell_nav.borderwidth_bottom
+        right_width = top_right_cell_nav.borderwidth_bottom
+        top_width = top_cell_nav.borderwidth_right
+        bottom_width = self.cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[top_cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[top_right_cell_nav.border_color_bottom]
@@ -573,13 +676,15 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
-    def paint_bottom_left_edge(self, rect: QRectF):
+    def paint_bottom_left_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints bottom left edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                   top
                L   |  C
@@ -597,10 +702,10 @@ class CellRenderer:
         left_cell_nav = GridCellNavigator(self.grid, left_key)
         bottom_left_cell_nav = GridCellNavigator(self.grid, bottom_left_key)
 
-        left_width = left_cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = left_cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = bottom_left_cell_nav.borderwidth_right * self.grid.zoom
+        left_width = left_cell_nav.borderwidth_bottom
+        right_width = self.cell_nav.borderwidth_bottom
+        top_width = left_cell_nav.borderwidth_right
+        bottom_width = bottom_left_cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[left_cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
@@ -617,13 +722,15 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
-    def paint_bottom_right_edge(self, rect: QRectF):
+    def paint_bottom_right_edge(self, rect: QRectF, clip_path: QPainterPath):
         """Paints bottom right edge of the cell
 
         :param rect: Cell rect of cell, for which the edge is painted
+        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
 
                  top
                C  |  R
@@ -641,10 +748,10 @@ class CellRenderer:
         right_cell_nav = GridCellNavigator(self.grid, right_key)
         bottom_cell_nav = GridCellNavigator(self.grid, bottom_key)
 
-        left_width = self.cell_nav.borderwidth_bottom * self.grid.zoom
-        right_width = right_cell_nav.borderwidth_bottom * self.grid.zoom
-        top_width = self.cell_nav.borderwidth_right * self.grid.zoom
-        bottom_width = bottom_cell_nav.borderwidth_right * self.grid.zoom
+        left_width = self.cell_nav.borderwidth_bottom
+        right_width = right_cell_nav.borderwidth_bottom
+        top_width = self.cell_nav.borderwidth_right
+        bottom_width = bottom_cell_nav.borderwidth_right
 
         left_color = self.qcolor_cache[self.cell_nav.border_color_bottom]
         right_color = self.qcolor_cache[right_cell_nav.border_color_bottom]
@@ -660,21 +767,29 @@ class CellRenderer:
                               left_color, right_color, top_color, bottom_color,
                               left_x, right_x, top_y, bottom_y)
 
-        renderer = CellEdgeRenderer(self.painter, center, borders)
+        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
+                                    self.grid.zoom)
         renderer.paint()
 
     def paint_borders(self, rect):
         """Paint cell borders"""
 
-        self.paint_bottom_border(rect)
-        self.paint_right_border(rect)
-        self.paint_above_borders(rect)
-        self.paint_left_borders(rect)
+        clip_path = QPainterPath()  # Required for clipping in SVG export
+        clip_path.addRect(rect)
 
-        self.paint_top_left_edge(rect)
-        self.paint_top_right_edge(rect)
-        self.paint_bottom_left_edge(rect)
-        self.paint_bottom_right_edge(rect)
+        self.painter.save()
+
+        self.paint_bottom_border(rect, clip_path)
+        self.paint_right_border(rect, clip_path)
+        self.paint_above_borders(rect, clip_path)
+        self.paint_left_borders(rect, clip_path)
+
+        self.paint_top_left_edge(rect, clip_path)
+        self.paint_top_right_edge(rect, clip_path)
+        self.paint_bottom_left_edge(rect, clip_path)
+        self.paint_bottom_right_edge(rect, clip_path)
+
+        self.painter.restore()
 
     def paint(self):
         """Paints the cell"""

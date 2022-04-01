@@ -31,7 +31,10 @@
  * :class:`TextColorButton`
  * :class:`LineColorButton`
  * :class:`BackgroundColorButton`
+ * :class:`MenuComboBox`
+ * :class:`TypeMenuComboBox`
  * :class:`FontChoiceCombo`
+ * :class:`FontSizeCombo`
  * :class:`Widgets`
  * :class:`FindEditor`
  * :class:`CellButton`
@@ -57,11 +60,11 @@ from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
 try:
     from pyspread.actions import Action
     from pyspread.icons import Icon
-    from pyspread.settings import WEB_URL
+    from pyspread.lib.csv import typehandlers, currencies
 except ImportError:
     from actions import Action
     from icons import Icon
-    from settings import WEB_URL
+    from lib.csv import typehandlers, currencies
 
 
 class MultiStateBitmapButton(QToolButton):
@@ -86,6 +89,8 @@ class MultiStateBitmapButton(QToolButton):
 
     @property
     def current_action_idx(self) -> int:
+        """Index of current action"""
+
         return self._current_action_idx
 
     @current_action_idx.setter
@@ -246,6 +251,7 @@ class ColorButton(QToolButton):
     colorChanged = pyqtSignal()
     title = "Select Color"
     default_color = None
+    _color = None
 
     def __init__(self, color: QColor, icon: QIcon = None,
                  max_size: QSize = QSize(28, 28)):
@@ -257,6 +263,8 @@ class ColorButton(QToolButton):
         """
 
         super().__init__()
+
+        self.set_max_size(max_size)
 
         if icon is not None:
             self.setIcon(icon)
@@ -279,7 +287,7 @@ class ColorButton(QToolButton):
 
         """
 
-        if hasattr(self, "_color") and self._color == color:
+        if self._color == color:
             return
 
         self._color = color
@@ -391,6 +399,94 @@ class BackgroundColorButton(ColorButton):
         self.default_color = self.palette().color(QPalette.Base)
 
 
+class MenuComboBox(QComboBox):
+    """ComboBox that uses a menu instead of a list"""
+
+    text_tpl = "{} ({})"  # Template for ComboBox item text
+
+    def __init__(self, items: dict):
+        """
+
+        :param items: Menu items
+
+        The dict items needs to be given in the following format:
+        {
+            "<label_1>": None,  # For leaf item
+            "<label_2>": {"<label_2.1>": None},  # For submenu
+         }
+
+        """
+
+        super().__init__()
+
+        self.action2index = {}  # Maps menu action to ComboBox item index
+
+        self.menu = QMenu(self)
+        self.menu.triggered.connect(self.on_menu_selected)
+
+        self._fill(items, self.menu)
+
+    def _fill(self, items: dict, menu: QMenu, parent_item_text: str = ""):
+        """Fills the menu and the combobox
+
+        :param items: Menu items for respective (sub)menu
+        :param items: Menu or submenu
+        :param parent_item_text: Text of parent item in submenu
+
+        """
+
+        for item in items:
+            if parent_item_text:
+                text = self.text_tpl.format(parent_item_text, item)
+            else:
+                text = item
+
+            if items[item] is None:
+                # Leaf item
+                action = menu.addAction(item)
+                self.addItem(text)
+                self.action2index[action] = self.count() - 1
+
+            else:
+                # Submenu
+                submenu = self.menu.addMenu(item)
+                self._fill(items[item], submenu, parent_item_text=text)
+
+    def showPopup(self):
+        """Show combo menu"""
+
+        rect = self.rect()
+
+        pos = QPoint(rect.x(), rect.y()+rect.height())
+        self.menu.popup(self.mapToGlobal(pos))
+
+    def hidePopup(self):
+        """Hide combo menu"""
+
+        self.menu.hideTearOffMenu()
+        super().hidePopup()
+
+    def on_menu_selected(self, action):
+        """Event handler for menu"""
+
+        self.setCurrentIndex(self.action2index[action])
+
+
+class TypeMenuComboBox(MenuComboBox):
+    """MenuComboBox that comprises types and currencies for CSV import"""
+
+    def __init__(self):
+        items = {}
+        for typehandler in typehandlers:
+            if typehandler == "Money":
+                items[typehandler] = dict((currency.code, None)
+                                          for currency in currencies)
+            else:
+                items[typehandler] = None
+
+        super().__init__(items)
+
+
 class FontChoiceCombo(QFontComboBox):
     """Font choice combo box"""
 
@@ -404,7 +500,7 @@ class FontChoiceCombo(QFontComboBox):
 
         """
 
-        super().__init__()
+        super().__init__(main_window)
 
         self.setMaximumWidth(150)
 
@@ -432,7 +528,7 @@ class FontChoiceCombo(QFontComboBox):
 
         return Icon.font_dialog
 
-    def on_font(self, font: QFont):
+    def on_font(self):
         """Font choice event handler"""
 
         self.fontChanged.emit()
@@ -468,6 +564,8 @@ class FontSizeCombo(QComboBox):
 
     @property
     def size(self) -> int:
+        """Size of current text"""
+
         return int(self.currentText())
 
     @size.setter
@@ -487,7 +585,7 @@ class FontSizeCombo(QComboBox):
 
         return Icon.font_dialog
 
-    def on_text(self, size: int):
+    def on_text(self):
         """Font size choice event handler"""
 
         try:

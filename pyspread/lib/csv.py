@@ -37,6 +37,7 @@
 
 import ast
 import csv
+from decimal import Decimal
 from pathlib import Path
 from typing import TextIO, Iterable, List
 
@@ -45,27 +46,39 @@ try:
 except ImportError:
     parse = None
 
+try:
+    from moneyed import Money, list_all_currencies
+except ImportError:
+    Money = None
 
-def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
+
+def sniff(filepath: Path, sniff_size: int, encoding: str) -> csv.Dialect:
     """Sniffs CSV dialect and header info
 
     :param filepath: Path of file to sniff
     :param sniff_size: Maximum no. bytes to use for sniffing
+    :param encoding: File encoding
     :return: csv.Dialect object with additional attribute `has_header`
 
     """
 
-    with open(filepath, newline='', encoding='utf-8') as csvfile:
+    with open(filepath, newline='', encoding=encoding) as csvfile:
         csv_str = csvfile.read(sniff_size)
 
     dialect = csv.Sniffer().sniff(csv_str)
     setattr(dialect, "hasheader", csv.Sniffer().has_header(csv_str))
+    setattr(dialect, "encoding", encoding)
 
     return dialect
 
 
 def get_header(csvfile: TextIO, dialect: csv.Dialect) -> List[str]:
-    """Returns list of first line items of file filepath"""
+    """Returns list of first line items of file filepath
+
+    :param csvfile: CSV file
+    :param dialect: Dialect of CSV file
+
+    """
 
     csvfile.seek(0)
     csvreader = csv.reader(csvfile, dialect=dialect)
@@ -115,6 +128,10 @@ def convert(string: str, digest_type: str) -> str:
     if digest_type is None:
         digest_type = 'repr'
 
+    if digest_type.split()[0] == "Money":
+        currency = digest_type.split()[1][1:-1]
+        return repr(typehandlers["Money"](string, currency=currency))
+
     try:
         return repr(typehandlers[digest_type](string))
 
@@ -158,13 +175,28 @@ def make_object(obj):
 typehandlers = {
     'object': ast.literal_eval,
     'repr': lambda x: x,
-    'bool': bool,
+    'str': str,
     'int': int,
     'float': float,
+    'decimal': Decimal,
     'complex': complex,
-    'str': str,
+    'bool': bool,
     'bytes': bytes,
 }
+
+
+if Money is not None:
+    def money(amount, currency="USD"):
+        """Money wrapper defining a standard currency"""
+
+        return Money(amount, currency=currency)
+
+    typehandlers.update({'Money': money})
+
+    currencies = list_all_currencies()
+else:
+    currencies = []
+
 
 if parse is not None:
     typehandlers.update({'date': date,

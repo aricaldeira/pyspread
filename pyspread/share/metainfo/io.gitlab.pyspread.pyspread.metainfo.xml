@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.gitlab.pyspread.pyspread</id>
+  <metadata_license>FSFAP</metadata_license>
+  <name>pyspread</name>
+  <summary>pyspread is a non-traditional spreadsheet application that is based on and written in the programming language Python</summary>
+
+  <icon type="stock">pyspread</icon>
+  
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <description>
+    <p>
+      <em>pyspread</em> is a non-traditional spreadsheet application that is based on and written in the programming language Python. The goal of <em>pyspread</em> is to be the most pythonic spreadsheet.
+    </p>
+    <p>
+      <em>pyspread</em> expects Python expressions in its grid cells, which makes a spreadsheet specific language obsolete. Each cell returns a Python object that can be accessed from other cells. These objects can represent anything including lists or matrices.
+    </p>
+    <p>
+      <em>pyspread</em> is free software. It is released under the GPL v3 licence.
+    </p>
+  </description>
+  <categories>
+      <category>Office</category>
+      <category>Spreadsheet</category>
+  </categories>
+  <url type="homepage">https://pyspread.gitlab.io</url>
+  <url type="bugtracker">https://gitlab.com/pyspread/pyspread/issues</url>
+  <url type="help">https://pyspread.gitlab.io/docs.html</url>
+  <launchable type="desktop-id">io.gitlab.pyspread.pyspread.desktop</launchable>
+  
+  <releases>
+    <release version="2.0.2" date="2021-12-16">
+      <description>
+        <p>This is a bugfix release for pyspread 2.0 for Python 3.10 compatibility.</p>
+      </description>
+    </release>
+    <release version="2.0.1" date="2021-11-27" />
+    <release version="2.0" date="2021-11-19" />
+  </releases>
+  
+  <provides>
+    <mediatype>application/x-pyspread-spreadsheet</mediatype>
+    <mediatype>application/x-pyspread-bz-spreadsheet</mediatype>
+  </provides>
+  <content_rating type="oars-1.0" />
+  <screenshots>
+    <screenshot type="default">
+      <caption>Pyspread example with text, an image and a chart</caption>
+      <image>https://pyspread.gitlab.io/images/screenshot_sinus_large.png</image>
+    </screenshot>
+  </screenshots>
+</component>

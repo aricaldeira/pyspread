@@ -24,13 +24,10 @@
 
  * :func:`quote`
  * :func:`wrap_text`
- * :func:`get_svg_size`
 
 """
 
-import xml.etree.ElementTree as ET
 import textwrap
-from typing import Tuple
 
 
 def quote(code: str) -> str:
@@ -80,21 +77,3 @@ def wrap_text(text, width=80, maxlen=2000):
     if maxlen is not None and len(text) > maxlen:
         text = text[:maxlen] + "..."
     return "\n".join(textwrap.wrap(text, width=width))
-
-
-def get_svg_size(svg_bytes: bytes) -> Tuple[int, int]:
-    """Get SVG size
-
-    :param svg_bytes: SVG image data
-    :return: Width, height
-
-    """
-
-    tree = ET.fromstring(svg_bytes)
-    width_str = tree.get("width")
-    height_str = tree.get("height")
-    width = int(float(''.join(n for n in width_str
-                              if n.isdigit() or n == '.')))
-    height = int(float(''.join(n for n in height_str
-                               if n.isdigit() or n == '.')))
-    return width, height

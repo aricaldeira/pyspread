@@ -32,7 +32,7 @@ from contextlib import contextmanager
 from os.path import abspath, dirname, join
 import sys
 from unittest.mock import patch
-from pathlib import PosixPath
+from pathlib import Path, PosixPath
 
 import pytest
 

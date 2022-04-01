@@ -34,7 +34,7 @@ import sys
 
 import pytest
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QApplication
 
 try:
@@ -156,3 +156,45 @@ class TestWorkflows:
         if msg:
             assert str(testfile) in main_window.statusBar().currentMessage()
         tmpfile.remove()
+
+    def test_edit_sort_ascending(self):
+        """Unit test for test_edit_sort_ascending"""
+
+        main_window.grid.model.code_array[0, 0, 0] = "1"
+        main_window.grid.model.code_array[1, 0, 0] = "3"
+        main_window.grid.model.code_array[2, 0, 0] = "2"
+        main_window.grid.model.code_array[0, 1, 0] = "12"
+        main_window.grid.model.code_array[1, 1, 0] = "33"
+        main_window.grid.model.code_array[2, 1, 0] = "24"
+
+        for row in range(3):
+            for column in range(2):
+                index = main_window.grid.model.index(row, column)
+                main_window.grid.selectionModel().select(
+                    index, QItemSelectionModel.Select)
+
+        self.workflows.edit_sort_ascending()
+        assert main_window.grid.model.code_array((0, 0, 0)) == "1"
+        assert main_window.grid.model.code_array((1, 0, 0)) == "2"
+        assert main_window.grid.model.code_array((2, 1, 0)) == "33"
+
+    def test_edit_sort_descending(self):
+        """Unit test for test_edit_sort_descending"""
+
+        main_window.grid.model.code_array[0, 0, 0] = "1"
+        main_window.grid.model.code_array[1, 0, 0] = "3"
+        main_window.grid.model.code_array[2, 0, 0] = "2"
+        main_window.grid.model.code_array[0, 1, 0] = "12"
+        main_window.grid.model.code_array[1, 1, 0] = "33"
+        main_window.grid.model.code_array[2, 1, 0] = "24"
+
+        for row in range(3):
+            for column in range(2):
+                index = main_window.grid.model.index(row, column)
+                main_window.grid.selectionModel().select(
+                    index, QItemSelectionModel.Select)
+
+        self.workflows.edit_sort_descending()
+        assert main_window.grid.model.code_array((0, 0, 0)) == "3"
+        assert main_window.grid.model.code_array((1, 0, 0)) == "2"
+        assert main_window.grid.model.code_array((2, 1, 0)) == "12"

@@ -61,7 +61,8 @@ class Action(QAction):
 
     def __init__(self, parent: QWidget, label: str, *callbacks: List[Callable],
                  icon: QIcon = None, shortcut: str = None,
-                 statustip: str = None, checkable: bool = False):
+                 statustip: str = None, checkable: bool = False,
+                 role: QAction.MenuRole = None):
         """
 
         :param parent: The parent object, normally :class:`pyspread.MainWindow`
@@ -71,6 +72,7 @@ class Action(QAction):
         :param shortcut: The magic kestrokes if ant
         :param statustip: The popup message
         :param checkable: Has a checkbox
+        :param role: Menu role for action for macOS
 
         """
         if icon is None:
@@ -83,6 +85,9 @@ class Action(QAction):
 
         if statustip is not None:
             self.setStatusTip(statustip)
+
+        if role is not None:
+            self.setMenuRole(role)
 
         for connect in callbacks:
             self.triggered.connect(connect)
@@ -131,12 +136,12 @@ class MainWindowActions(AttrDict):
                            shortcut='Ctrl+s' if self.shortcuts else "",
                            statustip='Save spreadsheet')
 
-        self.save_as = Action(self.parent, "Save &As",
-                              self.parent.workflows.file_save_as,
-                              icon=Icon.save_as,
-                              shortcut='Shift+Ctrl+s' if self.shortcuts \
-                                  else "",
-                              statustip='Save spreadsheet to a new file')
+        self.save_as = Action(
+            self.parent, "Save &As",
+            self.parent.workflows.file_save_as,
+            icon=Icon.save_as,
+            shortcut='Shift+Ctrl+s' if self.shortcuts else "",
+            statustip='Save spreadsheet to a new file')
 
         self.imprt = Action(self.parent, "&Import",
                             self.parent.workflows.file_import,
@@ -174,12 +179,13 @@ class MainWindowActions(AttrDict):
         self.preferences = Action(self.parent, "Preferences...",
                                   self.parent.on_preferences,
                                   icon=Icon.preferences,
-                                  statustip='Pyspread setup parameters')
+                                  statustip='Pyspread setup parameters',
+                                  role=QAction.PreferencesRole)
 
         self.quit = Action(self.parent, "&Quit", self.parent.closeEvent,
                            icon=Icon.quit,
                            shortcut='Ctrl+Q' if self.shortcuts else "",
-                           statustip='Exit pyspread')
+                           statustip='Exit pyspread', role=QAction.QuitRole)
 
     def create_edit_actions(self):
         """actions for Edit menu"""
@@ -209,13 +215,13 @@ class MainWindowActions(AttrDict):
                            statustip='Copy the input strings of the cells '
                                      'to the clipboard')
 
-        self.copy_results = Action(self.parent, "Copy results",
-                                   self.parent.workflows.edit_copy_results,
-                                   icon=Icon.copy_results,
-                                   shortcut='Shift+Ctrl+c' if self.shortcuts \
-                                       else "",
-                                   statustip='Copy the result strings of '
-                                             'the cells to the clipboard')
+        self.copy_results = \
+            Action(self.parent, "Copy results",
+                   self.parent.workflows.edit_copy_results,
+                   icon=Icon.copy_results,
+                   shortcut='Shift+Ctrl+c' if self.shortcuts else "",
+                   statustip='Copy the result strings of the cells to the '
+                             'clipboard')
 
         self.paste = Action(self.parent, "&Paste",
                             self.parent.workflows.edit_paste,
@@ -223,13 +229,12 @@ class MainWindowActions(AttrDict):
                             shortcut='Ctrl+v' if self.shortcuts else "",
                             statustip='Paste cells from the clipboard')
 
-        self.paste_as = Action(self.parent, "Paste as...",
-                               self.parent.workflows.edit_paste_as,
-                               icon=Icon.paste_as,
-                               shortcut='Shift+Ctrl+v' if self.shortcuts \
-                                   else "",
-                               statustip='Transform clipboard and paste '
-                                         'results')
+        self.paste_as = Action(
+            self.parent, "Paste as...",
+            self.parent.workflows.edit_paste_as,
+            icon=Icon.paste_as,
+            shortcut='Shift+Ctrl+v' if self.shortcuts else "",
+            statustip='Transform clipboard and paste results')
 
         self.find = Action(self.parent, "&Find...",
                            self.parent.workflows.edit_find,
@@ -243,17 +248,32 @@ class MainWindowActions(AttrDict):
                                 shortcut='F3' if self.shortcuts else "",
                                 statustip='Find next matching cell')
 
-        self.replace = Action(self.parent, "&Replace...",
-                              self.parent.workflows.edit_replace,
-                              icon=Icon.replace,
-                              shortcut='Shift+Ctrl+f' if self.shortcuts \
-                                  else "",
-                              statustip='Replace sub-strings in cells')
+        self.replace = Action(
+            self.parent, "&Replace...",
+            self.parent.workflows.edit_replace,
+            icon=Icon.replace,
+            shortcut='Shift+Ctrl+f' if self.shortcuts else "",
+            statustip='Replace sub-strings in cells')
+
+        self.sort_ascending = Action(
+            self.parent, "Sort ascending",
+            self.parent.workflows.edit_sort_ascending,
+            icon=Icon.sort_ascending,
+            statustip='Sort selected cells. The sort order is ascending and '
+                      'follows the current column.')
+
+        self.sort_descending = Action(
+            self.parent, "Sort descending",
+            self.parent.workflows.edit_sort_descending,
+            icon=Icon.sort_descending,
+            statustip='Sort selected cells. The sort order is descending and '
+                      'follows the current column.')
 
         self.toggle_selection_mode = Action(
             self.parent, "Selection mode",
             self.parent.grid.set_selection_mode,
             icon=Icon.selection_mode, checkable=True,
+            shortcut='Ins',
             statustip='Enter/leave selection mode')
 
         self.quote = Action(self.parent, "&Quote",
@@ -381,7 +401,7 @@ class MainWindowActions(AttrDict):
             Action(self.parent, "Refresh selected cells",
                    self.parent.grid.refresh_selected_frozen_cells,
                    icon=Icon.refresh,
-                   shortcut=QKeySequence.Refresh  if self.shortcuts else "",
+                   shortcut=QKeySequence.Refresh if self.shortcuts else "",
                    statustip='Refresh selected cells even when frozen')
 
         self.toggle_periodic_updates = \
@@ -745,6 +765,13 @@ class MainWindowActions(AttrDict):
                                    statustip='Create and display matplotlib '
                                              'chart')
 
+        self.insert_sum = Action(self.parent, "Insert sum",
+                                 self.parent.workflows.macro_insert_sum,
+                                 icon=Icon.insert_sum,
+                                 statustip='Insert sum of selection into the'
+                                           'cell below the bottom right cell '
+                                           'of the selection')
+
     def create_help_actions(self):
         """actions for Help menu"""
 
@@ -767,7 +794,8 @@ class MainWindowActions(AttrDict):
         self.about = Action(self.parent, "About pyspread...",
                             self.parent.on_about,
                             icon=Icon.pyspread,
-                            statustip='About pyspread')
+                            statustip='About pyspread',
+                            role=QAction.AboutRole)
 
     def disable_unavailable(self):
         """Disables unavailable menu items e.g. due to missing dependencies"""

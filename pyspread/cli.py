@@ -28,7 +28,7 @@
 
 """
 
-from argparse import Action, ArgumentParser
+from argparse import ArgumentParser
 from pathlib import Path
 import sys
 
@@ -55,43 +55,28 @@ def check_mandatory_dependencies():
 
         """
 
-        sys.stdout.write('Warning: {}\n'.format(message))
+        sys.stdout.write(f'Warning: {message}\n')
 
     # Check Python version
     major = sys.version_info.major
     minor = sys.version_info.minor
     micro = sys.version_info.micro
     if major < 3 or major == 3 and minor < 6:
-        msg_tpl = "Python has version {}.{}.{} but ≥ 3.6 is required."
-        msg = msg_tpl.format(major, minor, micro)
+        msg = f"Python has version {major}.{minor}.{micro}" + \
+               " but ≥ 3.6 is required."
         dependency_warning(msg)
 
     for module in REQUIRED_DEPENDENCIES:
         if module.is_installed() is None or not module.is_installed():
-            msg_tpl = "Required module {} not found."
-            msg = msg_tpl.format(module.name)
-            dependency_warning(msg)
+            dependency_warning(f"Required module {module.name} not found.")
         elif module.version < module.required_version:
-            msg_tpl = "Module {} has version {} but {} is required."
-            msg = msg_tpl.format(module.name, module.version,
-                                 module.required_version)
+            msg = f"Module {module.name} has version {module.version}" + \
+                  f"but {module.required_version} is required."
             dependency_warning(msg)
     if pyqtsvg is None:
         # Import of mandatory module failed
         msg = "Required module PyQt5.QtSvg not found."
         dependency_warning(msg)
-
-
-class PathAction(Action):
-    """Action that handles paths with spaces and provides a pathlib Path"""
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        """Overrides __call__ to enable spaces in path names"""
-
-        if values:
-            setattr(namespace, self.dest, Path(" ".join(values)))
-        else:
-            setattr(namespace, self.dest, None)
 
 
 class PyspreadArgumentParser(ArgumentParser):
@@ -104,18 +89,13 @@ class PyspreadArgumentParser(ArgumentParser):
                       "based on and written in the programming language " \
                       "Python."
 
-        # Override usage because of the PathAction fix for paths with spaces
-        usage_tpl = "{} [-h] [--version] [--default-settings] [file]"
-        usage = usage_tpl.format(APP_NAME)
-
-        super().__init__(prog=APP_NAME, description=description, usage=usage)
+        super().__init__(prog=APP_NAME, description=description)
 
         self.add_argument('--version', action='version', version=VERSION)
 
-        default_settings_help = 'start with default settings and save on exit'
-
         self.add_argument('--default-settings', action='store_true',
-                          help=default_settings_help)
+                          help='start with default settings and save them on '
+                               'exit')
 
-        file_help = 'open pyspread file in pys or pysu format'
-        self.add_argument('file', action=PathAction, nargs="*", help=file_help)
+        self.add_argument('file', type=Path, nargs='?', default=None,
+                          help='open pyspread file in pys or pysu format')

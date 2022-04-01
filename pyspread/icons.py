@@ -41,7 +41,7 @@ except ImportError:
 class IconPath:
     """Holds icon paths as attributes"""
 
-    pyspread = ICON_PATH / 'pyspread.svg'
+    pyspread = ICON_PATH / 'hicolor' / 'svg' / 'pyspread.svg'
 
     # Status icons
     safe_mode = STATUS_PATH / 'status-safe-mode.svg'
@@ -75,6 +75,8 @@ class IconPath:
     find = ACTION_PATH / 'edit-find.svg'
     find_next = ACTION_PATH / 'edit-find-next.svg'
     replace = ACTION_PATH / 'edit-find-replace.svg'
+    sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
+    sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
     quote = ACTION_PATH / 'edit-quote.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
     sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
@@ -151,6 +153,7 @@ class IconPath:
     insert_image = ACTION_PATH / 'macro-insert-image.svg'
     link_image = ACTION_PATH / 'macro-link-image.svg'
     insert_chart = ACTION_PATH / 'macro-insert-chart.svg'
+    insert_sum = ACTION_PATH / 'macro-insert-sum.svg'
 
     # Help menu icons
     help = ACTION_PATH / 'help-browser.svg'
