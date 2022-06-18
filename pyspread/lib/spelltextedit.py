@@ -92,7 +92,9 @@
 
 """
 
+import keyword
 from math import log10
+import re
 import sys
 from warnings import warn
 
@@ -496,14 +498,7 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
     err_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
 
     # Python keywords
-    keywords = [
-        'and', 'assert', 'break', 'class', 'continue', 'def',
-        'del', 'elif', 'else', 'except', 'exec', 'finally',
-        'for', 'from', 'global', 'if', 'import', 'in',
-        'is', 'lambda', 'not', 'or', 'pass', 'print',
-        'raise', 'return', 'try', 'while', 'yield',
-        'None', 'True', 'False',
-    ]
+    keywords = keyword.kwlist
 
     # Python operators
     operators = [
@@ -533,8 +528,8 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
         # Multi-line strings (expression, flag, style)
         # FIXME: The triple-quotes in these two lines will mess up the
         # syntax highlighting from this point onward
-        self.tri_single = (QRegExp("'''"), 1, STYLES['string2'])
-        self.tri_double = (QRegExp('"""'), 2, STYLES['string2'])
+        self.tri_single = ("'''", 1, STYLES['string2'])
+        self.tri_double = ('"""', 2, STYLES['string2'])
 
         rules = []
 
@@ -568,13 +563,13 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
              STYLES['numbers']),
         ]
 
-        # Build a QRegExp for each pattern
-        self.rules = [(QRegExp(pat), index, fmt)
+        # Build a regex for each pattern
+        self.rules = [(re.compile(pat, re.U), index, fmt)
                       for (pat, index, fmt) in rules]
 
     def match_multiline(self, text, delimiter, in_state, style):
         """Do highlighting of multi-line strings. ``delimiter`` should be a
-        ``QRegExp`` for triple-single-quotes or triple-double-quotes, and
+        regex for triple-single-quotes or triple-double-quotes, and
         ``in_state`` should be a unique integer to represent the corresponding
         state changes when inside those strings. Returns True if we're still
         inside a multi-line string when this function is finished.
@@ -586,17 +581,17 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
             add = 0
         # Otherwise, look for the delimiter on this line
         else:
-            start = delimiter.indexIn(text)
+            start = text.find(delimiter)
             # Move past this match
-            add = delimiter.matchedLength()
+            add = len(delimiter)
 
         # As long as there's a delimiter match on this line...
         while start >= 0:
             # Look for the ending delimiter
-            end = delimiter.indexIn(text, start + add)
+            end = text.find(delimiter, start + add)
             # Ending delimiter on this line?
             if end >= add:
-                length = end - start + add + delimiter.matchedLength()
+                length = end - start + add + len(delimiter)
                 self.setCurrentBlockState(0)
             # No; multi-line string
             else:
@@ -609,11 +604,11 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
             # Apply formatting
             self.setFormat(start, length, style)
             # Look for the next match
-            start = delimiter.indexIn(text, start + length)
+            start = text.find(delimiter, start + length)
 
-        # Return True if still inside a multi-line string, False otherwise
+        # Return state if still inside a multi-line string, False otherwise
         if self.currentBlockState() == in_state:
-            return True
+            return in_state
         else:
             return False
 
@@ -675,21 +670,24 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
 
         # Do other syntax formatting
         for expression, nth, format in self.rules:
-            index = expression.indexIn(text, 0)
+            for match in expression.finditer(text):
+                length = match.end() - match.start()
+                self.setFormat(match.start(), length, format)
 
-            while index >= 0:
-                # We actually want the index of the nth match
-                index = expression.pos(nth)
-                length = len(expression.cap(nth))
-                self.setFormat(index, length, format)
-                index = expression.indexIn(text, index + length)
+            # index = expression.indexIn(text, 0)
+
+            # while index >= 0:
+            #     # We actually want the index of the nth match
+            #     index = expression.pos(nth)
+            #     length = len(expression.cap(nth))
+            #     self.setFormat(index, length, format)
+            #     index = expression.indexIn(text, index + length)
 
         self.setCurrentBlockState(0)
 
         # Do multi-line strings
         in_multiline = self.match_multiline(text, *self.tri_single)
-        if not in_multiline:
-            in_multiline = self.match_multiline(text, *self.tri_double)
+        in_multiline = self.match_multiline(text, *self.tri_double)
 
     def highlightBlock(self, text):
         """Overridden QSyntaxHighlighter method to apply the highlight"""
