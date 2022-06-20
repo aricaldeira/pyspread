@@ -713,29 +713,35 @@ class MainWindow(QMainWindow):
 
         is_bold = attributes.fontweight == QFont.Bold
         self.main_window_actions.bold.setChecked(is_bold)
+        self.main_window_toolbar_actions.bold.setChecked(is_bold)
 
         is_italic = attributes.fontstyle == QFont.StyleItalic
         self.main_window_actions.italics.setChecked(is_italic)
+        self.main_window_toolbar_actions.italics.setChecked(is_italic)
 
-        underline_action = self.main_window_actions.underline
-        underline_action.setChecked(attributes.underline)
+        self.main_window_actions.underline.setChecked(attributes.underline)
+        self.main_window_toolbar_actions.underline.setChecked(attributes.underline)
 
-        strikethrough_action = self.main_window_actions.strikethrough
-        strikethrough_action.setChecked(attributes.strikethrough)
+        self.main_window_actions.strikethrough.setChecked(
+            attributes.strikethrough)
+        self.main_window_toolbar_actions.strikethrough.setChecked(
+            attributes.strikethrough)
 
         renderer = attributes.renderer
         widgets.renderer_button.set_current_action(renderer)
         widgets.renderer_button.set_menu_checked(renderer)
 
-        freeze_action = self.main_window_actions.freeze_cell
-        freeze_action.setChecked(attributes.frozen)
+        self.main_window_actions.freeze_cell.setChecked(attributes.frozen)
+        self.main_window_toolbar_actions.freeze_cell.setChecked(attributes.frozen)
 
-        lock_action = self.main_window_actions.lock_cell
-        lock_action.setChecked(attributes.locked)
+        self.main_window_actions.lock_cell.setChecked(attributes.locked)
+        self.main_window_toolbar_actions.lock_cell.setChecked(attributes.locked)
         self.entry_line.setReadOnly(attributes.locked)
 
-        button_action = self.main_window_actions.button_cell
-        button_action.setChecked(attributes.button_cell is not False)
+        self.main_window_actions.button_cell.setChecked(
+            attributes.button_cell is not False)
+        self.main_window_toolbar_actions.button_cell.setChecked(
+            attributes.button_cell is not False)
 
         rotation = f"rotate_{int(attributes.angle)}"
         widgets.rotate_button.set_current_action(rotation)
@@ -782,5 +788,7 @@ class MainWindow(QMainWindow):
             widgets.font_combo.font = attributes.textfont
         widgets.font_size_combo.size = attributes.pointsize
 
-        merge_cells_action = self.main_window_actions.merge_cells
-        merge_cells_action.setChecked(attributes.merge_area is not None)
+        self.main_window_actions.merge_cells.setChecked(
+            attributes.merge_area is not None)
+        self.main_window_toolbar_actions.merge_cells.setChecked(
+            attributes.merge_area is not None)
