@@ -75,6 +75,7 @@ def main():
     args, _ = parser.parse_known_args()
 
     app = QApplication(sys.argv)
+    app.setDesktopFileName("io.gitlab.pyspread.pyspread")
     main_window = MainWindow(args.file, default_settings=args.default_settings)
 
     main_window.show()
