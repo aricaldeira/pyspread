@@ -352,6 +352,8 @@ class BorderChoiceMenu(QMenu):
 
         """
 
+        self.actions = actions
+
         super().__init__()
 
         self.setTitle("Formatted borders")
@@ -366,6 +368,16 @@ class BorderChoiceMenu(QMenu):
         self.addAction(actions.format_borders_inner)
         self.addAction(actions.format_borders_top_bottom)
 
+        self.triggered.connect(self.on_selection)
+
+    def on_selection(self, event):
+        """Event handler"""
+
+        self.parentWidget().border_menu_button.setAttribute(Qt.WA_UnderMouse,
+                                                            False)
+        self.actions.parent.format_toolbar.border_menu_button.setAttribute(
+            Qt.WA_UnderMouse, False)
+
 
 class BorderWidthMenu(QMenu):
     """QMenu for choosing the cell border width"""
@@ -375,6 +387,8 @@ class BorderWidthMenu(QMenu):
         :param actions: Main window actions
 
         """
+
+        self.actions = actions
 
         super().__init__()
 
@@ -389,6 +403,16 @@ class BorderWidthMenu(QMenu):
         self.addAction(actions.format_borders_16)
         self.addAction(actions.format_borders_32)
         self.addAction(actions.format_borders_64)
+
+        self.triggered.connect(self.on_selection)
+
+    def on_selection(self, event):
+        """Event handler"""
+
+        self.parentWidget().border_menu_button.setAttribute(Qt.WA_UnderMouse,
+                                                            False)
+        self.actions.parent.format_toolbar.border_menu_button.setAttribute(
+            Qt.WA_UnderMouse, False)
 
 
 class GridContextMenu(QMenu):
