@@ -38,6 +38,7 @@
 from functools import partial
 from pathlib import Path
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
         QMenuBar, QMenu, QAction, QMainWindow, QWidget, QToolBar)
 
@@ -373,8 +374,6 @@ class BorderChoiceMenu(QMenu):
     def on_selection(self, event):
         """Event handler"""
 
-        self.parentWidget().border_menu_button.setAttribute(Qt.WA_UnderMouse,
-                                                            False)
         self.actions.parent.format_toolbar.border_menu_button.setAttribute(
             Qt.WA_UnderMouse, False)
 
@@ -409,8 +408,6 @@ class BorderWidthMenu(QMenu):
     def on_selection(self, event):
         """Event handler"""
 
-        self.parentWidget().border_menu_button.setAttribute(Qt.WA_UnderMouse,
-                                                            False)
         self.actions.parent.format_toolbar.border_menu_button.setAttribute(
             Qt.WA_UnderMouse, False)
 
