@@ -5,6 +5,24 @@ Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
 
+2.1.1
+-----
+
+This is a bugfix release
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0), py-moneyed (>=2.0)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+Bug fixes:
+ * Toolbar buttons now are correctly updated when a new cell is selected.
+ * Application icon is now shown in Wayland.
+ * The tarball now includes a metainfo file share/applications/io.gitlab.pyspread.pyspread.desktop (see Debian packaging guidelines)
+ * Menu buttons are now updated correctly when selecting a cell.
+ * Border menu toggle actions are now updated correctly.
+ * .desktop file fixed
+
 2.1
 ---
 
