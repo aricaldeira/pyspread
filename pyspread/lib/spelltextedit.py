@@ -225,6 +225,11 @@ class SpellTextEdit(QPlainTextEdit):
 
         self.actions = SpellTextEditActions(self)
 
+        # Set default font to monospace
+        font = self.document().defaultFont()
+        font.setFamily("Monospace")
+        self.document().setDefaultFont(font)
+
         # If a <Tab> is present then it should be of width 4
         try:
             _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
