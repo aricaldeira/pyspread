@@ -217,7 +217,8 @@ class SpellTextEdit(QPlainTextEdit):
     max_suggestions = 20
     spaces_per_tab = 4
 
-    def __init__(self, parent=None, line_numbers=True):
+    def __init__(self, parent=None, line_numbers=True,
+                 font_family="Monospace"):
 
         self.line_numbers = line_numbers
 
@@ -225,9 +226,9 @@ class SpellTextEdit(QPlainTextEdit):
 
         self.actions = SpellTextEditActions(self)
 
-        # Set default font to monospace
+        # Set default font to font_family
         font = self.document().defaultFont()
-        font.setFamily("Monospace")
+        font.setFamily(font_family)
         self.document().setDefaultFont(font)
 
         # If a <Tab> is present then it should be of width 4

@@ -92,6 +92,12 @@ class Settings:
     file_history = []
     """Files in file history"""
 
+    entry_line_font_family = "Monospace"
+    """Font family for entry line widget"""
+
+    macro_editor_font_family = "Monospace"
+    """Font family for macro editor widget"""
+
     digest_types = None
     """List of default digest types for preprocessing values from CSV import"""
 

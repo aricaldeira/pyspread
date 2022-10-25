@@ -52,7 +52,8 @@ class Entryline(SpellTextEdit):
 
         """
 
-        super().__init__(line_numbers=False)
+        font_family = main_window.settings.entry_line_font_family
+        super().__init__(line_numbers=False, font_family=font_family)
 
         self.main_window = main_window
 

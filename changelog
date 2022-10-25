@@ -22,6 +22,7 @@ Bug fixes:
  * Menu buttons are now updated correctly when selecting a cell.
  * Border menu toggle actions are now updated correctly.
  * .desktop file fixed
+ * Entry line and macro editor now use a monospace font family
 
 2.1
 ---

@@ -66,7 +66,8 @@ class MacroPanel(QDialog):
     def _init_widgets(self):
         """Inititialize widgets"""
 
-        self.macro_editor = SpellTextEdit(self)
+        font_family = self.parent.settings.macro_editor_font_family
+        self.macro_editor = SpellTextEdit(self, font_family=font_family)
 
         self.result_viewer = QTextEdit(self)
         self.result_viewer.setReadOnly(True)
