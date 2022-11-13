@@ -57,7 +57,7 @@ setup(
         ]
     },
     data_files = [
-        ('share/applications', ['pyspread/share/applications/io.gitlab.pyspread.pyspread.desktop']),
+        ('pyspread/share/applications', ['pyspread/share/applications/io.gitlab.pyspread.pyspread.desktop']),
     ],
     license='GPL v3 :: GNU General Public License',
     keywords=['spreadsheet', 'pyspread'],
