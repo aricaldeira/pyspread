@@ -64,7 +64,12 @@ except ImportError:
 try:
     from pyspread import commands
     from pyspread.dialogs import DiscardDataDialog
-    from pyspread.grid_renderer import painter_save, CellRenderer, QColorCache
+    from pyspread.grid_renderer import (painter_save, CellRenderer,
+                                        QColorCache, BorderWidthBottomCache,
+                                        BorderWidthRightCache,
+                                        EdgeBordersCache,
+                                        BorderColorRightCache,
+                                        BorderColorBottomCache)
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
@@ -79,7 +84,10 @@ try:
 except ImportError:
     import commands
     from dialogs import DiscardDataDialog
-    from grid_renderer import painter_save, CellRenderer, QColorCache
+    from grid_renderer import (painter_save, CellRenderer, QColorCache,
+                               BorderWidthBottomCache, BorderWidthRightCache,
+                               EdgeBordersCache, BorderColorRightCache,
+                               BorderColorBottomCache)
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
     from lib.selection import Selection
@@ -105,8 +113,6 @@ class Grid(QTableView):
 
         self.main_window = main_window
 
-        self.qcolor_cache = QColorCache(self)
-
         shape = main_window.settings.shape
 
         if model is None:
@@ -115,6 +121,13 @@ class Grid(QTableView):
             self.model = model
 
         self.setModel(self.model)
+
+        self.qcolor_cache = QColorCache(self)
+        self.borderwidth_bottom_cache = BorderWidthBottomCache(self)
+        self.borderwidth_right_cache = BorderWidthRightCache(self)
+        self.edge_borders_cache = EdgeBordersCache()
+        self.border_color_bottom_cache = BorderColorBottomCache(self)
+        self.border_color_right_cache = BorderColorRightCache(self)
 
         self.table_choice = main_window.table_choice
 
@@ -550,13 +563,20 @@ class Grid(QTableView):
             top, left, bottom, right = merge_area
             merge_sel = Selection([(top, left)], [(bottom, right)], [], [], [])
 
-        return not(self.selection.single_cell_selected()
-                   or merge_sel.get_bbox() == self.selection.get_bbox())
+        return not (self.selection.single_cell_selected()
+                    or merge_sel.get_bbox() == self.selection.get_bbox())
 
     # Event handlers
 
     def on_data_changed(self):
         """Event handler for data changes"""
+
+        self.qcolor_cache.clear()
+        self.borderwidth_bottom_cache.clear()
+        self.borderwidth_right_cache.clear()
+        self.edge_borders_cache.clear()
+        self.border_color_bottom_cache.clear()
+        self.border_color_right_cache.clear()
 
         if not self.main_window.settings.changed_since_save:
             self.main_window.settings.changed_since_save = True

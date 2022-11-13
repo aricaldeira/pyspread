@@ -41,8 +41,10 @@ except ImportError:
 from typing import List, Tuple
 
 from PyQt5.QtCore import Qt, QModelIndex, QRectF, QPointF
-from PyQt5.QtGui import (QBrush, QColor, QPainter, QPalette, QPen,
+from PyQt5.QtGui import (QBrush, QPainter, QPalette, QPen,
                          QPainterPath, QPolygonF, QPainterPathStroker)
+
+from PyQt5.QtGui import QColor as __QColor
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
 
 
@@ -111,6 +113,13 @@ def painter_rotate(painter: QPainter, rect: QRectF, angle: int = 0) -> QRectF:
         yield rect
 
 
+class QColor(__QColor):
+    """Hashable QColor"""
+
+    def __hash__(self):
+        return self.rgba()
+
+
 class GridCellNavigator:
     """Find neighbors of a cell"""
 
@@ -125,17 +134,20 @@ class GridCellNavigator:
         self.code_array = grid.model.code_array
         self.row, self.column, self.table = self.key = key
 
+        self.borderwidth_bottom_cache = grid.borderwidth_bottom_cache
+        self.borderwidth_right_cache = grid.borderwidth_right_cache
+
     @property
     def borderwidth_bottom(self) -> float:
         """Width of bottom border line"""
 
-        return self.code_array.cell_attributes[self.key].borderwidth_bottom
+        return self.borderwidth_bottom_cache[self.key]
 
     @property
     def borderwidth_right(self) -> float:
         """Width of right border line"""
 
-        return self.code_array.cell_attributes[self.key].borderwidth_right
+        return self.borderwidth_right_cache[self.key]
 
     @property
     def border_color_bottom(self) -> QColor:
@@ -155,7 +167,7 @@ class GridCellNavigator:
 
         return self.code_array.cell_attributes[self.key].merge_area
 
-    def _merging_key(self, key: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    def merging_key(self, key: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """Merging cell if cell is merged else cell key
 
         :param key: Key of cell that is checked for being merged
@@ -170,9 +182,9 @@ class GridCellNavigator:
 
         merge_area = self.merge_area
         if merge_area is None:
-            return [self._merging_key((self.row - 1, self.column, self.table))]
+            return [self.merging_key((self.row - 1, self.column, self.table))]
         _, left, _, right = merge_area
-        return [self._merging_key((self.row - 1, col, self.table))
+        return [self.merging_key((self.row - 1, col, self.table))
                 for col in range(left, right + 1)]
 
     def below_keys(self) -> List[Tuple[int, int, int]]:
@@ -180,9 +192,9 @@ class GridCellNavigator:
 
         merge_area = self.merge_area
         if merge_area is None:
-            return [self._merging_key((self.row + 1, self.column, self.table))]
+            return [self.merging_key((self.row + 1, self.column, self.table))]
         _, left, _, right = merge_area
-        return [self._merging_key((self.row + 1, col, self.table))
+        return [self.merging_key((self.row + 1, col, self.table))
                 for col in range(left, right + 1)]
 
     def left_keys(self) -> List[Tuple[int, int, int]]:
@@ -190,9 +202,9 @@ class GridCellNavigator:
 
         merge_area = self.merge_area
         if merge_area is None:
-            return [self._merging_key((self.row, self.column - 1, self.table))]
+            return [self.merging_key((self.row, self.column - 1, self.table))]
         top, _, bottom, _ = merge_area
-        return [self._merging_key((row, self.column - 1, self.table))
+        return [self.merging_key((row, self.column - 1, self.table))
                 for row in range(top, bottom + 1)]
 
     def right_keys(self) -> List[Tuple[int, int, int]]:
@@ -200,30 +212,30 @@ class GridCellNavigator:
 
         merge_area = self.merge_area
         if merge_area is None:
-            return [self._merging_key((self.row, self.column + 1, self.table))]
+            return [self.merging_key((self.row, self.column + 1, self.table))]
         top, _, bottom, _ = merge_area
-        return [self._merging_key((row, self.column + 1, self.table))
+        return [self.merging_key((row, self.column + 1, self.table))
                 for row in range(top, bottom + 1)]
 
     def above_left_key(self) -> Tuple[int, int, int]:
         """Key of neighboring cell above left of the key cell"""
 
-        return self._merging_key((self.row - 1, self.column - 1, self.table))
+        return self.merging_key((self.row - 1, self.column - 1, self.table))
 
     def above_right_key(self) -> Tuple[int, int, int]:
         """Key of neighboring cell above right of the key cell"""
 
-        return self._merging_key((self.row - 1, self.column + 1, self.table))
+        return self.merging_key((self.row - 1, self.column + 1, self.table))
 
     def below_left_key(self) -> Tuple[int, int, int]:
         """Key of neighboring cell below left of the key cell"""
 
-        return self._merging_key((self.row + 1, self.column - 1, self.table))
+        return self.merging_key((self.row + 1, self.column - 1, self.table))
 
     def below_right_key(self) -> Tuple[int, int, int]:
         """Key of neighboring cell below right of the key cell"""
 
-        return self._merging_key((self.row + 1, self.column + 1, self.table))
+        return self.merging_key((self.row + 1, self.column + 1, self.table))
 
 
 @dataclass
@@ -244,6 +256,8 @@ class EdgeBorders:
     right_x: float
     top_y: float
     bottom_y: float
+
+    _color_cache = None
 
     @property
     def _border_widths(self) -> Tuple[float, float, float, float]:
@@ -275,14 +289,20 @@ class EdgeBorders:
     def color(self) -> QColor:
         """Edge color, i.e. darkest color of thickest edge border"""
 
+        if self._color_cache is not None:
+            return self._color_cache
+
         max_border_width = max(self.width, self.height)
         colors = []
         for width, color in zip(self._border_widths, self._border_colors):
             if width == max_border_width:
                 colors.append(color)
         colors.sort(key=lambda color: color.lightnessF())
+        color = colors[0]
 
-        return colors[0]
+        self._color_cache = color
+
+        return color
 
 
 class CellEdgeRenderer:
@@ -341,11 +361,68 @@ class QColorCache(dict):
 
     def __missing__(self, key):
         if key is None:
-            self[key] = qcolor = self.grid.palette().color(QPalette.Mid)
+            qcolor = QColor(self.grid.palette().color(QPalette.Mid))
         else:
-            self[key] = qcolor = QColor(*key)
+            qcolor = QColor(*key)
+
+        self[key] = qcolor
 
         return qcolor
+
+
+class BorderWidthBottomCache(dict):
+    """BorderWidthBottom cache"""
+
+    def __init__(self, grid, *args, **kwargs):
+        self.grid = grid
+        self.cell_attributes = grid.model.code_array.cell_attributes
+
+        super().__init__(*args, **kwargs)
+
+    def __missing__(self, key):
+        borderwidth_bottom = self.cell_attributes[key].borderwidth_bottom
+        self[key] = borderwidth_bottom
+
+        return borderwidth_bottom
+
+
+class BorderWidthRightCache(BorderWidthBottomCache):
+    """BorderWidthRight cache"""
+
+    def __missing__(self, key):
+        borderwidth_right = self.cell_attributes[key].borderwidth_right
+        self[key] = borderwidth_right
+
+        return borderwidth_right
+
+
+class EdgeBordersCache(dict):
+    """Cache of all EdgeBorders objects"""
+
+    def __missing__(self, key):
+        self[key] = edge_border = EdgeBorders(*key)
+
+        return edge_border
+
+
+class BorderColorBottomCache(BorderWidthBottomCache):
+    """BorderColorBottomCache cache"""
+
+    def __missing__(self, key):
+        border_color_bottom = self.cell_attributes[key].border_color_bottom
+        self[key] = border_color_bottom
+
+        return border_color_bottom
+
+
+class BorderColorRightCache(BorderWidthBottomCache):
+    """BorderColorBottomCache cache"""
+
+    def __missing__(self, key):
+        border_color_right = self.cell_attributes[key].border_color_right
+        self[key] = border_color_right
+
+        return border_color_right
 
 
 class CellRenderer:
@@ -363,6 +440,8 @@ class CellRenderer:
         2. If border width is equal, lighter colors are painted first
 
     """
+
+    _pen_cache = {}
 
     def __init__(self, grid: QTableView, painter: QPainter,
                  option: QStyleOptionViewItem, index: QModelIndex):
@@ -383,7 +462,9 @@ class CellRenderer:
 
         self.cell_nav = GridCellNavigator(grid, self.key)
 
-        self.qcolor_cache = self.grid.qcolor_cache
+        self.qcolor_cache = grid.qcolor_cache
+        self.borderwidth_bottom_cache = grid.borderwidth_bottom_cache
+        self.borderwidth_right_cache = grid.borderwidth_right_cache
 
     def inner_rect(self, rect: QRectF) -> QRectF:
         """Returns inner rect that is shrunk by border widths
@@ -397,9 +478,9 @@ class CellRenderer:
         above_keys = self.cell_nav.above_keys()
         left_keys = self.cell_nav.left_keys()
 
-        width_top = min(self.cell_attributes[above_key].borderwidth_bottom
+        width_top = min(self.borderwidth_bottom_cache[above_key]
                         for above_key in above_keys)
-        width_left = min(self.cell_attributes[left_key].borderwidth_right
+        width_left = min(self.borderwidth_right_cache[left_key]
                          for left_key in left_keys)
         width_bottom = self.cell_nav.borderwidth_bottom
         width_right = self.cell_nav.borderwidth_right
@@ -434,10 +515,18 @@ class CellRenderer:
 
         """
 
+        try:
+            return self._pen_cache[(width, zoom)]
+        except KeyError:
+            pass
+
         zoomed_width = max(1, width * zoom)
 
-        return QPen(QColor(255, 255, 255, 0), zoomed_width,
-                    Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
+        pen = QPen(QColor(255, 255, 255, 0), zoomed_width,
+                   Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
+        self._pen_cache[(width, zoom)] = pen
+
+        return pen
 
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
@@ -627,9 +716,11 @@ class CellRenderer:
         top_y = rect.y() - rect.height()
         bottom_y = rect.y()
 
-        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
-                              left_color, right_color, top_color, bottom_color,
-                              left_x, right_x, top_y, bottom_y)
+        key = (left_width, right_width, top_width, bottom_width,
+               left_color, right_color, top_color, bottom_color,
+               left_x, right_x, top_y, bottom_y)
+
+        borders = self.grid.edge_borders_cache[key]
 
         renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
                                     self.grid.zoom)
@@ -672,9 +763,11 @@ class CellRenderer:
         top_y = rect.y() - rect.height()
         bottom_y = rect.y()
 
-        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
-                              left_color, right_color, top_color, bottom_color,
-                              left_x, right_x, top_y, bottom_y)
+        key = (left_width, right_width, top_width, bottom_width,
+               left_color, right_color, top_color, bottom_color,
+               left_x, right_x, top_y, bottom_y)
+
+        borders = self.grid.edge_borders_cache[key]
 
         renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
                                     self.grid.zoom)
@@ -718,9 +811,11 @@ class CellRenderer:
         top_y = rect.y() + rect.height()
         bottom_y = rect.y() + 2 * rect.height()
 
-        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
-                              left_color, right_color, top_color, bottom_color,
-                              left_x, right_x, top_y, bottom_y)
+        key = (left_width, right_width, top_width, bottom_width,
+               left_color, right_color, top_color, bottom_color,
+               left_x, right_x, top_y, bottom_y)
+
+        borders = self.grid.edge_borders_cache[key]
 
         renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
                                     self.grid.zoom)
@@ -763,9 +858,11 @@ class CellRenderer:
         top_y = rect.y() + rect.height()
         bottom_y = rect.y() + 2 * rect.height()
 
-        borders = EdgeBorders(left_width, right_width, top_width, bottom_width,
-                              left_color, right_color, top_color, bottom_color,
-                              left_x, right_x, top_y, bottom_y)
+        key = (left_width, right_width, top_width, bottom_width,
+               left_color, right_color, top_color, bottom_color,
+               left_x, right_x, top_y, bottom_y)
+
+        borders = self.grid.edge_borders_cache[key]
 
         renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
                                     self.grid.zoom)
