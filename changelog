@@ -19,9 +19,10 @@ Bug fixes:
  * Toolbar buttons now are correctly updated when a new cell is selected.
  * Application icon is now shown in Wayland.
  * The tarball now includes a metainfo file share/applications/io.gitlab.pyspread.pyspread.desktop (see Debian packaging guidelines)
+ * .desktop file fixed
  * Menu buttons are now updated correctly when selecting a cell.
  * Border menu toggle actions are now updated correctly.
- * .desktop file fixed
+ * requirements.txt now includes optional dependency py-moneyed
  * Entry line and macro editor now use a monospace font family
 
 2.1
