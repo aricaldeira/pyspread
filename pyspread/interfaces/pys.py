@@ -414,8 +414,9 @@ class PysReader:
                 value = ast.literal_eval(ele)
                 attr_dict[key] = value
 
-        attr = CellAttribute(selection, tab, attr_dict)
-        self.code_array.cell_attributes.append(attr)
+        if attr_dict:  # Ignore empty attribute settings
+            attr = CellAttribute(selection, tab, attr_dict)
+            self.code_array.cell_attributes.append(attr)
 
     def _pys2row_heights(self, line: str):
         """Updates row_heights in code_array
@@ -571,6 +572,9 @@ class PysWriter(object):
                 purged_cell_attributes.append([selection, tab, attr_dict])
 
         for selection, tab, attr_dict in purged_cell_attributes:
+            if not attr_dict:
+                continue
+
             sel_list = [selection.block_tl, selection.block_br,
                         selection.rows, selection.columns, selection.cells]
 

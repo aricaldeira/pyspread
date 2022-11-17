@@ -28,6 +28,7 @@ from ast import literal_eval
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
+from copy import copy
 import csv
 from itertools import cycle
 import io
@@ -38,13 +39,11 @@ from shutil import move
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
 
-from PyQt5.QtCore import (
-    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QItemSelectionModel,
-    QSize)
-from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
-from PyQt5.QtWidgets import (
-    QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView,
-    QUndoCommand)
+from PyQt5.QtCore import (Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF,
+                          QItemSelectionModel, QSize)
+from PyQt5.QtGui import QTextDocument, QImage, QPainter
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QInputDialog,
+                             QStyleOptionViewItem, QTableView, QUndoCommand)
 try:
     from PyQt5.QtSvg import QSvgGenerator
 except ImportError:
@@ -1829,10 +1828,12 @@ class Workflows:
             new_selection = selection & __selection
             if new_selection:
                 # We do not copy merged cells and cell renderers
-                remove_tabu_keys(attrs)
+                __attrs = copy(attrs)
+                remove_tabu_keys(__attrs)
                 new_shifted_selection = new_selection.shifted(-top, -left)
-                cell_attribute = new_shifted_selection.parameters, attrs
-                new_cell_attributes.append(cell_attribute)
+                if __attrs:
+                    cell_attribute = new_shifted_selection.parameters, __attrs
+                    new_cell_attributes.append(cell_attribute)
 
         ca_repr = bytes(repr(new_cell_attributes), encoding='utf-8')
 
