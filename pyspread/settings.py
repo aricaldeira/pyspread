@@ -69,7 +69,7 @@ class Settings:
     """Default shape of initial grid (rows, columns, tables)"""
 
     maxshape = 1000000, 100000, 100
-    """"Maximum shape of the grid"""
+    """Maximum shape of the grid"""
 
     changed_since_save = False
     """If `True` then File actions trigger a dialog"""

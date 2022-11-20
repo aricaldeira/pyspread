@@ -796,7 +796,7 @@ class DataArray:
 
         for i, key_ele in enumerate(key):
 
-            # Handle elements of key that are slices
+            # Recursively replace first element of key that is a slice
             if isinstance(key_ele, slice):
                 slc_keys = range(*key_ele.indices(self.dict_grid.shape[i]))
                 key_list = list(key)
@@ -1333,7 +1333,7 @@ class CodeArray(DataArray):
 
     def exec_then_eval(self, code: str,
                        _globals: dict = None, _locals: dict = None):
-        """execs multuiline code and returns eval of last code line
+        """execs multiline code and returns eval of last code line
 
         :param code: Code to be executed / evaled
         :param _globals: Globals dict for code execution and eval
