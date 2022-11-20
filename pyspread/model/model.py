@@ -796,7 +796,7 @@ class DataArray:
 
         for i, key_ele in enumerate(key):
 
-            # Get first element of key that is a slice
+            # Handle elements of key that are slices
             if isinstance(key_ele, slice):
                 slc_keys = range(*key_ele.indices(self.dict_grid.shape[i]))
                 key_list = list(key)
@@ -1263,6 +1263,16 @@ class CodeArray(DataArray):
 
         """
 
+        code = self(key)
+
+        if code is None:
+            return
+
+        # Cached cell handling
+
+        if repr(key) in self.result_cache:
+            return self.result_cache[repr(key)]
+
         if not any(isinstance(k, slice) for k in key):
             # Button cell handling
             if self.cell_attributes[key].button_cell is not False:
@@ -1274,20 +1284,16 @@ class CodeArray(DataArray):
                     return self.frozen_cache[repr(key)]
                 # Frozen cache is empty.
                 # Maybe we have a reload without the frozen cache
-                result = self._eval_cell(key, self(key))
+                result = self._eval_cell(key, code)
                 self.frozen_cache[repr(key)] = result
                 return result
 
         # Normal cell handling
 
-        if repr(key) in self.result_cache:
-            return self.result_cache[repr(key)]
+        result = self._eval_cell(key, code)
+        self.result_cache[repr(key)] = result
 
-        elif self(key) is not None:
-            result = self._eval_cell(key, self(key))
-            self.result_cache[repr(key)] = result
-
-            return result
+        return result
 
     def _make_nested_list(self, gen: Union[Iterable, Iterable[Iterable],
                                            Iterable[Iterable[Iterable]]]
