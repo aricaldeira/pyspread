@@ -234,6 +234,7 @@ class Settings:
         settings.setValue("timeout", self.timeout)
         settings.setValue("refresh_timeout", self.refresh_timeout)
         settings.setValue("signature_key", self.signature_key)
+        settings.setValue("show_statusbar_sum", self.show_statusbar_sum)
 
         # GUI state
         for widget_name in self.widget_names:
@@ -271,6 +272,13 @@ class Settings:
     def restore(self):
         """Restores application state from QSettings"""
 
+        def qt_bool(value):
+            """Converts Qt setting string for bool into Python bool"""
+            if value == "true":
+                return True
+            else:
+                return False
+
         if self.reset_settings:
             return
 
@@ -302,6 +310,7 @@ class Settings:
         setting2attr("timeout", mapper=int)
         setting2attr("refresh_timeout", mapper=int)
         setting2attr("signature_key")
+        setting2attr("show_statusbar_sum", mapper=qt_bool)
 
         # GUI state
 
