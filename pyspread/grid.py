@@ -618,29 +618,33 @@ class Grid(QTableView):
             return
 
         try:
-            bbox = self.selection.get_bbox()
+            selection = self.selection
+            code_array = self.model.code_array
+            single_cell_selected = selection.single_cell_selected()
         except AttributeError:
             return
 
-        if bbox[0] != bbox[1]:
-            selected_cell_gen = self.selection.cell_generator(self.model.shape,
-                                                              self.table)
-            cell_list = list(selected_cell_gen)
-            msg = f"Selection: {len(cell_list)} cells"
-
-            res_gen = (self.model.code_array[key] for key in cell_list)
-            sum_list = [res for res in res_gen if res is not None]
-            msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
-            if sum_list:
-                try:
-                    msg += msg_tpl.format(sum(sum_list),
-                                          max(sum_list), min(sum_list))
-                except Exception:
-                    pass
-
-            self.main_window.statusBar().showMessage(msg)
-        else:
+        if not selection or single_cell_selected:
             self.main_window.statusBar().clearMessage()
+            return
+
+        selected_cell_list = list(selection.cell_generator(self.model.shape,
+                                                           self.table))
+
+        res_gen = (code_array[key] for key in selected_cell_list
+                   if code_array(key))
+        sum_list = list(filter(None, res_gen))
+
+        msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
+        msg = f"Selection: {len(selected_cell_list)} cells"
+        if sum_list:
+            try:
+                msg += msg_tpl.format(sum(sum_list), max(sum_list),
+                                      min(sum_list))
+            except Exception:
+                pass
+
+        self.main_window.statusBar().showMessage(msg)
 
     def on_row_resized(self, row: int, old_height: float, new_height: float):
         """Row resized event handler
