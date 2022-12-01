@@ -308,8 +308,11 @@ class EdgeBorders:
 class CellEdgeRenderer:
     """Paints cell edges"""
 
+    intersection_cache = {}
+
     def __init__(self, painter: QPainter, center: QPointF,
-                 borders: EdgeBorders, clip_path: QPainterPath, zoom: float):
+                 borders: EdgeBorders, rect: QRectF, clip_path: QPainterPath,
+                 zoom: float):
         """
 
         Borders are provided by EdgeBorders in order: left, right, top, bottom
@@ -317,7 +320,8 @@ class CellEdgeRenderer:
         :param painter: Painter with which edge is drawn
         :param center: Edge center
         :param borders: Border widths and colors
-        :param clip_path: Clip rectangle that is requuired for QtSVG clipping
+        :param rect: Rect of the clip_path
+        :param clip_path: Clip rectangle that is required for QtSVG clipping
         :param zoom: Current zoom level
 
         """
@@ -325,6 +329,7 @@ class CellEdgeRenderer:
         self.painter = painter
         self.center = center
         self.borders = borders
+        self.rect = rect
         self.clip_path = clip_path
         self.zoom = zoom
 
@@ -338,17 +343,26 @@ class CellEdgeRenderer:
         width = self.borders.width * self.zoom
         height = self.borders.height * self.zoom
 
-        rect = QRectF(x-width/2, y-height/2, width, height)
-
-        rect_path = QPainterPath()  # Required for clipping in SVG export
-        rect_path.addRect(rect)
+        cache_key = (self.rect.x(), self.rect.y(),
+                     self.rect.width(), self.rect.height(),
+                     x, y, width, height)
 
         color = self.borders.color
-
         self.painter.setPen(QPen(Qt.NoPen))
         self.painter.setBrush(QBrush(color))
 
-        self.painter.drawPath(self.clip_path.intersected(rect_path))
+        try:
+            intersection = self.intersection_cache[cache_key]
+        except KeyError:
+            rect = QRectF(x-width/2, y-height/2, width, height)
+            rect_path = QPainterPath()  # Required for clipping in SVG export
+            rect_path.addRect(rect)
+
+            intersection = self.clip_path.intersected(rect_path)
+
+            self.intersection_cache[cache_key] = intersection
+
+        self.painter.drawPath(intersection)
         self.painter.setPen(QPen(Qt.SolidLine))
 
 
@@ -722,8 +736,8 @@ class CellRenderer:
 
         borders = self.grid.edge_borders_cache[key]
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
-                                    self.grid.zoom)
+        renderer = CellEdgeRenderer(self.painter, center, borders, rect,
+                                    clip_path, self.grid.zoom)
         renderer.paint()
 
     def paint_top_right_edge(self, rect: QRectF, clip_path: QPainterPath):
@@ -769,8 +783,8 @@ class CellRenderer:
 
         borders = self.grid.edge_borders_cache[key]
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
-                                    self.grid.zoom)
+        renderer = CellEdgeRenderer(self.painter, center, borders, rect,
+                                    clip_path, self.grid.zoom)
         renderer.paint()
 
     def paint_bottom_left_edge(self, rect: QRectF, clip_path: QPainterPath):
@@ -817,8 +831,8 @@ class CellRenderer:
 
         borders = self.grid.edge_borders_cache[key]
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
-                                    self.grid.zoom)
+        renderer = CellEdgeRenderer(self.painter, center, borders, rect,
+                                    clip_path, self.grid.zoom)
         renderer.paint()
 
     def paint_bottom_right_edge(self, rect: QRectF, clip_path: QPainterPath):
@@ -864,8 +878,8 @@ class CellRenderer:
 
         borders = self.grid.edge_borders_cache[key]
 
-        renderer = CellEdgeRenderer(self.painter, center, borders, clip_path,
-                                    self.grid.zoom)
+        renderer = CellEdgeRenderer(self.painter, center, borders, rect,
+                                    clip_path, self.grid.zoom)
         renderer.paint()
 
     def paint_borders(self, rect):
