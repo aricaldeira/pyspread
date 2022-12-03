@@ -2326,6 +2326,10 @@ class GridCellDelegate(QStyledItemDelegate):
         key = index.row(), index.column(), self.grid.table
         figure = self.code_array[key]
 
+        if isinstance(figure, bytes) or isinstance(figure, str):
+            # We try rendering the content as SVG
+            return self._render_svg(painter, rect, index, figure)
+
         if not isinstance(figure, matplotlib.figure.Figure):
             return
 

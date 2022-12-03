@@ -70,7 +70,7 @@ from PyQt5.QtWidgets \
 from PyQt5.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
-
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
                                   QPrinter)
 
@@ -1023,6 +1023,12 @@ class ChartDialog(QDialog):
                 canvas.draw()
             except Exception:
                 pass
+        elif isinstance(figure, bytes) or isinstance(figure, str):
+            if isinstance(figure, str):
+                figure = bytearray(figure, encoding='utf-8')
+            svg_widget = QSvgWidget()
+            self.splitter.replaceWidget(1, svg_widget)
+            svg_widget.renderer().load(figure)
         else:
             if isinstance(figure, Exception):
                 msg = stdout_str + f"Error:\n{figure}"
