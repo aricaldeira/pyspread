@@ -3,13 +3,43 @@
 [shape]
 1000	100	3
 [grid]
-3	4	0	'from rpy2.interactive import process_revents\nfrom rpy2.robjects.packages import importr\nfrom rpy2.robjects.vectors import IntVector\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\ngraphics = importr("graphics")\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    graphics.barplot(IntVector((1,3,2,5,4)), ylab="Value")\nprocess_revents.stop()\nsvg.getvalue()'
+3	2	0	'from rpy2 import robjects\nfrom rpy2.interactive import process_revents\nfrom rpy2.robjects.packages import importr, data\nfrom rpy2.robjects.vectors import IntVector, FloatVector\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\nbase = importr(\'base\')\nlattice = importr(\'lattice\')\ndatasets = importr(\'datasets\')\n\nrprint = robjects.globalenv.find("print")\n\nvolcano = data(datasets).fetch("volcano")["volcano"]\nplot = lattice.wireframe(volcano, shade = True,\n                         zlab = "value",\n                         aspect = FloatVector((61.0/87, 0.4)),\n                         light_source = IntVector((10,0,10)))\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    rprint(plot)\nprocess_revents.stop()\n\nsvg.getvalue()'
+2	1	0	'from rpy2.interactive import process_revents\nfrom rpy2.robjects.packages import importr\nfrom rpy2.robjects.vectors import IntVector\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\ngraphics = importr("graphics")\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    graphics.barplot(IntVector((1, 6, 3, 5, 4, 1)), ylab="Value")\nprocess_revents.stop()\nsvg.getvalue()'
+2	2	0	'from rpy2 import robjects\nfrom rpy2.interactive import process_revents\nfrom rpy2.robjects import Formula\nfrom rpy2.robjects.packages import importr, data\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\nbase = importr(\'base\')\nlattice = importr(\'lattice\')\ndatasets = importr(\'datasets\')\n\nrprint = robjects.globalenv.find("print")\n\nmtcars = data(datasets).fetch(\'mtcars\')[\'mtcars\']\nformula = Formula(\'mpg ~ wt\')\nformula.getenvironment()[\'mpg\'] = mtcars.rx2(\'mpg\')\nformula.getenvironment()[\'wt\'] = mtcars.rx2(\'wt\')\nplot = lattice.xyplot(formula, type=base.c("p"), groups=mtcars.rx2(\'cyl\'))\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    rprint(plot)\nprocess_revents.stop()\n\nsvg.getvalue()'
+1	1	0	"'graphics'"
+1	2	0	"'lattice'"
+1	3	0	"'ggplot'"
+2	3	0	"from rpy2 import robjects\nfrom rpy2.interactive import process_revents\nfrom rpy2.robjects import Formula\nfrom rpy2.robjects.packages import importr, data\nimport rpy2.robjects.lib.ggplot2 as ggplot2\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\nbase = importr('base')\ndatasets = importr('datasets')\n\nmtcars = data(datasets).fetch('mtcars')['mtcars']\n\nplot = ggplot2.ggplot(mtcars)\nplot += ggplot2.aes_string(x='wt', y='mpg', col='factor(cyl)')\nplot += ggplot2.geom_point()\nplot += ggplot2.ggtitle('Scatter plot with categories')\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    plot.plot()\nprocess_revents.stop()\n\nsvg.getvalue()"
+3	3	0	"from rpy2 import robjects\nfrom rpy2.interactive import process_revents\nfrom rpy2.robjects import Formula\nfrom rpy2.robjects.vectors import IntVector, FloatVector\nfrom rpy2.robjects.packages import importr, data\nimport rpy2.robjects.lib.ggplot2 as ggplot2\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\nbase = importr('base')\nstats = importr('stats')\n\nrnorm = stats.rnorm\ndataf_rnorm = robjects.DataFrame({'value': rnorm(300, mean=0) + rnorm(100, mean=3),\n                                  'other_value': rnorm(300, mean=0) + rnorm(100, mean=3),\n                                  'mean': IntVector([0, ]*300 + [3, ] * 100)})\n\nplot = ggplot2.ggplot(dataf_rnorm)\nplot += ggplot2.aes_string(x='value', y='other_value')\nplot += ggplot2.geom_point(alpha = 0.3)\nplot += ggplot2.geom_density2d(ggplot2.aes_string(col = '..level..'))\nplot += ggplot2.ggtitle('Scatter plot with kernel density estimate')\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    plot.plot()\nprocess_revents.stop()\n\nsvg.getvalue()"
+4	3	0	"from rpy2 import robjects\nfrom rpy2.interactive import process_revents\nfrom rpy2.robjects import Formula\nfrom rpy2.robjects.packages import importr, data\nimport rpy2.robjects.lib.ggplot2 as ggplot2\nfrom rpy2.robjects.lib import grdevices\n\ntry:\n    process_revents.start()\nexcept:\n    pass\n\nbase = importr('base')\ndatasets = importr('datasets')\n\nmtcars = data(datasets).fetch('mtcars')['mtcars']\n\nplot = ggplot2.ggplot(mtcars)\nplot += ggplot2.aes_string(x='factor(cyl)', y='mpg', col='factor(cyl)')\nplot += ggplot2.geom_boxplot()\nplot += ggplot2.ggtitle('Box plots')\n\nwith grdevices.render_to_bytesio(grdevices.svg) as svg:\n    plot.plot()\nprocess_revents.stop()\n\nsvg.getvalue()"
 [attributes]
-[]	[]	[]	[]	[(5, 5)]	0	'renderer'	'matplotlib'
-[]	[]	[]	[]	[(7, 5)]	0	'renderer'	'matplotlib'
-[]	[]	[]	[]	[(3, 4)]	0	'renderer'	'matplotlib'	'justification'	'justify_left'
+[]	[]	[]	[]	[(4, 2)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(6, 2)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(2, 1)]	0	'renderer'	'matplotlib'	'justification'	'justify_left'
+[]	[]	[]	[]	[(2, 2)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(3, 1)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(2, 2)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(3, 1)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(3, 2)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(3, 1)]	0	'renderer'	'text'
+[(2, 1)]	[(3, 3)]	[]	[]	[]	0	'justification'	'justify_center'
+[]	[]	[]	[]	[(3, 2)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(2, 1)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(2, 3)]	0	'renderer'	'matplotlib'	'justification'	'justify_center'
+[]	[]	[]	[]	[(3, 3)]	0	'justification'	'justify_center'	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(2, 3)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(4, 3)]	0	'justification'	'justify_center'	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(3, 3)]	0	'renderer'	'matplotlib'
+[]	[]	[]	[]	[(5, 3)]	0	'justification'	'justify_center'	'renderer'	'text'
 [row_heights]
-3	0	215.0
+2	0	259.0
+3	0	259.0
+6	0	259.0
+4	0	259.0
+5	0	259.0
 [col_widths]
-4	0	383.0
+1	0	259.0
+2	0	259.0
+3	0	259.0
+0	0	33.0
 [macros]

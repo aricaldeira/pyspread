@@ -82,18 +82,20 @@ except ImportError:
 
 try:
     from pyspread.actions import ChartDialogActions
-    from pyspread.toolbar import ChartTemplatesToolBar
+    from pyspread.toolbar import ChartTemplatesToolBar, RChartTemplatesToolBar
     from pyspread.widgets import HelpBrowser, TypeMenuComboBox
     from pyspread.lib.csv import sniff, csv_reader, get_header, convert
     from pyspread.lib.spelltextedit import SpellTextEdit
-    from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
+    from pyspread.settings import (TUTORIAL_PATH, MANUAL_PATH,
+                                   MPL_TEMPLATE_PATH, RPY2_TEMPLATE_PATH)
 except ImportError:
     from actions import ChartDialogActions
-    from toolbar import ChartTemplatesToolBar
+    from toolbar import ChartTemplatesToolBar, RChartTemplatesToolBar
     from widgets import HelpBrowser, TypeMenuComboBox
     from lib.csv import sniff, csv_reader, get_header, convert
     from lib.spelltextedit import SpellTextEdit
-    from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
+    from settings import (TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH,
+                          RPY2_TEMPLATE_PATH)
 
 
 class DiscardChangesDialog:
@@ -931,7 +933,7 @@ class ChartDialog(QDialog):
     """The chart dialog"""
 
     def __init__(self, parent: QWidget, key: Tuple[int, int, int],
-                 size: Tuple[int, int] = (800, 600)):
+                 size: Tuple[int, int] = (1000, 700)):
         """
         :param parent: Parent window
         :param key: Target cell for chart
@@ -949,6 +951,7 @@ class ChartDialog(QDialog):
         self.actions = ChartDialogActions(self)
 
         self.chart_templates_toolbar = ChartTemplatesToolBar(self)
+        self.rchart_templates_toolbar = RChartTemplatesToolBar(self)
 
         self.setWindowTitle(f"Chart dialog for cell {key}")
 
@@ -963,9 +966,15 @@ class ChartDialog(QDialog):
         """Event handler for pressing a template toolbar button"""
 
         chart_template_name = self.sender().data()
-        chart_template_path = MPL_TEMPLATE_PATH / chart_template_name
+        mpl_template_path = MPL_TEMPLATE_PATH / chart_template_name
+        rpy2_template_path = RPY2_TEMPLATE_PATH / chart_template_name
         try:
-            with open(chart_template_path, encoding='utf8') as template_file:
+            with open(mpl_template_path, encoding='utf8') as template_file:
+                chart_template_code = template_file.read()
+        except OSError:
+            pass
+        try:
+            with open(rpy2_template_path, encoding='utf8') as template_file:
                 chart_template_code = template_file.read()
         except OSError:
             return
@@ -995,7 +1004,11 @@ class ChartDialog(QDialog):
 
         # Layout
         layout = QVBoxLayout(self)
-        layout.addWidget(self.chart_templates_toolbar)
+
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.addWidget(self.chart_templates_toolbar)
+        toolbar_layout.addWidget(self.rchart_templates_toolbar)
+        layout.addLayout(toolbar_layout)
 
         layout.addWidget(self.splitter)
         layout.addWidget(buttonbox)
@@ -1024,11 +1037,17 @@ class ChartDialog(QDialog):
             except Exception:
                 pass
         elif isinstance(figure, bytes) or isinstance(figure, str):
-            if isinstance(figure, str):
-                figure = bytearray(figure, encoding='utf-8')
-            svg_widget = QSvgWidget()
-            self.splitter.replaceWidget(1, svg_widget)
-            svg_widget.renderer().load(figure)
+            with redirect_stdout(filelike):
+                if isinstance(figure, str):
+                    figure = bytearray(figure, encoding='utf-8')
+                svg_widget = QSvgWidget()
+                self.splitter.replaceWidget(1, svg_widget)
+                svg_widget.renderer().load(figure)
+            stdout_str = filelike.getvalue()
+            if stdout_str:
+                stdout_str += "\n \n"
+                msg = stdout_str + f"Error:\n{figure}"
+                self.message.setText(msg)
         else:
             if isinstance(figure, Exception):
                 msg = stdout_str + f"Error:\n{figure}"

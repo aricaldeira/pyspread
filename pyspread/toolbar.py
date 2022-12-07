@@ -42,6 +42,13 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import rpy2
+    from rpy2.robjects.packages import importr
+except ImportError:
+    rpy2 = None
+
+
+try:
     from pyspread.actions import MainWindowActions, ChartDialogActions
     from pyspread.icons import Icon
     from pyspread.menus import ToolbarManagerMenu
@@ -364,5 +371,80 @@ class ChartTemplatesToolBar(ToolBarBase):
         self.addAction(actions.chart_matrix_1_1)
         self.addAction(actions.chart_contour_1_2)
         self.addAction(actions.chart_surface_2_1)
+
+        self.addWidget(self.get_manager_button())
+
+
+class RChartTemplatesToolBar(ToolBarBase):
+    """Toolbar for chart dialog for inserting R template chart code
+
+    Requires rpy2 with ggplot, lattice and graphics packages
+
+    """
+
+    tooltip_tpl = "R Package {} required but not installed"
+
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent widget, e.g. chart dialog window
+
+        """
+
+        super().__init__("Chart templates toolbar", parent)
+
+        if rpy2 is None:
+            self.close()
+
+        self.setObjectName("R Chart templates toolbar")
+        self._create_toolbar(parent.actions)
+
+    @staticmethod
+    def is_r_package_installed(package_name):
+        """True if the R package is installed
+
+        :param package_name: Name of R package to checked
+
+        """
+
+        try:
+            importr(package_name)
+        except RuntimeError:
+            return False
+        return True
+
+    def _create_toolbar(self, actions: ChartDialogActions):
+        """Fills the chart dialog toolbar with QActions
+
+        :param actions: Chart dialog actions
+
+        """
+
+        self.addAction(actions.chart_r_graphics_barplot_1_1)
+        self.addAction(actions.chart_r_ggplot2_geom_boxplot_1_2)
+        self.addAction(actions.chart_r_ggplot2_geom_point_1_1)
+        self.addAction(actions.chart_r_lattice_xyplot_1_1)
+        self.addAction(actions.chart_r_ggplot2_geom_density2d_1_2)
+        self.addAction(actions.chart_r_lattice_wireframe_2_1)
+
+        if not self.is_r_package_installed("graphics"):
+            tooltip = self.tooltip_tpl.format("graphics")
+            actions.chart_r_graphics_barplot_1_1.setEnabled(False)
+            actions.chart_r_graphics_barplot_1_1.setToolTip(tooltip)
+
+        if not self.is_r_package_installed("lattice"):
+            tooltip = self.tooltip_tpl.format("lattice")
+            actions.chart_r_lattice_xyplot_1_1.setEnabled(False)
+            actions.chart_r_lattice_xyplot_1_1.setToolTip(tooltip)
+            actions.chart_r_lattice_wireframe_2_1.setEnabled(False)
+            actions.chart_r_lattice_wireframe_2_1.setToolTip(tooltip)
+
+        if not self.is_r_package_installed("ggplot2"):
+            tooltip = self.tooltip_tpl.format("ggplot2")
+            actions.chart_r_ggplot2_geom_boxplot_1_2.setEnabled(False)
+            actions.chart_r_ggplot2_geom_boxplot_1_2.setToolTip(tooltip)
+            actions.chart_r_ggplot2_geom_point_1_1.setEnabled(False)
+            actions.chart_r_ggplot2_geom_point_1_1.setToolTip(tooltip)
+            actions.chart_r_ggplot2_geom_density2d_1_2.setEnabled(False)
+            actions.chart_r_ggplot2_geom_density2d_1_2.setToolTip(tooltip)
 
         self.addWidget(self.get_manager_button())

@@ -183,6 +183,19 @@ class IconPath:
     chart_contour_1_2 = CHARTS_PATH / 'chart_contour_1_2.svg'
     chart_surface_2_1 = CHARTS_PATH / 'chart_surface_2_1.svg'
 
+    chart_r_graphics_barplot_1_1 = \
+        CHARTS_PATH / 'chart_r_graphics_barplot_1_1.svg'
+    chart_r_ggplot2_geom_boxplot_1_2 = \
+        CHARTS_PATH / 'chart_r_ggplot2_geom_boxplot_1_2.svg'
+    chart_r_ggplot2_geom_point_1_1 = \
+        CHARTS_PATH / 'chart_r_ggplot2_geom_point_1_1.svg'
+    chart_r_lattice_xyplot_1_1 = \
+        CHARTS_PATH / 'chart_r_lattice_xyplot_1_1.svg'
+    chart_r_ggplot2_geom_density2d_1_2 = \
+        CHARTS_PATH / 'chart_r_ggplot2_geom_density2d_1_2.svg'
+    chart_r_lattice_wireframe_2_1 =\
+        CHARTS_PATH / 'chart_r_lattice_wireframe_2_1.svg'
+
 
 class IconConverter(type):
     """Meta class that provides QIcons for IconPaths icons"""

@@ -943,6 +943,54 @@ class ChartDialogActions(AttrDict):
                                                   'chart')
         self.chart_surface_2_1.setData("chart_surface_2_1.py")
 
+        self.chart_r_graphics_barplot_1_1 = \
+            Action(self.parent, "R graphics barplot chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_r_graphics_barplot_1_1,
+                   statustip='Insert code for R graphics barplot chart')
+        self.chart_r_graphics_barplot_1_1.setData(
+            "chart_r_graphics_barplot_1_1.py")
+
+        self.chart_r_ggplot2_geom_boxplot_1_2 = \
+            Action(self.parent, "R ggplot2 geom_boxplot chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_r_ggplot2_geom_boxplot_1_2,
+                   statustip='Insert code for R ggplot2 geom_boxplot chart')
+        self.chart_r_ggplot2_geom_boxplot_1_2.setData(
+            "chart_r_ggplot2_geom_boxplot_1_2.py")
+
+        self.chart_r_ggplot2_geom_point_1_1 = \
+            Action(self.parent, "R ggplot2 geom_point chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_r_ggplot2_geom_point_1_1,
+                   statustip='Insert code for R ggplot2 geom_point chart')
+        self.chart_r_ggplot2_geom_point_1_1.setData(
+            "chart_r_ggplot2_geom_point_1_1.py")
+
+        self.chart_r_lattice_xyplot_1_1 = \
+            Action(self.parent, "R lattice xyplot chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_r_lattice_xyplot_1_1,
+                   statustip='Insert code for R lattice xyplot chart')
+        self.chart_r_lattice_xyplot_1_1.setData(
+            "chart_r_lattice_xyplot_1_1.py")
+
+        self.chart_r_ggplot2_geom_density2d_1_2 = \
+            Action(self.parent, "R ggplot2 geom_density2d chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_r_ggplot2_geom_density2d_1_2,
+                   statustip='Insert code for R ggplot2 geom_density2d chart')
+        self.chart_r_ggplot2_geom_density2d_1_2.setData(
+            "chart_r_ggplot2_geom_density2d_1_2.py")
+
+        self.chart_r_lattice_wireframe_2_1 = \
+            Action(self.parent, "R lattice wireframe chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_r_lattice_wireframe_2_1,
+                   statustip='Insert code for surface chart')
+        self.chart_r_lattice_wireframe_2_1.setData(
+            "chart_r_lattice_wireframe_2_1.py")
+
 
 class SpellTextEditActions(AttrDict):
     """Holds QActions for SpellTextEdit"""

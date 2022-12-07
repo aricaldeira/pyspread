@@ -1,9 +1,10 @@
-The files in this folder are adapted from the matplotlib gallery.
+The files in this folder are adapted from the matplotlib gallery and from the rpy2 tutorial pages.
 Adaptations comprise:
  + An initial line for instantiating a figure.
  + Changes from pylab to the object oriented interface.
  + Removal of features for simpler and shorter templates.
  + Addition of the final line that states the figure object.
+ + For the rpy2 files the conversion to SVG
 
 The files in this folder are licensed with the same license as matplolib (see https://matplotlib.org/3.1.1/users/license.html):
 
