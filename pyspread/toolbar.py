@@ -47,6 +47,10 @@ try:
 except ImportError:
     rpy2 = None
 
+try:
+    import plotnine
+except ImportError:
+    plotnine = None
 
 try:
     from pyspread.actions import MainWindowActions, ChartDialogActions
@@ -336,6 +340,8 @@ class FormatToolbar(ToolBarBase):
 class ChartTemplatesToolBar(ToolBarBase):
     """Toolbar for chart dialog for inserting template chart code"""
 
+    tooltip_tpl = "Package {} required but not installed"
+
     def __init__(self, parent: QWidget):
         """
         :param parent: Parent widget, e.g. chart dialog window
@@ -425,6 +431,7 @@ class RChartTemplatesToolBar(ToolBarBase):
         self.addAction(actions.chart_r_lattice_xyplot_1_1)
         self.addAction(actions.chart_r_ggplot2_geom_density2d_1_2)
         self.addAction(actions.chart_r_lattice_wireframe_2_1)
+        self.addAction(actions.chart_plotnine_geom_bar_1_1)
 
         if not self.is_r_package_installed("graphics"):
             tooltip = self.tooltip_tpl.format("graphics")
@@ -446,5 +453,10 @@ class RChartTemplatesToolBar(ToolBarBase):
             actions.chart_r_ggplot2_geom_point_1_1.setToolTip(tooltip)
             actions.chart_r_ggplot2_geom_density2d_1_2.setEnabled(False)
             actions.chart_r_ggplot2_geom_density2d_1_2.setToolTip(tooltip)
+
+        if plotnine is None:
+            tooltip = self.tooltip_tpl.format("plotnine")
+            actions.chart_plotnine_geom_bar_1_1.setEnabled(False)
+            actions.chart_plotnine_geom_bar_1_1.setToolTip(tooltip)
 
         self.addWidget(self.get_manager_button())

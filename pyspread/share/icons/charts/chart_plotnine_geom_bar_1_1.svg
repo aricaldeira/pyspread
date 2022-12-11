@@ -7,7 +7,7 @@
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14, custom)"
    width="64.000000mm"
    height="60.000000mm"
-   sodipodi:docname="chart_column_plotnine_1_1.svg"
+   sodipodi:docname="chart_plotnine_geom_bar_1_1.svg"
    version="1.1"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -140,6 +140,144 @@
            id="path351" />
       </g>
     </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath50">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path48" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath60">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path58" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath34">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path32" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath50-3">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path48-6" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath60-7">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path58-5" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath50-35">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path48-62" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath50-9">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path48-1" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath60-2">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path58-7" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath18-0">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path16-9" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath34-3">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path32-6" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath50-0">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path48-626" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath60-1">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path58-8" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath18-7">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path16-92" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1925">
+      <g
+         id="g1929">
+        <path
+           d="m -243.58456,-9.721573 h 200.88 V 189.86243 h -200.88 z"
+           id="path1927" />
+      </g>
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1822-7">
+      <g
+         id="g1826-5">
+        <path
+           d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+           id="path1824-9" />
+      </g>
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath18-2">
+      <path
+         d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+         id="path16-3" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1822-7-1">
+      <g
+         id="g1826-5-2">
+        <path
+           d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+           id="path1824-9-9" />
+      </g>
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1822">
+      <g
+         id="g1826">
+        <path
+           d="M -2.88,-2.88 H 198 V 196.704 H -2.88 Z"
+           id="path1824" />
+      </g>
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -148,11 +286,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0000000"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.5766118"
-     inkscape:cx="45.667551"
-     inkscape:cy="15.222517"
-     inkscape:window-width="1270"
-     inkscape:window-height="971"
+     inkscape:zoom="1.1148329"
+     inkscape:cx="6.7274656"
+     inkscape:cy="152.04072"
+     inkscape:window-width="1920"
+     inkscape:window-height="998"
      showborder="true"
      showgrid="true"
      inkscape:grid-points="true"
@@ -168,17 +306,12 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg1">
     <sodipodi:guide
        orientation="vertical"
        position="27.300554,-31.244094"
        id="guide5924"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       orientation="vertical"
-       position="66.082649,-31.244094"
-       id="guide5925"
        inkscape:locked="false" />
     <sodipodi:guide
        orientation="vertical"
@@ -287,35 +420,25 @@
      y="26.574797"
      rx="17.594519"
      ry="14.164467" />
-  <g
-     id="g12"
-     transform="matrix(1.3333333,0,0,-1.3333333,90.584759,152.56934)">
-    <g
-       id="g14"
-       clip-path="url(#clipPath18-3)">
-      <path
-         d="m 12.759841,81.987612 h 91.237499 c 4,0 6,2 6,6 v 16.034378 c 0,4 -2,6 -6,6 H 12.759841 c -4,0 -6,-2 -6,-6 V 87.987612 c 0,-4 2,-6 6,-6 z"
-         style="fill:#f4d8e6;fill-opacity:1;fill-rule:nonzero;stroke:#9e2f68;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
-         id="path20" />
-      <g
-         id="g22"
-         transform="translate(9.1598411,89.387613)">
-        <text
-           xml:space="preserve"
-           transform="scale(1,-1)"
-           style="font-variant:normal;font-weight:normal;font-size:24px;font-family:DejaVuSans;-inkscape-font-specification:DejaVuSans;writing-mode:lr-tb;fill:#9e2f68;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text26"><tspan
-             x="0 15.24 21.912001 37.175999 46.584 61.799999 68.472 83.688004"
-             y="0"
-             sodipodi:role="line"
-             id="tspan24">pl tnine</tspan></text>
-      </g>
-    </g>
-  </g>
   <path
      d="m 38.706747,89.163228 c 1.880241,0 3.683725,0.747028 5.013257,2.076559 1.329531,1.329531 2.076558,3.133016 2.076558,5.013257 0,1.880241 -0.747027,3.683725 -2.076558,5.013256 -1.329532,1.32953 -3.133016,2.07656 -5.013257,2.07656 -1.880241,0 -3.683725,-0.74703 -5.013256,-2.07656 -1.329532,-1.329531 -2.076559,-3.133015 -2.076559,-5.013256 0,-1.880241 0.747027,-3.683726 2.076559,-5.013257 1.329531,-1.329531 3.133015,-2.076559 5.013256,-2.076559 z"
-     style="fill:#c73287;fill-opacity:1;fill-rule:nonzero;stroke:none"
+     style="fill:#c73287;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.194057"
      id="path40"
-     clip-path="url(#clipPath349)"
-     transform="matrix(1.3333333,0,0,-1.3333333,90.584759,152.56934)" />
+     clip-path="url(#clipPath1822)"
+     transform="matrix(6.870829,0,0,-6.870829,-88.325366,723.71187)" />
+  <g
+     id="g22-8"
+     transform="matrix(3.4806119,0,0,-3.4806119,151.35433,92.781432)"
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.54294;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1">
+    <text
+       xml:space="preserve"
+       transform="scale(1,-1)"
+       style="font-variant:normal;font-weight:normal;font-size:24px;font-family:'DejaVu Sans';-inkscape-font-specification:DejaVuSans;writing-mode:lr-tb;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.54294;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       id="text26-4"><tspan
+         x="0"
+         y="0"
+         sodipodi:role="line"
+         id="tspan24-5"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.54294;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1">9</tspan></text>
+  </g>
 </svg>

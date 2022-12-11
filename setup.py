@@ -56,8 +56,9 @@ setup(
             'share/*/*/*/*/*',
         ]
     },
-    data_files = [
-        ('pyspread/share/applications', ['pyspread/share/applications/io.gitlab.pyspread.pyspread.desktop']),
+    data_files=[
+        ('pyspread/share/applications',
+         ['pyspread/share/applications/io.gitlab.pyspread.pyspread.desktop']),
     ],
     license='GPL v3 :: GNU General Public License',
     keywords=['spreadsheet', 'pyspread'],
@@ -72,6 +73,8 @@ setup(
         'pip': ['pip (>=18)'],
         'python-dateutil': ['python-dateutil (>=2.7.0)'],
         'py-moneyed': ['py-moneyed (>=2.0)'],
+        'rpy2': ['rpy2 (>=3.4)'],
+        'plotnine': ['plotnine (>=0.8)'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

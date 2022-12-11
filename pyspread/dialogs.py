@@ -87,7 +87,8 @@ try:
     from pyspread.lib.csv import sniff, csv_reader, get_header, convert
     from pyspread.lib.spelltextedit import SpellTextEdit
     from pyspread.settings import (TUTORIAL_PATH, MANUAL_PATH,
-                                   MPL_TEMPLATE_PATH, RPY2_TEMPLATE_PATH)
+                                   MPL_TEMPLATE_PATH, RPY2_TEMPLATE_PATH,
+                                   PLOT9_TEMPLATE_PATH)
 except ImportError:
     from actions import ChartDialogActions
     from toolbar import ChartTemplatesToolBar, RChartTemplatesToolBar
@@ -95,7 +96,7 @@ except ImportError:
     from lib.csv import sniff, csv_reader, get_header, convert
     from lib.spelltextedit import SpellTextEdit
     from settings import (TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH,
-                          RPY2_TEMPLATE_PATH)
+                          RPY2_TEMPLATE_PATH, PLOT9_TEMPLATE_PATH)
 
 
 class DiscardChangesDialog:
@@ -966,17 +967,18 @@ class ChartDialog(QDialog):
         """Event handler for pressing a template toolbar button"""
 
         chart_template_name = self.sender().data()
-        mpl_template_path = MPL_TEMPLATE_PATH / chart_template_name
-        rpy2_template_path = RPY2_TEMPLATE_PATH / chart_template_name
-        try:
-            with open(mpl_template_path, encoding='utf8') as template_file:
-                chart_template_code = template_file.read()
-        except OSError:
-            pass
-        try:
-            with open(rpy2_template_path, encoding='utf8') as template_file:
-                chart_template_code = template_file.read()
-        except OSError:
+        chart_template_code = None
+
+        tpl_paths = MPL_TEMPLATE_PATH, RPY2_TEMPLATE_PATH, PLOT9_TEMPLATE_PATH
+        for tpl_path in tpl_paths:
+            full_tpl_path = tpl_path / chart_template_name
+            try:
+                with open(full_tpl_path, encoding='utf8') as template_file:
+                    chart_template_code = template_file.read()
+            except OSError:
+                pass
+
+        if chart_template_code is None:
             return
 
         self.editor.insertPlainText(chart_template_code)

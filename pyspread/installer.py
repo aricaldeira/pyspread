@@ -127,6 +127,12 @@ OPTIONAL_DEPENDENCIES = [
     Module(name="py-moneyed",
            description="Import money from csv using the py-moneyed module",
            required_version=version.parse("2.0")),
+    Module(name="matplotlib",
+           description="Create charts",
+           required_version=version.parse("3.4")),
+    Module(name="plotnine",
+           description="Grammar of graphics for simpler R ggplot2 charts",
+           required_version=version.parse("0.8")),
 ]
 
 DEPENDENCIES = REQUIRED_DEPENDENCIES + OPTIONAL_DEPENDENCIES

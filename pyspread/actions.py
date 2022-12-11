@@ -943,6 +943,14 @@ class ChartDialogActions(AttrDict):
                                                   'chart')
         self.chart_surface_2_1.setData("chart_surface_2_1.py")
 
+        self.chart_plotnine_geom_bar_1_1 = \
+            Action(self.parent, "Plotnine geom_bar chart",
+                   self.parent.on_template,
+                   icon=Icon.chart_plotnine_geom_bar_1_1,
+                   statustip='Insert code for plotnine geom_bar chart')
+        self.chart_plotnine_geom_bar_1_1.setData(
+            "chart_plotnine_geom_bar_1_1.py")
+
         self.chart_r_graphics_barplot_1_1 = \
             Action(self.parent, "R graphics barplot chart",
                    self.parent.on_template,
