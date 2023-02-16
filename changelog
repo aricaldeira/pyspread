@@ -5,6 +5,18 @@ Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
 
+2.2
+---
+
+This release adds R charts via rpy2. Examples are available in the chart dialog.
+Note that the R packages graphics, lattice and ggplot2 are used for the examples.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0), py-moneyed (>=2.0), rpy2 (>=3.4), plotnine (>=0.8)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+
 2.1.1
 -----
 

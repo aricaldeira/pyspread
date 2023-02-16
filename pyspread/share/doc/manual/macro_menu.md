@@ -28,6 +28,8 @@ Pressing the `Ok` button puts the code in the editor in the current cell and act
 
 For further reference on how to create charts, the [matplotlib web site](https://matplotlib.org/users/index.html) is recommended.
 
+Starting from version 2.2, there is a second toolbar with [R](https://www.r-project.org/) charts. These comprise examples using [plotnine](https://plotnine.readthedocs.io/en/stable/) ([ggplot2](https://ggplot2.tidyverse.org/) based) charts as well as charts from [rpy2](https://rpy2.github.io/) using the [R](https://www.r-project.org/) modules [graphics](https://www.rdocumentation.org/packages/graphics), [ggplot2](https://ggplot2.tidyverse.org/) and [lattice](https://lattice.r-forge.r-project.org/). If the relevant R modules are not installed, the respective buttons are disabled.
+
 ### Note:
 
 With the upcoming Python 3 version of *pyspread* (i.e. v. 1.99.0+), the chart dialog has been completely rewritten.
