@@ -44,7 +44,7 @@ deploy_pypi:
     - echo "$TWINE_USERNAME"
     - pip3 install twine
     - python3 setup.py sdist bdist_wheel
-    - python3 -m twine upload --skip-existing dist/*    
+    - python3 -m twine upload --skip-existing dist/*
   only:
     - tags
 
@@ -52,7 +52,7 @@ deploy_pypi:
 ## api.docs pages at pyspread.gitlab.io/pyspread
 pages:
   stage: deploy
-  image: debian:experimental
+  image: debian:testing
   script:
   - apt install -y -qq python3-sphinx
   - pip3 install -r apidocs/requirements.txt
