@@ -1542,12 +1542,14 @@ class GridHeaderView(QHeaderView):
 
         """
 
+        zoom = self.grid.zoom
+
         unzoomed_rect = QRect(0, 0,
-                              int(round(rect.width()/self.grid.zoom)),
-                              int(round(rect.height()/self.grid.zoom)))
+                              int(round(rect.width()/zoom)),
+                              int(round(rect.height()/zoom)))
         with painter_save(painter):
             painter.translate(rect.x()+1, rect.y()+1)
-            painter.scale(self.grid.zoom, self.grid.zoom)
+            painter.scale(zoom, zoom)
             super().paintSection(painter, unzoomed_rect, logicalIndex)
 
     def contextMenuEvent(self, event: QContextMenuEvent):

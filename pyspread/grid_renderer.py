@@ -534,7 +534,7 @@ class CellRenderer:
         except KeyError:
             pass
 
-        zoomed_width = max(1, width * zoom)
+        zoomed_width = round(0.5 + width * zoom)
 
         pen = QPen(QColor(255, 255, 255, 0), zoomed_width,
                    Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)

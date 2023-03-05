@@ -440,7 +440,8 @@ class MainWindow(QMainWindow):
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
         painter.setRenderHints(QPainter.SmoothPixmapTransform
-                               | QPainter.SmoothPixmapTransform)
+                               | QPainter.Antialiasing
+                               | QPainter.LosslessImageRendering)
 
         page_rect = printer.pageRect()
 
