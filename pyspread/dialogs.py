@@ -594,7 +594,8 @@ class FileDialogBase:
 
     filters_list = [
         "Pyspread un-compressed (*.pysu)",
-        "Pyspread compressed (*.pys)"
+        "Pyspread compressed (*.pys)",
+        "Office Open XML - Tabellendokument (*.xlsx)"
     ]
     selected_filter = None
 
@@ -608,9 +609,7 @@ class FileDialogBase:
     def suffix(self) -> str:
         """Suffix for filepath"""
 
-        if self.filters_list.index(self.selected_filter):
-            return ".pys"
-        return ".pysu"
+        return self.selected_filter.split("(")[-1].strip()[1:-1]
 
     def __init__(self, main_window: QMainWindow):
         """

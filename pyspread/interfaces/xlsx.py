@@ -90,7 +90,7 @@ except ImportError:
 #     }
 
 
-class XlsReader:
+class XlsxReader:
     """Reads xlsx file from OpenPyXL into a code_array"""
 
     def __init__(self, xlsx_file: BinaryIO, code_array: CodeArray):
@@ -114,7 +114,7 @@ class XlsReader:
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
                     key = row_idx, cell.col_idx, table_idx
-                    self.code_array.dict_grid[key] = cell.value
+                    self.code_array.dict_grid[key] = repr(cell.value)
                     # Cell format
                     yield key
 

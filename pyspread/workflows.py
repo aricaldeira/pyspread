@@ -65,6 +65,7 @@ try:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.interfaces.xlsx import XlsxReader
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
     from pyspread.lib.selection import Selection
@@ -82,6 +83,7 @@ except ImportError:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from interfaces.pys import PysReader, PysWriter
+    from interfaces.xlsx import XlsxReader
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
     from lib.selection import Selection
@@ -290,8 +292,18 @@ class Workflows:
         # File compression handling
         if filepath.suffix == ".pysu":
             fopen = open
-        else:
+            freader = PysReader
+        elif filepath.suffix == ".pys":
             fopen = bz2.open
+            freader = PysReader
+        elif filepath.suffix == ".xlsx":
+            fopen = open
+            freader = XlsxReader
+        else:
+            msg = f"Unknown file format {filepath.suffix}. "\
+                  f"{filepath} not opened."
+            self.main_window.statusBar().showMessage(msg)
+            return
 
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
@@ -305,7 +317,7 @@ class Workflows:
 
         try:
             with fopen(filepath, "rb") as infile:
-                reader = PysReader(infile, code_array)
+                reader = freader(infile, code_array)
                 try:
                     for i, _ in file_progress_gen(self.main_window, reader,
                                                   title, label, filelines):
@@ -375,6 +387,7 @@ class Workflows:
         if not dial.file_path:
             return  # Cancel pressed
         filepath = Path(dial.file_path).with_suffix(dial.suffix)
+        print(dial.suffix)
 
         self.filepath_open(filepath)
 
