@@ -81,6 +81,11 @@ except ImportError:
     Figure = None
 
 try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
     from pyspread.actions import ChartDialogActions
     from pyspread.toolbar import ChartTemplatesToolBar, RChartTemplatesToolBar
     from pyspread.widgets import HelpBrowser, TypeMenuComboBox
@@ -595,8 +600,10 @@ class FileDialogBase:
     filters_list = [
         "Pyspread un-compressed (*.pysu)",
         "Pyspread compressed (*.pys)",
-        "Office Open XML - Tabellendokument (*.xlsx)"
     ]
+    if openpyxl is not None:
+        filters_list.append("Office Open XML - Tabellendokument (*.xlsx)")
+
     selected_filter = None
 
     @property

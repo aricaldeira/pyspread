@@ -56,7 +56,7 @@ import datetime
 import decimal
 from decimal import Decimal  # Needed
 from importlib import reload
-from inspect import isgenerator
+from inspect import getmembers, isfunction, isgenerator
 import io
 from itertools import product
 import re
@@ -74,6 +74,34 @@ try:
     from matplotlib.figure import Figure
 except ImportError:
     Figure = None
+
+try:
+    import pycel
+    import pycel.excellib
+    import pycel.lib.date_time
+    import pycel.lib.engineering
+    import pycel.lib.information
+    import pycel.lib.logical
+    import pycel.lib.lookup
+    import pycel.lib.stats
+    import pycel.lib.text
+
+    xl_members = getmembers(pycel.excellib)
+    xl_members += getmembers(pycel.lib.date_time)
+    xl_members += getmembers(pycel.lib.engineering)
+    xl_members += getmembers(pycel.lib.information)
+    xl_members += getmembers(pycel.lib.logical)
+    xl_members += getmembers(pycel.lib.lookup)
+    xl_members += getmembers(pycel.lib.stats)
+    xl_members += getmembers(pycel.lib.text)
+    XL_LIST = [n for n, _ in xl_members]
+
+    for name, fun in xl_members:
+        globals()[name] = fun
+
+except ImportError:
+    pycel = None
+
 
 try:
     from moneyed import Money
@@ -1478,6 +1506,14 @@ class CodeArray(DataArray):
 
         if Money is not None:
             base_keys.append('Money')
+
+        try:
+            import pycel
+        except ImportError:
+            pycel = None
+
+        if pycel is not None:
+            base_keys += XL_LIST
 
         for key in list(globals().keys()):
             if key not in base_keys:

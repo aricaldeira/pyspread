@@ -57,6 +57,11 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs \
         import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
@@ -297,6 +302,10 @@ class Workflows:
             fopen = bz2.open
             freader = PysReader
         elif filepath.suffix == ".xlsx":
+            if openpyxl is None:
+                msg = f"openpyxl is not installed. {filepath} not opened."
+                self.main_window.statusBar().showMessage(msg)
+                return
             fopen = open
             freader = XlsxReader
         else:

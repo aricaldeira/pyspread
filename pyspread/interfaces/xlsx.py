@@ -49,6 +49,12 @@ from base64 import b64decode, b85encode
 from collections import OrderedDict
 from typing import Any, BinaryIO, Callable, Iterable, Tuple
 
+try:
+    import pycel
+    from pycel import excelformula
+except ImportError:
+    pycel = None
+
 from openpyxl import load_workbook
 
 try:
@@ -114,7 +120,20 @@ class XlsxReader:
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
                     key = row_idx, cell.col_idx, table_idx
-                    self.code_array.dict_grid[key] = repr(cell.value)
+
+                    if cell.data_type == "n" or pycel is None:
+                        code = repr(cell.value)
+                    elif cell.data_type == "f":
+                        # Convert formula via pycel
+                        ex = excelformula.ExcelFormula(cell.value)
+                        code = ex.python_code
+                    else:
+                        code = repr(cell.value)
+                        raise Warning(
+                            f"Excel data type {cell.data_type} unknown.")
+
+                    self.code_array.dict_grid[key] = code
+
                     # Cell format
                     yield key
 
