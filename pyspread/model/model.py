@@ -102,6 +102,10 @@ try:
 except ImportError:
     pycel = None
 
+try:
+    from openpyxl.worksheet.cell_range import CellRange
+except ImportError:
+    CellRange = None
 
 try:
     from moneyed import Money
@@ -122,6 +126,17 @@ except ImportError:
     from lib.exception_handling import get_user_codeframe
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
+
+
+def _R_(addr):
+    """Helper for pycel references in xlsx code
+
+    TODO: Move to separate lib module
+
+    """
+
+    l, t, r, b = CellRange(addr).bounds
+    return S[t-1:b, l-1:r, Z]  # Works in cells because S and Z are in globals
 
 
 class DefaultCellAttributeDict(AttrDict):
@@ -1497,7 +1512,8 @@ class CodeArray(DataArray):
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
-                     'NamedTuple', 'Sequence', 'Tuple', 'Union']
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_',
+                     'CellRange']
 
         try:
             from moneyed import Money
