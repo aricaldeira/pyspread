@@ -808,6 +808,8 @@ class Workflows:
             if svg_area is None:
                 return
 
+            self.main_window.print_area = svg_area
+
             rows = self.get_paint_rows(svg_area.top, svg_area.bottom)
             columns = self.get_paint_columns(svg_area.left, svg_area.right)
             total_height = self.get_total_height(svg_area.top, svg_area.bottom)
@@ -831,6 +833,7 @@ class Workflows:
             self.paint(painter, option, paint_rect, rows, columns)
 
             painter.end()
+            self.main_window.print_area = None
 
     def _qimage_export(self, filepath: Path, file_format: str):
         """Export to png file filepath

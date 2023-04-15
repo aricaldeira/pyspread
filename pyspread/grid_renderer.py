@@ -557,11 +557,18 @@ class CellRenderer:
 
         """
 
-        svg = True
-        if svg:
-            # Rendering for the printer
-            zoom = self.grid.zoom
+        zoom = self.grid.zoom
 
+        screen_painting = self.grid.main_window.print_area is None
+
+        if screen_painting:
+            # Rendering for the screen
+            pen = QPen(color)
+            pen.setWidthF(width * zoom)
+            self.painter.setPen(pen)
+            self.painter.drawLine(point1, point2)
+        else:
+            # Rendering for the printer
             pen = self._get_border_pen(width, zoom)
 
             alpha = max(0, round(255 - 255 * width * zoom))
@@ -576,9 +583,6 @@ class CellRenderer:
             self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
             self.painter.setBrush(QBrush(color))
             self.painter.drawPath(clip_path.intersected(stroked_path))
-        else:
-            # Rendering for the screen
-            pass
 
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
