@@ -471,6 +471,9 @@ class CellRenderer:
         self.option = option
         self.index = index
 
+        self.painter.setRenderHint(QPainter.LosslessImageRendering, True)
+        self.painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+
         self.cell_attributes = grid.model.code_array.cell_attributes
         self.key = index.row(), index.column(), self.grid.table
 
@@ -558,6 +561,10 @@ class CellRenderer:
         """
 
         zoom = self.grid.zoom
+        alpha = max(0, round(255 - 255 * width * zoom))
+
+        if width * zoom > 1.01:
+            self.painter.setRenderHint(QPainter.Antialiasing, True)
 
         screen_painting = self.grid.main_window.print_area is None
 
@@ -571,8 +578,6 @@ class CellRenderer:
             # Rendering for the printer
             pen = self._get_border_pen(width, zoom)
 
-            alpha = max(0, round(255 - 255 * width * zoom))
-
             line_polygon = QPolygonF((point1, point2))
             line_path = QPainterPath()
             line_path.addPolygon(line_polygon)
@@ -583,6 +588,8 @@ class CellRenderer:
             self.painter.setPen(QPen(QColor(255, 255, 255, alpha)))
             self.painter.setBrush(QBrush(color))
             self.painter.drawPath(clip_path.intersected(stroked_path))
+
+        self.painter.setRenderHint(QPainter.Antialiasing, False)
 
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell
