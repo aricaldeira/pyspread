@@ -46,6 +46,7 @@ from PyQt5.QtGui import (QBrush, QPainter, QPalette, QPen,
 
 from PyQt5.QtGui import QColor as __QColor
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
+from methodtools import lru_cache
 
 
 @contextmanager
@@ -455,8 +456,6 @@ class CellRenderer:
 
     """
 
-    _pen_cache = {}
-
     def __init__(self, grid: QTableView, painter: QPainter,
                  option: QStyleOptionViewItem, index: QModelIndex):
         """
@@ -524,6 +523,7 @@ class CellRenderer:
             self.grid.delegate.paint_(self.painter, zrect, self.option,
                                       self.index)
 
+    @lru_cache(maxsize=65536)
     def _get_border_pen(self, width, zoom):
         """Gets zoomed border pen, white, fully transparent
 
@@ -532,18 +532,10 @@ class CellRenderer:
 
         """
 
-        try:
-            return self._pen_cache[(width, zoom)]
-        except KeyError:
-            pass
-
         zoomed_width = max(1, width * zoom)
 
-        pen = QPen(QColor(255, 255, 255, 0), zoomed_width,
-                   Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
-        self._pen_cache[(width, zoom)] = pen
-
-        return pen
+        return QPen(QColor(255, 255, 255, 0), zoomed_width,
+                    Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
 
     def _draw_line(self, point1: QPointF, point2: QPointF, width: float,
                    color: QColor, clip_path: QPainterPath):
