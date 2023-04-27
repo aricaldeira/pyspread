@@ -1997,7 +1997,7 @@ class Workflows:
 
         if bottom >= shape[0] - 1:
             self.main_window.statusBar().showMessage(
-                f"ValueError: Target cell is beyond grid limits")
+                "ValueError: Target cell is beyond grid limits")
             return
 
         key = bottom + 1, right, grid.table
