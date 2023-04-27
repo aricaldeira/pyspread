@@ -1044,14 +1044,17 @@ class Workflows:
         selection = grid.selection
 
         description = description_tpl.format(selection)
+        command = commands.DeleteSelectedCellData(grid, model, selection,
+                                                  description)
+        self.main_window.undo_stack.push(command)
 
-        for row, column in selection.cell_generator(model.shape):
-            key = row, column, grid.table
-            if not grid.model.code_array.cell_attributes[key]['locked']:
-                # Pop item
-                index = model.index(row, column, QModelIndex())
-                command = commands.SetCellCode(None, model, index, description)
-                self.main_window.undo_stack.push(command)
+        # for row, column in selection.cell_generator(model.shape):
+        #     key = row, column, grid.table
+        #     if not grid.model.code_array.cell_attributes[key]['locked']:
+        #         # Pop item
+        #         index = model.index(row, column, QModelIndex())
+        #         command = commands.SetCellCode(None, model, index, description)
+        #         self.main_window.undo_stack.push(command)
 
     def edit_cut(self):
         """Edit -> Cut workflow"""

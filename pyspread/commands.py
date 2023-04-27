@@ -347,6 +347,36 @@ class SetColumnsWidth(QUndoCommand):
                         self.old_width
 
 
+class DeleteSelectedCellData(QUndoCommand):
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 selection: Selection, description: str):
+        super().__init__(description)
+        self.grid = grid
+        self.model = model
+        self.selection = selection
+
+    def redo(self):
+        """Redo cell data deletion, updates screen"""
+
+        self.old_code = {}
+        for key in self.selection.cell_generator(self.model.shape,
+                                                 self.grid.table):
+            if not self.model.code_array.cell_attributes[key]['locked']:
+                try:
+                    self.old_code[key] = self.model.code_array.pop(key)
+                except KeyError:
+                    pass
+
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def undo(self):
+        """Undo row insertion, updates screen"""
+
+        for key in self.old_code:
+            self.model.code_array[key] = self.old_code[key]
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
 class InsertRows(QUndoCommand):
     """Inserts grid rows"""
 
