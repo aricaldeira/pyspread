@@ -36,6 +36,7 @@ Pyspread undoable commands
 """
 
 from copy import copy
+from itertools import cycle
 from math import isclose
 from typing import List, Iterable, Tuple
 
@@ -112,6 +113,71 @@ class SetGridSize(QUndoCommand):
             index = model.index(row, column, QModelIndex())
             code = self.deleted_cells[(row, column, table)]
             model.setData(index, code, Qt.EditRole, raw=True, table=table)
+
+
+class PasteSelectedCellData(QUndoCommand):
+    """Paste selected cells"""
+
+    def __init__(self, grid: QTableView, model: QAbstractTableModel,
+                 selection: Selection, data: str, description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param selection: Selection into which cells are pasted
+        :param data: Data to be pasted
+        :param description: Command description
+
+        """
+        super().__init__(description)
+        self.grid = grid
+        self.model = model
+        self.selection = selection
+        self.data = data
+
+    def redo(self):
+        """Redo cell data deletion, updates screen"""
+
+        self.old_code = {}
+
+        code_array = self.model.code_array
+        shape = self.model.shape
+        table = self.grid.table
+        selection = self.selection
+
+        (top, left), (bottom, right) = selection.get_grid_bbox(shape)
+
+        paste_gen = (line.split("\t") for line in self.data.split("\n"))
+        for row, line in enumerate(cycle(paste_gen)):
+            paste_row = row + top
+            if paste_row > bottom or (paste_row, 0, table) not in code_array:
+                break
+            for column, value in enumerate(cycle(line)):
+                paste_column = column + left
+                paste_key = paste_row, paste_column, table
+                if (paste_key in code_array
+                        and paste_column <= right):
+                    if ((paste_row, paste_column) in selection and not
+                            code_array.cell_attributes[paste_key].locked):
+                        key = paste_row, paste_column, table
+                        # Preserve line breaks
+                        value = value.replace("\u000C", "\n")
+                        try:
+                            self.old_code[key] = code_array(key)
+                            code_array[key] = value
+                        except IndexError:
+                            pass
+                else:
+                    break
+
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def undo(self):
+        """Undo row insertion, updates screen"""
+
+        for key in self.old_code:
+            self.model.code_array[key] = self.old_code[key]
+        self.old_code.clear()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class SetCellCode(QUndoCommand):
@@ -383,6 +449,7 @@ class DeleteSelectedCellData(QUndoCommand):
 
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
+        self.old_code.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
