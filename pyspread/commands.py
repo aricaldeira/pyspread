@@ -348,8 +348,17 @@ class SetColumnsWidth(QUndoCommand):
 
 
 class DeleteSelectedCellData(QUndoCommand):
+    """Delete selected cells"""
+
     def __init__(self, grid: QTableView, model: QAbstractTableModel,
                  selection: Selection, description: str):
+        """
+        :param grid: The main grid object
+        :param model: Model of the grid object
+        :param selection: Selected cells to be deleted
+        :param description: Command description
+
+        """
         super().__init__(description)
         self.grid = grid
         self.model = model
