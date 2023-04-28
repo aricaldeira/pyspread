@@ -46,7 +46,7 @@ from PyQt5.QtGui import (QBrush, QPainter, QPalette, QPen,
 
 from PyQt5.QtGui import QColor as __QColor
 from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
-from methodtools import lru_cache
+from functools import lru_cache
 
 
 @contextmanager
@@ -523,8 +523,9 @@ class CellRenderer:
             self.grid.delegate.paint_(self.painter, zrect, self.option,
                                       self.index)
 
+    @staticmethod
     @lru_cache(maxsize=65536)
-    def _get_border_pen(self, width, zoom):
+    def _get_border_pen(width, zoom):
         """Gets zoomed border pen, white, fully transparent
 
         :param width: Unzoomed line width

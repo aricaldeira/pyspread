@@ -1221,9 +1221,6 @@ class CodeArray(DataArray):
     # Cache for frozen objects
     frozen_cache = {}
 
-    # Custom font storage
-    custom_fonts = {}
-
     # Safe mode: If True then Whether pyspread is operating in safe_mode
     # In safe_mode, cells are not evaluated but its code is returned instead.
     safe_mode = False
