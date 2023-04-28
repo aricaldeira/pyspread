@@ -30,7 +30,6 @@ import bz2
 from contextlib import contextmanager
 from copy import copy
 import csv
-from itertools import cycle
 import io
 import numpy
 import os.path
@@ -1044,14 +1043,9 @@ class Workflows:
         selection = grid.selection
 
         description = description_tpl.format(selection)
-
-        for row, column in selection.cell_generator(model.shape):
-            key = row, column, grid.table
-            if not grid.model.code_array.cell_attributes[key]['locked']:
-                # Pop item
-                index = model.index(row, column, QModelIndex())
-                command = commands.SetCellCode(None, model, index, description)
-                self.main_window.undo_stack.push(command)
+        command = commands.DeleteSelectedCellData(grid, model, selection,
+                                                  description)
+        self.main_window.undo_stack.push(command)
 
     def edit_cut(self):
         """Edit -> Cut workflow"""
@@ -1206,43 +1200,14 @@ class Workflows:
 
         grid = self.main_window.focused_grid
         model = grid.model
-        (top, left), (bottom, right) = selection.get_grid_bbox(model.shape)
-        table = grid.table
-        code_array = grid.model.code_array
         undo_stack = self.main_window.undo_stack
 
         description_tpl = "Paste clipboard to {}"
         description = description_tpl.format(selection)
 
-        command = None
-
-        paste_gen = (line.split("\t") for line in data.split("\n"))
-        for row, line in enumerate(cycle(paste_gen)):
-            paste_row = row + top
-            if paste_row > bottom or (paste_row, 0, table) not in code_array:
-                break
-            for column, value in enumerate(cycle(line)):
-                paste_column = column + left
-                paste_key = paste_row, paste_column, table
-                if (paste_key in code_array
-                        and paste_column <= right):
-                    if ((paste_row, paste_column) in selection and not
-                            code_array.cell_attributes[paste_key].locked):
-                        index = model.index(paste_row, paste_column,
-                                            QModelIndex())
-                        # Preserve line breaks
-                        value = value.replace("\u000C", "\n")
-                        cmd = commands.SetCellCode(value, model, index,
-                                                   description)
-                        if command is None:
-                            command = cmd
-                        else:
-                            command.mergeWith(cmd)
-                else:
-                    break
-
-        if command is not None:
-            undo_stack.push(command)
+        cmd = commands.PasteSelectedCellData(grid, model, selection, data,
+                                             description)
+        undo_stack.push(cmd)
 
     def _paste_to_current(self, data: str):
         """Pastes data into grid starting from the current cell
@@ -2002,7 +1967,7 @@ class Workflows:
 
         if bottom >= shape[0] - 1:
             self.main_window.statusBar().showMessage(
-                f"ValueError: Target cell is beyond grid limits")
+                "ValueError: Target cell is beyond grid limits")
             return
 
         key = bottom + 1, right, grid.table
