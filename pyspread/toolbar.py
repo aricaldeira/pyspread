@@ -43,7 +43,7 @@ except ImportError:
 
 try:
     import rpy2
-    from rpy2.robjects.packages import importr
+    from rpy2.robjects.packages import importr, PackageNotInstalledError
 except ImportError:
     rpy2 = None
 
@@ -418,6 +418,8 @@ class RChartTemplatesToolBar(ToolBarBase):
         try:
             importr(package_name)
         except RuntimeError:
+            return False
+        except PackageNotInstalledError:
             return False
         return True
 
