@@ -412,6 +412,9 @@ class RChartTemplatesToolBar(ToolBarBase):
 
         """
 
+        if rpy2 is None:
+            return False
+
         try:
             importr(package_name)
         except RuntimeError:
