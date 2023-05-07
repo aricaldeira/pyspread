@@ -1,4 +1,3 @@
-#!/usr/bin/env xdg-open
 [Desktop Entry]
 Categories=Office;Spreadsheet;
 Comment[en_US]=pyspread is a non-traditional spreadsheet application that is based on and written in the programming language Python
