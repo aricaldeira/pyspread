@@ -4,6 +4,23 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+      
+2.2.1
+---
+
+This is a bugfix release
+Note that missing libvoikko, nuspell and hspell may lead to warning messages if pyenchant is installed. However,  pyspread is still functional as this affects only spellchecking.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0), py-moneyed (>=2.0), rpy2 (>=3.4), plotnine (>=0.8), libvoikko (>=4.3), nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+Bug fixes:
+ * Chart dialog now correctly starts if rpy2 is not installed and if optional R modules are missing.
+ * Deleting large selections is now significantly faster.
+ * Pasting into large selections is now significantly faster.
+ * QPen cache now is limited in size.
 
 2.2
 ---
@@ -16,7 +33,9 @@ Dependencies:
  * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0), py-moneyed (>=2.0), rpy2 (>=3.4), plotnine (>=0.8)
  * For building the apidocs with Sphinx see apidocs/requirements.txt
 
-
+Bug fixes:
+ * Thick lines are now antialiased
+ 
 2.1.1
 -----
 

@@ -412,6 +412,8 @@ class MainWindow(QMainWindow):
         if dialog.exec_() == QPrintDialog.Accepted:
             self.on_paint_request(printer)
 
+        self.print_area = None
+
     def on_preview(self):
         """Print preview event handler"""
 
@@ -429,6 +431,8 @@ class MainWindow(QMainWindow):
 
         dialog.paintRequested.connect(self.on_paint_request)
         dialog.exec_()
+
+        self.print_area = None
 
     def on_paint_request(self, printer: QPrinter):
         """Paints to printer
