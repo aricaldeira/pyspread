@@ -1826,14 +1826,27 @@ class GridTableModel(QAbstractTableModel):
             font.setStrikeOut(attr.strikethrough)
         return font
 
-    def update_cell(self, key):
-        """"""
+    def update_cell(self, key: tuple[int, int, int]):
+        """Updates a single cell in code_array
+
+        This method calls __getitem__ in order to fill the result_cache
+
+        :param key: Key of cell
+
+        """
 
         self.code_array[key]
         self.dataChanged.emit(QModelIndex(), QModelIndex())
 
-    def code_array_result(self, key):
-        """Non blocking code array access"""
+    def code_array_result(self, key: tuple[int, int, int]):
+        """Non blocking code array access
+
+        This method calls emits the signal cell_to_update so that update_cell
+        can calculate the cell result without an unresponsive GUI
+
+        :param key: Key of cell
+
+        """
 
         if repr(key) in self.code_array.result_cache \
            or self.code_array(key) is None:
