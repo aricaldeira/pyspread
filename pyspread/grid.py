@@ -51,7 +51,7 @@ from PyQt5.QtGui \
 from PyQt5.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
             QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel,
-            QByteArray)
+            QByteArray, pyqtSignal, pyqtSlot)
 
 from PyQt5.QtSvg import QSvgRenderer
 
@@ -1589,6 +1589,8 @@ class GridHeaderView(QHeaderView):
 class GridTableModel(QAbstractTableModel):
     """QAbstractTableModel for Grid"""
 
+    cell_to_update = pyqtSignal(tuple)
+
     def __init__(self, main_window: QMainWindow,
                  shape: Tuple[int, int, int]):
         """
@@ -1601,6 +1603,8 @@ class GridTableModel(QAbstractTableModel):
 
         self.main_window = main_window
         self.code_array = CodeArray(shape, main_window.settings)
+
+        self.cell_to_update.connect(self.update_cell)
 
     @contextmanager
     def model_reset(self):
@@ -1822,6 +1826,22 @@ class GridTableModel(QAbstractTableModel):
             font.setStrikeOut(attr.strikethrough)
         return font
 
+    def update_cell(self, key):
+        """"""
+
+        self.code_array[key]
+        self.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def code_array_result(self, key):
+        """Non blocking code array access"""
+
+        if repr(key) in self.code_array.result_cache \
+           or self.code_array(key) is None:
+            # This should be fast
+            return self.code_array[key]
+        else:
+            self.cell_to_update.emit(key)
+
     def data(self, index: QModelIndex,
              role: Qt.ItemDataRole = Qt.DisplayRole) -> Any:
         """Overloaded data for code_array backend
@@ -1841,14 +1861,14 @@ class GridTableModel(QAbstractTableModel):
         key = self.current(index)
 
         if role == Qt.DisplayRole:
-            value = self.code_array[key]
+            value = self.code_array_result(key)
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image" or value is None:
                 return ""
             return safe_str(value)
 
         if role == Qt.ToolTipRole:
-            value = self.code_array[key]
+            value = self.code_array_result(key)
             if value is None:
                 return ""
             return wrap_text(safe_str(value))
@@ -1856,7 +1876,7 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.DecorationRole:
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image":
-                value = self.code_array[key]
+                value = self.code_array_result(key)
                 if isinstance(value, QImage):
                     return value
                 try:
