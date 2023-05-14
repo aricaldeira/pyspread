@@ -139,8 +139,8 @@ class Grid(QTableView):
         self.selectionModel().selectionChanged.connect(
             self.on_selection_changed)
 
-        self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
-        self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
+        self.setHorizontalHeader(GridHeaderView(Qt.Orientation.Horizontal, self))
+        self.setVerticalHeader(GridHeaderView(Qt.Orientation.Vertical, self))
 
         self.verticalHeader().setDefaultSectionSize(
             self.main_window.settings.default_row_height)
@@ -152,7 +152,7 @@ class Grid(QTableView):
 
         # Palette adjustment for cases in  which the Base color is not white
         palette = self.palette()
-        palette.setColor(QPalette.Base,
+        palette.setColor(QPalette.ColorRole.Base,
                          QColor(*DefaultCellAttributeDict().bgcolor))
         self.setPalette(palette)
 
@@ -1914,7 +1914,7 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.TextColorRole:
             text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
-                text_color = self.grid.palette().color(QPalette.Text)
+                text_color = self.grid.palette().color(QPalette.ColorRole.Text)
             else:
                 text_color = QColor(*text_color_rgb)
             return text_color
@@ -2108,7 +2108,7 @@ class GridCellDelegate(QStyledItemDelegate):
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
         text_color = self.grid.model.data(index, role=Qt.TextColorRole)
-        ctx.palette.setColor(QPalette.Text, text_color)
+        ctx.palette.setColor(QPalette.ColorRole.Text, text_color)
 
         key = index.row(), index.column(), self.grid.table
         vertical_align = self.cell_attributes[key].vertical_align
@@ -2557,7 +2557,7 @@ class TableChoice(QTabBar):
 
         """
 
-        super().__init__(shape=QTabBar.RoundedSouth)
+        super().__init__(shape=QTabBar.Shape.RoundedSouth)
         self.setExpanding(False)
 
         self.main_window = main_window

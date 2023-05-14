@@ -39,8 +39,8 @@ from functools import partial
 from pathlib import Path
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (
-        QMenuBar, QMenu, QAction, QMainWindow, QWidget, QToolBar)
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QMenuBar, QMenu, QMainWindow, QWidget, QToolBar
 
 try:
     import matplotlib.figure as matplotlib_figure

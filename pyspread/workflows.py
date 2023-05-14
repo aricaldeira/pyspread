@@ -40,9 +40,9 @@ from typing import Iterable, Tuple
 
 from PyQt6.QtCore import (Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF,
                           QItemSelectionModel, QSize)
-from PyQt6.QtGui import QTextDocument, QImage, QPainter
+from PyQt6.QtGui import QTextDocument, QImage, QPainter, QUndoCommand
 from PyQt6.QtWidgets import (QApplication, QMessageBox, QInputDialog,
-                             QStyleOptionViewItem, QTableView, QUndoCommand)
+                             QStyleOptionViewItem, QTableView)
 try:
     from PyQt6.QtSvg import QSvgGenerator
 except ImportError:

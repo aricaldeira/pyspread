@@ -67,7 +67,7 @@ except ImportError:
 def add_toolbutton_widget(button: QWidget, widget: QWidget,
                           minsize: Tuple[int, int] = (300, 200),
                           popup_mode: QToolButton.ToolButtonPopupMode
-                          = QToolButton.MenuButtonPopup):
+                          = QToolButton.ToolButtonPopupMode.MenuButtonPopup):
     """Adds a widget as menu to a tool_button
 
     :param button: Tool button for menu

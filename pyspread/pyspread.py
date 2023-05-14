@@ -53,8 +53,6 @@ except ImportError:
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-# QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-# QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 def excepthook(exception_type, exception_value, exception_traceback):

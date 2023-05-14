@@ -181,8 +181,8 @@ class LineNumberArea(QWidget):
         painter = QPainter(self)
         palette = QPalette()
 
-        background_color = palette.color(QPalette.Window)
-        text_color = palette.color(QPalette.Text)
+        background_color = palette.color(QPalette.ColorRole.Window)
+        text_color = palette.color(QPalette.ColorRole.Text)
 
         painter.fillRect(event.rect(), background_color)
 

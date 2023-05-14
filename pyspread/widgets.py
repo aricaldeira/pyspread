@@ -54,8 +54,9 @@ from PyQt6.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
 from PyQt6.QtWidgets \
     import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
             QLineEdit, QPushButton, QTextBrowser, QWidget, QMainWindow,
-            QAction, QMenu, QTableView)
-from PyQt6.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
+            QMenu, QTableView)
+from PyQt6.QtGui import (QPalette, QColor, QFont, QIntValidator, QCursor,
+                         QIcon, QAction)
 
 try:
     from pyspread.actions import Action
@@ -293,7 +294,7 @@ class ColorButton(QToolButton):
         self._color = color
 
         palette = self.palette()
-        palette.setColor(QPalette.Button, color)
+        palette.setColor(QPalette.ColorRole.Button, color)
         self.setAutoFillBackground(True)
         self.setPalette(palette)
         self.update()
@@ -354,7 +355,7 @@ class TextColorButton(ColorButton):
         self.setStatusTip("Text color")
         self.setToolTip("Text color")
 
-        self.default_color = self.palette().color(QPalette.Text)
+        self.default_color = self.palette().color(QPalette.ColorRole.Text)
 
 
 class LineColorButton(ColorButton):
@@ -375,7 +376,7 @@ class LineColorButton(ColorButton):
         self.setStatusTip("Cell border line color")
         self.setToolTip("Cell border line color")
 
-        self.default_color = self.palette().color(QPalette.Mid)
+        self.default_color = self.palette().color(QPalette.ColorRole.Mid)
 
 
 class BackgroundColorButton(ColorButton):
@@ -396,7 +397,7 @@ class BackgroundColorButton(ColorButton):
         self.setStatusTip("Cell background color")
         self.setToolTip("Cell background color")
 
-        self.default_color = self.palette().color(QPalette.Base)
+        self.default_color = self.palette().color(QPalette.ColorRole.Base)
 
 
 class MenuComboBox(QComboBox):

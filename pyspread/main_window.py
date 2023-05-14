@@ -91,8 +91,6 @@ except ImportError:
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-# QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-# QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class MainWindow(QMainWindow):
@@ -219,9 +217,9 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
 
-        self.vsplitter = QSplitter(Qt.Vertical, self)
-        self.hsplitter_1 = QSplitter(Qt.Horizontal, self)
-        self.hsplitter_2 = QSplitter(Qt.Horizontal, self)
+        self.vsplitter = QSplitter(Qt.Orientation.Vertical, self)
+        self.hsplitter_1 = QSplitter(Qt.Orientation.Horizontal, self)
+        self.hsplitter_2 = QSplitter(Qt.Orientation.Horizontal, self)
 
         # Set up the table choice first
         _no_tables = self.settings.shape[2]
@@ -769,19 +767,19 @@ class MainWindow(QMainWindow):
             self.format_toolbar.line_width_button.setIcon(icon)
 
         if attributes.textcolor is None:
-            text_color = self.grid.palette().color(QPalette.Text)
+            text_color = self.grid.palette().color(QPalette.ColorRole.Text)
         else:
             text_color = QColor(*attributes.textcolor)
         widgets.text_color_button.color = text_color
 
         if attributes.bordercolor_bottom is None:
-            line_color = self.grid.palette().color(QPalette.Mid)
+            line_color = self.grid.palette().color(QPalette.ColorRole.Mid)
         else:
             line_color = QColor(*attributes.bordercolor_bottom)
         widgets.line_color_button.color = line_color
 
         if attributes.bgcolor is None:
-            bgcolor = self.grid.palette().color(QPalette.Base)
+            bgcolor = self.grid.palette().color(QPalette.ColorRole.Base)
         else:
             bgcolor = QColor(*attributes.bgcolor)
         widgets.background_color_button.color = bgcolor
