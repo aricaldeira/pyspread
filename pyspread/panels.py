@@ -72,12 +72,13 @@ class MacroPanel(QDialog):
         self.result_viewer = QTextEdit(self)
         self.result_viewer.setReadOnly(True)
 
-        self.splitter = QSplitter(Qt.Vertical, self)
+        self.splitter = QSplitter(Qt.Orientation.Vertical, self)
 
         self.splitter.addWidget(self.macro_editor)
         self.splitter.addWidget(self.result_viewer)
 
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Apply)
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Apply)
 
     def _layout(self):
         """Layout dialog widgets"""

@@ -813,7 +813,7 @@ class FindDialog(QDialog):
         self.regex_checkbox = QCheckBox("Regular e&xpression")
         self.from_start_checkbox = QCheckBox("From &start")
 
-        self.button_box = QDialogButtonBox(Qt.Vertical)
+        self.button_box = QDialogButtonBox(Qt.Orientation.Vertical)
         self.button_box.addButton(self.find_button,
                                   QDialogButtonBox.ActionRole)
         self.button_box.addButton(self.more_button,

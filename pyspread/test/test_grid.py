@@ -539,9 +539,9 @@ class TestGrid:
         self.grid.selectRow(2)
 
         self.grid.on_bold_pressed(True)
-        assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Bold
+        assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Weight.Bold
         self.grid.on_bold_pressed(False)
-        assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Normal
+        assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Weight.Normal
 
         self.grid.clearSelection()
 
@@ -552,10 +552,10 @@ class TestGrid:
 
         self.grid.on_italics_pressed(True)
         assert self.cell_attributes[(2, 0, 0)]["fontstyle"] \
-            == QFont.StyleItalic
+            == QFont.Style.StyleItalic
         self.grid.on_italics_pressed(False)
         assert self.cell_attributes[(2, 0, 0)]["fontstyle"] \
-            == QFont.StyleNormal
+            == QFont.Style.StyleNormal
 
         self.grid.clearSelection()
 

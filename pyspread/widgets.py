@@ -654,14 +654,15 @@ class FindEditor(QLineEdit):
 
         self.label = "Find editor"
         self.icon = lambda: Icon.find_next
-        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)
+        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Policy.Preferred)
         self.setClearButtonEnabled(True)
-        self.addAction(self.actions.find_next, QLineEdit.LeadingPosition)
+        self.addAction(self.actions.find_next,
+                       QLineEdit.ActionPosition.LeadingPosition)
 
         workflows = parent.main_window.workflows
         self.returnPressed.connect(workflows.edit_find_next)
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_context_menu)
 
     def prepend_actions(self, menu: QMenu):

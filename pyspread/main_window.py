@@ -241,13 +241,16 @@ class MainWindow(QMainWindow):
         self.entry_line_dock = QDockWidget("Entry Line", self)
         self.entry_line_dock.setObjectName("Entry Line Panel")
         self.entry_line_dock.setWidget(self.entry_line)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.entry_line_dock)
-        self.resizeDocks([self.entry_line_dock], [10], Qt.Horizontal)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,
+                           self.entry_line_dock)
+        self.resizeDocks([self.entry_line_dock], [10],
+                         Qt.Orientation.Horizontal)
 
         self.macro_dock = QDockWidget("Macros", self)
         self.macro_dock.setObjectName("Macro Panel")
         self.macro_dock.setWidget(self.macro_panel)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea,
+                           self.macro_dock)
 
         self.central_layout = QVBoxLayout(self.main_panel)
         self._layout()
@@ -713,11 +716,11 @@ class MainWindow(QMainWindow):
         widgets = self.widgets
         menubar = self.menuBar()
 
-        is_bold = attributes.fontweight == QFont.Bold
+        is_bold = attributes.fontweight == QFont.Weight.Bold
         self.main_window_actions.bold.setChecked(is_bold)
         self.main_window_toolbar_actions.bold.setChecked(is_bold)
 
-        is_italic = attributes.fontstyle == QFont.StyleItalic
+        is_italic = attributes.fontstyle == QFont.Style.StyleItalic
         self.main_window_actions.italics.setChecked(is_italic)
         self.main_window_toolbar_actions.italics.setChecked(is_italic)
 

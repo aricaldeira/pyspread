@@ -507,7 +507,8 @@ class Grid(QTableView):
     def reset_selection(self):
         """Select upper left cell"""
 
-        self.setSelection(QRect(1, 1, 1, 1), QItemSelectionModel.Select)
+        self.setSelection(QRect(1, 1, 1, 1),
+                          QItemSelectionModel.SelectionFlag.Select)
 
     def gui_update(self):
         """Emits gui update signal"""
@@ -823,7 +824,7 @@ class Grid(QTableView):
 
         """
 
-        fontweight = QFont.Bold if toggled else QFont.Normal
+        fontweight = QFont.Weight.Bold if toggled else QFont.Weight.Normal
         attr_dict = AttrDict([("fontweight", fontweight)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
@@ -839,7 +840,7 @@ class Grid(QTableView):
 
         """
 
-        fontstyle = QFont.StyleItalic if toggled else QFont.StyleNormal
+        fontstyle = QFont.Style.StyleItalic if toggled else QFont.Style.StyleNormal
         attr_dict = AttrDict([("fontstyle", fontstyle)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
@@ -1561,7 +1562,7 @@ class GridHeaderView(QHeaderView):
         """
 
         actions = self.grid.main_window.main_window_actions
-        if self.orientation() == Qt.Horizontal:
+        if self.orientation() == Qt.Orientation.Horizontal:
             menu = HorizontalHeaderContextMenu(actions)
         else:
             menu = VerticalHeaderContextMenu(actions)
@@ -1577,7 +1578,7 @@ class GridHeaderView(QHeaderView):
                 self.setDefaultSectionSize(int(self.default_section_size
                                                * self.grid.zoom))
 
-                if self.orientation() == Qt.Horizontal:
+                if self.orientation() == Qt.Orientation.Horizontal:
                     section_sizes = self.grid.column_widths
                 else:
                     section_sizes = self.grid.row_heights
@@ -1873,7 +1874,7 @@ class GridTableModel(QAbstractTableModel):
 
         key = self.current(index)
 
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             value = self.code_array_result(key)
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image" or value is None:
@@ -2004,7 +2005,7 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return str(idx)
 
     def reset(self):
