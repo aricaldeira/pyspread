@@ -239,11 +239,12 @@ class TestGrid:
         assert self.grid.zoom == zoom_res
 
     param_test_set_selection_mode = [
-        (True, (0, 0, 0), (0, 0, 0), QAbstractItemView.NoEditTriggers),
+        (True, (0, 0, 0), (0, 0, 0),
+         QAbstractItemView.EditTrigger.NoEditTriggers),
         (False, (1, 2, 3), None,
-         QAbstractItemView.DoubleClicked
-         | QAbstractItemView.EditKeyPressed
-         | QAbstractItemView.AnyKeyPressed),
+         QAbstractItemView.EditTrigger.DoubleClicked
+         | QAbstractItemView.EditTrigger.EditKeyPressed
+         | QAbstractItemView.EditTrigger.AnyKeyPressed),
     ]
 
     @pytest.mark.parametrize("on, current, start, edit_mode",
