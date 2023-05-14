@@ -396,9 +396,9 @@ class Grid(QTableView):
             if self.current_selection_mode_start is not None:
                 grid.current = self.current_selection_mode_start
                 self.current_selection_mode_start = None
-            self.setEditTriggers(QAbstractItemView.DoubleClicked
-                                 | QAbstractItemView.EditKeyPressed
-                                 | QAbstractItemView.AnyKeyPressed)
+            self.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked
+                                 | QAbstractItemView.EditTrigger.EditKeyPressed
+                                 | QAbstractItemView.EditTrigger.AnyKeyPressed)
             self.selection_mode_exiting = False
             self.main_window.selection_mode_widget.hide()
             self.main_window.entry_line.setFocus()
