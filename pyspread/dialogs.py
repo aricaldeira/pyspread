@@ -70,7 +70,7 @@ from PyQt6.QtWidgets \
 from PyQt6.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
-from PyQt6.QtSvg import QSvgWidget
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
                                   QPrinter)
 

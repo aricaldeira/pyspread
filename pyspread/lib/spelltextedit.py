@@ -119,8 +119,7 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 
 
 # pylint: disable=no-name-in-module
-from PyQt6.Qt import Qt
-from PyQt6.QtCore import QEvent, QRegExp, QSize, QRect, QRectF
+from PyQt6.QtCore import Qt, QEvent, QRegExp, QSize, QRect, QRectF
 from PyQt6.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
                          QTextCharFormat, QTextCursor, QColor, QFont,
                          QFontMetricsF, QPainter, QPalette)
@@ -200,7 +199,8 @@ class LineNumberArea(QWidget):
                 number = str(block_number + 1)
                 painter.setPen(text_color)
                 text_rect = QRectF(0, top, self.width(), height)
-                painter.drawText(text_rect, Qt.AlignRight, number)
+                painter.drawText(text_rect, Qt.AlignmentFlag.AlignRight,
+                                 number)
 
             block = block.next()
             top = bottom
@@ -324,7 +324,7 @@ class SpellTextEdit(QPlainTextEdit):
     def keyPressEvent(self, event):
         """Overide to change tab into spaces_per_tab spaces"""
 
-        if event.key() == Qt.Key_Tab:
+        if event.key() == Qt.Key.Key_Tab:
             self.insertPlainText(" " * self.spaces_per_tab)
         else:
             super().keyPressEvent(event)
@@ -500,7 +500,7 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
     # XXX: Does QSyntaxHighlighter.setFormat handle keeping this from
     #      clobbering styles set in the data itself?
     err_format = QTextCharFormat()
-    err_format.setUnderlineColor(Qt.red)
+    err_format.setUnderlineColor(Qt.GlobalColor.red)
     err_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
 
     # Python keywords

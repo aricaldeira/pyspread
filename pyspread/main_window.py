@@ -37,16 +37,16 @@ pyspread
 import os
 from pathlib import Path
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication,
-                             QMessageBox, QDockWidget, QUndoStack, QVBoxLayout,
+from PyQt6.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
+from PyQt6.QtWidgets import (QWidget, QMainWindow, QApplication,
+                             QMessageBox, QDockWidget, QVBoxLayout,
                              QStyleOptionViewItem, QSplitter)
 try:
-    from PyQt5.QtSvg import QSvgWidget
+    from PyQt6.QtSvgWidgets import QSvgWidget
 except ImportError:
     QSvgWidget = None
-from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
-from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from PyQt6.QtGui import QColor, QFont, QPalette, QPainter, QUndoStack
+from PyQt6.QtPrintSupport import QPrinter, QPrintDialog
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME
