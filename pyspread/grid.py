@@ -1856,7 +1856,7 @@ class GridTableModel(QAbstractTableModel):
             self.cell_to_update.emit(key)
 
     def data(self, index: QModelIndex,
-             role: Qt.ItemDataRole = Qt.DisplayRole) -> Any:
+             role: Qt.ItemDataRole = Qt.ItemDataRole.DisplayRole) -> Any:
         """Overloaded data for code_array backend
 
         :param index: Index of the cell, for which data is returned
@@ -1987,7 +1987,7 @@ class GridTableModel(QAbstractTableModel):
                             self.dataChanged.emit(idx, idx)
             return True
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         """Overloaded, makes items editable
 
         :param index: Index of cell for which flags are returned

@@ -46,7 +46,7 @@ import sys
 
 import pytest
 
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 
 from .compat import numBytes, numColors
 

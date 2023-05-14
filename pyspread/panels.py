@@ -31,10 +31,10 @@ from io import StringIO
 from sys import exc_info
 from traceback import print_exception
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QSplitter
-from PyQt5.QtWidgets import QTextEdit
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QSplitter
+from PyQt6.QtWidgets import QTextEdit
 
 try:
     from pyspread.lib.spelltextedit import SpellTextEdit

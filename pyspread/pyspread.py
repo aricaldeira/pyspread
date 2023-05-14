@@ -38,8 +38,8 @@ import os
 import sys
 import traceback
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication
 
 try:
     from pyspread.cli import PyspreadArgumentParser
@@ -53,8 +53,8 @@ except ImportError:
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+# QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+# QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 def excepthook(exception_type, exception_value, exception_traceback):

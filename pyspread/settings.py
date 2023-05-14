@@ -32,8 +32,8 @@ from pathlib import Path
 from platform import system
 from typing import Any
 
-from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QToolBar, QWidget
+from PyQt6.QtCore import QSettings
+from PyQt6.QtWidgets import QToolBar, QWidget
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME

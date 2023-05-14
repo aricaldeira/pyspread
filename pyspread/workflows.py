@@ -38,13 +38,13 @@ from shutil import move
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
 
-from PyQt5.QtCore import (Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF,
+from PyQt6.QtCore import (Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF,
                           QItemSelectionModel, QSize)
-from PyQt5.QtGui import QTextDocument, QImage, QPainter
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QInputDialog,
+from PyQt6.QtGui import QTextDocument, QImage, QPainter
+from PyQt6.QtWidgets import (QApplication, QMessageBox, QInputDialog,
                              QStyleOptionViewItem, QTableView, QUndoCommand)
 try:
-    from PyQt5.QtSvg import QSvgGenerator
+    from PyQt6.QtSvg import QSvgGenerator
 except ImportError:
     QSvgGenerator = None
 

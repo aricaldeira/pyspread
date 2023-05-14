@@ -40,9 +40,9 @@ try:
     from pkg_resources import get_distribution, DistributionNotFound
 except ImportError:
     get_distribution = None
-from PyQt5.QtCore import QProcess, QSize
-from PyQt5.QtGui import QColor, QTextCursor
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QProcess, QSize
+from PyQt6.QtGui import QColor, QTextCursor
+from PyQt6.QtWidgets import (
         QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout, QTreeWidgetItem,
         QToolButton, QGroupBox, QTreeWidget, QCheckBox, QLineEdit,
         QPlainTextEdit, QWidget, QPushButton)
@@ -97,7 +97,7 @@ REQUIRED_DEPENDENCIES = [
     Module(name="numpy",
            description="Fundamental package for scientific computing",
            required_version=version.parse("1.1")),
-    Module(name="PyQt5",
+    Module(name="PyQt6",
            description="Python bindings for the Qt application framework",
            required_version=version.parse("5.10")),
     Module(name="setuptools",

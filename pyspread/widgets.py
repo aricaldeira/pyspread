@@ -50,12 +50,12 @@ try:
 except ImportError:
     markdown = None
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
-from PyQt5.QtWidgets \
+from PyQt6.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
+from PyQt6.QtWidgets \
     import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
             QLineEdit, QPushButton, QTextBrowser, QWidget, QMainWindow,
             QAction, QMenu, QTableView)
-from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
+from PyQt6.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
 
 try:
     from pyspread.actions import Action

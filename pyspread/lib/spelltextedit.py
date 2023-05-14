@@ -119,12 +119,11 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 
 
 # pylint: disable=no-name-in-module
-from PyQt6.QtCore import Qt, QEvent, QRegExp, QSize, QRect, QRectF
+from PyQt6.QtCore import Qt, QEvent, QSize, QRect, QRectF
 from PyQt6.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
-                         QTextCharFormat, QTextCursor, QColor, QFont,
-                         QFontMetricsF, QPainter, QPalette)
-from PyQt6.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
-                             QPlainTextEdit, QWidget)
+                         QTextCharFormat, QTextCursor, QColor, QFont, QAction,
+                         QFontMetricsF, QPainter, QPalette, QActionGroup)
+from PyQt6.QtWidgets import QApplication, QMenu, QPlainTextEdit, QWidget
 
 try:
     from pyspread.actions import SpellTextEditActions
@@ -141,7 +140,7 @@ def format(color, style=''):
     _format = QTextCharFormat()
     _format.setForeground(_color)
     if 'bold' in style:
-        _format.setFontWeight(QFont.Bold)
+        _format.setFontWeight(QFont.Weight.Bold)
     if 'italic' in style:
         _format.setFontItalic(True)
 
@@ -501,7 +500,8 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
     #      clobbering styles set in the data itself?
     err_format = QTextCharFormat()
     err_format.setUnderlineColor(Qt.GlobalColor.red)
-    err_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
+    err_format.setUnderlineStyle(
+        QTextCharFormat.UnderlineStyle.SpellCheckUnderline)
 
     # Python keywords
     keywords = keyword.kwlist

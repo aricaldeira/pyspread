@@ -56,9 +56,9 @@ validFormats_8bit = [getattr(QImage, name)
                      if name in dir(QImage)]
 
 
-validFormats_32bit = (QImage.Format_RGB32,
-                      QImage.Format_ARGB32,
-                      QImage.Format_ARGB32_Premultiplied)
+validFormats_32bit = (QImage.Format.Format_RGB32,
+                      QImage.Format.Format_ARGB32,
+                      QImage.Format.Format_ARGB32_Premultiplied)
 
 
 def PyQt_data(image):

@@ -108,8 +108,9 @@ class DiscardChangesDialog:
 
     title = "Unsaved changes"
     text = "There are unsaved changes.\nDo you want to save?"
-    choices = QMessageBox.Discard | QMessageBox.Cancel | QMessageBox.Save
-    default_choice = QMessageBox.Save
+    buttons = QMessageBox.StandardButton
+    choices = buttons.Discard | buttons.Cancel | buttons.Save
+    default_choice = buttons.Save
 
     def __init__(self, main_window: QMainWindow):
         """
@@ -132,9 +133,9 @@ class DiscardChangesDialog:
         button_approval = QMessageBox.warning(self.main_window, self.title,
                                               self.text, self.choices,
                                               self.default_choice)
-        if button_approval == QMessageBox.Discard:
+        if button_approval == QMessageBox.StandardButton.Discard:
             return True
-        if button_approval == QMessageBox.Save:
+        if button_approval == QMessageBox.StandardButton.Save:
             return False
 
 
@@ -142,8 +143,9 @@ class DiscardDataDialog(DiscardChangesDialog):
     """Modal dialog that asks if the user wants to discard data"""
 
     title = "Data to be discarded"
-    choices = QMessageBox.Discard | QMessageBox.Cancel
-    default_choice = QMessageBox.Cancel
+    buttons = QMessageBox.StandardButton
+    choices = buttons.Discard | buttons.Cancel
+    default_choice = buttons.Cancel
 
     def __init__(self, main_window: QMainWindow, text: str):
         """
@@ -169,8 +171,9 @@ class ApproveWarningDialog:
             "It may harm your system as any program can. Please check all "
             "cells thoroughly before proceeding.\n \n"
             "Proceed and sign this file as trusted?")
-    choices = QMessageBox.No | QMessageBox.Yes
-    default_choice = QMessageBox.No
+    buttons = QMessageBox.StandardButton
+    choices = buttons.No | buttons.Yes
+    default_choice = buttons.No
 
     def __init__(self, parent: QWidget):
         """
@@ -193,9 +196,9 @@ class ApproveWarningDialog:
         button_approval = QMessageBox.warning(self.parent, self.title,
                                               self.text, self.choices,
                                               self.default_choice)
-        if button_approval == QMessageBox.Yes:
+        if button_approval == self.buttons.Yes:
             return True
-        if button_approval == QMessageBox.No:
+        if button_approval == self.buttons.No:
             return False
 
 

@@ -32,7 +32,7 @@
 
 from typing import Tuple
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
         QToolBar, QToolButton, QMenu, QWidget, QHBoxLayout, QUndoView,
         QMainWindow)
 
