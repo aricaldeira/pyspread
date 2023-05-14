@@ -33,8 +33,8 @@ from contextlib import contextmanager
 from functools import partial
 from typing import BinaryIO, ContextManager, Generator, IO, Tuple
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressDialog
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QProgressDialog
 
 
 class ProgressDialogCanceled(Exception):

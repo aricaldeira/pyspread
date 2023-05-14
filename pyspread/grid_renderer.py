@@ -40,12 +40,12 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from typing import List, Tuple
 
-from PyQt5.QtCore import Qt, QModelIndex, QRectF, QPointF
-from PyQt5.QtGui import (QBrush, QPainter, QPalette, QPen,
+from PyQt6.QtCore import Qt, QModelIndex, QRectF, QPointF
+from PyQt6.QtGui import (QBrush, QPainter, QPalette, QPen,
                          QPainterPath, QPolygonF, QPainterPathStroker)
 
-from PyQt5.QtGui import QColor as __QColor
-from PyQt5.QtWidgets import QTableView, QStyleOptionViewItem
+from PyQt6.QtGui import QColor as __QColor
+from PyQt6.QtWidgets import QTableView, QStyleOptionViewItem
 from functools import lru_cache
 
 

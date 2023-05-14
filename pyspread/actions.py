@@ -31,8 +31,8 @@
 
 from typing import Callable, List
 
-from PyQt5.QtWidgets import QAction, QActionGroup, QWidget
-from PyQt5.QtGui import QKeySequence, QIcon
+from PyQt6.QtWidgets import QAction, QActionGroup, QWidget
+from PyQt6.QtGui import QKeySequence, QIcon
 
 try:
     import matplotlib.figure as matplotlib_figure

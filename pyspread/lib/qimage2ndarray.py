@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy
 import sys
 
-from PyQt5.QtGui import QImage
+from PyQt6.QtGui import QImage
 
 
 if sys.byteorder == 'little':
@@ -62,7 +62,7 @@ validFormats_32bit = (QImage.Format_RGB32,
 
 
 def PyQt_data(image):
-    # PyQt4/PyQt5's QImage.bits() returns a sip.voidptr that supports
+    # PyQt4/PyQt6's QImage.bits() returns a sip.voidptr that supports
     # conversion to string via asstring(size) or getting its base
     # address via int(...):
     return (int(image.bits()), False)

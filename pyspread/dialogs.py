@@ -60,18 +60,18 @@ import io
 from pathlib import Path
 from typing import List, Sequence, Tuple, Union
 
-from PyQt5.QtCore import Qt, QPoint, QSize, QEvent
-from PyQt5.QtWidgets \
+from PyQt6.QtCore import Qt, QPoint, QSize, QEvent
+from PyQt6.QtWidgets \
     import (QApplication, QMessageBox, QFileDialog, QDialog, QLineEdit, QLabel,
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
             QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QInputDialog)
-from PyQt5.QtGui \
+from PyQt6.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
+from PyQt6.QtSvg import QSvgWidget
+from PyQt6.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
                                   QPrinter)
 
 try:

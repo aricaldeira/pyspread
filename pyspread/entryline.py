@@ -28,9 +28,9 @@
 
 from contextlib import contextmanager
 
-from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtGui import QTextOption, QKeyEvent
-from PyQt5.QtWidgets import QWidget, QMainWindow
+from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtGui import QTextOption, QKeyEvent
+from PyQt6.QtWidgets import QWidget, QMainWindow
 
 try:
     import pyspread.commands as commands

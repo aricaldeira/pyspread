@@ -40,9 +40,9 @@ from itertools import cycle
 from math import isclose
 from typing import List, Iterable, Tuple
 
-from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.QtGui import QTextDocument
-from PyQt5.QtWidgets import QUndoCommand, QTableView, QPlainTextEdit
+from PyQt6.QtCore import Qt, QModelIndex, QAbstractTableModel
+from PyQt6.QtGui import QTextDocument
+from PyQt6.QtWidgets import QUndoCommand, QTableView, QPlainTextEdit
 
 try:
     from pyspread.model.model import CellAttribute

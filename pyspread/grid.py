@@ -39,21 +39,21 @@ from typing import Any, Iterable, List, Tuple, Union
 
 import numpy
 
-from PyQt5.QtWidgets \
+from PyQt6.QtWidgets \
     import (QTableView, QStyledItemDelegate, QTabBar, QWidget, QMainWindow,
             QStyleOptionViewItem, QApplication, QStyle, QAbstractItemDelegate,
             QHeaderView, QFontDialog, QInputDialog, QLineEdit,
             QAbstractItemView)
-from PyQt5.QtGui \
+from PyQt6.QtGui \
     import (QColor, QBrush, QFont, QPainter, QPalette, QImage, QKeyEvent,
             QTextOption, QAbstractTextDocumentLayout, QTextDocument,
             QWheelEvent, QContextMenuEvent, QTextCursor)
-from PyQt5.QtCore \
+from PyQt6.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
             QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel,
             QByteArray, pyqtSignal, pyqtSlot)
 
-from PyQt5.QtSvg import QSvgRenderer
+from PyQt6.QtSvg import QSvgRenderer
 
 try:
     import matplotlib

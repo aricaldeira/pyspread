@@ -68,7 +68,7 @@ from typing import (
 
 import numpy
 
-from PyQt5.QtGui import QImage, QPixmap  # Needed
+from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
     from matplotlib.figure import Figure

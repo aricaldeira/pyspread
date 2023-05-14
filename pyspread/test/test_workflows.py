@@ -34,8 +34,8 @@ import sys
 
 import pytest
 
-from PyQt5.QtCore import Qt, QItemSelectionModel
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import Qt, QItemSelectionModel
+from PyQt6.QtWidgets import QApplication
 
 try:
     from pyspread.dialogs import GridShapeDialog

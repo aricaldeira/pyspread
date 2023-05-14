@@ -119,12 +119,12 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 
 
 # pylint: disable=no-name-in-module
-from PyQt5.Qt import Qt
-from PyQt5.QtCore import QEvent, QRegExp, QSize, QRect, QRectF
-from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
+from PyQt6.Qt import Qt
+from PyQt6.QtCore import QEvent, QRegExp, QSize, QRect, QRectF
+from PyQt6.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
                          QTextCharFormat, QTextCursor, QColor, QFont,
                          QFontMetricsF, QPainter, QPalette)
-from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
+from PyQt6.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
                              QPlainTextEdit, QWidget)
 
 try:
@@ -235,7 +235,7 @@ class SpellTextEdit(QPlainTextEdit):
         try:
             _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
         except AttributeError:
-            # PyQt5 version < 5.11
+            # PyQt6 version < 5.11
             _distance = QFontMetricsF(self.font()).boundingRect(" ").width()
 
         self.setTabStopDistance(_distance * self.spaces_per_tab)
