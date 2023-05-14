@@ -192,7 +192,7 @@ class LineNumberArea(QWidget):
         top = self.parent.blockBoundingGeometry(block).translated(offset).top()
         bottom = top + self.parent.blockBoundingRect(block).height()
 
-        height = self.parent.fontMetrics().height()
+        height = self.parent.fontMetrics().horizontalAdvance()
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
@@ -235,7 +235,8 @@ class SpellTextEdit(QPlainTextEdit):
             _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
         except AttributeError:
             # PyQt6 version < 5.11
-            _distance = QFontMetricsF(self.font()).boundingRect(" ").width()
+            _distance = QFontMetricsF(
+                self.font()).boundingRect(" ").horizontalAdvance()
 
         self.setTabStopDistance(_distance * self.spaces_per_tab)
 
@@ -277,7 +278,7 @@ class SpellTextEdit(QPlainTextEdit):
             return 0
 
         margin = 3
-        digit_width = self.fontMetrics().width('9')
+        digit_width = self.fontMetrics().horizontalAdvance('9')
         digits = int(log10(max(1, self.blockCount()))) + 1
 
         return margin + digit_width * digits

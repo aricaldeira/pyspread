@@ -295,8 +295,8 @@ class DataEntryDialog(QDialog):
     def create_buttonbox(self) -> QDialogButtonBox:
         """Returns a QDialogButtonBox with Ok and Cancel"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
@@ -815,9 +815,9 @@ class FindDialog(QDialog):
 
         self.button_box = QDialogButtonBox(Qt.Orientation.Vertical)
         self.button_box.addButton(self.find_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.more_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
 
     def _layout(self):
         """Find dialog layout"""
@@ -919,9 +919,9 @@ class ReplaceDialog(FindDialog):
         self.replace_all_button = QPushButton("Replace &all")
 
         self.button_box.addButton(self.replace_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.replace_all_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
 
         self.setTabOrder(self.search_text_editor, self.replace_text_editor)
         self.setTabOrder(self.more_button, self.replace_button)
@@ -1071,12 +1071,13 @@ class ChartDialog(QDialog):
     def create_buttonbox(self):
         """Returns a QDialogButtonBox with Ok and Cancel"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Apply
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Apply
+                                      | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
         return button_box
 
 
@@ -1455,15 +1456,17 @@ class CsvImportDialog(QDialog):
     def create_buttonbox(self):
         """Returns a QDialogButtonBox"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Reset
-                                      | QDialogButtonBox.Apply
-                                      | QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Reset
+                                      | QDialogButtonBox.StandardButton.Apply
+                                      | QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Cancel)
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset)
-        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
 
         return button_box
 
@@ -1631,10 +1634,10 @@ class CsvExportDialog(QDialog):
     def create_buttonbox(self) -> QDialogButtonBox:
         """Returns button box with Reset, Apply, Ok, Cancel"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Reset
-                                      | QDialogButtonBox.Apply
-                                      | QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Reset
+                                      | QDialogButtonBox.StandardButton.Apply
+                                      | QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Cancel)
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)

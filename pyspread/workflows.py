@@ -1937,7 +1937,7 @@ class Workflows:
         if code is not None:
             chart_dialog.editor.setPlainText(code)
 
-        if chart_dialog.exec_() == ChartDialog.Accepted:
+        if chart_dialog.exec() == ChartDialog.DialogCode.Accepted:
             code = chart_dialog.editor.toPlainText()
             grid.current = current
             index = grid.currentIndex()
