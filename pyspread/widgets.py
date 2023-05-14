@@ -323,9 +323,10 @@ class ColorButton(QToolButton):
             dlg.setCustomColor(15, self.default_color)
         dlg.setWindowTitle(self.title)
 
-        dlg.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
-        dlg.setWindowModality(Qt.ApplicationModal)
-        dlg.setOptions(QColorDialog.DontUseNativeDialog)
+        dlg.setWindowFlags(
+            Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
+        dlg.setWindowModality(Qt.WindowModality.ApplicationModal)
+        dlg.setOptions(QColorDialog.ColorDialogOption.DontUseNativeDialog)
 
         pos = self.mapFromGlobal(QCursor.pos())
         pos.setX(pos.x() + int(self.rect().width() / 2))

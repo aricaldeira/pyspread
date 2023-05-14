@@ -1894,7 +1894,8 @@ class Workflows:
 
         index = grid.currentIndex()
         grid.clearSelection()
-        grid.selectionModel().select(index, QItemSelectionModel.Select)
+        grid.selectionModel().select(index,
+                                     QItemSelectionModel.SelectionFlag.Select)
 
         if filepath.suffix == ".svg":
             svg = self._read_svg_str(filepath, encoding='utf-8')
@@ -1941,7 +1942,8 @@ class Workflows:
             grid.current = current
             index = grid.currentIndex()
             grid.clearSelection()
-            grid.selectionModel().select(index, QItemSelectionModel.Select)
+            grid.selectionModel().select(
+                index, QItemSelectionModel.SelectionFlag.Select)
             grid.on_matplotlib_renderer_pressed()
 
             description = f"Insert chart into cell {index}"

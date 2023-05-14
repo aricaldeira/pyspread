@@ -57,7 +57,7 @@ def progress_dialog(main_window: QMainWindow, title: str, label: str,
 
     progress_dialog = QProgressDialog(main_window)
     progress_dialog.setWindowTitle(title)
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setLabelText(label)
     progress_dialog.setMaximum(maximum)
 
