@@ -80,7 +80,7 @@ class Entryline(SpellTextEdit):
 
         """
 
-        if event.type() == QEvent.ShortcutOverride \
+        if event.type() == QEvent.Type.ShortcutOverride \
            and event.modifiers() == Qt.ControlModifier \
            and source == self \
            and event.key() in (Qt.Key_Return, Qt.Key_Enter):

@@ -2493,7 +2493,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        if event.type() == QEvent.ShortcutOverride \
+        if event.type() == QEvent.Type.ShortcutOverride \
            and source is self.editor \
            and event.modifiers() == Qt.ControlModifier \
            and event.key() in (Qt.Key_Return, Qt.Key_Enter):

@@ -78,7 +78,7 @@ def main():
 
     main_window.show()
 
-    app.exec_()
+    app.exec()
 
     sys.exit()
 

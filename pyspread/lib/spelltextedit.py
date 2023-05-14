@@ -341,7 +341,7 @@ class SpellTextEdit(QPlainTextEdit):
         # 1. The cursor remains invisible after closing the context menu
         # 2. Keyboard input causes it to appear, but it doesn't blink
         # 3. Switching focus away from and back to the window fixes it
-        self.focusInEvent(QFocusEvent(QEvent.FocusIn))
+        self.focusInEvent(QFocusEvent(QEvent.Type.FocusIn))
 
     def createSpellcheckContextMenu(self, pos):
         """Create and return an augmented default context menu.

@@ -304,7 +304,8 @@ class MainWindow(QMainWindow):
 
         """
 
-        if event.type() == QEvent.Close and isinstance(source, QDockWidget):
+        if event.type() == QEvent.Type.Close and isinstance(source,
+                                                            QDockWidget):
             if source.windowTitle() == "Macros":
                 self.main_window_actions.toggle_macro_dock.setChecked(False)
             elif source.windowTitle() == "Entry Line":
