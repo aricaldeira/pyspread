@@ -371,7 +371,8 @@ class Grid(QTableView):
     def selection_mode(self) -> bool:
         """In selection mode, cells cannot be edited"""
 
-        return self.editTriggers() == QAbstractItemView.NoEditTriggers
+        return self.editTriggers() \
+            == QAbstractItemView.EditTrigger.NoEditTriggers
 
     @selection_mode.setter
     def selection_mode(self, on: bool):
@@ -595,8 +596,8 @@ class Grid(QTableView):
             cursor = self.main_window.entry_line.textCursor()
             text_anchor = cursor.anchor()
             text_position = cursor.position()
-            if (QApplication.queryKeyboardModifiers()
-                == Qt.KeyboardModifier.MetaModifier):
+            if QApplication.queryKeyboardModifiers() \
+               == Qt.KeyboardModifier.MetaModifier:
                 text = self.selection.get_absolute_access_string(
                     self.model.shape, self.table)
             else:

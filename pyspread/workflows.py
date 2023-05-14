@@ -103,7 +103,7 @@ class Workflows:
     def busy_cursor(self):
         """:class:`~contextlib.contextmanager` that displays a busy cursor"""
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         yield
         QApplication.restoreOverrideCursor()
 
