@@ -442,8 +442,8 @@ class Grid(QTableView):
 
         """
 
-        if hint == QAbstractItemDelegate.NoHint:
-            hint = QAbstractItemDelegate.SubmitModelCache
+        if hint == QAbstractItemDelegate.EndEditHint.NoHint:
+            hint = QAbstractItemDelegate.EndEditHint.SubmitModelCache
 
         super().closeEditor(editor, hint)
 
@@ -458,18 +458,18 @@ class Grid(QTableView):
 
         """
 
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if event.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             if self.selection_mode:
                 # Return exits selection mode
                 self.selection_mode = False
                 self.main_window.entry_line.setFocus()
-            elif event.modifiers() & Qt.ShiftModifier:
+            elif event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
-        elif event.key() == Qt.Key_Delete:
+        elif event.key() == Qt.Key.Key_Delete:
             self.main_window.workflows.delete()
-        elif (event.key() == Qt.Key_Escape
+        elif (event.key() == Qt.Key.Key_Escape
               and self.editTriggers() == QAbstractItemView.NoEditTriggers):
             # Leave cell selection mode
             self.selection_mode = False
@@ -484,7 +484,7 @@ class Grid(QTableView):
         """
 
         modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
+        if modifiers == Qt.KeyboardModifier.ControlModifier:
             if event.angleDelta().y() > 0:
                 self.on_zoom_in()
             else:
@@ -595,7 +595,8 @@ class Grid(QTableView):
             cursor = self.main_window.entry_line.textCursor()
             text_anchor = cursor.anchor()
             text_position = cursor.position()
-            if QApplication.queryKeyboardModifiers() == Qt.MetaModifier:
+            if (QApplication.queryKeyboardModifiers()
+                == Qt.KeyboardModifier.MetaModifier):
                 text = self.selection.get_absolute_access_string(
                     self.model.shape, self.table)
             else:
@@ -1881,13 +1882,13 @@ class GridTableModel(QAbstractTableModel):
                 return ""
             return safe_str(value)
 
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             value = self.code_array_result(key)
             if value is None:
                 return ""
             return wrap_text(safe_str(value))
 
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image":
                 value = self.code_array_result(key)
@@ -1899,11 +1900,11 @@ class GridTableModel(QAbstractTableModel):
                 except Exception:
                     return value
 
-        if role == Qt.BackgroundColorRole:
+        if role == Qt.ItemDataRole.BackgroundRole:
             if self.main_window.settings.show_frozen \
                and self.code_array.cell_attributes[key].frozen:
                 pattern_rgb = self.grid.palette().highlight().color()
-                bg_color = QBrush(pattern_rgb, Qt.BDiagPattern)
+                bg_color = QBrush(pattern_rgb, Qt.BrushStyle.BDiagPattern)
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key].bgcolor
                 if bg_color_rgb is None:
@@ -1912,7 +1913,7 @@ class GridTableModel(QAbstractTableModel):
                     bg_color = QColor(*bg_color_rgb)
             return bg_color
 
-        if role == Qt.TextColorRole:
+        if role == Qt.ItemDataRole.ForegroundRole:
             text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
                 text_color = self.grid.palette().color(QPalette.ColorRole.Text)
@@ -1920,18 +1921,18 @@ class GridTableModel(QAbstractTableModel):
                 text_color = QColor(*text_color_rgb)
             return text_color
 
-        if role == Qt.FontRole:
+        if role == Qt.ItemDataRole.FontRole:
             return self.font(key)
 
-        if role == Qt.TextAlignmentRole:
+        if role == Qt.ItemDataRole.TextAlignmentRole:
             pys2qt = {
-                "justify_left": Qt.AlignLeft,
-                "justify_center": Qt.AlignHCenter,
-                "justify_right": Qt.AlignRight,
-                "justify_fill": Qt.AlignJustify,
-                "align_top": Qt.AlignTop,
-                "align_center": Qt.AlignVCenter,
-                "align_bottom": Qt.AlignBottom,
+                "justify_left": Qt.AlignmentFlag.AlignLeft,
+                "justify_center": Qt.AlignmentFlag.AlignHCenter,
+                "justify_right": Qt.AlignmentFlag.AlignRight,
+                "justify_fill": Qt.AlignmentFlag.AlignJustify,
+                "align_top": Qt.AlignmentFlag.AlignTop,
+                "align_center": Qt.AlignmentFlag.AlignVCenter,
+                "align_bottom": Qt.AlignmentFlag.AlignBottom,
             }
             attr = self.code_array.cell_attributes[key]
             alignment = pys2qt[attr.vertical_align]
@@ -1953,7 +1954,7 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             if table is None:
                 key = self.current(index)
             else:
@@ -1975,7 +1976,8 @@ class GridTableModel(QAbstractTableModel):
 
             return True
 
-        if role in (Qt.DecorationRole, Qt.TextAlignmentRole):
+        if role in (Qt.ItemDataRole.DecorationRole,
+                    Qt.ItemDataRole.TextAlignmentRole):
             if not isinstance(value[2], AttrDict):
                 raise Warning(f"{value[2]} has type {type(value[2])} that "
                               "is not instance of AttrDict")
@@ -1995,7 +1997,7 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
+        return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsEditable
 
     def headerData(self, idx: QModelIndex, _, role: Qt.ItemDataRole) -> str:
         """Overloaded for displaying numbers in header
@@ -2066,13 +2068,15 @@ class GridCellDelegate(QStyledItemDelegate):
 
         doc = QTextDocument()
 
-        font = self.grid.model.data(index, role=Qt.FontRole)
+        font = self.grid.model.data(index, role=Qt.ItemDataRole.FontRole)
         doc.setDefaultFont(font)
 
-        alignment = self.grid.model.data(index, role=Qt.TextAlignmentRole)
+        alignment = self.grid.model.data(
+            index, role=Qt.ItemDataRole.TextAlignmentRole)
         doc.setDefaultTextOption(QTextOption(alignment))
 
-        bg_color = self.grid.model.data(index, role=Qt.BackgroundColorRole)
+        bg_color = self.grid.model.data(index,
+                                        role=Qt.ItemDataRole.BackgroundRole)
         css = f"background-color: {bg_color};"
         doc.setDefaultStyleSheet(css)
 
@@ -2081,7 +2085,8 @@ class GridCellDelegate(QStyledItemDelegate):
         doc.setUseDesignMetrics(True)
 
         text_option = doc.defaultTextOption()
-        text_option.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+        text_option.setWrapMode(
+            QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
 
         doc.setDefaultTextOption(text_option)
 
@@ -2103,12 +2108,13 @@ class GridCellDelegate(QStyledItemDelegate):
 
         style = option.widget.style()
         option.text = ""
-        style.drawControl(QStyle.CE_ItemViewItem, option, painter,
-                          option.widget)
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option,
+                          painter, option.widget)
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
-        text_color = self.grid.model.data(index, role=Qt.TextColorRole)
+        text_color = self.grid.model.data(index,
+                                          role=Qt.ItemDataRole.ForegroundRole)
         ctx.palette.setColor(QPalette.ColorRole.Text, text_color)
 
         key = index.row(), index.column(), self.grid.table
@@ -2238,7 +2244,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """
 
         if qimage is None:
-            qimage = index.data(Qt.DecorationRole)
+            qimage = index.data(Qt.ItemDataRole.DecorationRole)
 
         if not isinstance(qimage, QImage):
             raise TypeError(f"{qimage} not of type QImage")
@@ -2255,12 +2261,12 @@ class GridCellDelegate(QStyledItemDelegate):
 
         if justification == "justify_fill":
             qimage = qimage.scaled(int(img_width), int(img_height),
-                                   Qt.IgnoreAspectRatio,
-                                   Qt.SmoothTransformation)
+                                   Qt.AspectRatioMode.IgnoreAspectRatio,
+                                   Qt.TransformationMode.SmoothTransformation)
         else:
             qimage = qimage.scaled(int(img_width), int(img_height),
-                                   Qt.KeepAspectRatio,
-                                   Qt.SmoothTransformation)
+                                   Qt.AspectRatioMode.KeepAspectRatio,
+                                   Qt.TransformationMode.SmoothTransformation)
 
         with painter_save(painter):
             try:
@@ -2287,7 +2293,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """
 
         if svg_str is None:
-            svg_str = index.data(Qt.DecorationRole)
+            svg_str = index.data(Qt.ItemDataRole.DecorationRole)
 
         if svg_str is None:
             return
@@ -2308,12 +2314,12 @@ class GridCellDelegate(QStyledItemDelegate):
         svg = QSvgRenderer(QByteArray(svg_bytes))
 
         if justification == "justify_fill":
-            svg.setAspectRatioMode(Qt.IgnoreAspectRatio)
+            svg.setAspectRatioMode(Qt.AspectRatioMode.IgnoreAspectRatio)
             svg_rect = rect
             svg.render(painter, svg_rect)
             return
 
-        svg.setAspectRatioMode(Qt.KeepAspectRatio)
+        svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
 
         svg_size = svg.defaultSize()
 
@@ -2388,10 +2394,10 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        painter.setRenderHints(QPainter.LosslessImageRendering
-                               | QPainter.Antialiasing
-                               | QPainter.TextAntialiasing
-                               | QPainter.SmoothPixmapTransform)
+        painter.setRenderHints(QPainter.RenderHint.LosslessImageRendering
+                               | QPainter.RenderHint.Antialiasing
+                               | QPainter.RenderHint.TextAntialiasing
+                               | QPainter.RenderHint.SmoothPixmapTransform)
 
         key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key].renderer
@@ -2408,7 +2414,7 @@ class GridCellDelegate(QStyledItemDelegate):
             self._render_markup(painter, rect, option, index)
 
         elif renderer == "image":
-            image = index.data(Qt.DecorationRole)
+            image = index.data(Qt.ItemDataRole.DecorationRole)
             if isinstance(image, QImage):
                 self._render_qimage(painter, rect, index)
             elif isinstance(image, str):
@@ -2495,8 +2501,8 @@ class GridCellDelegate(QStyledItemDelegate):
 
         if event.type() == QEvent.Type.ShortcutOverride \
            and source is self.editor \
-           and event.modifiers() == Qt.ControlModifier \
-           and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+           and event.modifiers() == Qt.KeyboardModifier.ControlModifier \
+           and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
 
             code = quote(source.text())
             index = self.grid.currentIndex()

@@ -349,7 +349,7 @@ class CellEdgeRenderer:
                      x, y, width, height)
 
         color = self.borders.color
-        self.painter.setPen(QPen(Qt.NoPen))
+        self.painter.setPen(QPen(Qt.PenStyle.NoPen))
         self.painter.setBrush(QBrush(color))
 
         try:
@@ -364,7 +364,7 @@ class CellEdgeRenderer:
             self.intersection_cache[cache_key] = intersection
 
         self.painter.drawPath(intersection)
-        self.painter.setPen(QPen(Qt.SolidLine))
+        self.painter.setPen(QPen(Qt.PenStyle.SolidLine))
 
 
 class QColorCache(dict):
@@ -376,7 +376,7 @@ class QColorCache(dict):
 
     def __missing__(self, key):
         if key is None:
-            qcolor = QColor(self.grid.palette().color(QPalette.Mid))
+            qcolor = QColor(self.grid.palette().color(QPalette.ColorRole.Mid))
         else:
             qcolor = QColor(*key)
 
@@ -470,8 +470,10 @@ class CellRenderer:
         self.option = option
         self.index = index
 
-        self.painter.setRenderHint(QPainter.LosslessImageRendering, True)
-        self.painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        self.painter.setRenderHint(QPainter.RenderHint.LosslessImageRendering,
+                                   True)
+        self.painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform,
+                                   True)
 
         self.cell_attributes = grid.model.code_array.cell_attributes
         self.key = index.row(), index.column(), self.grid.table
@@ -536,7 +538,8 @@ class CellRenderer:
         zoomed_width = max(1, width * zoom)
 
         return QPen(QColor(255, 255, 255, 0), zoomed_width,
-                    Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
+                    Qt.PenStyle.SolidLine, Qt.PenCapStyle.FlatCap,
+                    Qt.PenJoinStyle.MiterJoin)
 
     def _draw_line(self, point1: QPointF, point2: QPointF, width: float,
                    color: QColor, clip_path: QPainterPath):
@@ -557,7 +560,7 @@ class CellRenderer:
         alpha = max(0, round(255 - 255 * width * zoom))
 
         if width * zoom > 1.01:
-            self.painter.setRenderHint(QPainter.Antialiasing, True)
+            self.painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
 
         screen_painting = self.grid.main_window.print_area is None
 
@@ -582,7 +585,7 @@ class CellRenderer:
             self.painter.setBrush(QBrush(color))
             self.painter.drawPath(clip_path.intersected(stroked_path))
 
-        self.painter.setRenderHint(QPainter.Antialiasing, False)
+        self.painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     def paint_bottom_border(self, rect: QRectF, clip_path: QPainterPath):
         """Paint bottom border of cell

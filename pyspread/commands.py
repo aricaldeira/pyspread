@@ -112,7 +112,8 @@ class SetGridSize(QUndoCommand):
         for row, column, table in self.deleted_cells:
             index = model.index(row, column, QModelIndex())
             code = self.deleted_cells[(row, column, table)]
-            model.setData(index, code, Qt.EditRole, raw=True, table=table)
+            model.setData(index, code, Qt.ItemDataRole.EditRole, raw=True,
+                          table=table)
 
 
 class PasteSelectedCellData(QUndoCommand):
@@ -226,7 +227,8 @@ class SetCellCode(QUndoCommand):
 
         with self.model.main_window.entry_line.disable_updates():
             for index, new_code in zip(self.indices, self.new_codes):
-                self.model.setData(index, new_code, Qt.EditRole, raw=True)
+                self.model.setData(index, new_code, Qt.ItemDataRole.EditRole,
+                                   raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
@@ -238,7 +240,8 @@ class SetCellCode(QUndoCommand):
 
         with self.model.main_window.entry_line.disable_updates():
             for index, old_code in zip(self.indices, self.old_codes):
-                self.model.setData(index, old_code, Qt.EditRole, raw=True)
+                self.model.setData(index, old_code, Qt.ItemDataRole.EditRole,
+                                   raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
@@ -835,7 +838,8 @@ class SetCellFormat(QUndoCommand):
     def redo(self):
         """Redo cell formatting"""
 
-        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.model.setData(self.selected_idx, self.attr,
+                           Qt.ItemDataRole.DecorationRole)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
@@ -851,7 +855,8 @@ class SetCellMerge(SetCellFormat):
     def redo(self):
         """Redo cell merging"""
 
-        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.model.setData(self.selected_idx, self.attr,
+                           Qt.ItemDataRole.DecorationRole)
         for grid in self.model.main_window.grids:
             grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
@@ -875,7 +880,8 @@ class SetCellTextAlignment(SetCellFormat):
     def redo(self):
         """Redo cell text alignment"""
 
-        self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
+        self.model.setData(self.selected_idx, self.attr,
+                           Qt.ItemDataRole.TextAlignmentRole)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
@@ -910,7 +916,7 @@ class FreezeCell(QUndoCommand):
             selection = Selection([], [], [], [], [(row, column)])
             attr_dict = AttrDict([("frozen", True)])
             attr = CellAttribute(selection, table, attr_dict)
-            self.model.setData([], attr, Qt.DecorationRole)
+            self.model.setData([], attr, Qt.ItemDataRole.DecorationRole)
             self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
@@ -942,7 +948,7 @@ class ThawCell(FreezeCell):
                 selection = Selection([], [], [], [], [(row, column)])
                 attr_dict = AttrDict([("frozen", False)])
                 attr = CellAttribute(selection, table, attr_dict)
-                self.model.setData([], attr, Qt.DecorationRole)
+                self.model.setData([], attr, Qt.ItemDataRole.DecorationRole)
                 self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
@@ -992,7 +998,8 @@ class SetCellRenderer(QUndoCommand):
     def redo(self):
         """Redo cell renderer setting, adjusts syntax highlighting"""
 
-        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.model.setData(self.selected_idx, self.attr,
+                           Qt.ItemDataRole.DecorationRole)
         self.entry_line.highlighter.setDocument(self.new_highlighter_document)
         self.model.dataChanged.emit(self.index, self.index)
 
@@ -1030,7 +1037,8 @@ class MakeButtonCell(QUndoCommand):
         selection = Selection([], [], [], [], [(row, column)])
         attr_dict = AttrDict([("button_cell", self.text)])
         ca = CellAttribute(selection, table, attr_dict)
-        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+        self.grid.model.setData([self.index], ca,
+                                Qt.ItemDataRole.DecorationRole)
 
         if table == self.grid.table:
             # Only update widget if we are in the right table
@@ -1046,7 +1054,8 @@ class MakeButtonCell(QUndoCommand):
         selection = Selection([], [], [], [], [(row, column)])
         attr_dict = AttrDict([("button_cell", False)])
         ca = CellAttribute(selection, table, attr_dict)
-        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+        self.grid.model.setData([self.index], ca,
+                                Qt.ItemDataRole.DecorationRole)
 
         if table == self.grid.table:
             # Only update widget if we are in the right table
@@ -1082,7 +1091,8 @@ class RemoveButtonCell(QUndoCommand):
         selection = Selection([], [], [], [], [(row, column)])
         attr_dict = AttrDict([("button_cell", False)])
         ca = CellAttribute(selection, table, attr_dict)
-        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+        self.grid.model.setData([self.index], ca,
+                                Qt.ItemDataRole.DecorationRole)
 
         if table == self.grid.table:
             # Only update widget if we are in the right table
@@ -1098,7 +1108,8 @@ class RemoveButtonCell(QUndoCommand):
         selection = Selection([], [], [], [], [(row, column)])
         attr_dict = AttrDict([("button_cell", self.text)])
         ca = CellAttribute(selection, table, attr_dict)
-        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+        self.grid.model.setData([self.index], ca,
+                                Qt.ItemDataRole.DecorationRole)
 
         if table == self.grid.table:
             # Only update widget if we are in the right table
