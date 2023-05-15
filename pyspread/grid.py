@@ -98,6 +98,10 @@ except ImportError:
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
     from widgets import CellButton
 
+FONTSTYLES = (QFont.Style.StyleNormal,
+              QFont.Style.StyleItalic,
+              QFont.Style.StyleOblique)
+
 
 class Grid(QTableView):
     """The main grid of pyspread"""
@@ -785,8 +789,8 @@ class Grid(QTableView):
             attr_dict = AttrDict()
             attr_dict.textfont = font.family()
             attr_dict.pointsize = font.pointSizeF()
-            attr_dict.fontweight = font.weight()
-            attr_dict.fontstyle = font.style()
+            attr_dict.fontweight = int(font.weight()) // 10
+            attr_dict.fontstyle = FONTSTYLES.index(font.style())
             attr_dict.underline = font.underline()
             attr_dict.strikethrough = font.strikeOut()
             attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -829,7 +833,7 @@ class Grid(QTableView):
         """
 
         fontweight = QFont.Weight.Bold if toggled else QFont.Weight.Normal
-        attr_dict = AttrDict([("fontweight", fontweight)])
+        attr_dict = AttrDict([("fontweight", int(fontweight)//10)])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = f"Set font weight {fontweight} for cells {idx_string}"
@@ -845,7 +849,7 @@ class Grid(QTableView):
         """
 
         fontstyle = QFont.Style.StyleItalic if toggled else QFont.Style.StyleNormal
-        attr_dict = AttrDict([("fontstyle", fontstyle)])
+        attr_dict = AttrDict([("fontstyle", FONTSTYLES.index(fontstyle))])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = f"Set font style {fontstyle} for cells {idx_string}"
@@ -1821,9 +1825,12 @@ class GridTableModel(QAbstractTableModel):
         if attr.pointsize is not None:
             font.setPointSizeF(attr.pointsize)
         if attr.fontweight is not None:
-            font.setWeight(attr.fontweight)
+            font.setWeight(attr.fontweight*10)
         if attr.fontstyle is not None:
-            font.setStyle(attr.fontstyle)
+            fontstyle = attr.fontstyle
+            if isinstance(fontstyle, int):
+                fontstyle = FONTSTYLES[fontstyle]
+            font.setStyle(fontstyle)
         if attr.underline is not None:
             font.setUnderline(attr.underline)
         if attr.strikethrough is not None:
