@@ -192,7 +192,7 @@ class LineNumberArea(QWidget):
         top = self.parent.blockBoundingGeometry(block).translated(offset).top()
         bottom = top + self.parent.blockBoundingRect(block).height()
 
-        height = self.parent.fontMetrics().horizontalAdvance()
+        height = self.parent.fontMetrics().horizontalAdvance("Tg")
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
