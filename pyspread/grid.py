@@ -139,7 +139,8 @@ class Grid(QTableView):
         self.selectionModel().selectionChanged.connect(
             self.on_selection_changed)
 
-        self.setHorizontalHeader(GridHeaderView(Qt.Orientation.Horizontal, self))
+        self.setHorizontalHeader(GridHeaderView(Qt.Orientation.Horizontal,
+                                                self))
         self.setVerticalHeader(GridHeaderView(Qt.Orientation.Vertical, self))
 
         self.verticalHeader().setDefaultSectionSize(
@@ -1293,10 +1294,9 @@ class Grid(QTableView):
 
         if toggled:
             # Get button text from user
-            text, accept = QInputDialog.getText(self.main_window,
-                                                "Make button cell",
-                                                "Button text:",
-                                                QLineEdit.Normal, "")
+            text, accept = QInputDialog.getText(
+                self.main_window, "Make button cell", "Button text:",
+                QLineEdit.EchoMode.Normal, "")
             if accept and text:
                 description = f"Make cell {grid.current} a button cell"
                 command = commands.MakeButtonCell(self, text,
@@ -1839,6 +1839,9 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
+        if self.code_array.cell_attributes[key].frozen:
+            return
+
         self.code_array[key]
         self.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -1852,7 +1855,10 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        if repr(key) in self.code_array.result_cache \
+        rkey = repr(key)
+
+        if rkey in self.code_array.result_cache \
+           or rkey in self.code_array.frozen_cache \
            or self.code_array(key) is None:
             # This should be fast
             return self.code_array[key]

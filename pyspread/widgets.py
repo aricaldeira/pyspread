@@ -333,7 +333,7 @@ class ColorButton(QToolButton):
         pos.setY(pos.y() + int(self.rect().height() / 2))
         dlg.move(self.mapToGlobal(pos))
 
-        if dlg.exec_():
+        if dlg.exec():
             self.color = dlg.currentColor()
             self.colorChanged.emit()
 

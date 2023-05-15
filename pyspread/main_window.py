@@ -582,7 +582,7 @@ class MainWindow(QMainWindow):
         """
 
         if not self.entry_line.hasFocus() \
-           and self.grid.state() != self.grid.EditingState:
+           and self.grid.state() != self.grid.State.EditingState:
             self.grid.refresh_frozen_cells()
 
     def _toggle_widget(self, widget: QWidget, action_name: str, toggled: bool):
