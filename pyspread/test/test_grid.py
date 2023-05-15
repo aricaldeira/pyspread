@@ -53,7 +53,7 @@ def insert_path(path):
 def multi_selection_mode(grid):
     grid.clearSelection()
     old_selection_mode = grid.selectionMode()
-    grid.setSelectionMode(QAbstractItemView.MultiSelection)
+    grid.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
     yield
     grid.setSelectionMode(old_selection_mode)
 
@@ -179,8 +179,8 @@ class TestGrid:
         with multi_selection_mode(self.grid):
             for cell in cells:
                 idx = self.grid.model.index(*cell)
-                self.grid.selectionModel().select(idx,
-                                                  QItemSelectionModel.Select)
+                self.grid.selectionModel().select(
+                    idx, QItemSelectionModel.SelectionFlag.Select)
             assert self.grid.selection == res
 
     param_test_selection_blocks = [
@@ -197,8 +197,8 @@ class TestGrid:
             idx_tl = self.grid.model.index(top, left)
             idx_br = self.grid.model.index(bottom, right)
             item_selection = QItemSelection(idx_tl, idx_br)
-            self.grid.selectionModel().select(item_selection,
-                                              QItemSelectionModel.Select)
+            self.grid.selectionModel().select(
+                item_selection, QItemSelectionModel.SelectionFlag.Select)
             assert self.grid.selection == res
 
     param_test_selection_rows = [
@@ -333,8 +333,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(0, 0)
         idx_br = self.grid.model.index(5, 0)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
         assert main_window.statusBar().currentMessage() == ""
 
         self.grid.clearSelection()
@@ -342,8 +342,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(0, 0)
         idx_br = self.grid.model.index(4, 0)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
         assert main_window.statusBar().currentMessage() == \
                "Selection: 5 cells     Σ=25     max=23     min=2"
 
@@ -361,8 +361,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(3, 1)
         idx_br = self.grid.model.index(5, 2)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
 
         self.grid.setRowHeight(3, 48)
         row_heights = dict(self.grid.row_heights)
@@ -388,8 +388,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(1, 3)
         idx_br = self.grid.model.index(2, 5)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
 
         self.grid.setColumnWidth(3, 48)
         col_widths = dict(self.grid.column_widths)

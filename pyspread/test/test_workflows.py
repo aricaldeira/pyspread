@@ -72,12 +72,12 @@ class TestWorkflows:
     def test_busy_cursor(self):
         """Unit test for busy_cursor"""
 
-        assert QApplication.overrideCursor() != Qt.WaitCursor
+        assert QApplication.overrideCursor() != Qt.CursorShape.WaitCursor
 
         with self.workflows.busy_cursor():
-            assert QApplication.overrideCursor() == Qt.WaitCursor
+            assert QApplication.overrideCursor() == Qt.CursorShape.WaitCursor
 
-        assert QApplication.overrideCursor() != Qt.WaitCursor
+        assert QApplication.overrideCursor() != Qt.CursorShape.WaitCursor
 
     def test_prevent_updates(self):
         """Unit test for prevent_updates"""
@@ -171,7 +171,7 @@ class TestWorkflows:
             for column in range(2):
                 index = main_window.grid.model.index(row, column)
                 main_window.grid.selectionModel().select(
-                    index, QItemSelectionModel.Select)
+                    index, QItemSelectionModel.SelectionFlag.Select)
 
         self.workflows.edit_sort_ascending()
         assert main_window.grid.model.code_array((0, 0, 0)) == "1"
@@ -192,7 +192,7 @@ class TestWorkflows:
             for column in range(2):
                 index = main_window.grid.model.index(row, column)
                 main_window.grid.selectionModel().select(
-                    index, QItemSelectionModel.Select)
+                    index, QItemSelectionModel.SelectionFlag.Select)
 
         self.workflows.edit_sort_descending()
         assert main_window.grid.model.code_array((0, 0, 0)) == "3"

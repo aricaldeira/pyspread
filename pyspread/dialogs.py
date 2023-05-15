@@ -281,13 +281,13 @@ class DataEntryDialog(QDialog):
                 editor.setChecked(initial_value)
             else:
                 editor = QLineEdit(str(initial_value))
-                editor.setAlignment(Qt.AlignRight)
+                editor.setAlignment(Qt.AlignmentFlag.AlignRight)
             if validator and validator is not bool:
                 editor.setValidator(validator)
             form_layout.addRow(QLabel(label + " :"), editor)
             self.editors.append(editor)
 
-        form_layout.setLabelAlignment(Qt.AlignRight)
+        form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
         form_group_box.setLayout(form_layout)
 
         return form_group_box
@@ -1222,8 +1222,8 @@ class CsvParameterGroupBox(QGroupBox):
         hbox_layout.addSpacing(20)
         hbox_layout.addLayout(right_form_layout)
 
-        left_form_layout.setLabelAlignment(Qt.AlignRight)
-        right_form_layout.setLabelAlignment(Qt.AlignRight)
+        left_form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        right_form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
 
         left_form_layout.addRow(self.encoding_label, self.encoding_widget)
         left_form_layout.addRow(self.quotechar_label, self.quotechar_widget)

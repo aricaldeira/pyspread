@@ -389,7 +389,7 @@ class Grid(QTableView):
 
         if on:
             self.current_selection_mode_start = tuple(grid.current)
-            self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
             self.main_window.selection_mode_widget.show()
         else:
             self.selection_mode_exiting = True
@@ -471,7 +471,8 @@ class Grid(QTableView):
         elif event.key() == Qt.Key.Key_Delete:
             self.main_window.workflows.delete()
         elif (event.key() == Qt.Key.Key_Escape
-              and self.editTriggers() == QAbstractItemView.NoEditTriggers):
+              and self.editTriggers()
+              == QAbstractItemView.EditTrigger.NoEditTriggers):
             # Leave cell selection mode
             self.selection_mode = False
         else:
