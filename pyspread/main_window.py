@@ -401,7 +401,7 @@ class MainWindow(QMainWindow):
         """Print event handler"""
 
         # Create printer
-        printer = QPrinter(mode=QPrinter.HighResolution)
+        printer = QPrinter(mode=QPrinter.PrinterMode.HighResolution)
 
         # Get print area
         self.print_area = PrintAreaDialog(self, self.grid,
@@ -411,7 +411,7 @@ class MainWindow(QMainWindow):
 
         # Create print dialog
         dialog = QPrintDialog(printer, self)
-        if dialog.exec_() == QPrintDialog.Accepted:
+        if dialog.exec() == QPrintDialog.Accepted:
             self.on_paint_request(printer)
 
         self.print_area = None
@@ -420,7 +420,7 @@ class MainWindow(QMainWindow):
         """Print preview event handler"""
 
         # Create printer
-        printer = QPrinter(mode=QPrinter.HighResolution)
+        printer = QPrinter(mode=QPrinter.PrinterMode.HighResolution)
 
         # Get print area
         self.print_area = PrintAreaDialog(self, self.grid,
@@ -432,7 +432,7 @@ class MainWindow(QMainWindow):
         dialog = PrintPreviewDialog(printer)
 
         dialog.paintRequested.connect(self.on_paint_request)
-        dialog.exec_()
+        dialog.exec()
 
         self.print_area = None
 
@@ -445,10 +445,10 @@ class MainWindow(QMainWindow):
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
-        painter.setRenderHints(QPainter.SmoothPixmapTransform
-                               | QPainter.SmoothPixmapTransform)
+        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform
+                               | QPainter.RenderHint.SmoothPixmapTransform)
 
-        page_rect = printer.pageRect()
+        page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
 
         rows = list(self.workflows.get_paint_rows(self.print_area.top,
                                                   self.print_area.bottom))
@@ -549,7 +549,7 @@ class MainWindow(QMainWindow):
         """Dependancies installer (:class:`installer.InstallerDialog`) """
 
         dial = DependenciesDialog(self)
-        dial.exec_()
+        dial.exec()
 
     def on_undo(self):
         """Undo event handler"""
@@ -726,7 +726,8 @@ class MainWindow(QMainWindow):
         self.main_window_toolbar_actions.italics.setChecked(is_italic)
 
         self.main_window_actions.underline.setChecked(attributes.underline)
-        self.main_window_toolbar_actions.underline.setChecked(attributes.underline)
+        self.main_window_toolbar_actions.underline.setChecked(
+            attributes.underline)
 
         self.main_window_actions.strikethrough.setChecked(
             attributes.strikethrough)
@@ -738,10 +739,12 @@ class MainWindow(QMainWindow):
         widgets.renderer_button.set_menu_checked(renderer)
 
         self.main_window_actions.freeze_cell.setChecked(attributes.frozen)
-        self.main_window_toolbar_actions.freeze_cell.setChecked(attributes.frozen)
+        self.main_window_toolbar_actions.freeze_cell.setChecked(
+            attributes.frozen)
 
         self.main_window_actions.lock_cell.setChecked(attributes.locked)
-        self.main_window_toolbar_actions.lock_cell.setChecked(attributes.locked)
+        self.main_window_toolbar_actions.lock_cell.setChecked(
+            attributes.locked)
         self.entry_line.setReadOnly(attributes.locked)
 
         self.main_window_actions.button_cell.setChecked(

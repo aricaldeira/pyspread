@@ -51,7 +51,7 @@ from PyQt6.QtGui \
 from PyQt6.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
             QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel,
-            QByteArray, pyqtSignal, pyqtSlot)
+            QByteArray, pyqtSignal)
 
 from PyQt6.QtSvg import QSvgRenderer
 
@@ -507,7 +507,7 @@ class Grid(QTableView):
         """
 
         menu = GridContextMenu(self.main_window.main_window_actions)
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     # Helpers
 
@@ -848,7 +848,8 @@ class Grid(QTableView):
 
         """
 
-        fontstyle = QFont.Style.StyleItalic if toggled else QFont.Style.StyleNormal
+        fontstyle = QFont.Style.StyleItalic \
+            if toggled else QFont.Style.StyleNormal
         attr_dict = AttrDict([("fontstyle", FONTSTYLES.index(fontstyle))])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
@@ -1573,7 +1574,7 @@ class GridHeaderView(QHeaderView):
             menu = HorizontalHeaderContextMenu(actions)
         else:
             menu = VerticalHeaderContextMenu(actions)
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     # End of overrides
 
@@ -2012,7 +2013,8 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsEditable
+        return QAbstractTableModel.flags(self,
+                                         index) | Qt.ItemFlag.ItemIsEditable
 
     def headerData(self, idx: QModelIndex, _, role: Qt.ItemDataRole) -> str:
         """Overloaded for displaying numbers in header
@@ -2642,7 +2644,7 @@ class TableChoice(QTabBar):
         actions = self.main_window.main_window_actions
 
         menu = TableChoiceContextMenu(actions)
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     # Event handlers
 

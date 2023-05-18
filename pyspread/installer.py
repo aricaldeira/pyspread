@@ -239,7 +239,7 @@ class DependenciesDialog(QDialog):
         idx = self.buttGroup.id(butt)
 
         dial = InstallPackageDialog(self, module=DEPENDENCIES[idx])
-        dial.exec_()
+        dial.exec()
         self.update_load()
 
 

@@ -259,9 +259,9 @@ class DataEntryDialog(QDialog):
 
         """
 
-        result = self.exec_()
+        result = self.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             return tuple(editor.text() if isinstance(editor, QLineEdit)
                          else editor.isChecked() for editor in self.editors)
 
@@ -1746,7 +1746,7 @@ class PrintPreviewDialog(QPrintPreviewDialog):
         """
 
         modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
+        if modifiers == Qt.KeyboardModifier.ControlModifier:
             if event.angleDelta().y() > 0:
                 zoom_factor = self.widget.zoomFactor() / 1.1
             else:
