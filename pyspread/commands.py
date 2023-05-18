@@ -444,7 +444,7 @@ class DeleteSelectedCellData(QUndoCommand):
                     self.old_code[key] = self.model.code_array.pop(key)
                 except KeyError:
                     pass
-
+        self.model.code_array.result_cache.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
@@ -453,6 +453,7 @@ class DeleteSelectedCellData(QUndoCommand):
         for key in self.old_code:
             self.model.code_array[key] = self.old_code[key]
         self.old_code.clear()
+        self.model.code_array.result_cache.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 

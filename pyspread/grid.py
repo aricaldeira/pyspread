@@ -613,7 +613,7 @@ class Grid(QTableView):
             self.main_window.entry_line.insertPlainText(text)
             cursor.setPosition(min(text_anchor, text_position))
             cursor.setPosition(min(text_anchor, text_position) + len(text),
-                               QTextCursor.KeepAnchor)
+                               QTextCursor.MoveMode.KeepAnchor)
             self.main_window.entry_line.setTextCursor(cursor)
         else:
             code = self.model.code_array(self.current)
@@ -1851,7 +1851,8 @@ class GridTableModel(QAbstractTableModel):
             return
 
         self.code_array[key]
-        self.dataChanged.emit(QModelIndex(), QModelIndex())
+        idx = self.createIndex(key[0], key[1])
+        self.dataChanged.emit(idx, idx)
 
     def code_array_result(self, key: tuple[int, int, int]):
         """Non blocking code array access
