@@ -1613,8 +1613,6 @@ class GridTableModel(QAbstractTableModel):
         self.main_window = main_window
         self.code_array = CodeArray(shape, main_window.settings)
 
-        self.cell_to_update.connect(self.update_cell)
-
     @contextmanager
     def model_reset(self):
         """Context manager for handle changing/resetting model data"""
@@ -1838,42 +1836,6 @@ class GridTableModel(QAbstractTableModel):
             font.setStrikeOut(attr.strikethrough)
         return font
 
-    def update_cell(self, key: tuple[int, int, int]):
-        """Updates a single cell in code_array
-
-        This method calls __getitem__ in order to fill the result_cache
-
-        :param key: Key of cell
-
-        """
-
-        if self.code_array.cell_attributes[key].frozen:
-            return
-
-        self.code_array[key]
-        idx = self.createIndex(key[0], key[1])
-        self.dataChanged.emit(idx, idx)
-
-    def code_array_result(self, key: tuple[int, int, int]):
-        """Non blocking code array access
-
-        This method calls emits the signal cell_to_update so that update_cell
-        can calculate the cell result without an unresponsive GUI
-
-        :param key: Key of cell
-
-        """
-
-        rkey = repr(key)
-
-        if rkey in self.code_array.result_cache \
-           or rkey in self.code_array.frozen_cache \
-           or self.code_array(key) is None:
-            # This should be fast
-            return self.code_array[key]
-        else:
-            self.cell_to_update.emit(key)
-
     def data(self, index: QModelIndex,
              role: Qt.ItemDataRole = Qt.ItemDataRole.DisplayRole) -> Any:
         """Overloaded data for code_array backend
@@ -1893,14 +1855,14 @@ class GridTableModel(QAbstractTableModel):
         key = self.current(index)
 
         if role == Qt.ItemDataRole.DisplayRole:
-            value = self.code_array_result(key)
+            value = self.code_array[key]
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image" or value is None:
                 return ""
             return safe_str(value)
 
         if role == Qt.ItemDataRole.ToolTipRole:
-            value = self.code_array_result(key)
+            value = self.code_array[key]
             if value is None:
                 return ""
             return wrap_text(safe_str(value))
