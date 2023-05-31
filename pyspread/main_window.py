@@ -505,11 +505,11 @@ class MainWindow(QMainWindow):
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
 
-        if self.windowState() == Qt.WindowFullScreen:
+        if self.windowState() == Qt.WindowState.WindowFullScreen:
             self.setWindowState(self._previous_window_state)
         else:
             self._previous_window_state = self.windowState()
-            self.setWindowState(Qt.WindowFullScreen)
+            self.setWindowState(Qt.WindowState.WindowFullScreen)
 
     def on_approve(self):
         """Approve event handler"""

@@ -841,7 +841,7 @@ class FindDialog(QDialog):
         self.search_layout.addWidget(self.results_checkbox)
 
         self.main_layout = QGridLayout()
-        self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
+        self.main_layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.main_layout.addLayout(self.search_layout, 0, 0)
         self.main_layout.addWidget(self.button_box, 0, 1)
         self.main_layout.addWidget(self.extension, 1, 0, 1, 2)
@@ -1127,7 +1127,7 @@ class CsvParameterGroupBox(QGroupBox):
 
         super().__init__(parent)
         self.parent = parent
-        self.default_encoding = parent.csv_encoding
+        self.default_encoding = parent.parent.settings.default_encoding
         self.encodings = parent.parent.settings.encodings
 
         self.setTitle(self.title)
@@ -1326,7 +1326,7 @@ class CsvTable(QTableView):
 
         self.model = QStandardItemModel(self)
         self.setModel(self.model)
-        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.verticalHeader().hide()
 
     def add_choice_row(self, length: int):
@@ -1641,8 +1641,10 @@ class CsvExportDialog(QDialog):
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset)
-        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
 
         return button_box
 

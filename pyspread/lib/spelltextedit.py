@@ -336,7 +336,7 @@ class SpellTextEdit(QPlainTextEdit):
             return
 
         popup_menu = self.createSpellcheckContextMenu(event.pos())
-        popup_menu.exec_(event.globalPos())
+        popup_menu.exec(event.globalPos())
 
         # Fix bug observed in Qt 5.2.1 on *buntu 14.04 LTS where:
         # 1. The cursor remains invisible after closing the context menu
@@ -454,8 +454,10 @@ class SpellTextEdit(QPlainTextEdit):
             if start <= cursor.positionInBlock() <= end:
                 block_pos = cursor.block().position()
 
-                cursor.setPosition(block_pos + start, QTextCursor.MoveAnchor)
-                cursor.setPosition(block_pos + end, QTextCursor.KeepAnchor)
+                cursor.setPosition(block_pos + start,
+                                   QTextCursor.MoveMode.MoveAnchor)
+                cursor.setPosition(block_pos + end,
+                                   QTextCursor.MoveMode.KeepAnchor)
                 break
 
         if cursor.hasSelection():
@@ -711,4 +713,4 @@ if __name__ == '__main__':
     spellEdit = SpellTextEdit()
     spellEdit.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -183,7 +183,7 @@ class DependenciesDialog(QDialog):
 
         self.tree.setHeaderLabels(self.column_headers)
         self.tree.setRootIsDecorated(False)
-        self.tree.setSelectionMode(QTreeWidget.NoSelection)
+        self.tree.setSelectionMode(QTreeWidget.SelectionMode.NoSelection)
 
         self.update_load()
 

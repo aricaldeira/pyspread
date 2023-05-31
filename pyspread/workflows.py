@@ -605,11 +605,13 @@ class Workflows:
                                        rows-row, columns-column)
 
             title = "CSV Content Exceeds Grid Shape"
-            choices = QMessageBox.No | QMessageBox.Yes | QMessageBox.Cancel
-            default_choice = QMessageBox.No
+            choices = QMessageBox.StandardButton.No \
+                | QMessageBox.StandardButton.Yes \
+                | QMessageBox.StandardButton.Cancel
+            default_choice = QMessageBox.StandardButton.No
             choice = QMessageBox.question(self.main_window, title, text,
                                           choices, default_choice)
-            if choice == QMessageBox.Yes:
+            if choice == QMessageBox.StandardButton.Yes:
                 # Resize grid
                 target_rows = min(max_rows, max(csv_rows + row, rows))
                 target_columns = min(max_columns,
@@ -618,7 +620,7 @@ class Workflows:
                 rows = target_rows
                 columns = target_columns
 
-            elif choice == QMessageBox.Cancel:
+            elif choice == QMessageBox.StandardButton.Cancel:
                 return
 
         # Now fill the grid
