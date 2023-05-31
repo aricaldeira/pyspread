@@ -1870,7 +1870,7 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DecorationRole:
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image":
-                value = self.code_array_result(key)
+                value = self.code_array[key]
                 if isinstance(value, QImage):
                     return value
                 try:

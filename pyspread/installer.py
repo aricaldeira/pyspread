@@ -99,7 +99,7 @@ REQUIRED_DEPENDENCIES = [
            required_version=version.parse("1.1")),
     Module(name="PyQt6",
            description="Python bindings for the Qt application framework",
-           required_version=version.parse("5.10")),
+           required_version=version.parse("6.5")),
     Module(name="setuptools",
            description="Easily download, build, install, upgrade, and "
                        "uninstall Python packages",
