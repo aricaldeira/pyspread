@@ -642,7 +642,7 @@ class Grid(QTableView):
 
         res_gen = (code_array[key] for key in selected_cell_list
                    if code_array(key))
-        sum_list = list(filter(None, res_gen))
+        sum_list = [res for res in res_gen if res is not None]
 
         msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
         msg = f"Selection: {len(selected_cell_list)} cells"

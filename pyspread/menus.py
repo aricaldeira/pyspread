@@ -289,6 +289,7 @@ class MacroMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.insert_sum)
 
+
 class HelpMenu(QMenu):
     """Help menu for the main menubar"""
 
@@ -409,7 +410,7 @@ class BorderWidthMenu(QMenu):
         """Event handler"""
 
         self.actions.parent.format_toolbar.border_menu_button.setAttribute(
-            Qt.WA_UnderMouse, False)
+            Qt.WidgetAttribute.WA_UnderMouse, False)
 
 
 class GridContextMenu(QMenu):
