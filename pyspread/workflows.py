@@ -1387,7 +1387,7 @@ class Workflows:
             # Bitmap Image
             image = clipboard.image()
             buffer = QBuffer()
-            buffer.open(QBuffer.ReadWrite)
+            buffer.open(QBuffer.OpenModeFlag.ReadWrite)
             image.save(buffer, "PNG")
             buffer.seek(0)
             image_data = buffer.readAll()
