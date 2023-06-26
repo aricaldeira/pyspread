@@ -1,5 +1,5 @@
 # Mandatory
-PyQt6 (>=6.5)
+PyQt6 (>=6.4)
 numpy (>=1.1)
 setuptools (>=40.0)
 markdown2 (>= 2.3)
