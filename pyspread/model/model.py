@@ -681,7 +681,7 @@ class DataArray:
             if isinstance(key_ele, slice):
                 # We have something slice-like here
 
-                length = key[axis]
+                length = self.shape[axis]
                 slice_range = range(*key_ele.indices(length))
                 single_keys_per_dim.append(slice_range)
 
