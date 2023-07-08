@@ -411,8 +411,6 @@ class Grid(QTableView):
     def set_selection_mode(self, value=True):
         """Setter for selection mode for all grids
 
-        This method is required for accessing selection mode from QActions.
-
         :param value: If True, selection mode is set, if False unset
 
         """
@@ -422,9 +420,23 @@ class Grid(QTableView):
             grid.selection_mode = value
 
         # Adjust the menu
-        toggle_selection_mode = \
-            self.main_window.main_window_actions.toggle_selection_mode
+        main_window_actions = self.main_window.main_window_actions
+        toggle_selection_mode = main_window_actions.toggle_selection_mode
         toggle_selection_mode.setChecked(value)
+
+    def toggle_selection_mode(self):
+        """Toggle selection mode for all grids
+
+        This method is required for accessing selection mode from QActions.
+
+        """
+
+        main_window_actions = self.main_window.main_window_actions
+        toggle_selection_mode = main_window_actions.toggle_selection_mode
+        value = toggle_selection_mode.toggled
+
+        for grid in self.main_window.grids:
+            grid.selection_mode = value
 
     # Overrides
 

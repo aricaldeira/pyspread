@@ -272,7 +272,7 @@ class MainWindowActions(AttrDict):
 
         self.toggle_selection_mode = Action(
             self.parent, "Selection mode",
-            self.parent.grid.set_selection_mode,
+            self.parent.grid.toggle_selection_mode,
             icon=Icon.selection_mode, checkable=True,
             shortcut='Ins',
             statustip='Enter/leave selection mode')
