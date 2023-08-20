@@ -20,6 +20,8 @@
 
 """
 
+Pyspread's main grid
+
 **Provides**
 
 * :class:`Grid`: QTableView of the main grid
@@ -73,6 +75,8 @@ try:
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
+    from pyspread.interfaces.pys import (qt52qt6_fontweights,
+                                             qt62qt5_fontweights)
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import quote, wrap_text
     from pyspread.lib.qimage2ndarray import array2qimage
@@ -90,6 +94,7 @@ except ImportError:
                                BorderColorBottomCache)
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
+    from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
     from lib.string_helpers import quote, wrap_text
     from lib.qimage2ndarray import array2qimage
@@ -801,7 +806,7 @@ class Grid(QTableView):
             attr_dict = AttrDict()
             attr_dict.textfont = font.family()
             attr_dict.pointsize = font.pointSizeF()
-            attr_dict.fontweight = int(font.weight()) // 10
+            attr_dict.fontweight = qt62qt5_fontweights(font.weight())
             attr_dict.fontstyle = FONTSTYLES.index(font.style())
             attr_dict.underline = font.underline()
             attr_dict.strikethrough = font.strikeOut()
@@ -845,7 +850,7 @@ class Grid(QTableView):
         """
 
         fontweight = QFont.Weight.Bold if toggled else QFont.Weight.Normal
-        attr_dict = AttrDict([("fontweight", int(fontweight)//10)])
+        attr_dict = AttrDict([("fontweight", qt62qt5_fontweights(fontweight))])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = f"Set font weight {fontweight} for cells {idx_string}"
@@ -1836,7 +1841,7 @@ class GridTableModel(QAbstractTableModel):
         if attr.pointsize is not None:
             font.setPointSizeF(attr.pointsize)
         if attr.fontweight is not None:
-            font.setWeight(attr.fontweight*10)
+            font.setWeight(qt52qt6_fontweights(attr.fontweight))
         if attr.fontstyle is not None:
             fontstyle = attr.fontstyle
             if isinstance(fontstyle, int):

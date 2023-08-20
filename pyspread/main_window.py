@@ -65,6 +65,7 @@ try:
                                   ManualDialog, TutorialDialog,
                                   PrintAreaDialog, PrintPreviewDialog)
     from pyspread.installer import DependenciesDialog
+    from pyspread.interfaces.pys import qt62qt5_fontweights
     from pyspread.panels import MacroPanel
     from pyspread.lib.hashing import genkey
     from pyspread.model.model import CellAttributes
@@ -83,6 +84,7 @@ except ImportError:
     from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
                          TutorialDialog, PrintAreaDialog, PrintPreviewDialog)
     from installer import DependenciesDialog
+    from interfaces.pys import qt62qt5_fontweights
     from panels import MacroPanel
     from lib.hashing import genkey
     from model.model import CellAttributes
@@ -717,7 +719,8 @@ class MainWindow(QMainWindow):
         widgets = self.widgets
         menubar = self.menuBar()
 
-        is_bold = attributes.fontweight == QFont.Weight.Bold
+        is_bold = attributes.fontweight is not None and \
+            attributes.fontweight > qt62qt5_fontweights(QFont.Weight.Normal)
         self.main_window_actions.bold.setChecked(is_bold)
         self.main_window_toolbar_actions.bold.setChecked(is_bold)
 

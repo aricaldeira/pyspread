@@ -62,6 +62,7 @@ with insert_path(PYSPREADPATH):
     from ..pyspread import MainWindow
     from ..commands import MakeButtonCell, RemoveButtonCell
     from ..lib.selection import Selection
+    from ..interfaces.pys import qt62qt5_fontweights
 
 
 app = QApplication.instance()
@@ -540,11 +541,11 @@ class TestGrid:
         self.grid.selectRow(2)
 
         self.grid.on_bold_pressed(True)
-        assert self.cell_attributes[(2, 0, 0)]["fontweight"] * 10 \
-            == QFont.Weight.Bold
+        assert self.cell_attributes[(2, 0, 0)]["fontweight"] \
+            == qt62qt5_fontweights(QFont.Weight.Bold)
         self.grid.on_bold_pressed(False)
-        assert self.cell_attributes[(2, 0, 0)]["fontweight"] * 10 \
-            == QFont.Weight.Normal
+        assert self.cell_attributes[(2, 0, 0)]["fontweight"] \
+            == qt62qt5_fontweights(QFont.Weight.Normal)
 
         self.grid.clearSelection()
 
