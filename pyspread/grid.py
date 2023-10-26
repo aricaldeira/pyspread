@@ -2353,11 +2353,16 @@ class GridCellDelegate(QStyledItemDelegate):
         :param index: Index of cell for which borders are drawn
 
         """
-
-        painter.setRenderHints(QPainter.LosslessImageRendering
-                               | QPainter.Antialiasing
-                               | QPainter.TextAntialiasing
-                               | QPainter.SmoothPixmapTransform)
+        try:
+            painter.setRenderHints(QPainter.LosslessImageRendering
+                                   | QPainter.Antialiasing
+                                   | QPainter.TextAntialiasing
+                                   | QPainter.SmoothPixmapTransform)
+        except AttributeError:
+            # Qt <5.13
+            painter.setRenderHints(QPainter.Antialiasing
+                                   | QPainter.TextAntialiasing
+                                   | QPainter.SmoothPixmapTransform)
 
         key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key].renderer

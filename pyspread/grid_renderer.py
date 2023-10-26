@@ -470,7 +470,12 @@ class CellRenderer:
         self.option = option
         self.index = index
 
-        self.painter.setRenderHint(QPainter.LosslessImageRendering, True)
+        try:
+            self.painter.setRenderHint(QPainter.LosslessImageRendering, True)
+        except AttributeError:
+            # Qt <5.13
+            pass
+
         self.painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
 
         self.cell_attributes = grid.model.code_array.cell_attributes
