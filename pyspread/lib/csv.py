@@ -68,6 +68,9 @@ def sniff(filepath: Path, sniff_size: int, encoding: str) -> csv.Dialect:
     dialect = csv.Sniffer().sniff(csv_str)
     setattr(dialect, "hasheader", csv.Sniffer().has_header(csv_str))
     setattr(dialect, "encoding", encoding)
+    if dialect.escapechar is None:
+        setattr(dialect, "quoting", csv.QUOTE_NONE)
+        setattr(dialect, "escapechar", '"')
 
     return dialect
 
