@@ -1471,7 +1471,7 @@ class CsvImportDialog(QDialog):
         return button_box
 
     def _sniff_dialect(self):
-        """"""
+        """Sniff the dialect of self.filepath`"""
 
         try:
             return sniff(self.filepath, self.sniff_size, self.csv_encoding)
