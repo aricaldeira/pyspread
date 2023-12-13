@@ -571,6 +571,7 @@ class MainWindow(QMainWindow):
         """
 
         if toggled:
+            self.grid.refresh_frozen_cells()
             self.refresh_timer.start(self.settings.refresh_timeout)
         else:
             self.refresh_timer.stop()
