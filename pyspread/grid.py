@@ -745,9 +745,6 @@ class Grid(QTableView):
             key = literal_eval(repr_key)
             self._refresh_frozen_cell(key)
 
-        cell_attributes._attr_cache.clear()
-        cell_attributes._table_cache.clear()
-        self.model.code_array.result_cache.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def refresh_selected_frozen_cells(self):
