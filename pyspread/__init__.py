@@ -3,4 +3,4 @@
 APP_NAME = "pyspread"
 
 # Current pyspread version
-VERSION = "2.3"
+VERSION = "2.3-beta.1"
