@@ -18,6 +18,22 @@ Dependencies:
 Known issues:
  * Font weights may render slightly different. This is caused by Qt6's new font weight model
 
+      
+2.2.3
+---
+
+This is a bugfix release.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0), py-moneyed (>=2.0), rpy2 (>=3.4), plotnine (>=0.8), libvoikko (>=4.0), libvoikko (>=4.3), nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+Bug fixes:
+ * Fix for Qt versions below 5.13 that do not provide lossless image rendering
+ * csv import without quotations fixed
+ * Periodic updates now again only updates frozen cells
+ 
 
 2.2.2
 ---
