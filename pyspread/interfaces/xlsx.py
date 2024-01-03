@@ -56,6 +56,7 @@ except ImportError:
     pycel = None
 
 from openpyxl import load_workbook
+from openpyxl.cell.cell import Cell
 
 try:
     from pyspread.lib.attrdict import AttrDict
@@ -121,108 +122,31 @@ class XlsxReader:
                 for cell in row:
                     key = row_idx, cell.col_idx, table_idx
 
-                    if cell.data_type == "n" or pycel is None:
-                        code = repr(cell.value)
-                    elif cell.data_type == "f":
-                        # Convert formula via pycel
-                        ex = excelformula.ExcelFormula(cell.value)
-                        code = ex.python_code
-                    else:
-                        code = repr(cell.value)
-                        raise Warning(
-                            f"Excel data type {cell.data_type} unknown.")
-
-                    self.code_array.dict_grid[key] = code
+                    self._xlsx2code(key, cell)
 
                     # Cell format
                     yield key
 
-    # def _code_convert_1_2(self, key: Tuple[int, int, int], code: str) -> str:
-    #     """Converts chart and image code from v1.0 to v2.0
+    def _xlsx2code(self, key: (int, int, int),  cell: Cell):
+        """Updates code in pys code_array
 
-    #     :param key: Key of cell with code
-    #     :param code: Code in cell to be converted
+        :param cell: Cell object from openpyxl
 
-    #     """
+        """
 
-    #     def get_image_code(image_data: str, width: int, height: int) -> str:
-    #         """Returns code string for v2.0
+        if cell.data_type == "n" or pycel is None:
+            code = repr(cell.value)
+        elif cell.data_type == "f":
+            # Convert formula via pycel
+            ex = excelformula.ExcelFormula(cell.value)
+            code = ex.python_code
+        else:
+            code = repr(cell.value)
+            raise Warning(
+                f"Excel data type {cell.data_type} unknown.")
 
-    #         :param image_data: b85encoded image data
-    #         :param width: Image width
-    #         :param height: Image height
+        self.code_array.dict_grid[key] = code
 
-    #         """
-
-    #         image_buffer_tpl = 'bz2.decompress(base64.b85decode({data}))'
-    #         image_array_tpl = 'numpy.frombuffer({buffer}, dtype="uint8")'
-    #         image_matrix_tpl = '{array}.reshape({height}, {width}, 3)'
-
-    #         image_buffer = image_buffer_tpl.format(data=image_data)
-    #         image_array = image_array_tpl.format(buffer=image_buffer)
-    #         image_matrix = image_matrix_tpl.format(array=image_array,
-    #                                                height=height, width=width)
-
-    #         return image_matrix
-
-    #     start_str = "bz2.decompress(base64.b64decode('"
-    #     size_start_str = "wx.ImageFromData("
-    #     if size_start_str in code and start_str in code:
-    #         size_start = code.index(size_start_str) + len(size_start_str)
-    #         size_str_list = code[size_start:].split(",")[:2]
-    #         width, height = tuple(map(int, size_str_list))
-
-    #         # We have a cell that displays a bitmap
-    #         data_start = code.index(start_str) + len(start_str)
-    #         data_stop = code.find("'", data_start)
-    #         enc_data = bytes(code[data_start:data_stop], encoding='utf-8')
-    #         compressed_image_data = b64decode(enc_data)
-    #         reenc_data = b85encode(compressed_image_data)
-    #         code = get_image_code(repr(reenc_data), width, height)
-
-    #         selection = Selection([], [], [], [], [(key[0], key[1])])
-    #         tab = key[2]
-    #         attr_dict = AttrDict([("renderer", "image")])
-    #         attr = CellAttribute(selection, tab, attr_dict)
-    #         self.cell_attributes_postfixes.append(attr)
-
-    #     elif "charts.ChartFigure(" in code:
-    #         # We have a matplotlib figure
-    #         selection = Selection([], [], [], [], [(key[0], key[1])])
-    #         tab = key[2]
-    #         attr_dict = AttrDict([("renderer", "matplotlib")])
-    #         attr = CellAttribute(selection, tab, attr_dict)
-    #         self.cell_attributes_postfixes.append(attr)
-
-    #     return code
-
-    # def _pys2code_10(self, line: str):
-    #     """Updates code in pys code_array - for save file version 1.0
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     row, col, tab, code = self._split_tidy(line, maxsplit=3)
-    #     key = self._get_key(row, col, tab)
-
-    #     if all(0 <= key[i] < self.code_array.shape[i] for i in range(3)):
-    #         self.code_array.dict_grid[key] = str(self._code_convert_1_2(key,
-    #                                                                     code))
-
-    # @version_handler
-    # def _pys2code(self, line: str):
-    #     """Updates code in pys code_array
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     row, col, tab, code = self._split_tidy(line, maxsplit=3)
-    #     key = self._get_key(row, col, tab)
-
-    #     if all(0 <= key[i] < self.code_array.shape[i] for i in range(3)):
-    #         self.code_array.dict_grid[key] = ast.literal_eval(code)
 
     # def _attr_convert_1to2(self, key: str, value: Any) -> Tuple[str, Any]:
     #     """Converts key, value attribute pair from v1.0 to v2.0
@@ -399,161 +323,3 @@ class XlsxReader:
 
     #     self.code_array.macros += line
 
-
-# class PysWriter(object):
-#     """Interface between code_array and pys file data
-
-#     Iterating over it yields pys file lines
-
-#     """
-
-#     def __init__(self, code_array: CodeArray):
-#         """
-#         :param code_array: The code_array object data structure
-
-#         """
-
-#         self.code_array = code_array
-
-#         self.version = 2.0
-
-#         self._section2writer = OrderedDict([
-#             ("[Pyspread save file version]\n", self._version2pys),
-#             ("[shape]\n", self._shape2pys),
-#             ("[grid]\n", self._code2pys),
-#             ("[attributes]\n", self._attributes2pys),
-#             ("[row_heights]\n", self._row_heights2pys),
-#             ("[col_widths]\n", self._col_widths2pys),
-#             ("[macros]\n", self._macros2pys),
-#         ])
-
-#     def __iter__(self) -> Iterable[str]:
-#         """Yields a pys_file line wise from code_array"""
-
-#         for key in self._section2writer:
-#             yield key
-#             for line in self._section2writer[key]():
-#                 yield line
-
-#     def __len__(self) -> int:
-#         """Returns how many lines will be written when saving the code_array"""
-
-#         lines = 9  # Headers + 1 line version + 1 line shape
-#         lines += len(self.code_array.dict_grid)
-#         lines += len(self.code_array.cell_attributes)
-#         lines += len(self.code_array.dict_grid.row_heights)
-#         lines += len(self.code_array.dict_grid.col_widths)
-#         lines += self.code_array.dict_grid.macros.count('\n')
-
-#         return lines
-
-#     def _version2pys(self) -> Iterable[str]:
-#         """Returns pys file version information in pys format
-
-#         Format: <version>\n
-
-#         """
-
-#         yield repr(self.version) + "\n"
-
-#     def _shape2pys(self) -> Iterable[str]:
-#         """Returns shape information in pys format
-
-#         Format: <rows>\t<cols>\t<tabs>\n
-
-#         """
-
-#         yield u"\t".join(map(str, self.code_array.shape)) + u"\n"
-
-#     def _code2pys(self) -> Iterable[str]:
-#         """Returns cell code information in pys format
-
-#         Format: <row>\t<col>\t<tab>\t<code>\n
-
-#         """
-
-#         for key in self.code_array:
-#             key_str = u"\t".join(repr(ele) for ele in key)
-#             if self.version <= 1.0:
-#                 code_str = self.code_array(key)
-#             else:
-#                 code_str = repr(self.code_array(key))
-#             out_str = key_str + u"\t" + code_str + u"\n"
-
-#             yield out_str
-
-#     def _attributes2pys(self) -> Iterable[str]:
-#         """Returns cell attributes information in pys format
-
-#         Format:
-#         <selection[0]>\t[...]\t<tab>\t<key>\t<value>\t[...]\n
-
-#         """
-
-#         # Remove doublettes
-#         purged_cell_attributes = []
-#         purged_cell_attributes_keys = []
-#         for selection, tab, attr_dict in self.code_array.cell_attributes:
-#             if purged_cell_attributes_keys and \
-#                (selection, tab) == purged_cell_attributes_keys[-1]:
-#                 purged_cell_attributes[-1][2].update(attr_dict)
-#             else:
-#                 purged_cell_attributes_keys.append((selection, tab))
-#                 purged_cell_attributes.append([selection, tab, attr_dict])
-
-#         for selection, tab, attr_dict in purged_cell_attributes:
-#             if not attr_dict:
-#                 continue
-
-#             sel_list = [selection.block_tl, selection.block_br,
-#                         selection.rows, selection.columns, selection.cells]
-
-#             tab_list = [tab]
-
-#             attr_dict_list = []
-#             for key in attr_dict:
-#                 if key is not None:
-#                     attr_dict_list.append(key)
-#                     attr_dict_list.append(attr_dict[key])
-
-#             line_list = list(map(repr, sel_list + tab_list + attr_dict_list))
-
-#             yield u"\t".join(line_list) + u"\n"
-
-#     def _row_heights2pys(self) -> Iterable[str]:
-#         """Returns row height information in pys format
-
-#         Format: <row>\t<tab>\t<value>\n
-
-#         """
-
-#         for row, tab in self.code_array.dict_grid.row_heights:
-#             if row < self.code_array.shape[0] and \
-#                tab < self.code_array.shape[2]:
-#                 height = self.code_array.dict_grid.row_heights[(row, tab)]
-#                 height_strings = list(map(repr, [row, tab, height]))
-#                 yield u"\t".join(height_strings) + u"\n"
-
-#     def _col_widths2pys(self) -> Iterable[str]:
-#         """Returns column width information in pys format
-
-#         Format: <col>\t<tab>\t<value>\n
-
-#         """
-
-#         for col, tab in self.code_array.dict_grid.col_widths:
-#             if col < self.code_array.shape[1] and \
-#                tab < self.code_array.shape[2]:
-#                 width = self.code_array.dict_grid.col_widths[(col, tab)]
-#                 width_strings = list(map(repr, [col, tab, width]))
-#                 yield u"\t".join(width_strings) + u"\n"
-
-#     def _macros2pys(self) -> Iterable[str]:
-#         """Returns macros information in pys format
-
-#         Format: <macro code line>\n
-
-#         """
-
-#         macros = self.code_array.dict_grid.macros
-#         yield macros
