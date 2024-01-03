@@ -32,7 +32,7 @@
 
 from typing import Tuple
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
         QToolBar, QToolButton, QMenu, QWidget, QHBoxLayout, QUndoView,
         QMainWindow)
 
@@ -67,7 +67,7 @@ except ImportError:
 def add_toolbutton_widget(button: QWidget, widget: QWidget,
                           minsize: Tuple[int, int] = (300, 200),
                           popup_mode: QToolButton.ToolButtonPopupMode
-                          = QToolButton.MenuButtonPopup):
+                          = QToolButton.ToolButtonPopupMode.MenuButtonPopup):
     """Adds a widget as menu to a tool_button
 
     :param button: Tool button for menu
@@ -111,7 +111,7 @@ class ToolBarBase(QToolBar):
         button.setMenu(ToolbarManagerMenu(self))
         button.setIcon(Icon.menu_manager)
         button.setFixedWidth(int(button.height()/3))
-        button.setPopupMode(QToolButton.InstantPopup)
+        button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
         return button
 
@@ -301,7 +301,8 @@ class FormatToolbar(ToolBarBase):
         self.border_menu_button.setMenu(border_submenu)
         self.border_menu_button.setIcon(Icon.border_menu)
         self.add_widget(self.border_menu_button)
-        self.border_menu_button.setPopupMode(QToolButton.InstantPopup)
+        self.border_menu_button.setPopupMode(
+            QToolButton.ToolButtonPopupMode.InstantPopup)
 
         self.line_width_button = QToolButton(self)
         self.line_width_button.setText("Border Width")
@@ -310,7 +311,8 @@ class FormatToolbar(ToolBarBase):
         self.line_width_button.setMenu(line_width_submenu)
         self.line_width_button.setIcon(Icon.format_borders)
         self.add_widget(self.line_width_button)
-        self.line_width_button.setPopupMode(QToolButton.InstantPopup)
+        self.line_width_button.setPopupMode(
+            QToolButton.ToolButtonPopupMode.InstantPopup)
 
         self.addSeparator()
 

@@ -60,18 +60,18 @@ import io
 from pathlib import Path
 from typing import List, Sequence, Tuple, Union
 
-from PyQt5.QtCore import Qt, QPoint, QSize, QEvent
-from PyQt5.QtWidgets \
+from PyQt6.QtCore import Qt, QPoint, QSize, QEvent
+from PyQt6.QtWidgets \
     import (QApplication, QMessageBox, QFileDialog, QDialog, QLineEdit, QLabel,
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
             QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QInputDialog)
-from PyQt5.QtGui \
+from PyQt6.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
                                   QPrinter)
 
 try:
@@ -113,8 +113,9 @@ class DiscardChangesDialog:
 
     title = "Unsaved changes"
     text = "There are unsaved changes.\nDo you want to save?"
-    choices = QMessageBox.Discard | QMessageBox.Cancel | QMessageBox.Save
-    default_choice = QMessageBox.Save
+    buttons = QMessageBox.StandardButton
+    choices = buttons.Discard | buttons.Cancel | buttons.Save
+    default_choice = buttons.Save
 
     def __init__(self, main_window: QMainWindow):
         """
@@ -137,9 +138,9 @@ class DiscardChangesDialog:
         button_approval = QMessageBox.warning(self.main_window, self.title,
                                               self.text, self.choices,
                                               self.default_choice)
-        if button_approval == QMessageBox.Discard:
+        if button_approval == QMessageBox.StandardButton.Discard:
             return True
-        if button_approval == QMessageBox.Save:
+        if button_approval == QMessageBox.StandardButton.Save:
             return False
 
 
@@ -147,8 +148,9 @@ class DiscardDataDialog(DiscardChangesDialog):
     """Modal dialog that asks if the user wants to discard data"""
 
     title = "Data to be discarded"
-    choices = QMessageBox.Discard | QMessageBox.Cancel
-    default_choice = QMessageBox.Cancel
+    buttons = QMessageBox.StandardButton
+    choices = buttons.Discard | buttons.Cancel
+    default_choice = buttons.Cancel
 
     def __init__(self, main_window: QMainWindow, text: str):
         """
@@ -174,8 +176,9 @@ class ApproveWarningDialog:
             "It may harm your system as any program can. Please check all "
             "cells thoroughly before proceeding.\n \n"
             "Proceed and sign this file as trusted?")
-    choices = QMessageBox.No | QMessageBox.Yes
-    default_choice = QMessageBox.No
+    buttons = QMessageBox.StandardButton
+    choices = buttons.No | buttons.Yes
+    default_choice = buttons.No
 
     def __init__(self, parent: QWidget):
         """
@@ -198,9 +201,9 @@ class ApproveWarningDialog:
         button_approval = QMessageBox.warning(self.parent, self.title,
                                               self.text, self.choices,
                                               self.default_choice)
-        if button_approval == QMessageBox.Yes:
+        if button_approval == self.buttons.Yes:
             return True
-        if button_approval == QMessageBox.No:
+        if button_approval == self.buttons.No:
             return False
 
 
@@ -261,9 +264,9 @@ class DataEntryDialog(QDialog):
 
         """
 
-        result = self.exec_()
+        result = self.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             return tuple(editor.text() if isinstance(editor, QLineEdit)
                          else editor.isChecked() for editor in self.editors)
 
@@ -283,13 +286,13 @@ class DataEntryDialog(QDialog):
                 editor.setChecked(initial_value)
             else:
                 editor = QLineEdit(str(initial_value))
-                editor.setAlignment(Qt.AlignRight)
+                editor.setAlignment(Qt.AlignmentFlag.AlignRight)
             if validator and validator is not bool:
                 editor.setValidator(validator)
             form_layout.addRow(QLabel(label + " :"), editor)
             self.editors.append(editor)
 
-        form_layout.setLabelAlignment(Qt.AlignRight)
+        form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
         form_group_box.setLayout(form_layout)
 
         return form_group_box
@@ -297,8 +300,8 @@ class DataEntryDialog(QDialog):
     def create_buttonbox(self) -> QDialogButtonBox:
         """Returns a QDialogButtonBox with Ok and Cancel"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
@@ -816,11 +819,11 @@ class FindDialog(QDialog):
         self.regex_checkbox = QCheckBox("Regular e&xpression")
         self.from_start_checkbox = QCheckBox("From &start")
 
-        self.button_box = QDialogButtonBox(Qt.Vertical)
+        self.button_box = QDialogButtonBox(Qt.Orientation.Vertical)
         self.button_box.addButton(self.find_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.more_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
 
     def _layout(self):
         """Find dialog layout"""
@@ -844,7 +847,7 @@ class FindDialog(QDialog):
         self.search_layout.addWidget(self.results_checkbox)
 
         self.main_layout = QGridLayout()
-        self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
+        self.main_layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.main_layout.addLayout(self.search_layout, 0, 0)
         self.main_layout.addWidget(self.button_box, 0, 1)
         self.main_layout.addWidget(self.extension, 1, 0, 1, 2)
@@ -922,9 +925,9 @@ class ReplaceDialog(FindDialog):
         self.replace_all_button = QPushButton("Replace &all")
 
         self.button_box.addButton(self.replace_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.replace_all_button,
-                                  QDialogButtonBox.ActionRole)
+                                  QDialogButtonBox.ButtonRole.ActionRole)
 
         self.setTabOrder(self.search_text_editor, self.replace_text_editor)
         self.setTabOrder(self.more_button, self.replace_button)
@@ -1074,12 +1077,13 @@ class ChartDialog(QDialog):
     def create_buttonbox(self):
         """Returns a QDialogButtonBox with Ok and Cancel"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Apply
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Apply
+                                      | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
         return button_box
 
 
@@ -1129,7 +1133,7 @@ class CsvParameterGroupBox(QGroupBox):
 
         super().__init__(parent)
         self.parent = parent
-        self.default_encoding = parent.csv_encoding
+        self.default_encoding = parent.parent.settings.default_encoding
         self.encodings = parent.parent.settings.encodings
 
         self.setTitle(self.title)
@@ -1224,8 +1228,8 @@ class CsvParameterGroupBox(QGroupBox):
         hbox_layout.addSpacing(20)
         hbox_layout.addLayout(right_form_layout)
 
-        left_form_layout.setLabelAlignment(Qt.AlignRight)
-        right_form_layout.setLabelAlignment(Qt.AlignRight)
+        left_form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        right_form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
 
         left_form_layout.addRow(self.encoding_label, self.encoding_widget)
         left_form_layout.addRow(self.quotechar_label, self.quotechar_widget)
@@ -1328,7 +1332,7 @@ class CsvTable(QTableView):
 
         self.model = QStandardItemModel(self)
         self.setModel(self.model)
-        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.verticalHeader().hide()
 
     def add_choice_row(self, length: int):
@@ -1458,20 +1462,22 @@ class CsvImportDialog(QDialog):
     def create_buttonbox(self):
         """Returns a QDialogButtonBox"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Reset
-                                      | QDialogButtonBox.Apply
-                                      | QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Reset
+                                      | QDialogButtonBox.StandardButton.Apply
+                                      | QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Cancel)
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset)
-        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
 
         return button_box
 
     def _sniff_dialect(self):
-        """"""
+        """Sniff the dialect of self.filepath`"""
 
         try:
             return sniff(self.filepath, self.sniff_size, self.csv_encoding)
@@ -1634,15 +1640,17 @@ class CsvExportDialog(QDialog):
     def create_buttonbox(self) -> QDialogButtonBox:
         """Returns button box with Reset, Apply, Ok, Cancel"""
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Reset
-                                      | QDialogButtonBox.Apply
-                                      | QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Reset
+                                      | QDialogButtonBox.StandardButton.Apply
+                                      | QDialogButtonBox.StandardButton.Ok
+                                      | QDialogButtonBox.StandardButton.Cancel)
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset)
-        button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset)
+        button_box.button(
+            QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
 
         return button_box
 
@@ -1746,7 +1754,7 @@ class PrintPreviewDialog(QPrintPreviewDialog):
         """
 
         modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
+        if modifiers == Qt.KeyboardModifier.ControlModifier:
             if event.angleDelta().y() > 0:
                 zoom_factor = self.widget.zoomFactor() / 1.1
             else:

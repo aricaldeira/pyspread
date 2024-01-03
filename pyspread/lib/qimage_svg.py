@@ -31,9 +31,9 @@ High resolution svg support for qimage and :mod:`matplotlib.figure`
 
 from io import StringIO
 
-from PyQt5.QtGui import QImage, QPainter
+from PyQt6.QtGui import QImage, QPainter
 try:
-    from PyQt5.QtSvg import QSvgRenderer
+    from PyQt6.QtSvg import QSvgRenderer
 except ImportError:
     QSvgRenderer = None
 
@@ -45,7 +45,7 @@ except ImportError:
 
 
 class QImageSvg(QImage):
-    """Subclass of PyQt5.QtGui
+    """Subclass of PyQt6.QtGui
 
     Adds support for SVG byte strings and matplotlib figures
 

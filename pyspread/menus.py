@@ -38,9 +38,9 @@
 from functools import partial
 from pathlib import Path
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
-        QMenuBar, QMenu, QAction, QMainWindow, QWidget, QToolBar)
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QMenuBar, QMenu, QMainWindow, QWidget, QToolBar
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -289,6 +289,7 @@ class MacroMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.insert_sum)
 
+
 class HelpMenu(QMenu):
     """Help menu for the main menubar"""
 
@@ -409,7 +410,7 @@ class BorderWidthMenu(QMenu):
         """Event handler"""
 
         self.actions.parent.format_toolbar.border_menu_button.setAttribute(
-            Qt.WA_UnderMouse, False)
+            Qt.WidgetAttribute.WA_UnderMouse, False)
 
 
 class GridContextMenu(QMenu):

@@ -33,9 +33,9 @@ import sys
 
 import pytest
 
-from PyQt5.QtCore import QItemSelectionModel, QItemSelection
-from PyQt5.QtWidgets import QApplication, QAbstractItemView
-from PyQt5.QtGui import QFont, QColor
+from PyQt6.QtCore import QItemSelectionModel, QItemSelection
+from PyQt6.QtWidgets import QApplication, QAbstractItemView
+from PyQt6.QtGui import QFont, QColor
 
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
@@ -53,7 +53,7 @@ def insert_path(path):
 def multi_selection_mode(grid):
     grid.clearSelection()
     old_selection_mode = grid.selectionMode()
-    grid.setSelectionMode(QAbstractItemView.MultiSelection)
+    grid.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
     yield
     grid.setSelectionMode(old_selection_mode)
 
@@ -62,6 +62,7 @@ with insert_path(PYSPREADPATH):
     from ..pyspread import MainWindow
     from ..commands import MakeButtonCell, RemoveButtonCell
     from ..lib.selection import Selection
+    from ..interfaces.pys import qt62qt5_fontweights
 
 
 app = QApplication.instance()
@@ -179,8 +180,8 @@ class TestGrid:
         with multi_selection_mode(self.grid):
             for cell in cells:
                 idx = self.grid.model.index(*cell)
-                self.grid.selectionModel().select(idx,
-                                                  QItemSelectionModel.Select)
+                self.grid.selectionModel().select(
+                    idx, QItemSelectionModel.SelectionFlag.Select)
             assert self.grid.selection == res
 
     param_test_selection_blocks = [
@@ -197,8 +198,8 @@ class TestGrid:
             idx_tl = self.grid.model.index(top, left)
             idx_br = self.grid.model.index(bottom, right)
             item_selection = QItemSelection(idx_tl, idx_br)
-            self.grid.selectionModel().select(item_selection,
-                                              QItemSelectionModel.Select)
+            self.grid.selectionModel().select(
+                item_selection, QItemSelectionModel.SelectionFlag.Select)
             assert self.grid.selection == res
 
     param_test_selection_rows = [
@@ -239,11 +240,12 @@ class TestGrid:
         assert self.grid.zoom == zoom_res
 
     param_test_set_selection_mode = [
-        (True, (0, 0, 0), (0, 0, 0), QAbstractItemView.NoEditTriggers),
+        (True, (0, 0, 0), (0, 0, 0),
+         QAbstractItemView.EditTrigger.NoEditTriggers),
         (False, (1, 2, 3), None,
-         QAbstractItemView.DoubleClicked
-         | QAbstractItemView.EditKeyPressed
-         | QAbstractItemView.AnyKeyPressed),
+         QAbstractItemView.EditTrigger.DoubleClicked
+         | QAbstractItemView.EditTrigger.EditKeyPressed
+         | QAbstractItemView.EditTrigger.AnyKeyPressed),
     ]
 
     @pytest.mark.parametrize("on, current, start, edit_mode",
@@ -332,8 +334,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(0, 0)
         idx_br = self.grid.model.index(5, 0)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
         assert main_window.statusBar().currentMessage() == ""
 
         self.grid.clearSelection()
@@ -341,8 +343,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(0, 0)
         idx_br = self.grid.model.index(4, 0)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
         assert main_window.statusBar().currentMessage() == \
                "Selection: 5 cells     Σ=25     max=23     min=2"
 
@@ -360,8 +362,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(3, 1)
         idx_br = self.grid.model.index(5, 2)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
 
         self.grid.setRowHeight(3, 48)
         row_heights = dict(self.grid.row_heights)
@@ -387,8 +389,8 @@ class TestGrid:
         idx_tl = self.grid.model.index(1, 3)
         idx_br = self.grid.model.index(2, 5)
         item_selection = QItemSelection(idx_tl, idx_br)
-        self.grid.selectionModel().select(item_selection,
-                                          QItemSelectionModel.Select)
+        self.grid.selectionModel().select(
+            item_selection, QItemSelectionModel.SelectionFlag.Select)
 
         self.grid.setColumnWidth(3, 48)
         col_widths = dict(self.grid.column_widths)
@@ -539,9 +541,11 @@ class TestGrid:
         self.grid.selectRow(2)
 
         self.grid.on_bold_pressed(True)
-        assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Bold
+        assert self.cell_attributes[(2, 0, 0)]["fontweight"] \
+            == qt62qt5_fontweights(QFont.Weight.Bold)
         self.grid.on_bold_pressed(False)
-        assert self.cell_attributes[(2, 0, 0)]["fontweight"] == QFont.Normal
+        assert self.cell_attributes[(2, 0, 0)]["fontweight"] \
+            == qt62qt5_fontweights(QFont.Weight.Normal)
 
         self.grid.clearSelection()
 
@@ -551,11 +555,9 @@ class TestGrid:
         self.grid.selectRow(2)
 
         self.grid.on_italics_pressed(True)
-        assert self.cell_attributes[(2, 0, 0)]["fontstyle"] \
-            == QFont.StyleItalic
+        assert self.cell_attributes[(2, 0, 0)]["fontstyle"] == 1
         self.grid.on_italics_pressed(False)
-        assert self.cell_attributes[(2, 0, 0)]["fontstyle"] \
-            == QFont.StyleNormal
+        assert self.cell_attributes[(2, 0, 0)]["fontstyle"] == 0
 
         self.grid.clearSelection()
 

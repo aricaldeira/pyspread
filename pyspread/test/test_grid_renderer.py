@@ -33,7 +33,7 @@ import sys
 
 import pytest
 
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))
 LIBPATH = abspath(PYSPREADPATH + "/lib")

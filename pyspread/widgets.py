@@ -50,12 +50,13 @@ try:
 except ImportError:
     markdown = None
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
-from PyQt5.QtWidgets \
+from PyQt6.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
+from PyQt6.QtWidgets \
     import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
             QLineEdit, QPushButton, QTextBrowser, QWidget, QMainWindow,
-            QAction, QMenu, QTableView)
-from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
+            QMenu, QTableView)
+from PyQt6.QtGui import (QPalette, QColor, QFont, QIntValidator, QCursor,
+                         QIcon, QAction)
 
 try:
     from pyspread.actions import Action
@@ -293,7 +294,7 @@ class ColorButton(QToolButton):
         self._color = color
 
         palette = self.palette()
-        palette.setColor(QPalette.Button, color)
+        palette.setColor(QPalette.ColorRole.Button, color)
         self.setAutoFillBackground(True)
         self.setPalette(palette)
         self.update()
@@ -322,16 +323,17 @@ class ColorButton(QToolButton):
             dlg.setCustomColor(15, self.default_color)
         dlg.setWindowTitle(self.title)
 
-        dlg.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
-        dlg.setWindowModality(Qt.ApplicationModal)
-        dlg.setOptions(QColorDialog.DontUseNativeDialog)
+        dlg.setWindowFlags(
+            Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
+        dlg.setWindowModality(Qt.WindowModality.ApplicationModal)
+        dlg.setOptions(QColorDialog.ColorDialogOption.DontUseNativeDialog)
 
         pos = self.mapFromGlobal(QCursor.pos())
         pos.setX(pos.x() + int(self.rect().width() / 2))
         pos.setY(pos.y() + int(self.rect().height() / 2))
         dlg.move(self.mapToGlobal(pos))
 
-        if dlg.exec_():
+        if dlg.exec():
             self.color = dlg.currentColor()
             self.colorChanged.emit()
 
@@ -354,7 +356,7 @@ class TextColorButton(ColorButton):
         self.setStatusTip("Text color")
         self.setToolTip("Text color")
 
-        self.default_color = self.palette().color(QPalette.Text)
+        self.default_color = self.palette().color(QPalette.ColorRole.Text)
 
 
 class LineColorButton(ColorButton):
@@ -375,7 +377,7 @@ class LineColorButton(ColorButton):
         self.setStatusTip("Cell border line color")
         self.setToolTip("Cell border line color")
 
-        self.default_color = self.palette().color(QPalette.Mid)
+        self.default_color = self.palette().color(QPalette.ColorRole.Mid)
 
 
 class BackgroundColorButton(ColorButton):
@@ -396,7 +398,7 @@ class BackgroundColorButton(ColorButton):
         self.setStatusTip("Cell background color")
         self.setToolTip("Cell background color")
 
-        self.default_color = self.palette().color(QPalette.Base)
+        self.default_color = self.palette().color(QPalette.ColorRole.Base)
 
 
 class MenuComboBox(QComboBox):
@@ -653,14 +655,15 @@ class FindEditor(QLineEdit):
 
         self.label = "Find editor"
         self.icon = lambda: Icon.find_next
-        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)
+        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Policy.Preferred)
         self.setClearButtonEnabled(True)
-        self.addAction(self.actions.find_next, QLineEdit.LeadingPosition)
+        self.addAction(self.actions.find_next,
+                       QLineEdit.ActionPosition.LeadingPosition)
 
         workflows = parent.main_window.workflows
         self.returnPressed.connect(workflows.edit_find_next)
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_context_menu)
 
     def prepend_actions(self, menu: QMenu):

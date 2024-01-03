@@ -20,6 +20,8 @@
 
 """
 
+Pyspread's main grid
+
 **Provides**
 
 * :class:`Grid`: QTableView of the main grid
@@ -39,21 +41,21 @@ from typing import Any, Iterable, List, Tuple, Union
 
 import numpy
 
-from PyQt5.QtWidgets \
+from PyQt6.QtWidgets \
     import (QTableView, QStyledItemDelegate, QTabBar, QWidget, QMainWindow,
             QStyleOptionViewItem, QApplication, QStyle, QAbstractItemDelegate,
             QHeaderView, QFontDialog, QInputDialog, QLineEdit,
             QAbstractItemView)
-from PyQt5.QtGui \
+from PyQt6.QtGui \
     import (QColor, QBrush, QFont, QPainter, QPalette, QImage, QKeyEvent,
             QTextOption, QAbstractTextDocumentLayout, QTextDocument,
             QWheelEvent, QContextMenuEvent, QTextCursor)
-from PyQt5.QtCore \
+from PyQt6.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
             QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel,
-            QByteArray)
+            QByteArray, pyqtSignal)
 
-from PyQt5.QtSvg import QSvgRenderer
+from PyQt6.QtSvg import QSvgRenderer
 
 try:
     import matplotlib
@@ -73,6 +75,8 @@ try:
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
+    from pyspread.interfaces.pys import (qt52qt6_fontweights,
+                                             qt62qt5_fontweights)
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import quote, wrap_text
     from pyspread.lib.qimage2ndarray import array2qimage
@@ -90,6 +94,7 @@ except ImportError:
                                BorderColorBottomCache)
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
+    from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
     from lib.string_helpers import quote, wrap_text
     from lib.qimage2ndarray import array2qimage
@@ -97,6 +102,10 @@ except ImportError:
     from menus import (GridContextMenu, TableChoiceContextMenu,
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
     from widgets import CellButton
+
+FONTSTYLES = (QFont.Style.StyleNormal,
+              QFont.Style.StyleItalic,
+              QFont.Style.StyleOblique)
 
 
 class Grid(QTableView):
@@ -139,8 +148,9 @@ class Grid(QTableView):
         self.selectionModel().selectionChanged.connect(
             self.on_selection_changed)
 
-        self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
-        self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
+        self.setHorizontalHeader(GridHeaderView(Qt.Orientation.Horizontal,
+                                                self))
+        self.setVerticalHeader(GridHeaderView(Qt.Orientation.Vertical, self))
 
         self.verticalHeader().setDefaultSectionSize(
             self.main_window.settings.default_row_height)
@@ -152,7 +162,7 @@ class Grid(QTableView):
 
         # Palette adjustment for cases in  which the Base color is not white
         palette = self.palette()
-        palette.setColor(QPalette.Base,
+        palette.setColor(QPalette.ColorRole.Base,
                          QColor(*DefaultCellAttributeDict().bgcolor))
         self.setPalette(palette)
 
@@ -371,7 +381,8 @@ class Grid(QTableView):
     def selection_mode(self) -> bool:
         """In selection mode, cells cannot be edited"""
 
-        return self.editTriggers() == QAbstractItemView.NoEditTriggers
+        return self.editTriggers() \
+            == QAbstractItemView.EditTrigger.NoEditTriggers
 
     @selection_mode.setter
     def selection_mode(self, on: bool):
@@ -388,24 +399,22 @@ class Grid(QTableView):
 
         if on:
             self.current_selection_mode_start = tuple(grid.current)
-            self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
             self.main_window.selection_mode_widget.show()
         else:
             self.selection_mode_exiting = True
             if self.current_selection_mode_start is not None:
                 grid.current = self.current_selection_mode_start
                 self.current_selection_mode_start = None
-            self.setEditTriggers(QAbstractItemView.DoubleClicked
-                                 | QAbstractItemView.EditKeyPressed
-                                 | QAbstractItemView.AnyKeyPressed)
+            self.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked
+                                 | QAbstractItemView.EditTrigger.EditKeyPressed
+                                 | QAbstractItemView.EditTrigger.AnyKeyPressed)
             self.selection_mode_exiting = False
             self.main_window.selection_mode_widget.hide()
             self.main_window.entry_line.setFocus()
 
     def set_selection_mode(self, value=True):
         """Setter for selection mode for all grids
-
-        This method is required for accessing selection mode from QActions.
 
         :param value: If True, selection mode is set, if False unset
 
@@ -416,9 +425,23 @@ class Grid(QTableView):
             grid.selection_mode = value
 
         # Adjust the menu
-        toggle_selection_mode = \
-            self.main_window.main_window_actions.toggle_selection_mode
+        main_window_actions = self.main_window.main_window_actions
+        toggle_selection_mode = main_window_actions.toggle_selection_mode
         toggle_selection_mode.setChecked(value)
+
+    def toggle_selection_mode(self):
+        """Toggle selection mode for all grids
+
+        This method is required for accessing selection mode from QActions.
+
+        """
+
+        main_window_actions = self.main_window.main_window_actions
+        toggle_selection_mode = main_window_actions.toggle_selection_mode
+        value = toggle_selection_mode.toggled
+
+        for grid in self.main_window.grids:
+            grid.selection_mode = value
 
     # Overrides
 
@@ -442,8 +465,8 @@ class Grid(QTableView):
 
         """
 
-        if hint == QAbstractItemDelegate.NoHint:
-            hint = QAbstractItemDelegate.SubmitModelCache
+        if hint == QAbstractItemDelegate.EndEditHint.NoHint:
+            hint = QAbstractItemDelegate.EndEditHint.SubmitModelCache
 
         super().closeEditor(editor, hint)
 
@@ -458,19 +481,20 @@ class Grid(QTableView):
 
         """
 
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if event.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             if self.selection_mode:
                 # Return exits selection mode
                 self.selection_mode = False
                 self.main_window.entry_line.setFocus()
-            elif event.modifiers() & Qt.ShiftModifier:
+            elif event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
-        elif event.key() == Qt.Key_Delete:
+        elif event.key() == Qt.Key.Key_Delete:
             self.main_window.workflows.delete()
-        elif (event.key() == Qt.Key_Escape
-              and self.editTriggers() == QAbstractItemView.NoEditTriggers):
+        elif (event.key() == Qt.Key.Key_Escape
+              and self.editTriggers()
+              == QAbstractItemView.EditTrigger.NoEditTriggers):
             # Leave cell selection mode
             self.selection_mode = False
         else:
@@ -484,7 +508,7 @@ class Grid(QTableView):
         """
 
         modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
+        if modifiers == Qt.KeyboardModifier.ControlModifier:
             if event.angleDelta().y() > 0:
                 self.on_zoom_in()
             else:
@@ -500,14 +524,15 @@ class Grid(QTableView):
         """
 
         menu = GridContextMenu(self.main_window.main_window_actions)
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     # Helpers
 
     def reset_selection(self):
         """Select upper left cell"""
 
-        self.setSelection(QRect(1, 1, 1, 1), QItemSelectionModel.Select)
+        self.setSelection(QRect(1, 1, 1, 1),
+                          QItemSelectionModel.SelectionFlag.Select)
 
     def gui_update(self):
         """Emits gui update signal"""
@@ -594,7 +619,8 @@ class Grid(QTableView):
             cursor = self.main_window.entry_line.textCursor()
             text_anchor = cursor.anchor()
             text_position = cursor.position()
-            if QApplication.queryKeyboardModifiers() == Qt.MetaModifier:
+            if QApplication.queryKeyboardModifiers() \
+               == Qt.KeyboardModifier.MetaModifier:
                 text = self.selection.get_absolute_access_string(
                     self.model.shape, self.table)
             else:
@@ -604,7 +630,7 @@ class Grid(QTableView):
             self.main_window.entry_line.insertPlainText(text)
             cursor.setPosition(min(text_anchor, text_position))
             cursor.setPosition(min(text_anchor, text_position) + len(text),
-                               QTextCursor.KeepAnchor)
+                               QTextCursor.MoveMode.KeepAnchor)
             self.main_window.entry_line.setTextCursor(cursor)
         else:
             code = self.model.code_array(self.current)
@@ -633,7 +659,7 @@ class Grid(QTableView):
 
         res_gen = (code_array[key] for key in selected_cell_list
                    if code_array(key))
-        sum_list = list(filter(None, res_gen))
+        sum_list = [res for res in res_gen if res is not None]
 
         msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
         msg = f"Selection: {len(selected_cell_list)} cells"
@@ -745,9 +771,6 @@ class Grid(QTableView):
             key = literal_eval(repr_key)
             self._refresh_frozen_cell(key)
 
-        cell_attributes._attr_cache.clear()
-        cell_attributes._table_cache.clear()
-        self.model.code_array.result_cache.clear()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def refresh_selected_frozen_cells(self):
@@ -780,8 +803,8 @@ class Grid(QTableView):
             attr_dict = AttrDict()
             attr_dict.textfont = font.family()
             attr_dict.pointsize = font.pointSizeF()
-            attr_dict.fontweight = font.weight()
-            attr_dict.fontstyle = font.style()
+            attr_dict.fontweight = qt62qt5_fontweights(font.weight())
+            attr_dict.fontstyle = FONTSTYLES.index(font.style())
             attr_dict.underline = font.underline()
             attr_dict.strikethrough = font.strikeOut()
             attr = CellAttribute(self.selection, self.table, attr_dict)
@@ -823,8 +846,8 @@ class Grid(QTableView):
 
         """
 
-        fontweight = QFont.Bold if toggled else QFont.Normal
-        attr_dict = AttrDict([("fontweight", fontweight)])
+        fontweight = QFont.Weight.Bold if toggled else QFont.Weight.Normal
+        attr_dict = AttrDict([("fontweight", qt62qt5_fontweights(fontweight))])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = f"Set font weight {fontweight} for cells {idx_string}"
@@ -839,8 +862,9 @@ class Grid(QTableView):
 
         """
 
-        fontstyle = QFont.StyleItalic if toggled else QFont.StyleNormal
-        attr_dict = AttrDict([("fontstyle", fontstyle)])
+        fontstyle = QFont.Style.StyleItalic \
+            if toggled else QFont.Style.StyleNormal
+        attr_dict = AttrDict([("fontstyle", FONTSTYLES.index(fontstyle))])
         attr = CellAttribute(self.selection, self.table, attr_dict)
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = f"Set font style {fontstyle} for cells {idx_string}"
@@ -1289,10 +1313,9 @@ class Grid(QTableView):
 
         if toggled:
             # Get button text from user
-            text, accept = QInputDialog.getText(self.main_window,
-                                                "Make button cell",
-                                                "Button text:",
-                                                QLineEdit.Normal, "")
+            text, accept = QInputDialog.getText(
+                self.main_window, "Make button cell", "Button text:",
+                QLineEdit.EchoMode.Normal, "")
             if accept and text:
                 description = f"Make cell {grid.current} a button cell"
                 command = commands.MakeButtonCell(self, text,
@@ -1563,11 +1586,11 @@ class GridHeaderView(QHeaderView):
         """
 
         actions = self.grid.main_window.main_window_actions
-        if self.orientation() == Qt.Horizontal:
+        if self.orientation() == Qt.Orientation.Horizontal:
             menu = HorizontalHeaderContextMenu(actions)
         else:
             menu = VerticalHeaderContextMenu(actions)
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     # End of overrides
 
@@ -1579,7 +1602,7 @@ class GridHeaderView(QHeaderView):
                 self.setDefaultSectionSize(int(self.default_section_size
                                                * self.grid.zoom))
 
-                if self.orientation() == Qt.Horizontal:
+                if self.orientation() == Qt.Orientation.Horizontal:
                     section_sizes = self.grid.column_widths
                 else:
                     section_sizes = self.grid.row_heights
@@ -1590,6 +1613,8 @@ class GridHeaderView(QHeaderView):
 
 class GridTableModel(QAbstractTableModel):
     """QAbstractTableModel for Grid"""
+
+    cell_to_update = pyqtSignal(tuple)
 
     def __init__(self, main_window: QMainWindow,
                  shape: Tuple[int, int, int]):
@@ -1815,9 +1840,12 @@ class GridTableModel(QAbstractTableModel):
         if attr.pointsize is not None:
             font.setPointSizeF(attr.pointsize)
         if attr.fontweight is not None:
-            font.setWeight(attr.fontweight)
+            font.setWeight(qt52qt6_fontweights(attr.fontweight))
         if attr.fontstyle is not None:
-            font.setStyle(attr.fontstyle)
+            fontstyle = attr.fontstyle
+            if isinstance(fontstyle, int):
+                fontstyle = FONTSTYLES[fontstyle]
+            font.setStyle(fontstyle)
         if attr.underline is not None:
             font.setUnderline(attr.underline)
         if attr.strikethrough is not None:
@@ -1825,7 +1853,7 @@ class GridTableModel(QAbstractTableModel):
         return font
 
     def data(self, index: QModelIndex,
-             role: Qt.ItemDataRole = Qt.DisplayRole) -> Any:
+             role: Qt.ItemDataRole = Qt.ItemDataRole.DisplayRole) -> Any:
         """Overloaded data for code_array backend
 
         :param index: Index of the cell, for which data is returned
@@ -1842,20 +1870,20 @@ class GridTableModel(QAbstractTableModel):
 
         key = self.current(index)
 
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             value = self.code_array[key]
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image" or value is None:
                 return ""
             return safe_str(value)
 
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             value = self.code_array[key]
             if value is None:
                 return ""
             return wrap_text(safe_str(value))
 
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             renderer = self.code_array.cell_attributes[key].renderer
             if renderer == "image":
                 value = self.code_array[key]
@@ -1867,11 +1895,11 @@ class GridTableModel(QAbstractTableModel):
                 except Exception:
                     return value
 
-        if role == Qt.BackgroundColorRole:
+        if role == Qt.ItemDataRole.BackgroundRole:
             if self.main_window.settings.show_frozen \
                and self.code_array.cell_attributes[key].frozen:
                 pattern_rgb = self.grid.palette().highlight().color()
-                bg_color = QBrush(pattern_rgb, Qt.BDiagPattern)
+                bg_color = QBrush(pattern_rgb, Qt.BrushStyle.BDiagPattern)
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key].bgcolor
                 if bg_color_rgb is None:
@@ -1880,26 +1908,26 @@ class GridTableModel(QAbstractTableModel):
                     bg_color = QColor(*bg_color_rgb)
             return bg_color
 
-        if role == Qt.TextColorRole:
+        if role == Qt.ItemDataRole.ForegroundRole:
             text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
-                text_color = self.grid.palette().color(QPalette.Text)
+                text_color = self.grid.palette().color(QPalette.ColorRole.Text)
             else:
                 text_color = QColor(*text_color_rgb)
             return text_color
 
-        if role == Qt.FontRole:
+        if role == Qt.ItemDataRole.FontRole:
             return self.font(key)
 
-        if role == Qt.TextAlignmentRole:
+        if role == Qt.ItemDataRole.TextAlignmentRole:
             pys2qt = {
-                "justify_left": Qt.AlignLeft,
-                "justify_center": Qt.AlignHCenter,
-                "justify_right": Qt.AlignRight,
-                "justify_fill": Qt.AlignJustify,
-                "align_top": Qt.AlignTop,
-                "align_center": Qt.AlignVCenter,
-                "align_bottom": Qt.AlignBottom,
+                "justify_left": Qt.AlignmentFlag.AlignLeft,
+                "justify_center": Qt.AlignmentFlag.AlignHCenter,
+                "justify_right": Qt.AlignmentFlag.AlignRight,
+                "justify_fill": Qt.AlignmentFlag.AlignJustify,
+                "align_top": Qt.AlignmentFlag.AlignTop,
+                "align_center": Qt.AlignmentFlag.AlignVCenter,
+                "align_bottom": Qt.AlignmentFlag.AlignBottom,
             }
             attr = self.code_array.cell_attributes[key]
             alignment = pys2qt[attr.vertical_align]
@@ -1921,7 +1949,7 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             if table is None:
                 key = self.current(index)
             else:
@@ -1943,7 +1971,8 @@ class GridTableModel(QAbstractTableModel):
 
             return True
 
-        if role in (Qt.DecorationRole, Qt.TextAlignmentRole):
+        if role in (Qt.ItemDataRole.DecorationRole,
+                    Qt.ItemDataRole.TextAlignmentRole):
             if not isinstance(value[2], AttrDict):
                 raise Warning(f"{value[2]} has type {type(value[2])} that "
                               "is not instance of AttrDict")
@@ -1956,14 +1985,15 @@ class GridTableModel(QAbstractTableModel):
                             self.dataChanged.emit(idx, idx)
             return True
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         """Overloaded, makes items editable
 
         :param index: Index of cell for which flags are returned
 
         """
 
-        return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
+        return QAbstractTableModel.flags(self,
+                                         index) | Qt.ItemFlag.ItemIsEditable
 
     def headerData(self, idx: QModelIndex, _, role: Qt.ItemDataRole) -> str:
         """Overloaded for displaying numbers in header
@@ -1973,7 +2003,7 @@ class GridTableModel(QAbstractTableModel):
 
         """
 
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return str(idx)
 
     def reset(self):
@@ -2034,13 +2064,15 @@ class GridCellDelegate(QStyledItemDelegate):
 
         doc = QTextDocument()
 
-        font = self.grid.model.data(index, role=Qt.FontRole)
+        font = self.grid.model.data(index, role=Qt.ItemDataRole.FontRole)
         doc.setDefaultFont(font)
 
-        alignment = self.grid.model.data(index, role=Qt.TextAlignmentRole)
+        alignment = self.grid.model.data(
+            index, role=Qt.ItemDataRole.TextAlignmentRole)
         doc.setDefaultTextOption(QTextOption(alignment))
 
-        bg_color = self.grid.model.data(index, role=Qt.BackgroundColorRole)
+        bg_color = self.grid.model.data(index,
+                                        role=Qt.ItemDataRole.BackgroundRole)
         css = f"background-color: {bg_color};"
         doc.setDefaultStyleSheet(css)
 
@@ -2049,7 +2081,8 @@ class GridCellDelegate(QStyledItemDelegate):
         doc.setUseDesignMetrics(True)
 
         text_option = doc.defaultTextOption()
-        text_option.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+        text_option.setWrapMode(
+            QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
 
         doc.setDefaultTextOption(text_option)
 
@@ -2071,13 +2104,14 @@ class GridCellDelegate(QStyledItemDelegate):
 
         style = option.widget.style()
         option.text = ""
-        style.drawControl(QStyle.CE_ItemViewItem, option, painter,
-                          option.widget)
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option,
+                          painter, option.widget)
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
-        text_color = self.grid.model.data(index, role=Qt.TextColorRole)
-        ctx.palette.setColor(QPalette.Text, text_color)
+        text_color = self.grid.model.data(index,
+                                          role=Qt.ItemDataRole.ForegroundRole)
+        ctx.palette.setColor(QPalette.ColorRole.Text, text_color)
 
         key = index.row(), index.column(), self.grid.table
         vertical_align = self.cell_attributes[key].vertical_align
@@ -2206,7 +2240,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """
 
         if qimage is None:
-            qimage = index.data(Qt.DecorationRole)
+            qimage = index.data(Qt.ItemDataRole.DecorationRole)
 
         if not isinstance(qimage, QImage):
             raise TypeError(f"{qimage} not of type QImage")
@@ -2223,12 +2257,12 @@ class GridCellDelegate(QStyledItemDelegate):
 
         if justification == "justify_fill":
             qimage = qimage.scaled(int(img_width), int(img_height),
-                                   Qt.IgnoreAspectRatio,
-                                   Qt.SmoothTransformation)
+                                   Qt.AspectRatioMode.IgnoreAspectRatio,
+                                   Qt.TransformationMode.SmoothTransformation)
         else:
             qimage = qimage.scaled(int(img_width), int(img_height),
-                                   Qt.KeepAspectRatio,
-                                   Qt.SmoothTransformation)
+                                   Qt.AspectRatioMode.KeepAspectRatio,
+                                   Qt.TransformationMode.SmoothTransformation)
 
         with painter_save(painter):
             try:
@@ -2255,7 +2289,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """
 
         if svg_str is None:
-            svg_str = index.data(Qt.DecorationRole)
+            svg_str = index.data(Qt.ItemDataRole.DecorationRole)
 
         if svg_str is None:
             return
@@ -2276,12 +2310,12 @@ class GridCellDelegate(QStyledItemDelegate):
         svg = QSvgRenderer(QByteArray(svg_bytes))
 
         if justification == "justify_fill":
-            svg.setAspectRatioMode(Qt.IgnoreAspectRatio)
+            svg.setAspectRatioMode(Qt.AspectRatioMode.IgnoreAspectRatio)
             svg_rect = rect
             svg.render(painter, svg_rect)
             return
 
-        svg.setAspectRatioMode(Qt.KeepAspectRatio)
+        svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
 
         svg_size = svg.defaultSize()
 
@@ -2356,10 +2390,10 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        painter.setRenderHints(QPainter.LosslessImageRendering
-                               | QPainter.Antialiasing
-                               | QPainter.TextAntialiasing
-                               | QPainter.SmoothPixmapTransform)
+        painter.setRenderHints(QPainter.RenderHint.LosslessImageRendering
+                               | QPainter.RenderHint.Antialiasing
+                               | QPainter.RenderHint.TextAntialiasing
+                               | QPainter.RenderHint.SmoothPixmapTransform)
 
         key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key].renderer
@@ -2376,7 +2410,7 @@ class GridCellDelegate(QStyledItemDelegate):
             self._render_markup(painter, rect, option, index)
 
         elif renderer == "image":
-            image = index.data(Qt.DecorationRole)
+            image = index.data(Qt.ItemDataRole.DecorationRole)
             if isinstance(image, QImage):
                 self._render_qimage(painter, rect, index)
             elif isinstance(image, str):
@@ -2461,10 +2495,10 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        if event.type() == QEvent.ShortcutOverride \
+        if event.type() == QEvent.Type.ShortcutOverride \
            and source is self.editor \
-           and event.modifiers() == Qt.ControlModifier \
-           and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+           and event.modifiers() == Qt.KeyboardModifier.ControlModifier \
+           and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
 
             code = quote(source.text())
             index = self.grid.currentIndex()
@@ -2526,7 +2560,7 @@ class TableChoice(QTabBar):
 
         """
 
-        super().__init__(shape=QTabBar.RoundedSouth)
+        super().__init__(shape=QTabBar.Shape.RoundedSouth)
         self.setExpanding(False)
 
         self.main_window = main_window
@@ -2589,7 +2623,7 @@ class TableChoice(QTabBar):
         actions = self.main_window.main_window_actions
 
         menu = TableChoiceContextMenu(actions)
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     # Event handlers
 

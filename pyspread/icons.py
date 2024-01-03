@@ -29,7 +29,7 @@
 """
 
 
-from PyQt5.QtGui import QIcon
+from PyQt6.QtGui import QIcon
 
 try:
     from pyspread.settings import (ICON_PATH, ACTION_PATH, STATUS_PATH,

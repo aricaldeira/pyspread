@@ -28,9 +28,9 @@
 
 from contextlib import contextmanager
 
-from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtGui import QTextOption, QKeyEvent
-from PyQt5.QtWidgets import QWidget, QMainWindow
+from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtGui import QTextOption, QKeyEvent
+from PyQt6.QtWidgets import QWidget, QMainWindow
 
 try:
     import pyspread.commands as commands
@@ -60,7 +60,7 @@ class Entryline(SpellTextEdit):
         min_height = self.cursorRect().y() + self.cursorRect().height() + 20
         self.setMinimumHeight(min_height)
 
-        self.setWordWrapMode(QTextOption.WrapAnywhere)
+        self.setWordWrapMode(QTextOption.WrapMode.WrapAnywhere)
 
         self.installEventFilter(self)
 
@@ -80,10 +80,10 @@ class Entryline(SpellTextEdit):
 
         """
 
-        if event.type() == QEvent.ShortcutOverride \
-           and event.modifiers() == Qt.ControlModifier \
+        if event.type() == QEvent.Type.ShortcutOverride \
+           and event.modifiers() == Qt.KeyboardModifier.ControlModifier \
            and source == self \
-           and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+           and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
 
             focused_grid = self.main_window.focused_grid
             code = quote(source.toPlainText())
@@ -123,8 +123,8 @@ class Entryline(SpellTextEdit):
 
         self.last_key = event.key()
 
-        if self.last_key in (Qt.Key_Enter, Qt.Key_Return):
-            if event.modifiers() == Qt.ShiftModifier:
+        if self.last_key in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            if event.modifiers() == Qt.KeyboardModifier.ShiftModifier:
                 self.insertPlainText('\n')
             else:
                 if grid.selection_mode:
@@ -132,13 +132,13 @@ class Entryline(SpellTextEdit):
                 else:
                     self.store_data()
                     grid.row += 1
-        elif self.last_key == Qt.Key_Tab:
+        elif self.last_key == Qt.Key.Key_Tab:
             self.store_data()
             grid.column += 1
-        elif self.last_key == Qt.Key_Escape:
+        elif self.last_key == Qt.Key.Key_Escape:
             grid.on_current_changed()
             grid.setFocus()
-        elif self.last_key == Qt.Key_Insert:
+        elif self.last_key == Qt.Key.Key_Insert:
             grid.set_selection_mode(not grid.selection_mode)
         else:
             super().keyPressEvent(event)

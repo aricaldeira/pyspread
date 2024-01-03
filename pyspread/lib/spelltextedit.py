@@ -119,13 +119,11 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 
 
 # pylint: disable=no-name-in-module
-from PyQt5.Qt import Qt
-from PyQt5.QtCore import QEvent, QRegExp, QSize, QRect, QRectF
-from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
-                         QTextCharFormat, QTextCursor, QColor, QFont,
-                         QFontMetricsF, QPainter, QPalette)
-from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
-                             QPlainTextEdit, QWidget)
+from PyQt6.QtCore import Qt, QEvent, QSize, QRect, QRectF
+from PyQt6.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
+                         QTextCharFormat, QTextCursor, QColor, QFont, QAction,
+                         QFontMetricsF, QPainter, QPalette, QActionGroup)
+from PyQt6.QtWidgets import QApplication, QMenu, QPlainTextEdit, QWidget
 
 try:
     from pyspread.actions import SpellTextEditActions
@@ -142,7 +140,7 @@ def format(color, style=''):
     _format = QTextCharFormat()
     _format.setForeground(_color)
     if 'bold' in style:
-        _format.setFontWeight(QFont.Bold)
+        _format.setFontWeight(QFont.Weight.Bold)
     if 'italic' in style:
         _format.setFontItalic(True)
 
@@ -183,8 +181,8 @@ class LineNumberArea(QWidget):
         painter = QPainter(self)
         palette = QPalette()
 
-        background_color = palette.color(QPalette.Window)
-        text_color = palette.color(QPalette.Text)
+        background_color = palette.color(QPalette.ColorRole.Window)
+        text_color = palette.color(QPalette.ColorRole.Text)
 
         painter.fillRect(event.rect(), background_color)
 
@@ -194,13 +192,14 @@ class LineNumberArea(QWidget):
         top = self.parent.blockBoundingGeometry(block).translated(offset).top()
         bottom = top + self.parent.blockBoundingRect(block).height()
 
-        height = self.parent.fontMetrics().height()
+        height = self.parent.fontMetrics().horizontalAdvance("Tg")
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
                 painter.setPen(text_color)
                 text_rect = QRectF(0, top, self.width(), height)
-                painter.drawText(text_rect, Qt.AlignRight, number)
+                painter.drawText(text_rect, Qt.AlignmentFlag.AlignRight,
+                                 number)
 
             block = block.next()
             top = bottom
@@ -235,8 +234,9 @@ class SpellTextEdit(QPlainTextEdit):
         try:
             _distance = QFontMetricsF(self.font()).horizontalAdvance(" ")
         except AttributeError:
-            # PyQt5 version < 5.11
-            _distance = QFontMetricsF(self.font()).boundingRect(" ").width()
+            # PyQt6 version < 5.11
+            _distance = QFontMetricsF(
+                self.font()).boundingRect(" ").horizontalAdvance()
 
         self.setTabStopDistance(_distance * self.spaces_per_tab)
 
@@ -278,7 +278,7 @@ class SpellTextEdit(QPlainTextEdit):
             return 0
 
         margin = 3
-        digit_width = self.fontMetrics().width('9')
+        digit_width = self.fontMetrics().horizontalAdvance('9')
         digits = int(log10(max(1, self.blockCount()))) + 1
 
         return margin + digit_width * digits
@@ -324,7 +324,7 @@ class SpellTextEdit(QPlainTextEdit):
     def keyPressEvent(self, event):
         """Overide to change tab into spaces_per_tab spaces"""
 
-        if event.key() == Qt.Key_Tab:
+        if event.key() == Qt.Key.Key_Tab:
             self.insertPlainText(" " * self.spaces_per_tab)
         else:
             super().keyPressEvent(event)
@@ -336,13 +336,13 @@ class SpellTextEdit(QPlainTextEdit):
             return
 
         popup_menu = self.createSpellcheckContextMenu(event.pos())
-        popup_menu.exec_(event.globalPos())
+        popup_menu.exec(event.globalPos())
 
         # Fix bug observed in Qt 5.2.1 on *buntu 14.04 LTS where:
         # 1. The cursor remains invisible after closing the context menu
         # 2. Keyboard input causes it to appear, but it doesn't blink
         # 3. Switching focus away from and back to the window fixes it
-        self.focusInEvent(QFocusEvent(QEvent.FocusIn))
+        self.focusInEvent(QFocusEvent(QEvent.Type.FocusIn))
 
     def createSpellcheckContextMenu(self, pos):
         """Create and return an augmented default context menu.
@@ -454,8 +454,10 @@ class SpellTextEdit(QPlainTextEdit):
             if start <= cursor.positionInBlock() <= end:
                 block_pos = cursor.block().position()
 
-                cursor.setPosition(block_pos + start, QTextCursor.MoveAnchor)
-                cursor.setPosition(block_pos + end, QTextCursor.KeepAnchor)
+                cursor.setPosition(block_pos + start,
+                                   QTextCursor.MoveMode.MoveAnchor)
+                cursor.setPosition(block_pos + end,
+                                   QTextCursor.MoveMode.KeepAnchor)
                 break
 
         if cursor.hasSelection():
@@ -500,8 +502,9 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
     # XXX: Does QSyntaxHighlighter.setFormat handle keeping this from
     #      clobbering styles set in the data itself?
     err_format = QTextCharFormat()
-    err_format.setUnderlineColor(Qt.red)
-    err_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
+    err_format.setUnderlineColor(Qt.GlobalColor.red)
+    err_format.setUnderlineStyle(
+        QTextCharFormat.UnderlineStyle.SpellCheckUnderline)
 
     # Python keywords
     keywords = keyword.kwlist
@@ -710,4 +713,4 @@ if __name__ == '__main__':
     spellEdit = SpellTextEdit()
     spellEdit.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

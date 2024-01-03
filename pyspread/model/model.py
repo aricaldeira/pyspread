@@ -68,7 +68,7 @@ from typing import (
 
 import numpy
 
-from PyQt5.QtGui import QImage, QPixmap  # Needed
+from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
     from matplotlib.figure import Figure
@@ -119,6 +119,7 @@ try:
     from pyspread.lib.exception_handling import get_user_codeframe
     from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
+    from pyspread.lib.string_helpers import ZEN
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
@@ -126,6 +127,7 @@ except ImportError:
     from lib.exception_handling import get_user_codeframe
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
+    from lib.string_helpers import ZEN
 
 
 def _R_(addr):
@@ -724,7 +726,7 @@ class DataArray:
             if isinstance(key_ele, slice):
                 # We have something slice-like here
 
-                length = key[axis]
+                length = self.shape[axis]
                 slice_range = range(*key_ele.indices(length))
                 single_keys_per_dim.append(slice_range)
 
@@ -1412,6 +1414,16 @@ class CodeArray(DataArray):
 
         """
 
+        # Help helper function that fixes help being displayed in stdout
+        def help(*args) -> str:
+            """Returns help string for object arguments"""
+
+            if not args:
+                return ZEN
+
+            from pydoc import render_doc, plaintext
+            return render_doc(*args, renderer=plaintext)
+
         # Flatten helper function
         def nn(val: numpy.array) -> numpy.array:
             """Returns flat numpy array without None values"""
@@ -1425,7 +1437,7 @@ class CodeArray(DataArray):
                                    dtype="O")
 
         env_dict = {'X': key[0], 'Y': key[1], 'Z': key[2], 'bz2': bz2,
-                    'base64': base64, 'nn': nn, 'Figure': Figure,
+                    'base64': base64, 'nn': nn, 'help': help, 'Figure': Figure,
                     'R': key[0], 'C': key[1], 'T': key[2], 'S': self}
         env = self._get_updated_environment(env_dict=env_dict)
 

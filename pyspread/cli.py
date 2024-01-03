@@ -33,7 +33,7 @@ from pathlib import Path
 import sys
 
 try:
-    import PyQt5.QtSvg as pyqtsvg
+    import PyQt6.QtSvg as pyqtsvg
 except ImportError:
     pyqtsvg = None
 
@@ -75,7 +75,7 @@ def check_mandatory_dependencies():
             dependency_warning(msg)
     if pyqtsvg is None:
         # Import of mandatory module failed
-        msg = "Required module PyQt5.QtSvg not found."
+        msg = "Required module PyQt6.QtSvg not found."
         dependency_warning(msg)
 
 

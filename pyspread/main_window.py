@@ -37,16 +37,16 @@ pyspread
 import os
 from pathlib import Path
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication,
-                             QMessageBox, QDockWidget, QUndoStack, QVBoxLayout,
+from PyQt6.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
+from PyQt6.QtWidgets import (QWidget, QMainWindow, QApplication,
+                             QMessageBox, QDockWidget, QVBoxLayout,
                              QStyleOptionViewItem, QSplitter)
 try:
-    from PyQt5.QtSvg import QSvgWidget
+    from PyQt6.QtSvgWidgets import QSvgWidget
 except ImportError:
     QSvgWidget = None
-from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
-from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from PyQt6.QtGui import QColor, QFont, QPalette, QPainter, QUndoStack
+from PyQt6.QtPrintSupport import QPrinter, QPrintDialog
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME
@@ -65,6 +65,7 @@ try:
                                   ManualDialog, TutorialDialog,
                                   PrintAreaDialog, PrintPreviewDialog)
     from pyspread.installer import DependenciesDialog
+    from pyspread.interfaces.pys import qt62qt5_fontweights
     from pyspread.panels import MacroPanel
     from pyspread.lib.hashing import genkey
     from pyspread.model.model import CellAttributes
@@ -83,6 +84,7 @@ except ImportError:
     from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
                          TutorialDialog, PrintAreaDialog, PrintPreviewDialog)
     from installer import DependenciesDialog
+    from interfaces.pys import qt62qt5_fontweights
     from panels import MacroPanel
     from lib.hashing import genkey
     from model.model import CellAttributes
@@ -91,8 +93,6 @@ except ImportError:
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class MainWindow(QMainWindow):
@@ -219,9 +219,9 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
 
-        self.vsplitter = QSplitter(Qt.Vertical, self)
-        self.hsplitter_1 = QSplitter(Qt.Horizontal, self)
-        self.hsplitter_2 = QSplitter(Qt.Horizontal, self)
+        self.vsplitter = QSplitter(Qt.Orientation.Vertical, self)
+        self.hsplitter_1 = QSplitter(Qt.Orientation.Horizontal, self)
+        self.hsplitter_2 = QSplitter(Qt.Orientation.Horizontal, self)
 
         # Set up the table choice first
         _no_tables = self.settings.shape[2]
@@ -243,13 +243,16 @@ class MainWindow(QMainWindow):
         self.entry_line_dock = QDockWidget("Entry Line", self)
         self.entry_line_dock.setObjectName("Entry Line Panel")
         self.entry_line_dock.setWidget(self.entry_line)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.entry_line_dock)
-        self.resizeDocks([self.entry_line_dock], [10], Qt.Horizontal)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,
+                           self.entry_line_dock)
+        self.resizeDocks([self.entry_line_dock], [10],
+                         Qt.Orientation.Horizontal)
 
         self.macro_dock = QDockWidget("Macros", self)
         self.macro_dock.setObjectName("Macro Panel")
         self.macro_dock.setWidget(self.macro_panel)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea,
+                           self.macro_dock)
 
         self.central_layout = QVBoxLayout(self.main_panel)
         self._layout()
@@ -303,7 +306,8 @@ class MainWindow(QMainWindow):
 
         """
 
-        if event.type() == QEvent.Close and isinstance(source, QDockWidget):
+        if event.type() == QEvent.Type.Close and isinstance(source,
+                                                            QDockWidget):
             if source.windowTitle() == "Macros":
                 self.main_window_actions.toggle_macro_dock.setChecked(False)
             elif source.windowTitle() == "Entry Line":
@@ -399,7 +403,7 @@ class MainWindow(QMainWindow):
         """Print event handler"""
 
         # Create printer
-        printer = QPrinter(mode=QPrinter.HighResolution)
+        printer = QPrinter(mode=QPrinter.PrinterMode.HighResolution)
 
         # Get print area
         self.print_area = PrintAreaDialog(self, self.grid,
@@ -409,7 +413,7 @@ class MainWindow(QMainWindow):
 
         # Create print dialog
         dialog = QPrintDialog(printer, self)
-        if dialog.exec_() == QPrintDialog.Accepted:
+        if dialog.exec() == QPrintDialog.Accepted:
             self.on_paint_request(printer)
 
         self.print_area = None
@@ -418,7 +422,7 @@ class MainWindow(QMainWindow):
         """Print preview event handler"""
 
         # Create printer
-        printer = QPrinter(mode=QPrinter.HighResolution)
+        printer = QPrinter(mode=QPrinter.PrinterMode.HighResolution)
 
         # Get print area
         self.print_area = PrintAreaDialog(self, self.grid,
@@ -430,7 +434,7 @@ class MainWindow(QMainWindow):
         dialog = PrintPreviewDialog(printer)
 
         dialog.paintRequested.connect(self.on_paint_request)
-        dialog.exec_()
+        dialog.exec()
 
         self.print_area = None
 
@@ -443,11 +447,9 @@ class MainWindow(QMainWindow):
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
-        painter.setRenderHints(QPainter.SmoothPixmapTransform
-                               | QPainter.Antialiasing
-                               | QPainter.LosslessImageRendering)
+        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform)
 
-        page_rect = printer.pageRect()
+        page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
 
         rows = list(self.workflows.get_paint_rows(self.print_area.top,
                                                   self.print_area.bottom))
@@ -504,11 +506,11 @@ class MainWindow(QMainWindow):
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
 
-        if self.windowState() == Qt.WindowFullScreen:
+        if self.windowState() == Qt.WindowState.WindowFullScreen:
             self.setWindowState(self._previous_window_state)
         else:
             self._previous_window_state = self.windowState()
-            self.setWindowState(Qt.WindowFullScreen)
+            self.setWindowState(Qt.WindowState.WindowFullScreen)
 
     def on_approve(self):
         """Approve event handler"""
@@ -548,7 +550,7 @@ class MainWindow(QMainWindow):
         """Dependancies installer (:class:`installer.InstallerDialog`) """
 
         dial = DependenciesDialog(self)
-        dial.exec_()
+        dial.exec()
 
     def on_undo(self):
         """Undo event handler"""
@@ -568,6 +570,7 @@ class MainWindow(QMainWindow):
         """
 
         if toggled:
+            self.grid.refresh_frozen_cells()
             self.refresh_timer.start(self.settings.refresh_timeout)
         else:
             self.refresh_timer.stop()
@@ -581,7 +584,7 @@ class MainWindow(QMainWindow):
         """
 
         if not self.entry_line.hasFocus() \
-           and self.grid.state() != self.grid.EditingState:
+           and self.grid.state() != self.grid.State.EditingState:
             self.grid.refresh_frozen_cells()
 
     def _toggle_widget(self, widget: QWidget, action_name: str, toggled: bool):
@@ -716,16 +719,18 @@ class MainWindow(QMainWindow):
         widgets = self.widgets
         menubar = self.menuBar()
 
-        is_bold = attributes.fontweight == QFont.Bold
+        is_bold = attributes.fontweight is not None and \
+            attributes.fontweight > qt62qt5_fontweights(QFont.Weight.Normal)
         self.main_window_actions.bold.setChecked(is_bold)
         self.main_window_toolbar_actions.bold.setChecked(is_bold)
 
-        is_italic = attributes.fontstyle == QFont.StyleItalic
+        is_italic = attributes.fontstyle == QFont.Style.StyleItalic
         self.main_window_actions.italics.setChecked(is_italic)
         self.main_window_toolbar_actions.italics.setChecked(is_italic)
 
         self.main_window_actions.underline.setChecked(attributes.underline)
-        self.main_window_toolbar_actions.underline.setChecked(attributes.underline)
+        self.main_window_toolbar_actions.underline.setChecked(
+            attributes.underline)
 
         self.main_window_actions.strikethrough.setChecked(
             attributes.strikethrough)
@@ -737,10 +742,12 @@ class MainWindow(QMainWindow):
         widgets.renderer_button.set_menu_checked(renderer)
 
         self.main_window_actions.freeze_cell.setChecked(attributes.frozen)
-        self.main_window_toolbar_actions.freeze_cell.setChecked(attributes.frozen)
+        self.main_window_toolbar_actions.freeze_cell.setChecked(
+            attributes.frozen)
 
         self.main_window_actions.lock_cell.setChecked(attributes.locked)
-        self.main_window_toolbar_actions.lock_cell.setChecked(attributes.locked)
+        self.main_window_toolbar_actions.lock_cell.setChecked(
+            attributes.locked)
         self.entry_line.setReadOnly(attributes.locked)
 
         self.main_window_actions.button_cell.setChecked(
@@ -770,19 +777,19 @@ class MainWindow(QMainWindow):
             self.format_toolbar.line_width_button.setIcon(icon)
 
         if attributes.textcolor is None:
-            text_color = self.grid.palette().color(QPalette.Text)
+            text_color = self.grid.palette().color(QPalette.ColorRole.Text)
         else:
             text_color = QColor(*attributes.textcolor)
         widgets.text_color_button.color = text_color
 
         if attributes.bordercolor_bottom is None:
-            line_color = self.grid.palette().color(QPalette.Mid)
+            line_color = self.grid.palette().color(QPalette.ColorRole.Mid)
         else:
             line_color = QColor(*attributes.bordercolor_bottom)
         widgets.line_color_button.color = line_color
 
         if attributes.bgcolor is None:
-            bgcolor = self.grid.palette().color(QPalette.Base)
+            bgcolor = self.grid.palette().color(QPalette.ColorRole.Base)
         else:
             bgcolor = QColor(*attributes.bgcolor)
         widgets.background_color_button.color = bgcolor

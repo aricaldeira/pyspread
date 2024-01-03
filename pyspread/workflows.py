@@ -38,13 +38,13 @@ from shutil import move
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Tuple
 
-from PyQt5.QtCore import (Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF,
+from PyQt6.QtCore import (Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF,
                           QItemSelectionModel, QSize)
-from PyQt5.QtGui import QTextDocument, QImage, QPainter
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QInputDialog,
-                             QStyleOptionViewItem, QTableView, QUndoCommand)
+from PyQt6.QtGui import QTextDocument, QImage, QPainter, QUndoCommand
+from PyQt6.QtWidgets import (QApplication, QMessageBox, QInputDialog,
+                             QStyleOptionViewItem, QTableView)
 try:
-    from PyQt5.QtSvg import QSvgGenerator
+    from PyQt6.QtSvg import QSvgGenerator
 except ImportError:
     QSvgGenerator = None
 
@@ -110,7 +110,7 @@ class Workflows:
     def busy_cursor(self):
         """:class:`~contextlib.contextmanager` that displays a busy cursor"""
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         yield
         QApplication.restoreOverrideCursor()
 
@@ -627,11 +627,13 @@ class Workflows:
                                        rows-row, columns-column)
 
             title = "CSV Content Exceeds Grid Shape"
-            choices = QMessageBox.No | QMessageBox.Yes | QMessageBox.Cancel
-            default_choice = QMessageBox.No
+            choices = QMessageBox.StandardButton.No \
+                | QMessageBox.StandardButton.Yes \
+                | QMessageBox.StandardButton.Cancel
+            default_choice = QMessageBox.StandardButton.No
             choice = QMessageBox.question(self.main_window, title, text,
                                           choices, default_choice)
-            if choice == QMessageBox.Yes:
+            if choice == QMessageBox.StandardButton.Yes:
                 # Resize grid
                 target_rows = min(max_rows, max(csv_rows + row, rows))
                 target_columns = min(max_columns,
@@ -640,7 +642,7 @@ class Workflows:
                 rows = target_rows
                 columns = target_columns
 
-            elif choice == QMessageBox.Cancel:
+            elif choice == QMessageBox.StandardButton.Cancel:
                 return
 
         # Now fill the grid
@@ -1407,7 +1409,7 @@ class Workflows:
             # Bitmap Image
             image = clipboard.image()
             buffer = QBuffer()
-            buffer.open(QBuffer.ReadWrite)
+            buffer.open(QBuffer.OpenModeFlag.ReadWrite)
             image.save(buffer, "PNG")
             buffer.seek(0)
             image_data = buffer.readAll()
@@ -1916,7 +1918,8 @@ class Workflows:
 
         index = grid.currentIndex()
         grid.clearSelection()
-        grid.selectionModel().select(index, QItemSelectionModel.Select)
+        grid.selectionModel().select(index,
+                                     QItemSelectionModel.SelectionFlag.Select)
 
         if filepath.suffix == ".svg":
             svg = self._read_svg_str(filepath, encoding='utf-8')
@@ -1958,12 +1961,13 @@ class Workflows:
         if code is not None:
             chart_dialog.editor.setPlainText(code)
 
-        if chart_dialog.exec_() == ChartDialog.Accepted:
+        if chart_dialog.exec() == ChartDialog.DialogCode.Accepted:
             code = chart_dialog.editor.toPlainText()
             grid.current = current
             index = grid.currentIndex()
             grid.clearSelection()
-            grid.selectionModel().select(index, QItemSelectionModel.Select)
+            grid.selectionModel().select(
+                index, QItemSelectionModel.SelectionFlag.Select)
             grid.on_matplotlib_renderer_pressed()
 
             description = f"Insert chart into cell {index}"
