@@ -48,6 +48,7 @@ import ast
 from base64 import b64decode, b85encode
 from collections import OrderedDict, defaultdict
 from typing import Any, BinaryIO, Callable, Iterable, Tuple
+from PyQt6.QtGui import QFont
 
 try:
     import pycel
@@ -110,10 +111,10 @@ class XlsxReader:
         self.code_array = code_array
         self.wb = load_workbook(xlsx_file)
 
-        self.bg_colors = defaultdict(list)
-
     def __iter__(self):
         """Iterates over self.xlsx_file, replacing everything in code_array"""
+
+        sheet_attrs = defaultdict(list)
 
         for worksheet_name in self.wb.sheetnames:
             worksheet = self.wb[worksheet_name]
@@ -123,13 +124,66 @@ class XlsxReader:
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
                     key = row_idx, cell.col_idx, table_idx
+                    skey = key[:2]  # sheet key
+
+                    # Code
+                    # ----
 
                     self._xlsx2code(key, cell)
 
-                    # Cell format
-                    rgb = self.xlsx_rgba2rgb(cell.fill.bgColor.rgb)
-                    if rgb is not None:
-                        self.bg_colors[rgb].append(key[:2])
+                    # Cell formatting
+                    # ---------------
+
+                    # Cell background color
+                    try:
+                        bg_rgb = self.xlsx_rgba2rgb(cell.fill.bgColor.rgb)
+                        sheet_attrs[("bgcolor", bg_rgb)].append(skey)
+                    except ValueError:
+                        pass
+
+                    # Text color
+                    try:
+                        text_rgb = self.xlsx_rgba2rgb(cell.font.color.rgb)
+                        sheet_attrs[("textcolor", text_rgb)].append(skey)
+                    except (AttributeError, ValueError):
+                        pass
+
+                    # Text font
+                    try:
+                        sheet_attrs[("textfont", cell.font.name)].append(skey)
+                    except ValueError:
+                        pass
+
+                    # Text size
+                    try:
+                        sheet_attrs[("pointsize", cell.font.size)].append(skey)
+                    except ValueError:
+                        pass
+                    # Text weight
+                    try:
+                        if cell.font.bold:
+                            sheet_attrs[("fontweight", 75)].append(skey)
+                    except ValueError:
+                        pass
+                    # Text style
+                    try:
+                        if cell.font.italic:
+                            sheet_attrs[("fontstyle",
+                                         QFont.Style.StyleItalic)].append(skey)
+                    except ValueError:
+                        pass
+                    # Text underline
+                    try:
+                        if cell.font.underline:
+                            sheet_attrs[("underline", True)].append(skey)
+                    except ValueError:
+                        pass
+                    # Text strikethrough
+                    try:
+                        if cell.font.strike:
+                            sheet_attrs[("strikethrough", True)].append(skey)
+                    except ValueError:
+                        pass
 
                     # print(cell.fill, cell.alignment, cell.border, cell.fill,
                     #       cell.font, cell.has_style, cell.hyperlink,
@@ -137,13 +191,22 @@ class XlsxReader:
 
                     yield key
 
-            for bg_color in self.bg_colors:
-                selection = Selection([], [], [], [], self.bg_colors[bg_color])
-                attr_dict = AttrDict([("bgcolor", bg_color)])
-                attr = CellAttribute(selection, table_idx, attr_dict)
-                self.code_array.cell_attributes.append(attr)
-            self.bg_colors.clear()
-#     self.code_array.cell_attributes.append(attr)
+            self.append_sheet_attributes(table_idx, sheet_attrs)
+            sheet_attrs.clear()
+
+    def append_sheet_attributes(self, table: int, sheet_attrs: dict):
+        """Creates selections from attributes in  sheet_attrs and appends them
+
+        :param table: Current table
+        :param sheet_attrs: Dict mapping (attr_name, attr values) to key list
+
+        """
+
+        for sheet_attr in sheet_attrs:
+            selection = Selection([], [], [], [], sheet_attrs[sheet_attr])
+            attr_dict = AttrDict([sheet_attr])
+            cell_attr = CellAttribute(selection, table, attr_dict)
+            self.code_array.cell_attributes.append(cell_attr)
 
     @staticmethod
     def xlsx_rgba2rgb(rgb: str) -> (int, int, int):
@@ -155,7 +218,7 @@ class XlsxReader:
 
         if rgb[:2] == "00":
             # Transparent cell
-            return
+            raise ValueError("Color is transparent")
 
         r = int(rgb[2:4], 16)
         g = int(rgb[4:6], 16)
@@ -170,7 +233,7 @@ class XlsxReader:
 
         """
 
-        if cell.data_type == "n" or pycel is None:
+        if cell.data_type in ("n", "s") or pycel is None:
             code = repr(cell.value)
         elif cell.data_type == "f":
             # Convert formula via pycel
