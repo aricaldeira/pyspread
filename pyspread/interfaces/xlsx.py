@@ -46,7 +46,7 @@ XlsReader and XlsWriter classed are structured into the following sections:
 
 import ast
 from base64 import b64decode, b85encode
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from typing import Any, BinaryIO, Callable, Iterable, Tuple
 
 try:
@@ -110,6 +110,8 @@ class XlsxReader:
         self.code_array = code_array
         self.wb = load_workbook(xlsx_file)
 
+        self.bg_colors = defaultdict(list)
+
     def __iter__(self):
         """Iterates over self.xlsx_file, replacing everything in code_array"""
 
@@ -125,7 +127,41 @@ class XlsxReader:
                     self._xlsx2code(key, cell)
 
                     # Cell format
+                    rgb = self.xlsx_rgba2rgb(cell.fill.bgColor.rgb)
+                    if rgb is not None:
+                        self.bg_colors[rgb].append(key[:2])
+
+                    # print(cell.fill, cell.alignment, cell.border, cell.fill,
+                    #       cell.font, cell.has_style, cell.hyperlink,
+                    #       cell.is_date, cell.number_format, cell.protection)
+
                     yield key
+
+            for bg_color in self.bg_colors:
+                selection = Selection([], [], [], [], self.bg_colors[bg_color])
+                attr_dict = AttrDict([("bgcolor", bg_color)])
+                attr = CellAttribute(selection, table_idx, attr_dict)
+                self.code_array.cell_attributes.append(attr)
+            self.bg_colors.clear()
+#     self.code_array.cell_attributes.append(attr)
+
+    @staticmethod
+    def xlsx_rgba2rgb(rgb: str) -> (int, int, int):
+        """Converts rgba string from xlsx to rgb tuple
+
+        :param rgb: rgba string from xlsx
+
+        """
+
+        if rgb[:2] == "00":
+            # Transparent cell
+            return
+
+        r = int(rgb[2:4], 16)
+        g = int(rgb[4:6], 16)
+        b = int(rgb[6:8], 16)
+
+        return r, g, b
 
     def _xlsx2code(self, key: (int, int, int),  cell: Cell):
         """Updates code in pys code_array
