@@ -185,6 +185,29 @@ class XlsxReader:
                     except ValueError:
                         pass
 
+                    if cell.alignment.horizontal == "left":
+                        sheet_attrs[("justification",
+                                     "justify_left")].append(skey)
+                    elif cell.alignment.horizontal == "center":
+                        sheet_attrs[("justification",
+                                     "justify_center")].append(skey)
+                    elif cell.alignment.horizontal == "justify":
+                        sheet_attrs[("justification",
+                                     "justify_fill")].append(skey)
+                    elif cell.alignment.horizontal == "right":
+                        sheet_attrs[("justification",
+                                     "justify_right")].append(skey)
+
+                    if cell.alignment.vertical == "top":
+                        sheet_attrs[("vertical_align",
+                                     "align_top")].append(skey)
+                    elif cell.alignment.vertical == "center":
+                        sheet_attrs[("vertical_align",
+                                     "align_center")].append(skey)
+                    elif cell.alignment.vertical == "bottom":
+                        sheet_attrs[("vertical_align",
+                                     "align_bottom")].append(skey)
+
                     # print(cell.fill, cell.alignment, cell.border, cell.fill,
                     #       cell.font, cell.has_style, cell.hyperlink,
                     #       cell.is_date, cell.number_format, cell.protection)
@@ -241,8 +264,7 @@ class XlsxReader:
             code = ex.python_code
         else:
             code = repr(cell.value)
-            raise Warning(
-                f"Excel data type {cell.data_type} unknown.")
+            raise Warning(f"Excel data type {cell.data_type} unknown.")
 
         self.code_array.dict_grid[key] = code
 
