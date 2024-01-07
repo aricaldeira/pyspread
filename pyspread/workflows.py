@@ -395,7 +395,6 @@ class Workflows:
         if not dial.file_path:
             return  # Cancel pressed
         filepath = Path(dial.file_path).with_suffix(dial.suffix)
-        print(dial.suffix)
 
         self.filepath_open(filepath)
 

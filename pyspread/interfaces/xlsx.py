@@ -69,6 +69,8 @@ except ImportError:
     from model.model import CellAttribute, CodeArray
 
 
+BORDERWIDTH_XLSX2PYSU = {"hair": 0, "thin": 1, "medium": 4, "thick": 8}
+
 # def wxcolor2rgb(wxcolor: int) -> Tuple[int, int, int]:
 #     """Returns red, green, blue for given wxPython binary color value
 
@@ -207,6 +209,56 @@ class XlsxReader:
                     elif cell.alignment.vertical == "bottom":
                         sheet_attrs[("vertical_align",
                                      "align_bottom")].append(skey)
+
+                    if cell.border.bottom.style is not None:
+                        width = BORDERWIDTH_XLSX2PYSU[cell.border.bottom.style]
+                        sheet_attrs[("borderwidth_bottom", width)].append(skey)
+
+                    try:
+                        rgb = cell.border.bottom.color.rgb
+                        color = self.xlsx_rgba2rgb(rgb)
+                        sheet_attrs[("bordercolor_bottom", color)].append(skey)
+                    except AttributeError:
+                        pass
+
+                    if cell.border.right.style is not None:
+                        width = BORDERWIDTH_XLSX2PYSU[cell.border.right.style]
+                        sheet_attrs[("borderwidth_right", width)].append(skey)
+
+                    try:
+                        rgb = cell.border.right.color.rgb
+                        color = self.xlsx_rgba2rgb(rgb)
+                        sheet_attrs[("bordercolor_right", color)].append(skey)
+                    except AttributeError:
+                        pass
+
+                    # if cell.border.top.style is not None:
+                    #     print(skey)
+                    #     width = BORDERWIDTH_XLSX2PYSU[cell.border.top.style]
+                    #     sheet_attrs[("borderwidth_bottom", width)].append(skey)
+
+                    #     try:
+                    #         rgb = cell.border.top.style.color.rgb
+                    #         color = self.xlsx_rgba2rgb(rgb)
+                    #         skey_above = skey[0]-1, skey[1]
+                    #         sheet_attrs[("bordercolor_bottom",
+                    #                      color)].append(skey_above)
+                    #     except AttributeError:
+                    #         pass
+
+                    # if cell.border.left.style is not None:
+                    #     print(skey)
+                    #     width = BORDERWIDTH_XLSX2PYSU[cell.border.left.style]
+                    #     sheet_attrs[("borderwidth_right", width)].append(skey)
+
+                    #     try:
+                    #         rgb = cell.border.left.style.color.rgb
+                    #         color = self.xlsx_rgba2rgb(rgb)
+                    #         skey_left = skey[0], skey[1]-1
+                    #         sheet_attrs[("bordercolor_right",
+                    #                      color)].append(skey_left)
+                    #     except AttributeError:
+                    #         pass
 
                     # print(cell.fill, cell.alignment, cell.border, cell.fill,
                     #       cell.font, cell.has_style, cell.hyperlink,

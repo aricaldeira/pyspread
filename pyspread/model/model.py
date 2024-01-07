@@ -86,19 +86,6 @@ try:
     import pycel.lib.stats
     import pycel.lib.text
 
-    xl_members = getmembers(pycel.excellib)
-    xl_members += getmembers(pycel.lib.date_time)
-    xl_members += getmembers(pycel.lib.engineering)
-    xl_members += getmembers(pycel.lib.information)
-    xl_members += getmembers(pycel.lib.logical)
-    xl_members += getmembers(pycel.lib.lookup)
-    xl_members += getmembers(pycel.lib.stats)
-    xl_members += getmembers(pycel.lib.text)
-    XL_LIST = [n for n, _ in xl_members]
-
-    for name, fun in xl_members:
-        globals()[name] = fun
-
 except ImportError:
     pycel = None
 
@@ -128,6 +115,22 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
+
+
+def update_xl_list():
+    if pycel is not None:
+        xl_members = getmembers(pycel.excellib)
+        xl_members += getmembers(pycel.lib.date_time)
+        xl_members += getmembers(pycel.lib.engineering)
+        xl_members += getmembers(pycel.lib.information)
+        xl_members += getmembers(pycel.lib.logical)
+        xl_members += getmembers(pycel.lib.lookup)
+        xl_members += getmembers(pycel.lib.stats)
+        xl_members += getmembers(pycel.lib.text)
+        XL_LIST = [n for n, _ in xl_members]
+
+        for name, fun in xl_members:
+            globals()[name] = fun
 
 
 def _R_(addr):
@@ -1538,6 +1541,19 @@ class CodeArray(DataArray):
             pycel = None
 
         if pycel is not None:
+            from inspect import getmembers
+            xl_members = getmembers(pycel.excellib)
+            xl_members += getmembers(pycel.lib.date_time)
+            xl_members += getmembers(pycel.lib.engineering)
+            xl_members += getmembers(pycel.lib.information)
+            xl_members += getmembers(pycel.lib.logical)
+            xl_members += getmembers(pycel.lib.lookup)
+            xl_members += getmembers(pycel.lib.stats)
+            xl_members += getmembers(pycel.lib.text)
+            XL_LIST = [n for n, _ in xl_members]
+
+        for name, fun in xl_members:
+            globals()[name] = fun
             base_keys += XL_LIST
 
         for key in list(globals().keys()):
