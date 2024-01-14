@@ -286,7 +286,7 @@ class Workflows:
         except OSError:
             self.main_window.safe_mode = True
 
-        # File compression handling
+        # File format handling
         if filepath.suffix == ".pysu":
             fopen = open
         else:
@@ -343,6 +343,8 @@ class Workflows:
 
             # Update index widgets
             grid.update_index_widgets()
+
+            grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
             # Select upper left cell because initial selection oddities
             grid.reset_selection()
