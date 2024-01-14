@@ -125,7 +125,7 @@ class XlsxReader:
             table_idx = self.wb.sheetnames.index(worksheet_name)
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
-                    key = row_idx, cell.col_idx, table_idx
+                    key = row_idx, cell.col_idx-1, table_idx
                     skey = key[:2]  # sheet key
 
                     # Code
