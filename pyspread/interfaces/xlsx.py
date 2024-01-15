@@ -126,155 +126,17 @@ class XlsxReader:
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
                     key = row_idx, cell.col_idx-1, table_idx
-                    skey = row_idx, cell.col_idx-1  # sheet key
-                    skey_above = row_idx-1, cell.col_idx-1
-                    skey_left = row_idx, cell.col_idx-2
 
                     # Code
                     # ----
 
                     self._xlsx2code(key, cell)
 
-                    # Cell formatting
+                    # Cell attributes
                     # ---------------
 
-                    # Cell background color
-                    try:
-                        bg_rgb = self.xlsx_rgba2rgb(cell.fill.bgColor.rgb)
-                        sheet_attrs[("bgcolor", bg_rgb)].append(skey)
-                    except ValueError:
-                        pass
+                    self._xlsx2attributes(key, cell, sheet_attrs)
 
-                    # Text color
-                    try:
-                        text_rgb = self.xlsx_rgba2rgb(cell.font.color.rgb)
-                        sheet_attrs[("textcolor", text_rgb)].append(skey)
-                    except (AttributeError, ValueError):
-                        pass
-
-                    # Text font
-                    try:
-                        sheet_attrs[("textfont", cell.font.name)].append(skey)
-                    except ValueError:
-                        pass
-
-                    # Text size
-                    try:
-                        sheet_attrs[("pointsize", cell.font.size)].append(skey)
-                    except ValueError:
-                        pass
-                    # Text weight
-                    try:
-                        if cell.font.bold:
-                            sheet_attrs[("fontweight", 75)].append(skey)
-                    except ValueError:
-                        pass
-                    # Text style
-                    try:
-                        if cell.font.italic:
-                            sheet_attrs[("fontstyle",
-                                         QFont.Style.StyleItalic)].append(skey)
-                    except ValueError:
-                        pass
-                    # Text underline
-                    try:
-                        if cell.font.underline:
-                            sheet_attrs[("underline", True)].append(skey)
-                    except ValueError:
-                        pass
-                    # Text strikethrough
-                    try:
-                        if cell.font.strike:
-                            sheet_attrs[("strikethrough", True)].append(skey)
-                    except ValueError:
-                        pass
-
-                    if cell.alignment.horizontal == "left":
-                        sheet_attrs[("justification",
-                                     "justify_left")].append(skey)
-                    elif cell.alignment.horizontal == "center":
-                        sheet_attrs[("justification",
-                                     "justify_center")].append(skey)
-                    elif cell.alignment.horizontal == "justify":
-                        sheet_attrs[("justification",
-                                     "justify_fill")].append(skey)
-                    elif cell.alignment.horizontal == "right":
-                        sheet_attrs[("justification",
-                                     "justify_right")].append(skey)
-
-                    if cell.alignment.vertical == "top":
-                        sheet_attrs[("vertical_align",
-                                     "align_top")].append(skey)
-                    elif cell.alignment.vertical == "center":
-                        sheet_attrs[("vertical_align",
-                                     "align_center")].append(skey)
-                    elif cell.alignment.vertical == "bottom":
-                        sheet_attrs[("vertical_align",
-                                     "align_bottom")].append(skey)
-
-                    if cell.border.bottom.style is not None:
-                        width = BORDERWIDTH_XLSX2PYSU[cell.border.bottom.style]
-                        sheet_attrs[("borderwidth_bottom", width)].append(skey)
-
-                    try:
-                        rgb = cell.border.bottom.color.rgb
-                        color = self.xlsx_rgba2rgb(rgb)
-                        sheet_attrs[("bordercolor_bottom", color)].append(skey)
-                    except AttributeError:
-                        if cell.border.bottom.style is not None \
-                           and width is not None:
-                            color = 0, 0, 0
-                            sheet_attrs[("bordercolor_bottom",
-                                         color)].append(skey)
-
-                    if cell.border.right.style is not None:
-                        width = BORDERWIDTH_XLSX2PYSU[cell.border.right.style]
-                        sheet_attrs[("borderwidth_right", width)].append(skey)
-
-                    try:
-                        rgb = cell.border.right.color.rgb
-                        color = self.xlsx_rgba2rgb(rgb)
-                        sheet_attrs[("bordercolor_right", color)].append(skey)
-                    except AttributeError:
-                        if cell.border.right.style is not None \
-                           and width is not None:
-                            color = 0, 0, 0
-                            sheet_attrs[("bordercolor_right",
-                                         color)].append(skey)
-
-                    if cell.border.top.style is not None:
-                        width = BORDERWIDTH_XLSX2PYSU[cell.border.top.style]
-                        sheet_attrs[("borderwidth_bottom",
-                                     width)].append(skey_above)
-
-                    try:
-                        rgb = cell.border.top.color.rgb
-                        color = self.xlsx_rgba2rgb(rgb)
-                        sheet_attrs[("bordercolor_bottom",
-                                     color)].append(skey_above)
-                    except AttributeError:
-                        if cell.border.top.style is not None \
-                           and width is not None:
-                            color = 0, 0, 0
-                            sheet_attrs[("bordercolor_bottom",
-                                         color)].append(skey_above)
-
-                    if cell.border.left.style is not None:
-                        width = BORDERWIDTH_XLSX2PYSU[cell.border.left.style]
-                        sheet_attrs[("borderwidth_right",
-                                     width)].append(skey_left)
-
-                    try:
-                        rgb = cell.border.left.color.rgb
-                        color = self.xlsx_rgba2rgb(rgb)
-                        sheet_attrs[("bordercolor_right",
-                                     color)].append(skey_left)
-                    except AttributeError:
-                        if cell.border.left.style is not None \
-                           and width is not None:
-                            color = 0, 0, 0
-                            sheet_attrs[("bordercolor_right",
-                                         color)].append(skey_left)
 
                     # print(cell.fill, cell.alignment, cell.border, cell.fill,
                     #       cell.font, cell.has_style, cell.hyperlink,
@@ -318,8 +180,9 @@ class XlsxReader:
         return r, g, b
 
     def _xlsx2code(self, key: (int, int, int),  cell: Cell):
-        """Updates code in pys code_array
+        """Updates code in code_array
 
+        :param key: Pyspread cell key
         :param cell: Cell object from openpyxl
 
         """
@@ -335,6 +198,153 @@ class XlsxReader:
             raise Warning(f"Excel data type {cell.data_type} unknown.")
 
         self.code_array.dict_grid[key] = code
+
+    def _xlsx2attributes(self, key: (int, int, int), cell: Cell, sheet_attrs):
+        """Updates attributes in code_array
+
+        :param key: Pyspread cell key
+        :param cell: Cell object from openpyxl
+        :param sheet_attrs: Sheet attribute dict
+
+        """
+
+        skey = key[0], key[1]  # sheet key
+        skey_above = key[0] - 1, key[1]
+        skey_left = key[0], key[1] - 1
+
+        # Cell background color
+        try:
+            bg_rgb = self.xlsx_rgba2rgb(cell.fill.bgColor.rgb)
+            sheet_attrs[("bgcolor", bg_rgb)].append(skey)
+        except ValueError:
+            pass
+
+        # Text color
+        try:
+            text_rgb = self.xlsx_rgba2rgb(cell.font.color.rgb)
+            sheet_attrs[("textcolor", text_rgb)].append(skey)
+        except (AttributeError, ValueError):
+            pass
+
+
+        # Text font
+        try:
+            sheet_attrs[("textfont", cell.font.name)].append(skey)
+        except ValueError:
+            pass
+
+        # Text size
+        try:
+            sheet_attrs[("pointsize", cell.font.size)].append(skey)
+        except ValueError:
+            pass
+        # Text weight
+        try:
+            if cell.font.bold:
+                sheet_attrs[("fontweight", 75)].append(skey)
+        except ValueError:
+            pass
+        # Text style
+        try:
+            if cell.font.italic:
+                sheet_attrs[("fontstyle",
+                             QFont.Style.StyleItalic)].append(skey)
+        except ValueError:
+            pass
+        # Text underline
+        try:
+            if cell.font.underline:
+                sheet_attrs[("underline", True)].append(skey)
+        except ValueError:
+            pass
+        # Text strikethrough
+        try:
+            if cell.font.strike:
+                sheet_attrs[("strikethrough", True)].append(skey)
+        except ValueError:
+            pass
+
+        if cell.alignment.horizontal == "left":
+            sheet_attrs[("justification",
+                         "justify_left")].append(skey)
+        elif cell.alignment.horizontal == "center":
+            sheet_attrs[("justification",
+                         "justify_center")].append(skey)
+        elif cell.alignment.horizontal == "justify":
+            sheet_attrs[("justification",
+                         "justify_fill")].append(skey)
+        elif cell.alignment.horizontal == "right":
+            sheet_attrs[("justification",
+                         "justify_right")].append(skey)
+
+        if cell.alignment.vertical == "top":
+            sheet_attrs[("vertical_align",
+                         "align_top")].append(skey)
+        elif cell.alignment.vertical == "center":
+            sheet_attrs[("vertical_align",
+                         "align_center")].append(skey)
+        elif cell.alignment.vertical == "bottom":
+            sheet_attrs[("vertical_align",
+                         "align_bottom")].append(skey)
+
+        if cell.border.bottom.style is not None:
+            width = BORDERWIDTH_XLSX2PYSU[cell.border.bottom.style]
+            sheet_attrs[("borderwidth_bottom", width)].append(skey)
+
+        try:
+            rgb = cell.border.bottom.color.rgb
+            color = self.xlsx_rgba2rgb(rgb)
+            sheet_attrs[("bordercolor_bottom", color)].append(skey)
+        except AttributeError:
+            if cell.border.bottom.style is not None and width is not None:
+                color = 0, 0, 0
+                sheet_attrs[("bordercolor_bottom", color)].append(skey)
+
+        if cell.border.right.style is not None:
+            width = BORDERWIDTH_XLSX2PYSU[cell.border.right.style]
+            sheet_attrs[("borderwidth_right", width)].append(skey)
+
+        try:
+            rgb = cell.border.right.color.rgb
+            color = self.xlsx_rgba2rgb(rgb)
+            sheet_attrs[("bordercolor_right", color)].append(skey)
+        except AttributeError:
+            if cell.border.right.style is not None and width is not None:
+                color = 0, 0, 0
+                sheet_attrs[("bordercolor_right",
+                             color)].append(skey)
+
+        if cell.border.top.style is not None:
+            width = BORDERWIDTH_XLSX2PYSU[cell.border.top.style]
+            sheet_attrs[("borderwidth_bottom",
+                         width)].append(skey_above)
+
+        try:
+            rgb = cell.border.top.color.rgb
+            color = self.xlsx_rgba2rgb(rgb)
+            sheet_attrs[("bordercolor_bottom",
+                         color)].append(skey_above)
+        except AttributeError:
+            if cell.border.top.style is not None and width is not None:
+                color = 0, 0, 0
+                sheet_attrs[("bordercolor_bottom",
+                             color)].append(skey_above)
+
+        if cell.border.left.style is not None:
+            width = BORDERWIDTH_XLSX2PYSU[cell.border.left.style]
+            sheet_attrs[("borderwidth_right",
+                         width)].append(skey_left)
+
+        try:
+            rgb = cell.border.left.color.rgb
+            color = self.xlsx_rgba2rgb(rgb)
+            sheet_attrs[("bordercolor_right",
+                         color)].append(skey_left)
+        except AttributeError:
+            if cell.border.left.style is not None and width is not None:
+                color = 0, 0, 0
+                sheet_attrs[("bordercolor_right",
+                             color)].append(skey_left)
 
 
     # def _attr_convert_1to2(self, key: str, value: Any) -> Tuple[str, Any]:
