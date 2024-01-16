@@ -33,7 +33,7 @@ import sys
 
 import pytest
 
-from PyQt5.QtWidgets import QApplication, QAbstractItemView
+from PyQt6.QtWidgets import QApplication, QAbstractItemView
 
 
 PYSPREADPATH = abspath(join(dirname(__file__) + "/.."))

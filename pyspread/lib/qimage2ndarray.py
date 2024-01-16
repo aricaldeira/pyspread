@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy
 import sys
 
-from PyQt5.QtGui import QImage
+from PyQt6.QtGui import QImage
 
 
 if sys.byteorder == 'little':
@@ -51,18 +51,16 @@ else:
     _bgra = (3, 2, 1, 0)
 
 
-validFormats_8bit = [getattr(QImage, name)
-                     for name in ('Format_Indexed8', 'Format_Grayscale8')
-                     if name in dir(QImage)]
+validFormats_8bit = (QImage.Format.Format_Indexed8,
+                     QImage.Format.Format_Grayscale8)
 
-
-validFormats_32bit = (QImage.Format_RGB32,
-                      QImage.Format_ARGB32,
-                      QImage.Format_ARGB32_Premultiplied)
+validFormats_32bit = (QImage.Format.Format_RGB32,
+                      QImage.Format.Format_ARGB32,
+                      QImage.Format.Format_ARGB32_Premultiplied)
 
 
 def PyQt_data(image):
-    # PyQt4/PyQt5's QImage.bits() returns a sip.voidptr that supports
+    # PyQt4/PyQt6's QImage.bits() returns a sip.voidptr that supports
     # conversion to string via asstring(size) or getting its base
     # address via int(...):
     return (int(image.bits()), False)
@@ -82,12 +80,12 @@ def qimageview(image):
     elif format in validFormats_32bit:
         dtype = "|u4"
         strides1 = 4
-    elif format == QImage.Format_Invalid:
+    elif format == QImage.Format.Format_Invalid:
         raise ValueError("qimageview got invalid QImage")
     else:
-        tpl = ("qimageview can only handle 8- or 32-bit QImages "
-               "(format was {})")
-        raise ValueError(tpl.format(format))
+        msg = (f"qimageview can only handle 8- or 32-bit QImages "
+               f"(format was {format})")
+        raise ValueError(msg)
 
     image.__array_interface__ = {
         'shape': shape,
@@ -298,7 +296,7 @@ def array2qimage(array, normalize=False):
     h, w, channels = array.shape
 
     hasAlpha = numpy.ma.is_masked(array) or channels in (2, 4)
-    fmt = QImage.Format_ARGB32 if hasAlpha else QImage.Format_RGB32
+    fmt = QImage.Format.Format_ARGB32 if hasAlpha else QImage.Format.Format_RGB32
 
     result = QImage(w, h, fmt)
 

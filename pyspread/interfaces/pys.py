@@ -35,6 +35,8 @@ PysReader and PysWriter classed are structured into the following sections:
 **Provides**
 
  * :func:`wxcolor2rgb`
+ * :func:`qt52qt6_fontweights`
+ * :func:`qt62qt5_fontweights`
  * :dict:`wx2qt_fontweights`
  * :dict:`wx2qt_fontstyles`
  * :class:`PysReader`
@@ -73,9 +75,21 @@ def wxcolor2rgb(wxcolor: int) -> Tuple[int, int, int]:
     return red, green, blue
 
 
+def qt52qt6_fontweights(qt5_weight):
+    """Approximates the mapping from Qt5 to Qt6 font weight"""
+
+    return int((qt5_weight - 20) * 13.5)
+
+
+def qt62qt5_fontweights(qt6_weight):
+    """Approximates the mapping from Qt6 to Qt5 font weight"""
+
+    return int(qt6_weight / 13.5 + 20)
+
+
 wx2qt_fontweights = {
     90: 50,  # wx.FONTWEIGHT_NORMAL
-    91: 25,  # wx.FONTWEIGHT_LIGHT
+    91: 40,  # wx.FONTWEIGHT_LIGHT
     92: 75,  # wx.FONTWEIGHT_BOLD
     93: 87,  # wx.FONTWEIGHT_MAX
     }

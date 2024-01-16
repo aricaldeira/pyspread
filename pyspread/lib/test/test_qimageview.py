@@ -46,7 +46,7 @@ import sys
 
 import pytest
 
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 
 from .compat import setNumColors, numBytes
 
@@ -73,7 +73,7 @@ def assert_equal(a, b):
 
 
 def test_viewcreation():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_RGB32)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_RGB32)
     v = _qimageview(qimg)
     assert_equal(v.shape, (240, 320))
     assert v.base is not None
@@ -90,7 +90,7 @@ def test_qimageview_noargs():
 
 
 def test_qimageview_manyargs():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_Indexed8)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_Indexed8)
     with pytest.raises(TypeError):
         _qimageview(qimg, 1)
 
@@ -101,7 +101,7 @@ def test_qimageview_wrongarg():
 
 
 def test_data_access():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_Indexed8)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_Indexed8)
     setNumColors(qimg, 256)
     qimg.fill(42)
     v = _qimageview(qimg)
@@ -111,7 +111,7 @@ def test_data_access():
 
 
 def test_being_view():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_Indexed8)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_Indexed8)
     setNumColors(qimg, 256)
     qimg.fill(23)
     v = _qimageview(qimg)
@@ -122,7 +122,7 @@ def test_being_view():
 
 
 def test_coordinate_access():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_Indexed8)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_Indexed8)
     setNumColors(qimg, 256)
     qimg.fill(0)
     v = _qimageview(qimg)
@@ -135,7 +135,7 @@ def test_coordinate_access():
 
 
 def test_odd_size_8bit():
-    qimg = QtGui.QImage(321, 240, QtGui.QImage.Format_Indexed8)
+    qimg = QtGui.QImage(321, 240, QtGui.QImage.Format.Format_Indexed8)
     setNumColors(qimg, 256)
     qimg.fill(0)
     v = _qimageview(qimg)
@@ -146,7 +146,7 @@ def test_odd_size_8bit():
 
 
 def test_odd_size_32bit():
-    qimg = QtGui.QImage(321, 240, QtGui.QImage.Format_ARGB32)
+    qimg = QtGui.QImage(321, 240, QtGui.QImage.Format.Format_ARGB32)
     qimg.fill(0)
     v = _qimageview(qimg)
     qimg.setPixel(12, 10, 42)
@@ -156,7 +156,7 @@ def test_odd_size_32bit():
 
 
 def test_odd_size_32bit_rgb():
-    qimg = QtGui.QImage(321, 240, QtGui.QImage.Format_RGB32)
+    qimg = QtGui.QImage(321, 240, QtGui.QImage.Format.Format_RGB32)
     qimg.fill(0)
     v = _qimageview(qimg)
     qimg.setPixel(12, 10, 42)
@@ -167,12 +167,12 @@ def test_odd_size_32bit_rgb():
 
 
 def test_mono():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_Mono)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_Mono)
     with pytest.raises(ValueError):
         _qimageview(qimg)
 
 
 def test_rgb666():
-    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format_RGB666)
+    qimg = QtGui.QImage(320, 240, QtGui.QImage.Format.Format_RGB666)
     with pytest.raises(ValueError):
         _qimageview(qimg)

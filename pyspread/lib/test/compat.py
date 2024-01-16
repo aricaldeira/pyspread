@@ -55,7 +55,7 @@ def numBytes(qimage):
     try:
         return qimage.numBytes()
     except AttributeError:
-        return qimage.byteCount()
+        return qimage.sizeInBytes()
 
 
 def numColors(qimage):

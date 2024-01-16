@@ -32,8 +32,8 @@ from pathlib import Path
 from platform import system
 from typing import Any
 
-from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QToolBar, QWidget
+from PyQt6.QtCore import QSettings
+from PyQt6.QtWidgets import QToolBar, QWidget
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME
@@ -135,6 +135,9 @@ class Settings:
     find_dialog_state = None
     """Find dialog state - needs to be stored when dialog is closed"""
 
+    default_encoding = "utf-8"
+    """Default encoding for exporting files (e.g. CSV)"""
+
     encodings = (
         "ascii", "big5", "big5hkscs", "cp037", "cp424", "cp437",
         "cp500", "cp720", "cp737", "cp775", "cp850", "cp852", "cp855", "cp856",
@@ -153,7 +156,7 @@ class Settings:
         "shift-jisx0213", "utf-32", "utf-32-be", "utf-32-le", "utf-16",
         "utf-16-be", "utf-16-le", "utf-7", "utf-8", "utf-8-sig",
     )
-    """Encodings for importing files (e.g. CSV or SVG)"""
+    """Encodings for importing and exporting files (e.g. CSV or SVG)"""
 
     sniff_size = 65536
     """Number of bytes for csv sniffer

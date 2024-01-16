@@ -64,7 +64,7 @@ setup(
     keywords=['spreadsheet', 'pyspread'],
     python_requires='>=3.6',
     install_requires=['numpy (>=1.1)',
-                      'PyQt5 (>=5.10)',
+                      'PyQt6 (>=6.4)',
                       'setuptools (>=40.0)',
                       'markdown2 (>=2.3)'],
     extras_require={

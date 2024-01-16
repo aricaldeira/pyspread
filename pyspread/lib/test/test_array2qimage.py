@@ -46,7 +46,7 @@ import sys
 
 import pytest
 
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 
 from .compat import numBytes, numColors
 
@@ -80,7 +80,7 @@ def test_rgb2qimage():
     assert not qImg.isNull()
     assert_equal(qImg.width(), 320)
     assert_equal(qImg.height(), 240)
-    assert_equal(qImg.format(), QtGui.QImage.Format_RGB32)
+    assert_equal(qImg.format(), QtGui.QImage.Format.Format_RGB32)
     assert_equal(hex(qImg.pixel(10,12)), hex(QtGui.qRgb(42,20,14)))
     assert_equal(hex(qImg.pixel(10,13)), hex(QtGui.qRgb(0,0,0)))
     assert_equal(hex(qImg.pixel(10,14)), hex(QtGui.qRgb(0,0,0)))
@@ -93,7 +93,7 @@ def test_rgb2qimage_normalize():
     assert not qImg.isNull()
     assert_equal(qImg.width(), 320)
     assert_equal(qImg.height(), 240)
-    assert_equal(qImg.format(), QtGui.QImage.Format_RGB32)
+    assert_equal(qImg.format(), QtGui.QImage.Format.Format_RGB32)
     assert_equal(hex(qImg.pixel(10,12)),
                  hex(QtGui.qRgb(255,int(255*30.0/52.42),int(255*24/52.42))))
     assert_equal(hex(qImg.pixel(10,13)),

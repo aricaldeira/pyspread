@@ -31,8 +31,8 @@
 
 from typing import Callable, List
 
-from PyQt5.QtWidgets import QAction, QActionGroup, QWidget
-from PyQt5.QtGui import QKeySequence, QIcon
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtGui import QKeySequence, QIcon, QAction, QActionGroup
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -180,12 +180,13 @@ class MainWindowActions(AttrDict):
                                   self.parent.on_preferences,
                                   icon=Icon.preferences,
                                   statustip='Pyspread setup parameters',
-                                  role=QAction.PreferencesRole)
+                                  role=QAction.MenuRole.PreferencesRole)
 
         self.quit = Action(self.parent, "&Quit", self.parent.closeEvent,
                            icon=Icon.quit,
                            shortcut='Ctrl+Q' if self.shortcuts else "",
-                           statustip='Exit pyspread', role=QAction.QuitRole)
+                           statustip='Exit pyspread',
+                           role=QAction.MenuRole.QuitRole)
 
     def create_edit_actions(self):
         """actions for Edit menu"""
@@ -271,7 +272,7 @@ class MainWindowActions(AttrDict):
 
         self.toggle_selection_mode = Action(
             self.parent, "Selection mode",
-            self.parent.grid.set_selection_mode,
+            self.parent.grid.toggle_selection_mode,
             icon=Icon.selection_mode, checkable=True,
             shortcut='Ins',
             statustip='Enter/leave selection mode')
@@ -401,7 +402,7 @@ class MainWindowActions(AttrDict):
             Action(self.parent, "Refresh selected cells",
                    self.parent.grid.refresh_selected_frozen_cells,
                    icon=Icon.refresh,
-                   shortcut=QKeySequence.Refresh if self.shortcuts else "",
+                   shortcut=QKeySequence.StandardKey.Refresh if self.shortcuts else "",
                    statustip='Refresh selected cells even when frozen')
 
         self.toggle_periodic_updates = \
@@ -795,7 +796,7 @@ class MainWindowActions(AttrDict):
                             self.parent.on_about,
                             icon=Icon.pyspread,
                             statustip='About pyspread',
-                            role=QAction.AboutRole)
+                            role=QAction.MenuRole.AboutRole)
 
     def disable_unavailable(self):
         """Disables unavailable menu items e.g. due to missing dependencies"""
