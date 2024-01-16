@@ -44,10 +44,8 @@ XlsReader and XlsWriter classed are structured into the following sections:
 
 # from builtins import str, map, object
 
-import ast
-from base64 import b64decode, b85encode
-from collections import OrderedDict, defaultdict
-from typing import Any, BinaryIO, Callable, Iterable, Tuple
+from collections import defaultdict
+from typing import BinaryIO
 from PyQt6.QtGui import QFont
 
 try:
@@ -56,8 +54,9 @@ try:
 except ImportError:
     pycel = None
 
-from openpyxl import load_workbook
+from openpyxl import load_workbook, worksheet
 from openpyxl.cell.cell import Cell
+from openpyxl.utils.cell import column_index_from_string
 
 try:
     from pyspread.lib.attrdict import AttrDict
@@ -70,34 +69,6 @@ except ImportError:
 
 
 BORDERWIDTH_XLSX2PYSU = {"hair": 0, "thin": 1, "medium": 4, "thick": 8}
-
-# def wxcolor2rgb(wxcolor: int) -> Tuple[int, int, int]:
-#     """Returns red, green, blue for given wxPython binary color value
-
-#     :param wxcolor: Color value from wx.Color
-
-#     """
-
-#     red = wxcolor >> 16
-#     green = wxcolor - (red << 16) >> 8
-#     blue = wxcolor - (red << 16) - (green << 8)
-
-#     return red, green, blue
-
-
-# wx2qt_fontweights = {
-#     90: 50,  # wx.FONTWEIGHT_NORMAL
-#     91: 25,  # wx.FONTWEIGHT_LIGHT
-#     92: 75,  # wx.FONTWEIGHT_BOLD
-#     93: 87,  # wx.FONTWEIGHT_MAX
-#     }
-
-# wx2qt_fontstyles = {
-#     90: 0,  # wx.FONTSTYLE_NORMAL
-#     93: 1,  # wx.FONTSTYLE_ITALIC
-#     94: 1,  # wx.FONTSTYLE_SLANT
-#     95: 2,  # wx.FONTSTYLE_MAX
-#     }
 
 
 class XlsxReader:
@@ -120,9 +91,15 @@ class XlsxReader:
 
         for worksheet_name in self.wb.sheetnames:
             worksheet = self.wb[worksheet_name]
-            # Row widths
-            # Column widths
             table_idx = self.wb.sheetnames.index(worksheet_name)
+
+            # Row widths
+            self._xlsx2row_heights(worksheet, table_idx)
+
+            # Column widths
+            self._xlsx2col_widths(worksheet, table_idx)
+
+            # Cells
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
                     key = row_idx, cell.col_idx-1, table_idx
@@ -226,7 +203,6 @@ class XlsxReader:
         except (AttributeError, ValueError):
             pass
 
-
         # Text font
         try:
             sheet_attrs[("textfont", cell.font.name)].append(skey)
@@ -238,12 +214,14 @@ class XlsxReader:
             sheet_attrs[("pointsize", cell.font.size)].append(skey)
         except ValueError:
             pass
+
         # Text weight
         try:
             if cell.font.bold:
                 sheet_attrs[("fontweight", 75)].append(skey)
         except ValueError:
             pass
+
         # Text style
         try:
             if cell.font.italic:
@@ -251,12 +229,14 @@ class XlsxReader:
                              QFont.Style.StyleItalic)].append(skey)
         except ValueError:
             pass
+
         # Text underline
         try:
             if cell.font.underline:
                 sheet_attrs[("underline", True)].append(skey)
         except ValueError:
             pass
+
         # Text strikethrough
         try:
             if cell.font.strike:
@@ -264,29 +244,24 @@ class XlsxReader:
         except ValueError:
             pass
 
+        # Cell alignment
         if cell.alignment.horizontal == "left":
-            sheet_attrs[("justification",
-                         "justify_left")].append(skey)
+            sheet_attrs[("justification", "justify_left")].append(skey)
         elif cell.alignment.horizontal == "center":
-            sheet_attrs[("justification",
-                         "justify_center")].append(skey)
+            sheet_attrs[("justification", "justify_center")].append(skey)
         elif cell.alignment.horizontal == "justify":
-            sheet_attrs[("justification",
-                         "justify_fill")].append(skey)
+            sheet_attrs[("justification", "justify_fill")].append(skey)
         elif cell.alignment.horizontal == "right":
-            sheet_attrs[("justification",
-                         "justify_right")].append(skey)
+            sheet_attrs[("justification", "justify_right")].append(skey)
 
         if cell.alignment.vertical == "top":
-            sheet_attrs[("vertical_align",
-                         "align_top")].append(skey)
+            sheet_attrs[("vertical_align", "align_top")].append(skey)
         elif cell.alignment.vertical == "center":
-            sheet_attrs[("vertical_align",
-                         "align_center")].append(skey)
+            sheet_attrs[("vertical_align", "align_center")].append(skey)
         elif cell.alignment.vertical == "bottom":
-            sheet_attrs[("vertical_align",
-                         "align_bottom")].append(skey)
+            sheet_attrs[("vertical_align", "align_bottom")].append(skey)
 
+        # Cell borders
         if cell.border.bottom.style is not None:
             width = BORDERWIDTH_XLSX2PYSU[cell.border.bottom.style]
             sheet_attrs[("borderwidth_bottom", width)].append(skey)
@@ -346,130 +321,32 @@ class XlsxReader:
                 sheet_attrs[("bordercolor_right",
                              color)].append(skey_left)
 
+    def _xlsx2row_heights(self, worksheet: worksheet, table_idx: int):
+        """Updates row_heights in code_array
 
-    # def _attr_convert_1to2(self, key: str, value: Any) -> Tuple[str, Any]:
-    #     """Converts key, value attribute pair from v1.0 to v2.0
+        :param worksheet: openpyxl worksheet
+        :param table_idx: pyspread table number
 
-    #     :param key: AttrDict key
-    #     :param value: AttrDict value for key
+        """
 
-    #     """
+        for row in worksheet.row_dimensions:
+            height = worksheet.row_dimensions[row].height / 12.8 * 30
+            key = row - 1, table_idx
+            self.code_array.row_heights[key] = height
 
-    #     color_attrs = ["bordercolor_bottom", "bordercolor_right", "bgcolor",
-    #                    "textcolor"]
-    #     if key in color_attrs:
-    #         return key, wxcolor2rgb(value)
+    def _xlsx2col_widths(self, worksheet: worksheet, table_idx: int):
+        """Updates col_widths in code_array
 
-    #     elif key == "fontweight":
-    #         return key, wx2qt_fontweights[value]
+        :param worksheet: openpyxl worksheet
+        :param table_idx: pyspread table number
 
-    #     elif key == "fontstyle":
-    #         return key, wx2qt_fontstyles[value]
+        """
 
-    #     elif key == "markup" and value:
-    #         return "renderer", "markup"
+        for column in worksheet.column_dimensions:
+            width = worksheet.column_dimensions[column].width / 11.26 * 100
+            key = column_index_from_string(column) - 1, table_idx
+            self.code_array.col_widths[key] = width
 
-    #     elif key == "angle" and value < 0:
-    #         return "angle", 360 + value
-
-    #     elif key == "merge_area":
-    #         # Value in v1.0 None if the cell was merged
-    #         # In v 2.0 this is no longer necessary
-    #         return None, value
-
-    #     # Update justifiaction and alignment values
-    #     elif key in ["vertical_align", "justification"]:
-    #         just_align_value_tansitions = {
-    #                 "left": "justify_left",
-    #                 "center": "justify_center",
-    #                 "right": "justify_right",
-    #                 "top": "align_top",
-    #                 "middle": "align_center",
-    #                 "bottom": "align_bottom",
-    #         }
-    #         return key, just_align_value_tansitions[value]
-
-    #     return key, value
-
-    # def _pys2attributes_10(self, line: str):
-    #     """Updates attributes in code_array - for save file version 1.0
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     splitline = self._split_tidy(line)
-
-    #     selection_data = list(map(ast.literal_eval, splitline[:5]))
-    #     selection = Selection(*selection_data)
-
-    #     tab = int(splitline[5])
-
-    #     attr_dict = AttrDict()
-
-    #     old_merged_cells = {}
-
-    #     for col, ele in enumerate(splitline[6:]):
-    #         if not (col % 2):
-    #             # Odd entries are keys
-    #             key = ast.literal_eval(ele)
-
-    #         else:
-    #             # Even cols are values
-    #             value = ast.literal_eval(ele)
-
-    #             # Convert old wx color values and merged cells
-    #             key_, value_ = self._attr_convert_1to2(key, value)
-
-    #             if key_ is None and value_ is not None:
-    #                 # We have a merged cell
-    #                 old_merged_cells[value_[:2]] = value_
-    #             try:
-    #                 attr_dict.pop("merge_area")
-    #             except KeyError:
-    #                 pass
-    #             attr_dict[key_] = value_
-
-    #     attr = CellAttribute(selection, tab, attr_dict)
-    #     self.code_array.cell_attributes.append(attr)
-
-    #     for key in old_merged_cells:
-    #         selection = Selection([], [], [], [], [key])
-    #         attr_dict = AttrDict([("merge_area", old_merged_cells[key])])
-    #         attr = CellAttribute(selection, tab, attr_dict)
-    #         self.code_array.cell_attributes.append(attr)
-    #     old_merged_cells.clear()
-
-    # @version_handler
-    # def _pys2attributes(self, line: str):
-    #     """Updates attributes in code_array
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     splitline = self._split_tidy(line)
-
-    #     selection_data = list(map(ast.literal_eval, splitline[:5]))
-    #     selection = Selection(*selection_data)
-
-    #     tab = int(splitline[5])
-
-    #     attr_dict = AttrDict()
-
-    #     for col, ele in enumerate(splitline[6:]):
-    #         if not (col % 2):
-    #             # Odd entries are keys
-    #             key = ast.literal_eval(ele)
-
-    #         else:
-    #             # Even cols are values
-    #             value = ast.literal_eval(ele)
-    #             attr_dict[key] = value
-
-    #     if attr_dict:  # Ignore empty attribute settings
-    #         attr = CellAttribute(selection, tab, attr_dict)
-    #         self.code_array.cell_attributes.append(attr)
 
     # def _pys2row_heights(self, line: str):
     #     """Updates row_heights in code_array
