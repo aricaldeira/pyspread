@@ -91,18 +91,23 @@ class XlsxReader:
 
         for worksheet_name in self.wb.sheetnames:
             worksheet = self.wb[worksheet_name]
-            table_idx = self.wb.sheetnames.index(worksheet_name)
+            table = self.wb.sheetnames.index(worksheet_name)
 
             # Row widths
-            self._xlsx2row_heights(worksheet, table_idx)
+            self._xlsx2row_heights(worksheet, table)
 
             # Column widths
-            self._xlsx2col_widths(worksheet, table_idx)
+            self._xlsx2col_widths(worksheet, table)
+
+            # Merged cells
+            self._xlsx2merge_areas(worksheet, table, sheet_attrs)
+            self.append_sheet_attributes(table, sheet_attrs)
+            sheet_attrs.clear()
 
             # Cells
             for row_idx, row in enumerate(worksheet.iter_rows()):
                 for cell in row:
-                    key = row_idx, cell.col_idx-1, table_idx
+                    key = row_idx, cell.column-1, table
 
                     # Code
                     # ----
@@ -121,7 +126,7 @@ class XlsxReader:
 
                     yield key
 
-            self.append_sheet_attributes(table_idx, sheet_attrs)
+            self.append_sheet_attributes(table, sheet_attrs)
             sheet_attrs.clear()
 
     def append_sheet_attributes(self, table: int, sheet_attrs: dict):
@@ -155,6 +160,48 @@ class XlsxReader:
         b = int(rgb[6:8], 16)
 
         return r, g, b
+
+    def _xlsx2row_heights(self, worksheet: worksheet, table: int):
+        """Updates row_heights in code_array
+
+        :param worksheet: openpyxl worksheet
+        :param table: pyspread table number
+
+        """
+
+        for row in worksheet.row_dimensions:
+            height = worksheet.row_dimensions[row].height / 12.8 * 30
+            key = row - 1, table
+            self.code_array.row_heights[key] = height
+
+    def _xlsx2col_widths(self, worksheet: worksheet, table: int):
+        """Updates col_widths in code_array
+
+        :param worksheet: openpyxl worksheet
+        :param table: pyspread table number
+
+        """
+
+        for column in worksheet.column_dimensions:
+            width = worksheet.column_dimensions[column].width / 11.26 * 100
+            key = column_index_from_string(column) - 1, table
+            self.code_array.col_widths[key] = width
+
+    @staticmethod
+    def _xlsx2merge_areas(worksheet, table, sheet_attrs):
+        """Updates merge_areas in sheet_attrs
+
+        :param worksheet: openpyxl worksheet
+        :param table: pyspread table number
+        :param sheet_attrs: Dict mapping (attr_name, attr values) to key list
+
+        """
+
+        for merged_range in worksheet.merged_cells.ranges:
+            area = (merged_range.min_row-1, merged_range.min_col-1,
+                    merged_range.max_row-1, merged_range.max_col-1)
+            skey = merged_range.min_row-1, merged_range.min_col-1, table
+            sheet_attrs[("merge_area", area)].append(skey)
 
     def _xlsx2code(self, key: (int, int, int),  cell: Cell):
         """Updates code in code_array
@@ -321,74 +368,7 @@ class XlsxReader:
                 sheet_attrs[("bordercolor_right",
                              color)].append(skey_left)
 
-    def _xlsx2row_heights(self, worksheet: worksheet, table_idx: int):
-        """Updates row_heights in code_array
 
-        :param worksheet: openpyxl worksheet
-        :param table_idx: pyspread table number
-
-        """
-
-        for row in worksheet.row_dimensions:
-            height = worksheet.row_dimensions[row].height / 12.8 * 30
-            key = row - 1, table_idx
-            self.code_array.row_heights[key] = height
-
-    def _xlsx2col_widths(self, worksheet: worksheet, table_idx: int):
-        """Updates col_widths in code_array
-
-        :param worksheet: openpyxl worksheet
-        :param table_idx: pyspread table number
-
-        """
-
-        for column in worksheet.column_dimensions:
-            width = worksheet.column_dimensions[column].width / 11.26 * 100
-            key = column_index_from_string(column) - 1, table_idx
-            self.code_array.col_widths[key] = width
-
-
-    # def _pys2row_heights(self, line: str):
-    #     """Updates row_heights in code_array
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     # Split with maxsplit 3
-    #     split_line = self._split_tidy(line)
-    #     key = row, tab = self._get_key(*split_line[:2])
-    #     height = float(split_line[2])
-
-    #     shape = self.code_array.shape
-
-    #     try:
-    #         if row < shape[0] and tab < shape[2]:
-    #             self.code_array.row_heights[key] = height
-
-    #     except ValueError:
-    #         pass
-
-    # def _pys2col_widths(self, line: str):
-    #     """Updates col_widths in code_array
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     # Split with maxsplit 3
-    #     split_line = self._split_tidy(line)
-    #     key = col, tab = self._get_key(*split_line[:2])
-    #     width = float(split_line[2])
-
-    #     shape = self.code_array.shape
-
-    #     try:
-    #         if col < shape[1] and tab < shape[2]:
-    #             self.code_array.col_widths[key] = width
-
-    #     except ValueError:
-    #         pass
 
     # def _pys2macros(self, line: str):
     #     """Updates macros in code_array
