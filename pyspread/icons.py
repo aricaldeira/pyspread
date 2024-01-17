@@ -77,7 +77,6 @@ class IconPath:
     replace = ACTION_PATH / 'edit-find-replace.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
     sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
-    quote = ACTION_PATH / 'edit-quote.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
     sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
     insert_row = ACTION_PATH / 'edit-insert-row.svg'
@@ -153,6 +152,11 @@ class IconPath:
     insert_image = ACTION_PATH / 'macro-insert-image.svg'
     link_image = ACTION_PATH / 'macro-link-image.svg'
     insert_chart = ACTION_PATH / 'macro-insert-chart.svg'
+    quote = ACTION_PATH / 'macro-quote.svg'
+    money = ACTION_PATH / 'macro-money.svg'
+    datetime = ACTION_PATH / 'macro-datetime.svg'
+    date = ACTION_PATH / 'macro-date.svg'
+    time = ACTION_PATH / 'macro-time.svg'
     insert_sum = ACTION_PATH / 'macro-insert-sum.svg'
 
     # Help menu icons

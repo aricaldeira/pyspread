@@ -48,6 +48,11 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import dateutil
+except ImportError:
+    dateutil = None
+
+try:
     from pyspread.actions import MainWindowActions
     from pyspread.icons import Icon
 except ImportError:
@@ -149,8 +154,6 @@ class EditMenu(QMenu):
         self.addAction(actions.sort_descending)
         self.addSeparator()
         self.addAction(actions.toggle_selection_mode)
-        self.addSeparator()
-        self.addAction(actions.quote)
         self.addSeparator()
         self.addAction(actions.insert_rows)
         self.addAction(actions.insert_columns)
@@ -286,6 +289,13 @@ class MacroMenu(QMenu):
         self.addAction(actions.insert_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
+        self.addSeparator()
+        self.addAction(actions.quote)
+        self.addAction(actions.money)
+        if dateutil is not None:
+            self.addAction(actions.datetime)
+            self.addAction(actions.date)
+            self.addAction(actions.time)
         self.addSeparator()
         self.addAction(actions.insert_sum)
 

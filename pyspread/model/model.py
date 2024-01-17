@@ -71,6 +71,11 @@ import numpy
 from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
+    import dateutil
+except ImportError:
+    dateutil = None
+
+try:
     from matplotlib.figure import Figure
 except ImportError:
     Figure = None
@@ -1534,6 +1539,9 @@ class CodeArray(DataArray):
 
         if Money is not None:
             base_keys.append('Money')
+
+        if dateutil is not None:
+            base_keys.append('dateutil')
 
         try:
             import pycel

@@ -110,13 +110,9 @@ class XlsxReader:
                     key = row_idx, cell.column-1, table
 
                     # Code
-                    # ----
-
                     self._xlsx2code(key, cell)
 
                     # Cell attributes
-                    # ---------------
-
                     self._xlsx2attributes(key, cell, sheet_attrs)
 
 
@@ -367,15 +363,3 @@ class XlsxReader:
                 color = 0, 0, 0
                 sheet_attrs[("bordercolor_right",
                              color)].append(skey_left)
-
-
-
-    # def _pys2macros(self, line: str):
-    #     """Updates macros in code_array
-
-    #     :param line: Pys file line to be parsed
-
-    #     """
-
-    #     self.code_array.macros += line
-

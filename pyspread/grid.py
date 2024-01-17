@@ -1378,6 +1378,79 @@ class Grid(QTableView):
                                            description)
             self.main_window.undo_stack.push(command)
 
+    def on_money(self):
+        """Make cell money object event handler using default currency"""
+
+        description = f"Money type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            code = self.model.code_array((row, column, self.table))
+            if isinstance(self.model.code_array[(row, column, self.table)],
+                          float):
+                code = quote(code)
+            currency_iso_code = self.main_window.settings.currency_iso_code
+            moneyed_code = f'Money({code}, "{currency_iso_code}")'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(moneyed_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_datetime(self):
+        """Make cell datetime object event handler"""
+
+        description = f"Datetime type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            code = self.model.code_array((row, column, self.table))
+            if not isinstance(self.model.code_array[(row, column, self.table)],
+                              str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code})'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_date(self):
+        """Make cell date object event handler"""
+
+        description = f"Date type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            code = self.model.code_array((row, column, self.table))
+            if not isinstance(self.model.code_array[(row, column, self.table)],
+                              str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code}).date()'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_time(self):
+        """Make cell time object event handler"""
+
+        description = f"Time type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            code = self.model.code_array((row, column, self.table))
+            if not isinstance(self.model.code_array[(row, column, self.table)],
+                              str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code}).time()'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
     def is_row_data_discarded(self, count: int) -> bool:
         """True if row data is to be discarded on row insertion
 
