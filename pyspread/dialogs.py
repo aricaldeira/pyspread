@@ -66,7 +66,8 @@ from PyQt6.QtWidgets \
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
-            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QInputDialog)
+            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget, QInputDialog,
+            QComboBox)
 from PyQt6.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
             QValidator, QWheelEvent)
@@ -85,6 +86,11 @@ try:
     import pycel
 except ImportError:
     openpyxl = None
+
+try:
+    import moneyed
+except ImportError:
+    moneyed = None
 
 try:
     from pyspread.actions import ChartDialogActions
@@ -268,8 +274,15 @@ class DataEntryDialog(QDialog):
         result = self.exec()
 
         if result == QDialog.DialogCode.Accepted:
-            return tuple(editor.text() if isinstance(editor, QLineEdit)
-                         else editor.isChecked() for editor in self.editors)
+            data = []
+            for editor in self.editors:
+                if isinstance(editor, QLineEdit):
+                    data.append(editor.text())
+                elif isinstance(editor, QComboBox):
+                    data.append(editor.currentText())
+                else:
+                    data.append(editor.isChecked())
+            return tuple(data)
 
     def create_form(self) -> QGroupBox:
         """Returns form inside a QGroupBox"""
@@ -285,6 +298,10 @@ class DataEntryDialog(QDialog):
             if validator is bool:
                 editor = QCheckBox("")
                 editor.setChecked(initial_value)
+            elif hasattr(validator, "acceptable_values"):
+                editor = QComboBox()
+                editor.addItems(validator.acceptable_values)
+                editor.setCurrentText(initial_value)
             else:
                 editor = QLineEdit(str(initial_value))
                 editor.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -502,6 +519,21 @@ class PrintAreaDialog(CsvExportAreaDialog):
         return bb_top, bb_left, bb_bottom, bb_right, table, table
 
 
+class TupleValidator(QValidator):
+    """Validator for a tuple of values, normally strings"""
+
+    def __init__(self, *acceptable_values):
+        super().__init__()
+        self.acceptable_values = acceptable_values
+
+    def validate(self, text, pos):
+        """Validator core function. Must be overloaded."""
+
+        if text in self.acceptable_values:
+            return self.State.Acceptable
+        return self.State.Invalid
+
+
 class PreferencesDialog(DataEntryDialog):
     """Modal dialog for entering pyspread preferences"""
 
@@ -519,10 +551,20 @@ class PreferencesDialog(DataEntryDialog):
         self.keys = ["signature_key", "timeout", "refresh_timeout",
                      "max_file_history", "show_statusbar_sum"]
         self.mappers = [str, int, int, int, bool]
+
+        int_validator = QIntValidator()
+        int_validator.setBottom(0)  # Do not allow negative values
+
+        validators = [None, int_validator, int_validator, int_validator, bool]
+        if moneyed is not None:
+            currencies = map(str, moneyed.list_all_currencies())
+            tuple_validator = TupleValidator(*currencies)
+            labels.append("Money default currency")
+            self.keys.append("currency_iso_code")
+            self.mappers.append(str)
+            validators.append(tuple_validator)
+
         data = [getattr(parent.settings, key) for key in self.keys]
-        validator = QIntValidator()
-        validator.setBottom(0)  # Do not allow negative values
-        validators = [None, validator, validator, validator, bool]
         super().__init__(parent, title, labels, data, groupbox_title,
                          validators)
 
