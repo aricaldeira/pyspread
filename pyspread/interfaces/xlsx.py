@@ -54,9 +54,12 @@ try:
 except ImportError:
     pycel = None
 
-from openpyxl import load_workbook, worksheet
-from openpyxl.cell.cell import Cell
-from openpyxl.utils.cell import column_index_from_string
+try:
+    from openpyxl import load_workbook, worksheet
+    from openpyxl.cell.cell import Cell
+    from openpyxl.utils.cell import column_index_from_string
+except ImportError:
+    openpyxl = None
 
 try:
     from pyspread.lib.attrdict import AttrDict

@@ -82,6 +82,7 @@ except ImportError:
 
 try:
     import openpyxl
+    import pycel
 except ImportError:
     openpyxl = None
 

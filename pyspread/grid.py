@@ -36,6 +36,7 @@ Pyspread's main grid
 
 from ast import literal_eval
 from contextlib import contextmanager
+from datetime import datetime, date, time
 from io import BytesIO
 from typing import Any, Iterable, List, Tuple, Union
 
@@ -64,6 +65,11 @@ except ImportError:
     matplotlib = None
 
 try:
+    from moneyed import Money
+except ImportError:
+    Money = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs import DiscardDataDialog
     from pyspread.grid_renderer import (painter_save, CellRenderer,
@@ -76,7 +82,7 @@ try:
                                       DefaultCellAttributeDict)
     from pyspread.lib.attrdict import AttrDict
     from pyspread.interfaces.pys import (qt52qt6_fontweights,
-                                             qt62qt5_fontweights)
+                                         qt62qt5_fontweights)
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import quote, wrap_text
     from pyspread.lib.qimage2ndarray import array2qimage
@@ -1386,9 +1392,12 @@ class Grid(QTableView):
         for idx in self.selected_idx:
             row = idx.row()
             column = idx.column()
-            code = self.model.code_array((row, column, self.table))
-            if isinstance(self.model.code_array[(row, column, self.table)],
-                          float):
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, Money):
+                return
+            if isinstance(res, float):
                 code = quote(code)
             currency_iso_code = self.main_window.settings.currency_iso_code
             moneyed_code = f'Money({code}, "{currency_iso_code}")'
@@ -1405,9 +1414,12 @@ class Grid(QTableView):
         for idx in self.selected_idx:
             row = idx.row()
             column = idx.column()
-            code = self.model.code_array((row, column, self.table))
-            if not isinstance(self.model.code_array[(row, column, self.table)],
-                              str):
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, datetime):
+                return
+            if not isinstance(res, str):
                 code = quote(code)
             datetime_code = f'dateutil.parser.parse({code})'
             index = self.model.index(row, column, QModelIndex())
@@ -1423,9 +1435,12 @@ class Grid(QTableView):
         for idx in self.selected_idx:
             row = idx.row()
             column = idx.column()
-            code = self.model.code_array((row, column, self.table))
-            if not isinstance(self.model.code_array[(row, column, self.table)],
-                              str):
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, date):
+                return
+            if not isinstance(res, str):
                 code = quote(code)
             datetime_code = f'dateutil.parser.parse({code}).date()'
             index = self.model.index(row, column, QModelIndex())
@@ -1441,9 +1456,12 @@ class Grid(QTableView):
         for idx in self.selected_idx:
             row = idx.row()
             column = idx.column()
-            code = self.model.code_array((row, column, self.table))
-            if not isinstance(self.model.code_array[(row, column, self.table)],
-                              str):
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, time):
+                return
+            if not isinstance(res, str):
                 code = quote(code)
             datetime_code = f'dateutil.parser.parse({code}).time()'
             index = self.model.index(row, column, QModelIndex())

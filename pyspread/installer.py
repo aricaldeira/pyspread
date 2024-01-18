@@ -94,19 +94,19 @@ class Module:
 
 
 REQUIRED_DEPENDENCIES = [
+    Module(name="markdown2",
+           description="Python implementation of Markdown.",
+           required_version=version.parse("2.3")),
     Module(name="numpy",
-           description="Fundamental package for scientific computing",
+           description="Fundamental package for scientific computing.",
            required_version=version.parse("1.1")),
     Module(name="PyQt6",
-           description="Python bindings for the Qt application framework",
+           description="Python bindings for the Qt application framework.",
            required_version=version.parse("6.5")),
     Module(name="setuptools",
-           description="Easily download, build, install, upgrade, and "
-                       "uninstall Python packages",
+           description="Download, build, install, upgrade, and uninstall "
+           "Python packages.",
            required_version=version.parse("40.0")),
-    Module(name="markdown2",
-           description="A fast and complete Python implementation of Markdown",
-           required_version=version.parse("2.3")),
 ]
 
 # Optional dependencies
@@ -115,27 +115,30 @@ REQUIRED_DEPENDENCIES = [
 
 OPTIONAL_DEPENDENCIES = [
     Module(name="matplotlib",
-           description="Create charts",
-           required_version=version.parse("1.1.1")),
-    Module(name="pyenchant",
-           description="Spell checker",
-           required_version=version.parse("1.1")),
-    Module(name="python-dateutil",
-           description="The dateutil module provides powerful extensions to "
-                       "the standard datetime module, available in Python.",
-           required_version=version.parse("2.7.0")),
-    Module(name="py-moneyed",
-           description="Import money from csv using the py-moneyed module",
-           required_version=version.parse("2.0")),
-    Module(name="matplotlib",
-           description="Create charts",
+           description="Create visualizations in Python.",
            required_version=version.parse("3.4")),
-    Module(name="rpy2",
-           description="Interface to R, required for R charts",
-           required_version=version.parse("3.4")),
+    Module(name="openpyxl",
+           description="Read Excel 2010 xlsx files.",
+           required_version=version.parse("3.0.7")),
     Module(name="plotnine",
-           description="Grammar of graphics for simpler R ggplot2 charts",
+           description="Grammar of graphics for simpler R ggplot2 charts.",
            required_version=version.parse("0.8")),
+    Module(name="pycel",
+           description="Translate an Excel spreadsheet into executable python "
+                       "code.",
+           required_version=version.parse("1.0b30")),
+    Module(name="python-dateutil",
+           description="Parse date strings.",
+           required_version=version.parse("2.7.0")),
+    Module(name="pyenchant",
+           description="Bindings for the Enchant spellchecking library.",
+           required_version=version.parse("1.1")),
+    Module(name="py-moneyed",
+           description="Money class for csv import and usage in cells.",
+           required_version=version.parse("2.0")),
+    Module(name="rpy2",
+           description="Interface to R, required for R charts.",
+           required_version=version.parse("3.4")),
 ]
 
 DEPENDENCIES = REQUIRED_DEPENDENCIES + OPTIONAL_DEPENDENCIES
