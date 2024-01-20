@@ -271,8 +271,7 @@ class XlsxReader:
         # Text style
         try:
             if cell.font.italic:
-                sheet_attrs[("fontstyle",
-                             QFont.Style.StyleItalic)].append(skey)
+                sheet_attrs[("fontstyle", 1)].append(skey)
         except ValueError:
             pass
 
