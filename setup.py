@@ -75,6 +75,8 @@ setup(
         'py-moneyed': ['py-moneyed (>=2.0)'],
         'rpy2': ['rpy2 (>=3.4)'],
         'plotnine': ['plotnine (>=0.8)'],
+        'pycel': ['pycel (>=1.0b30)'],
+        'openpyxl': ['openpyxl (>=3.0.7)'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

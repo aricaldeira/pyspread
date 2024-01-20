@@ -56,7 +56,7 @@ import datetime
 import decimal
 from decimal import Decimal  # Needed
 from importlib import reload
-from inspect import isgenerator
+from inspect import getmembers, isfunction, isgenerator
 import io
 from itertools import product
 import re
@@ -71,9 +71,33 @@ import numpy
 from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
+    import dateutil
+except ImportError:
+    dateutil = None
+
+try:
     from matplotlib.figure import Figure
 except ImportError:
     Figure = None
+
+try:
+    import pycel
+    import pycel.excellib
+    import pycel.lib.date_time
+    import pycel.lib.engineering
+    import pycel.lib.information
+    import pycel.lib.logical
+    import pycel.lib.lookup
+    import pycel.lib.stats
+    import pycel.lib.text
+
+except ImportError:
+    pycel = None
+
+try:
+    from openpyxl.worksheet.cell_range import CellRange
+except ImportError:
+    CellRange = None
 
 try:
     from moneyed import Money
@@ -96,6 +120,33 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
+
+
+def update_xl_list():
+    if pycel is not None:
+        xl_members = getmembers(pycel.excellib)
+        xl_members += getmembers(pycel.lib.date_time)
+        xl_members += getmembers(pycel.lib.engineering)
+        xl_members += getmembers(pycel.lib.information)
+        xl_members += getmembers(pycel.lib.logical)
+        xl_members += getmembers(pycel.lib.lookup)
+        xl_members += getmembers(pycel.lib.stats)
+        xl_members += getmembers(pycel.lib.text)
+        XL_LIST = [n for n, _ in xl_members]
+
+        for name, fun in xl_members:
+            globals()[name] = fun
+
+
+def _R_(addr):
+    """Helper for pycel references in xlsx code
+
+    TODO: Move to separate lib module
+
+    """
+
+    l, t, r, b = CellRange(addr).bounds
+    return S[t-1:b, l-1:r, Z]  # Works in cells because S and Z are in globals
 
 
 class DefaultCellAttributeDict(AttrDict):
@@ -1478,7 +1529,8 @@ class CodeArray(DataArray):
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
-                     'NamedTuple', 'Sequence', 'Tuple', 'Union']
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_',
+                     'CellRange']
 
         try:
             from moneyed import Money
@@ -1487,6 +1539,30 @@ class CodeArray(DataArray):
 
         if Money is not None:
             base_keys.append('Money')
+
+        if dateutil is not None:
+            base_keys.append('dateutil')
+
+        try:
+            import pycel
+        except ImportError:
+            pycel = None
+
+        if pycel is not None:
+            from inspect import getmembers
+            xl_members = getmembers(pycel.excellib)
+            xl_members += getmembers(pycel.lib.date_time)
+            xl_members += getmembers(pycel.lib.engineering)
+            xl_members += getmembers(pycel.lib.information)
+            xl_members += getmembers(pycel.lib.logical)
+            xl_members += getmembers(pycel.lib.lookup)
+            xl_members += getmembers(pycel.lib.stats)
+            xl_members += getmembers(pycel.lib.text)
+            XL_LIST = [n for n, _ in xl_members]
+
+        for name, fun in xl_members:
+            globals()[name] = fun
+            base_keys += XL_LIST
 
         for key in list(globals().keys()):
             if key not in base_keys:

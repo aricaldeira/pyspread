@@ -447,8 +447,7 @@ class MainWindow(QMainWindow):
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
-        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform
-                               | QPainter.RenderHint.SmoothPixmapTransform)
+        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform)
 
         page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
 

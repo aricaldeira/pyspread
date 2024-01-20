@@ -56,6 +56,11 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs \
         import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
@@ -64,6 +69,7 @@ try:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.interfaces.xlsx import XlsxReader
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
     from pyspread.lib.selection import Selection
@@ -81,6 +87,7 @@ except ImportError:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from interfaces.pys import PysReader, PysWriter
+    from interfaces.xlsx import XlsxReader
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
     from lib.selection import Selection
@@ -289,8 +296,22 @@ class Workflows:
         # File format handling
         if filepath.suffix == ".pysu":
             fopen = open
-        else:
+            freader = PysReader
+        elif filepath.suffix == ".pys":
             fopen = bz2.open
+            freader = PysReader
+        elif filepath.suffix == ".xlsx":
+            if openpyxl is None:
+                msg = f"openpyxl is not installed. {filepath} not opened."
+                self.main_window.statusBar().showMessage(msg)
+                return
+            fopen = open
+            freader = XlsxReader
+        else:
+            msg = f"Unknown file format {filepath.suffix}. "\
+                  f"{filepath} not opened."
+            self.main_window.statusBar().showMessage(msg)
+            return
 
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
@@ -304,7 +325,7 @@ class Workflows:
 
         try:
             with fopen(filepath, "rb") as infile:
-                reader = PysReader(infile, code_array)
+                reader = freader(infile, code_array)
                 try:
                     for i, _ in file_progress_gen(self.main_window, reader,
                                                   title, label, filelines):
