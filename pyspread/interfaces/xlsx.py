@@ -59,7 +59,7 @@ try:
     from openpyxl.utils.cell import column_index_from_string
 except ImportError:
     openpyxl = None
-    worksheet 'None
+    worksheet = None
 
 try:
     from pyspread.lib.attrdict import AttrDict
