@@ -60,6 +60,7 @@ try:
 except ImportError:
     openpyxl = None
     worksheet = None
+    Cell = None
 
 try:
     from pyspread.lib.attrdict import AttrDict
