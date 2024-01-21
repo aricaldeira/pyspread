@@ -27,7 +27,7 @@ test_debian_testing_optional_req:
     QT_QPA_PLATFORM: "offscreen"
   script:
   - apt install -y -qq python3-openpyxl python3-rpy2 python3-moneyed python3-dateutil python3-enchant
-  - pip3 install plotnine pycel
+  - pip3 install --break-system-packages plotnine pycel
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3

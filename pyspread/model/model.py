@@ -125,8 +125,6 @@ except ImportError:
 def update_xl_list():
     """Updates list of pycel modules to be accessible from within cells"""
 
-    xl_members = []
-    XL_LIST = []
     if pycel is not None:
         try:
             xl_members = getmembers(pycel.excellib)
@@ -137,12 +135,12 @@ def update_xl_list():
             xl_members += getmembers(pycel.lib.lookup)
             xl_members += getmembers(pycel.lib.stats)
             xl_members += getmembers(pycel.lib.text)
-            XL_LIST = [n for n, _ in xl_members]
-        except UnboundLocalError:
-            pass
 
-        for name, fun in xl_members:
-            globals()[name] = fun
+            for name, fun in xl_members:
+                globals()[name] = fun
+
+        except UnboundLocalError:
+            return
 
 
 def _R_(addr):
