@@ -46,7 +46,6 @@ XlsReader and XlsWriter classed are structured into the following sections:
 
 from collections import defaultdict
 from typing import BinaryIO
-from PyQt6.QtGui import QFont
 
 try:
     import pycel
@@ -60,6 +59,7 @@ try:
     from openpyxl.utils.cell import column_index_from_string
 except ImportError:
     openpyxl = None
+    worksheet 'None
 
 try:
     from pyspread.lib.attrdict import AttrDict
