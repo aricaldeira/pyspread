@@ -21,6 +21,20 @@ test_debian_testing:
   - master
   - development
 
+test_debian_testing_optional_req:
+  image: debian:testing
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
+  script:
+  - apt install -y -qq python3-openpyxl python3-rpy2 python3-moneyed python3-dateutil python3-enchant
+  - pip3 install plotnine pycel
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
+  - py.test-3
+  only:
+  - master
+  - development
+
 test_debian_experimental:
   image: debian:experimental
   variables:
