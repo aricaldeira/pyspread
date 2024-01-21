@@ -140,7 +140,7 @@ def update_xl_list():
                 globals()[name] = fun
 
         except UnboundLocalError:
-            return
+            return  # openpyxl is not installed
 
 
 def _R_(addr):
@@ -1554,20 +1554,24 @@ class CodeArray(DataArray):
             pycel = None
 
         if pycel is not None:
-            from inspect import getmembers
-            xl_members = getmembers(pycel.excellib)
-            xl_members += getmembers(pycel.lib.date_time)
-            xl_members += getmembers(pycel.lib.engineering)
-            xl_members += getmembers(pycel.lib.information)
-            xl_members += getmembers(pycel.lib.logical)
-            xl_members += getmembers(pycel.lib.lookup)
-            xl_members += getmembers(pycel.lib.stats)
-            xl_members += getmembers(pycel.lib.text)
-            XL_LIST = [n for n, _ in xl_members]
+            try:
+                from inspect import getmembers
+                xl_members = getmembers(pycel.excellib)
+                xl_members += getmembers(pycel.lib.date_time)
+                xl_members += getmembers(pycel.lib.engineering)
+                xl_members += getmembers(pycel.lib.information)
+                xl_members += getmembers(pycel.lib.logical)
+                xl_members += getmembers(pycel.lib.lookup)
+                xl_members += getmembers(pycel.lib.stats)
+                xl_members += getmembers(pycel.lib.text)
+                XL_LIST = [n for n, _ in xl_members]
 
-        for name, fun in xl_members:
-            globals()[name] = fun
-            base_keys += XL_LIST
+                for name, fun in xl_members:
+                    globals()[name] = fun
+                    base_keys += XL_LIST
+
+            except UnboundLocalError:
+                pass  # openpyxl is not installed
 
         for key in list(globals().keys()):
             if key not in base_keys:
