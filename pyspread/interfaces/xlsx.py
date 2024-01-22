@@ -45,6 +45,7 @@ XlsReader and XlsWriter classed are structured into the following sections:
 # from builtins import str, map, object
 
 from collections import defaultdict
+import logging
 from typing import BinaryIO
 
 try:
@@ -55,7 +56,10 @@ except ImportError:
 
 try:
     from openpyxl import load_workbook, worksheet
-    from openpyxl.cell.cell import Cell
+    from openpyxl.cell.cell import (Cell, TYPE_STRING, TYPE_FORMULA,
+                                    TYPE_NUMERIC, TYPE_BOOL, TYPE_NULL,
+                                    TYPE_INLINE, TYPE_ERROR,
+                                    TYPE_FORMULA_CACHE_STRING)
     from openpyxl.utils.cell import column_index_from_string
 except ImportError:
     openpyxl = None
@@ -71,6 +75,8 @@ except ImportError:
     from lib.selection import Selection
     from model.model import CellAttribute, CodeArray
 
+
+TYPE_DATE = 'd'
 
 BORDERWIDTH_XLSX2PYSU = {"hair": 0, "thin": 1, "medium": 4, "thick": 8}
 
@@ -211,15 +217,24 @@ class XlsxReader:
 
         """
 
-        if cell.data_type in ("n", "s") or pycel is None:
+        if pycel is None or cell.data_type in (TYPE_NUMERIC, TYPE_STRING,
+                                               TYPE_INLINE, TYPE_DATE,
+                                               TYPE_FORMULA_CACHE_STRING):
             code = repr(cell.value)
-        elif cell.data_type == "f":
+        elif cell.data_type == TYPE_FORMULA:
             # Convert formula via pycel
             ex = excelformula.ExcelFormula(cell.value)
             code = ex.python_code
+        elif cell.data_type == TYPE_BOOL:
+            code = "True" if cell.value else "False"
+        elif cell.data_type == TYPE_NULL:
+            code = None
+        elif cell.data_type == TYPE_ERROR:
+            code = Exception(str(cell.value))
         else:
             code = repr(cell.value)
-            raise Warning(f"Excel data type {cell.data_type} unknown.")
+            msg = f"Excel data type {cell.data_type} of cell {cell} unknown."
+            logging.error(msg)
 
         self.code_array.dict_grid[key] = code
 

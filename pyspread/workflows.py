@@ -31,6 +31,7 @@ from contextlib import contextmanager
 from copy import copy
 import csv
 import io
+import logging
 import numpy
 import os.path
 from pathlib import Path
@@ -331,12 +332,14 @@ class Workflows:
                                                   title, label, filelines):
                         pass
                 except Exception as error:
+                    logging.error(error)
                     grid.model.reset()
                     self.main_window.statusBar().showMessage(str(error))
                     self.main_window.safe_mode = False
                     return
                 except ProgressDialogCanceled:
                     msg = f"File open stopped by user at line {i}."
+                    logging.info(msg)
                     self.main_window.statusBar().showMessage(msg)
                     grid.model.reset()
                     self.main_window.safe_mode = False
