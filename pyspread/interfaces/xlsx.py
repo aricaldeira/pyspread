@@ -55,7 +55,8 @@ except ImportError:
     pycel = None
 
 try:
-    from openpyxl import load_workbook, workbook, worksheet
+    from openpyxl import load_workbook, worksheet
+    from openpyxl.workbook import Workbook
     from openpyxl.cell.cell import (Cell, TYPE_STRING, TYPE_FORMULA,
                                     TYPE_NUMERIC, TYPE_BOOL, TYPE_NULL,
                                     TYPE_INLINE, TYPE_ERROR,
@@ -65,6 +66,7 @@ except ImportError:
     openpyxl = None
     worksheet = None
     Cell = None
+    Workbook = None
 
 try:
     from pyspread.lib.attrdict import AttrDict
@@ -169,7 +171,7 @@ class XlsxReader:
 
         return r, g, b
 
-    def _xlsx2shape(self, wb: workbook.Workbook):
+    def _xlsx2shape(self, wb: Workbook):
         """Updates shape in code_array
 
         :param wb: openpyxl workbook
