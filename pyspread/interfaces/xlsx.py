@@ -55,7 +55,7 @@ except ImportError:
     pycel = None
 
 try:
-    from openpyxl import load_workbook, worksheet
+    from openpyxl import load_workbook, workbook, worksheet
     from openpyxl.cell.cell import (Cell, TYPE_STRING, TYPE_FORMULA,
                                     TYPE_NUMERIC, TYPE_BOOL, TYPE_NULL,
                                     TYPE_INLINE, TYPE_ERROR,
@@ -99,7 +99,7 @@ class XlsxReader:
 
         sheet_attrs = defaultdict(list)
 
-        self.code_array.macros += f"_sheetnames = {self.wb.sheetnames}"
+        self._xlsx2shape(self.wb)
 
         for worksheet_name in self.wb.sheetnames:
             worksheet = self.wb[worksheet_name]
@@ -168,6 +168,30 @@ class XlsxReader:
         b = int(rgb[6:8], 16)
 
         return r, g, b
+
+    def _xlsx2shape(self, wb: workbook.Workbook):
+        """Updates shape in code_array
+
+        :param wb: openpyxl workbook
+
+        """
+
+        sheetnames = self.wb.sheetnames
+
+        max_row = 1
+        max_column = 1
+
+        for worksheet_name in sheetnames:
+            worksheet = self.wb[worksheet_name]
+            if max_row < worksheet.max_row:
+                max_row = worksheet.max_row
+            if max_column < worksheet.max_column:
+                max_column = worksheet.max_column
+
+        self.code_array.macros += f"_sheetnames = {sheetnames}"
+
+        shape = max_row, max_column, len(sheetnames)
+        self.code_array.shape = shape
 
     def _xlsx2row_heights(self, worksheet: worksheet, table: int):
         """Updates row_heights in code_array
