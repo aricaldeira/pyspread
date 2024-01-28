@@ -99,6 +99,8 @@ class XlsxReader:
 
         sheet_attrs = defaultdict(list)
 
+        self.code_array.macros += f"_sheetnames = {self.wb.sheetnames}"
+
         for worksheet_name in self.wb.sheetnames:
             worksheet = self.wb[worksheet_name]
             table = self.wb.sheetnames.index(worksheet_name)

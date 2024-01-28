@@ -143,7 +143,22 @@ def update_xl_list():
             return  # openpyxl is not installed
 
 
-def _R_(addr):
+def _table_from_address(addr: str) -> int:
+    """Convert xlsx sheetname to table
+
+    :param sheetname: Name if Excel sheet as in global sheetnames
+    :return: Table index
+
+    """
+
+    if "!" in addr:
+        sheetname = addr.split("!")[0]
+        return _sheetnames.index(sheetname)
+        # Works because _sheetnames is global
+    return Z  # Works in cells because Z is global
+
+
+def _R_(addr: str) -> Any:
     """Helper for pycel references in xlsx code
 
     TODO: Move to separate lib module
@@ -151,7 +166,20 @@ def _R_(addr):
     """
 
     l, t, r, b = CellRange(addr).bounds
-    return S[t-1:b, l-1:r, Z]  # Works in cells because S and Z are in globals
+    table = _table_from_address(addr)
+    return S[t-1:b, l-1:r, table]  # Works in cells because S is global
+
+
+def _C_(addr: str) -> Any:
+    """Helper for pycel references in xlsx code
+
+    TODO: Move to separate lib module
+
+    """
+
+    l, t, _, _ = CellRange(addr).bounds
+    table = _table_from_address(addr)
+    return S[t-1, l-1, table]  # Works in cells because S is global
 
 
 class DefaultCellAttributeDict(AttrDict):
@@ -1534,8 +1562,8 @@ class CodeArray(DataArray):
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
-                     'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_',
-                     'CellRange']
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_', '_C_',
+                     '_table_from_address', 'CellRange']
 
         try:
             from moneyed import Money
