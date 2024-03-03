@@ -57,9 +57,7 @@ pages:
   - apt install -y -qq python3-sphinx
   - pip3 install --break-system-packages -r apidocs/requirements.txt
   - mkdir public
-  - apt-get install -y locales
-  - export LC_ALL="en_US.UTF-8"
-  - export LC_CTYPE="en_US.UTF-8" 
+  - export LC_ALL=C
   - dpkg-reconfigure locales
   - sphinx-build -a -b html ./apidocs ./public/
   artifacts:
