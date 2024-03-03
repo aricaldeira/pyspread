@@ -1,5 +1,4 @@
 sphinx
-locales
 
 sphinxcontrib-fulltoc
 sphinxcontrib-autoprogram
