@@ -68,6 +68,12 @@ from typing import (
 
 import numpy
 
+import swixknife
+from swixknife import Sezimal, SezimalInteger, SezimalFraction
+from swixknife import Dozenal, DozenalInteger, DozenalFraction
+import fractions
+from fractions import Fraction as DecimalFraction
+
 from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
@@ -1460,7 +1466,7 @@ class CodeArray(DataArray):
     def reload_modules(self):
         """Reloads modules that are available in cells"""
 
-        modules = [bz2, base64, re, ast, sys, datetime, decimal]
+        modules = [bz2, base64, re, ast, sys, datetime, decimal, swixknife]
 
         for module in modules:
             reload(module)
@@ -1478,7 +1484,11 @@ class CodeArray(DataArray):
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
-                     'NamedTuple', 'Sequence', 'Tuple', 'Union']
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union',
+                     'swixknife', 'fractions', 'DecimalFraction',
+                     'Sezimal', 'SezimalInteger', 'SezimalFraction',
+                     'Dozenal', 'DozenalInteger', 'DozenalFraction',
+                     ]
 
         try:
             from moneyed import Money

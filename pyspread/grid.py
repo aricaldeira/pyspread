@@ -39,6 +39,14 @@ from contextlib import contextmanager
 from io import BytesIO
 from typing import Any, Iterable, List, Tuple, Union
 
+from decimal import Decimal
+from swixknife import \
+    sezimal_locale, \
+    Sezimal, Dozenal, \
+    sezimal_format, decimal_format, dozenal_format, sezimal_context
+
+locale = sezimal_locale()
+
 import numpy
 
 from PyQt6.QtWidgets \
@@ -1862,6 +1870,78 @@ class GridTableModel(QAbstractTableModel):
         def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
             try:
+                if type(obj).__name__ in ('Sezimal', 'SezimalInteger'):
+                    if obj._fraction:
+                        return locale.format_number(
+                            obj,
+                            sezimal_places=sezimal_context.sezimal_precision,
+                            recurring_digits_notation=10,
+                            use_fraction_group_separator=True,
+                        )
+
+                    else:
+                        return locale.format_number(
+                            obj,
+                            sezimal_places=0,
+                        )
+
+                elif type(obj).__name__ == 'SezimalFraction':
+                    return locale.format_number(
+                        obj.numerator,
+                        sezimal_places=0,
+                    ) + ' / ' + locale.format_number(
+                        obj.denominator,
+                        sezimal_places=0,
+                    )
+
+                elif type(obj).__name__ in ('Dozenal', 'DozenalInteger'):
+                    if obj._fraction:
+                        return locale.format_dozenal_number(
+                            obj,
+                            dozenal_places=sezimal_context.dozenal_precision,
+                            recurring_digits_notation=6,
+                            use_fraction_group_separator=True,
+                        )
+
+                    else:
+                        return locale.format_dozenal_number(
+                            obj,
+                            dozenal_places=0,
+                        )
+
+                elif type(obj).__name__ == 'DozenalFraction':
+                    return locale.format_dozenal_number(
+                        obj.numerator,
+                        dozenal_places=0,
+                    ) + ' / ' + locale.format_dozenal_number(
+                        obj.denominator,
+                        dozenal_places=0,
+                    )
+
+                elif type(obj).__name__ == 'Decimal':
+                    if obj != int(obj):
+                        return locale.format_decimal_number(
+                            obj,
+                            decimal_places=sezimal_context.decimal_precision,
+                            recurring_digits_notation=6,
+                            use_fraction_group_separator=True,
+                        )
+
+                    else:
+                        return locale.format_decimal_number(
+                            obj,
+                            decimal_places=0,
+                        )
+
+                elif type(obj).__name__ == 'Fraction':
+                    return locale.format_decimal_number(
+                        obj.numerator,
+                        decimal_places=0,
+                    ) + ' / ' + locale.format_decimal_number(
+                        obj.denominator,
+                        decimal_places=0,
+                    )
+
                 return str(obj)
             except Exception as err:
                 return str(err)
