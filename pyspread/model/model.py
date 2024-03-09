@@ -71,6 +71,7 @@ import numpy
 import swixknife
 from swixknife import Sezimal, SezimalInteger, SezimalFraction
 from swixknife import Dozenal, DozenalInteger, DozenalFraction
+from swixknife import SezimalDate, SezimalTime, SezimalDateTime
 import fractions
 from fractions import Fraction as DecimalFraction
 
@@ -1488,6 +1489,7 @@ class CodeArray(DataArray):
                      'swixknife', 'fractions', 'DecimalFraction',
                      'Sezimal', 'SezimalInteger', 'SezimalFraction',
                      'Dozenal', 'DozenalInteger', 'DozenalFraction',
+                     'SezimalDate', 'SezimalTime', 'SezimalDateTime',
                      ]
 
         try:
