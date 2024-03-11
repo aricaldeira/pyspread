@@ -1,0 +1,478 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 13:45-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: actions.py:124
+msgid "&New"
+msgstr "&Nòva"
+
+#: actions.py:128
+msgid "Create a new, empty spreadsheet"
+msgstr "Kria uma nòva planilya, vazia"
+
+#: actions.py:130
+msgid "&Open"
+msgstr "&Abrir"
+
+#: actions.py:133
+msgid "Open spreadsheet from file"
+msgstr "Abri uma planilyu dum arkivu"
+
+#: actions.py:135
+msgid "&Save"
+msgstr "&Sawvar"
+
+#: actions.py:139
+msgid "Save spreadsheet"
+msgstr "&Sawva a planilya abèrta"
+
+#: i18n.py:94
+msgid "Default"
+msgstr "Padrawn"
+
+#: i18n.py:95
+msgid "Brazilian"
+msgstr "Brazileru"
+
+#: i18n.py:96
+msgid "English"
+msgstr "Inglez"
+
+#: i18n.py:97
+msgid "Brazilian Portuguese"
+msgstr "Portugez"
+
+#: i18n.py:98
+msgid "European Portuguese"
+msgstr "Portugez di Portugaw"
+
+#: actions.py:142
+msgid "Save &As"
+msgstr ""
+
+#: actions.py:146
+msgid "Save spreadsheet to a new file"
+msgstr ""
+
+#: actions.py:148
+msgid "&Import"
+msgstr ""
+
+#: actions.py:151
+msgid "Import a file and paste it into the current grid"
+msgstr ""
+
+#: actions.py:154
+msgid "&Export"
+msgstr ""
+
+#: actions.py:157
+msgid "Export selection to a file"
+msgstr ""
+
+#: actions.py:159
+msgid "&Approve file"
+msgstr ""
+
+#: actions.py:162
+msgid "Approve, unfreeze and sign the current file"
+msgstr ""
+
+#: actions.py:165
+msgid "&Clear globals"
+msgstr ""
+
+#: actions.py:168
+msgid "Deletes global variables and reloads base modules"
+msgstr ""
+
+#: actions.py:171 actions.py:174
+msgid "Print preview"
+msgstr ""
+
+#: actions.py:176
+msgid "Print"
+msgstr ""
+
+#: actions.py:181
+msgid "Preferences..."
+msgstr ""
+
+#: actions.py:184
+msgid "Pyspread setup parameters"
+msgstr ""
+
+#: actions.py:187
+msgid "&Quit"
+msgstr ""
+
+#: actions.py:190
+msgid "Exit pyspread"
+msgstr ""
+
+#: actions.py:196
+msgid "&Undo"
+msgstr ""
+
+#: actions.py:200
+msgid "Undo last step"
+msgstr ""
+
+#: actions.py:202
+msgid "&Redo"
+msgstr ""
+
+#: actions.py:206
+msgid "Redo last undone step"
+msgstr ""
+
+#: actions.py:208
+msgid "Cut"
+msgstr ""
+
+#: actions.py:212
+msgid "Cut cell to the clipboard"
+msgstr ""
+
+#: actions.py:214
+msgid "&Copy"
+msgstr ""
+
+#: actions.py:218
+msgid "Copy the input strings of the cells to the clipboard"
+msgstr ""
+
+#: actions.py:222
+msgid "Copy results"
+msgstr ""
+
+#: actions.py:226
+msgid "Copy the result strings of the cells to the clipboard"
+msgstr ""
+
+#: actions.py:229
+msgid "&Paste"
+msgstr ""
+
+#: actions.py:233
+msgid "Paste cells from the clipboard"
+msgstr ""
+
+#: actions.py:236
+msgid "Paste as..."
+msgstr ""
+
+#: actions.py:240
+msgid "Transform clipboard and paste results"
+msgstr ""
+
+#: actions.py:242
+msgid "&Find..."
+msgstr ""
+
+#: actions.py:246
+msgid "Find dialog"
+msgstr ""
+
+#: actions.py:248
+msgid "&Find next"
+msgstr ""
+
+#: actions.py:252
+msgid "Find next matching cell"
+msgstr ""
+
+#: actions.py:255
+msgid "&Replace..."
+msgstr ""
+
+#: actions.py:259
+msgid "Replace sub-strings in cells"
+msgstr ""
+
+#: actions.py:262
+msgid "Sort ascending"
+msgstr ""
+
+#: actions.py:265
+msgid ""
+"Sort selected cells. The sort order is ascending and follows the current "
+"column."
+msgstr ""
+
+#: actions.py:269
+msgid "Sort descending"
+msgstr ""
+
+#: actions.py:272
+msgid ""
+"Sort selected cells. The sort order is descending and follows the current "
+"column."
+msgstr ""
+
+#: actions.py:276
+msgid "Selection mode"
+msgstr ""
+
+#: actions.py:280
+msgid "Enter/leave selection mode"
+msgstr ""
+
+#: actions.py:282
+msgid "&Quote"
+msgstr ""
+
+#: actions.py:286
+msgid "Convert cells' code to strings by addding quotes"
+msgstr ""
+
+#: actions.py:289
+msgid "Insert rows"
+msgstr ""
+
+#: actions.py:292
+msgid "Insert max(1, no. selected rows) rows at cursor"
+msgstr ""
+
+#: actions.py:295
+msgid "Insert columns"
+msgstr ""
+
+#: actions.py:298
+msgid "Insert max(1, no. selected columns) columns at cursor"
+msgstr ""
+
+#: actions.py:301
+msgid "Insert table"
+msgstr ""
+
+#: actions.py:304
+msgid "Insert table before current table"
+msgstr ""
+
+#: actions.py:307
+msgid "Delete rows"
+msgstr ""
+
+#: actions.py:310
+msgid "Delete max(1, no. selected rows) rows at cursor"
+msgstr ""
+
+#: actions.py:313
+msgid "Delete columns"
+msgstr ""
+
+#: actions.py:316
+msgid "Delete max(1, no. selected columns) columns at cursor"
+msgstr ""
+
+#: actions.py:319
+msgid "Delete table"
+msgstr ""
+
+#: actions.py:322
+msgid "Delete current table"
+msgstr ""
+
+#: actions.py:324
+msgid "Resize grid"
+msgstr ""
+
+#: actions.py:327
+msgid "Resizes the current grid"
+msgstr ""
+
+#: actions.py:332
+msgid "Fullscreen"
+msgstr ""
+
+#: actions.py:336
+msgid "Show grid in fullscreen mode (press <F11> to leave)"
+msgstr ""
+
+#: actions.py:339
+msgid "Main toolbar"
+msgstr ""
+
+#: actions.py:342
+msgid "Show/hide the main toolbar"
+msgstr ""
+
+#: actions.py:345
+msgid "Macro toolbar"
+msgstr ""
+
+#: actions.py:348
+msgid "Show/hide the macro toolbar"
+msgstr ""
+
+#: actions.py:352
+msgid "Format toolbar"
+msgstr ""
+
+#: actions.py:355
+msgid "Show/hide the format toolbar"
+msgstr ""
+
+#: actions.py:179
+msgid "Print current spreadsheet"
+msgstr ""
+
+#: menus.py:99
+msgid "&File"
+msgstr "&Arkivu"
+
+#: menus.py:136
+msgid "&Edit"
+msgstr ""
+
+#: menus.py:178
+msgid "&View"
+msgstr ""
+
+#: menus.py:183
+msgid "Toolbars"
+msgstr ""
+
+#: menus.py:216
+msgid "&Format"
+msgstr ""
+
+#: menus.py:228
+msgid "Cell renderer"
+msgstr ""
+
+#: menus.py:245
+msgid "Rotation"
+msgstr ""
+
+#: menus.py:251
+msgid "Justification"
+msgstr ""
+
+#: menus.py:257
+msgid "Alignment"
+msgstr ""
+
+#: menus.py:286
+msgid "&Macro"
+msgstr ""
+
+#: menus.py:305
+msgid "&Help"
+msgstr ""
+
+#: menus.py:325
+msgid "&Recent files"
+msgstr ""
+
+#: menus.py:363
+msgid "Formatted borders"
+msgstr ""
+
+#: menus.py:397
+msgid "Border width"
+msgstr ""
+
+#: main_window.py:253 main_window.py:313
+msgid "Macros"
+msgstr ""
+
+#: main_window.py:254
+msgid "Macro Panel"
+msgstr ""
+
+#: main_window.py:315
+msgid "Entry Line"
+msgstr ""
+
+#: main_window.py:412 main_window.py:431
+msgid "Print area"
+msgstr ""
+
+#: actions.py:364
+msgid "Entry line"
+msgstr ""
+
+#: actions.py:365
+msgid "Show/hide the entry line"
+msgstr ""
+
+#: actions.py:368
+msgid "Macro panel"
+msgstr ""
+
+#: actions.py:370
+msgid "Show/hide the macro panel"
+msgstr ""
+
+#: main_window.py:696
+msgid "A non-traditional Python spreadsheet application"
+msgstr ""
+
+#: main_window.py:697
+msgid "Version:"
+msgstr ""
+
+#: main_window.py:698
+msgid "Created by:"
+msgstr ""
+
+#: main_window.py:699
+msgid "Documented by:"
+msgstr ""
+
+#: main_window.py:700
+msgid "Copyright:"
+msgstr ""
+
+#: main_window.py:701
+msgid "License:"
+msgstr ""
+
+#: main_window.py:702
+msgid "Web site:"
+msgstr ""
+
+#: main_window.py:703
+msgid "About"
+msgstr ""
+
+#: grid.py:671
+msgid "Σ={}"
+msgstr ""
+
+#: grid.py:671
+msgid "max={}"
+msgstr ""
+
+#: grid.py:671
+msgid "min={}"
+msgstr ""
+
+#: grid.py:672 grid.py:676
+msgid "Selection: {} cells"
+msgstr ""
+
+#: grid.py:700 grid.py:705
+msgid "Resize rows {} to {}"
+msgstr ""
+
+#: grid.py:674
+msgid "Selection: 1 cell"
+msgstr ""
