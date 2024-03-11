@@ -47,9 +47,11 @@ except ImportError:
 try:
     from pyspread.icons import Icon
     from pyspread.lib.attrdict import AttrDict
+    from pyspread.i18n import _
 except ImportError:
     from icons import Icon
     from lib.attrdict import AttrDict
+    from i18n import _
 
 
 class Action(QAction):
@@ -119,238 +121,238 @@ class MainWindowActions(AttrDict):
     def create_file_actions(self):
         """actions for File menu"""
 
-        self.new = Action(self.parent, "&New",
+        self.new = Action(self.parent, _("&New"),
                           self.parent.workflows.file_new,
                           icon=Icon.new,
                           shortcut='Ctrl+n' if self.shortcuts else "",
-                          statustip='Create a new, empty spreadsheet')
+                          statustip=_('Create a new, empty spreadsheet'))
 
-        self.open = Action(self.parent, "&Open",
+        self.open = Action(self.parent, _("&Open"),
                            self.parent.workflows.file_open,
                            icon=Icon.open,
-                           statustip='Open spreadsheet from file')
+                           statustip=_('Open spreadsheet from file'))
 
-        self.save = Action(self.parent, "&Save",
+        self.save = Action(self.parent, _("&Save"),
                            self.parent.workflows.file_save,
                            icon=Icon.save,
                            shortcut='Ctrl+s' if self.shortcuts else "",
-                           statustip='Save spreadsheet')
+                           statustip=_('Save spreadsheet'))
 
         self.save_as = Action(
-            self.parent, "Save &As",
+            self.parent, _("Save &As"),
             self.parent.workflows.file_save_as,
             icon=Icon.save_as,
             shortcut='Shift+Ctrl+s' if self.shortcuts else "",
-            statustip='Save spreadsheet to a new file')
+            statustip=_('Save spreadsheet to a new file'))
 
-        self.imprt = Action(self.parent, "&Import",
+        self.imprt = Action(self.parent, _("&Import"),
                             self.parent.workflows.file_import,
                             icon=Icon.imprt,
-                            statustip='Import a file and paste it into the '
-                                      'current grid')
+                            statustip=_('Import a file and paste it into the '
+                                      'current grid'))
 
-        self.export = Action(self.parent, "&Export",
+        self.export = Action(self.parent, _("&Export"),
                              self.parent.workflows.file_export,
                              icon=Icon.export,
-                             statustip="Export selection to a file")
+                             statustip=_("Export selection to a file"))
 
-        self.approve = Action(self.parent, "&Approve file",
+        self.approve = Action(self.parent, _("&Approve file"),
                               self.parent.on_approve,
                               icon=Icon.approve,
-                              statustip='Approve, unfreeze and sign the '
-                                        'current file')
+                              statustip=_('Approve, unfreeze and sign the '
+                                        'current file'))
 
-        self.clear_globals = Action(self.parent, "&Clear globals",
+        self.clear_globals = Action(self.parent, _("&Clear globals"),
                                     self.parent.on_clear_globals,
                                     icon=Icon.clear_globals,
-                                    statustip='Deletes global variables '
-                                              'and reloads base modules')
+                                    statustip=_('Deletes global variables '
+                                              'and reloads base modules'))
 
-        self.print_preview = Action(self.parent, "Print preview",
+        self.print_preview = Action(self.parent, _("Print preview"),
                                     self.parent.on_preview,
                                     icon=Icon.print_preview,
-                                    statustip='Print preview')
+                                    statustip=_('Print preview'))
 
-        self.print = Action(self.parent, "Print", self.parent.on_print,
+        self.print = Action(self.parent, _("Print"), self.parent.on_print,
                             icon=Icon.print,
                             shortcut='Ctrl+p' if self.shortcuts else "",
-                            statustip='Print current spreadsheet')
+                            statustip=_('Print current spreadsheet'))
 
-        self.preferences = Action(self.parent, "Preferences...",
+        self.preferences = Action(self.parent, _("Preferences..."),
                                   self.parent.on_preferences,
                                   icon=Icon.preferences,
-                                  statustip='Pyspread setup parameters',
+                                  statustip=_('Pyspread setup parameters'),
                                   role=QAction.MenuRole.PreferencesRole)
 
-        self.quit = Action(self.parent, "&Quit", self.parent.closeEvent,
+        self.quit = Action(self.parent, _("&Quit"), self.parent.closeEvent,
                            icon=Icon.quit,
                            shortcut='Ctrl+Q' if self.shortcuts else "",
-                           statustip='Exit pyspread',
+                           statustip=_('Exit pyspread'),
                            role=QAction.MenuRole.QuitRole)
 
     def create_edit_actions(self):
         """actions for Edit menu"""
 
-        self.undo = Action(self.parent, "&Undo",
+        self.undo = Action(self.parent, _("&Undo"),
                            self.parent.on_undo,
                            icon=Icon.undo,
                            shortcut='Ctrl+z' if self.shortcuts else "",
-                           statustip='Undo last step')
+                           statustip=_('Undo last step'))
 
-        self.redo = Action(self.parent, "&Redo",
+        self.redo = Action(self.parent, _("&Redo"),
                            self.parent.on_redo,
                            icon=Icon.redo,
                            shortcut='Shift+Ctrl+z' if self.shortcuts else "",
-                           statustip='Redo last undone step')
+                           statustip=_('Redo last undone step'))
 
-        self.cut = Action(self.parent, "Cut",
+        self.cut = Action(self.parent, _("Cut"),
                           self.parent.workflows.edit_cut,
                           icon=Icon.cut,
                           shortcut='Ctrl+x' if self.shortcuts else "",
-                          statustip='Cut cell to the clipboard')
+                          statustip=_('Cut cell to the clipboard'))
 
-        self.copy = Action(self.parent, "&Copy",
+        self.copy = Action(self.parent, _("&Copy"),
                            self.parent.workflows.edit_copy,
                            icon=Icon.copy,
                            shortcut='Ctrl+c' if self.shortcuts else "",
-                           statustip='Copy the input strings of the cells '
-                                     'to the clipboard')
+                           statustip=_('Copy the input strings of the cells '
+                                     'to the clipboard'))
 
         self.copy_results = \
-            Action(self.parent, "Copy results",
+            Action(self.parent, _("Copy results"),
                    self.parent.workflows.edit_copy_results,
                    icon=Icon.copy_results,
                    shortcut='Shift+Ctrl+c' if self.shortcuts else "",
-                   statustip='Copy the result strings of the cells to the '
-                             'clipboard')
+                   statustip=_('Copy the result strings of the cells to the '
+                             'clipboard'))
 
-        self.paste = Action(self.parent, "&Paste",
+        self.paste = Action(self.parent, _("&Paste"),
                             self.parent.workflows.edit_paste,
                             icon=Icon.paste,
                             shortcut='Ctrl+v' if self.shortcuts else "",
-                            statustip='Paste cells from the clipboard')
+                            statustip=_('Paste cells from the clipboard'))
 
         self.paste_as = Action(
-            self.parent, "Paste as...",
+            self.parent, _("Paste as..."),
             self.parent.workflows.edit_paste_as,
             icon=Icon.paste_as,
             shortcut='Shift+Ctrl+v' if self.shortcuts else "",
-            statustip='Transform clipboard and paste results')
+            statustip=_('Transform clipboard and paste results'))
 
-        self.find = Action(self.parent, "&Find...",
+        self.find = Action(self.parent, _("&Find..."),
                            self.parent.workflows.edit_find,
                            icon=Icon.find,
                            shortcut='Ctrl+f' if self.shortcuts else "",
-                           statustip='Find dialog')
+                           statustip=_('Find dialog'))
 
-        self.find_next = Action(self.parent, "&Find next",
+        self.find_next = Action(self.parent, _("&Find next"),
                                 self.parent.workflows.edit_find_next,
                                 icon=Icon.find_next,
                                 shortcut='F3' if self.shortcuts else "",
-                                statustip='Find next matching cell')
+                                statustip=_('Find next matching cell'))
 
         self.replace = Action(
-            self.parent, "&Replace...",
+            self.parent, _("&Replace..."),
             self.parent.workflows.edit_replace,
             icon=Icon.replace,
             shortcut='Shift+Ctrl+f' if self.shortcuts else "",
-            statustip='Replace sub-strings in cells')
+            statustip=_('Replace sub-strings in cells'))
 
         self.sort_ascending = Action(
-            self.parent, "Sort ascending",
+            self.parent, _("Sort ascending"),
             self.parent.workflows.edit_sort_ascending,
             icon=Icon.sort_ascending,
-            statustip='Sort selected cells. The sort order is ascending and '
-                      'follows the current column.')
+            statustip=_('Sort selected cells. The sort order is ascending and '
+                      'follows the current column.'))
 
         self.sort_descending = Action(
-            self.parent, "Sort descending",
+            self.parent, _("Sort descending"),
             self.parent.workflows.edit_sort_descending,
             icon=Icon.sort_descending,
-            statustip='Sort selected cells. The sort order is descending and '
-                      'follows the current column.')
+            statustip=_('Sort selected cells. The sort order is descending and '
+                      'follows the current column.'))
 
         self.toggle_selection_mode = Action(
-            self.parent, "Selection mode",
+            self.parent, _("Selection mode"),
             self.parent.grid.toggle_selection_mode,
             icon=Icon.selection_mode, checkable=True,
             shortcut='Ins',
-            statustip='Enter/leave selection mode')
+            statustip=_('Enter/leave selection mode'))
 
-        self.quote = Action(self.parent, "&Quote",
+        self.quote = Action(self.parent, _("&Quote"),
                             self.parent.grid.on_quote,
                             icon=Icon.quote,
                             shortcut='Ctrl+Return' if self.shortcuts else "",
-                            statustip="Convert cells' code to strings by "
-                                      "addding quotes")
+                            statustip=_("Convert cells' code to strings by "
+                                      "addding quotes"))
 
-        self.insert_rows = Action(self.parent, "Insert rows",
+        self.insert_rows = Action(self.parent, _("Insert rows"),
                                   self.parent.grid.on_insert_rows,
                                   icon=Icon.insert_row,
-                                  statustip='Insert max(1, no. selected '
-                                            'rows) rows at cursor')
+                                  statustip=_('Insert max(1, no. selected '
+                                            'rows) rows at cursor'))
 
-        self.insert_columns = Action(self.parent, "Insert columns",
+        self.insert_columns = Action(self.parent, _("Insert columns"),
                                      self.parent.grid.on_insert_columns,
                                      icon=Icon.insert_column,
-                                     statustip='Insert max(1, no. selected '
-                                               'columns) columns at cursor')
+                                     statustip=_('Insert max(1, no. selected '
+                                               'columns) columns at cursor'))
 
-        self.insert_table = Action(self.parent, "Insert table",
+        self.insert_table = Action(self.parent, _("Insert table"),
                                    self.parent.grid.on_insert_table,
                                    icon=Icon.insert_table,
-                                   statustip='Insert table before current '
-                                             'table')
+                                   statustip=_('Insert table before current '
+                                             'table'))
 
-        self.delete_rows = Action(self.parent, "Delete rows",
+        self.delete_rows = Action(self.parent, _("Delete rows"),
                                   self.parent.grid.on_delete_rows,
                                   icon=Icon.delete_row,
-                                  statustip='Delete max(1, no. selected '
-                                            'rows) rows at cursor')
+                                  statustip=_('Delete max(1, no. selected '
+                                            'rows) rows at cursor'))
 
-        self.delete_columns = Action(self.parent, "Delete columns",
+        self.delete_columns = Action(self.parent, _("Delete columns"),
                                      self.parent.grid.on_delete_columns,
                                      icon=Icon.delete_column,
-                                     statustip='Delete max(1, no. selected '
-                                               'columns) columns at cursor')
+                                     statustip=_('Delete max(1, no. selected '
+                                               'columns) columns at cursor'))
 
-        self.delete_table = Action(self.parent, "Delete table",
+        self.delete_table = Action(self.parent, _("Delete table"),
                                    self.parent.grid.on_delete_table,
                                    icon=Icon.delete_table,
-                                   statustip='Delete current table')
+                                   statustip=_('Delete current table'))
 
-        self.resize_grid = Action(self.parent, "Resize grid",
+        self.resize_grid = Action(self.parent, _("Resize grid"),
                                   self.parent.workflows.edit_resize,
                                   icon=Icon.resize_grid,
-                                  statustip='Resizes the current grid')
+                                  statustip=_('Resizes the current grid'))
 
     def create_view_actions(self):
         """actions for View menu"""
 
-        self.fullscreen = Action(self.parent, "Fullscreen",
+        self.fullscreen = Action(self.parent, _("Fullscreen"),
                                  self.parent.on_fullscreen,
                                  icon=Icon.fullscreen,
                                  shortcut='F11' if self.shortcuts else "",
-                                 statustip='Show grid in fullscreen mode '
-                                           '(press <F11> to leave)')
+                                 statustip=_('Show grid in fullscreen mode '
+                                           '(press <F11> to leave)'))
 
-        self.toggle_main_toolbar = Action(self.parent, "Main toolbar",
+        self.toggle_main_toolbar = Action(self.parent, _("Main toolbar"),
                                           self.parent.on_toggle_main_toolbar,
                                           checkable=True,
-                                          statustip='Show/hide the main '
-                                                    'toolbar')
+                                          statustip=_('Show/hide the main '
+                                                    'toolbar'))
 
-        self.toggle_macro_toolbar = Action(self.parent, "Macro toolbar",
+        self.toggle_macro_toolbar = Action(self.parent, _("Macro toolbar"),
                                            self.parent.on_toggle_macro_toolbar,
                                            checkable=True,
-                                           statustip='Show/hide the macro '
-                                                     'toolbar')
+                                           statustip=_('Show/hide the macro '
+                                                     'toolbar'))
 
         self.toggle_format_toolbar = \
-            Action(self.parent, "Format toolbar",
+            Action(self.parent, _("Format toolbar"),
                    self.parent.on_toggle_format_toolbar,
                    checkable=True,
-                   statustip='Show/hide the format toolbar')
+                   statustip=_('Show/hide the format toolbar'))
 
         self.toggle_find_toolbar = Action(self.parent, "Find toolbar",
                                           self.parent.on_toggle_find_toolbar,
@@ -359,13 +361,13 @@ class MainWindowActions(AttrDict):
                                                     'toolbar')
 
         self.toggle_entry_line_dock = Action(
-            self.parent, "Entry line", self.parent.on_toggle_entry_line_dock,
-            checkable=True, statustip='Show/hide the entry line')
+            self.parent, _("Entry line"), self.parent.on_toggle_entry_line_dock,
+            checkable=True, statustip=_('Show/hide the entry line'))
 
         self.toggle_macro_dock = Action(
-            self.parent, "Macro panel", self.parent.on_toggle_macro_dock,
+            self.parent, _("Macro panel"), self.parent.on_toggle_macro_dock,
             checkable=True, shortcut='F4' if self.shortcuts else "",
-            statustip='Show/hide the macro panel')
+            statustip=_('Show/hide the macro panel'))
 
         self.goto_cell = Action(self.parent, "Go to cell",
                                 self.parent.workflows.view_goto_cell,

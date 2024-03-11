@@ -44,16 +44,21 @@ from PyQt6.QtWidgets import QApplication
 try:
     from pyspread.cli import PyspreadArgumentParser
     from pyspread.main_window import MainWindow
+    from pyspread import formatting
+    from pyspread.i18n import set_language
 
 except ImportError:
     from cli import PyspreadArgumentParser
     from main_window import MainWindow
+    import formatting
+    from i18n import set_language
 
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
+set_language()
 
 def excepthook(exception_type, exception_value, exception_traceback):
     """Exception hook that prevents pyspread from crashing on exceptions"""

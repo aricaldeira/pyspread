@@ -69,6 +69,7 @@ try:
     from pyspread.panels import MacroPanel
     from pyspread.lib.hashing import genkey
     from pyspread.model.model import CellAttributes
+    from pyspread.i18n import _
 except ImportError:
     from __init__ import VERSION, APP_NAME
     from settings import Settings, WEB_URL
@@ -88,6 +89,7 @@ except ImportError:
     from panels import MacroPanel
     from lib.hashing import genkey
     from model.model import CellAttributes
+    from i18n import _
 
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
@@ -248,8 +250,8 @@ class MainWindow(QMainWindow):
         self.resizeDocks([self.entry_line_dock], [10],
                          Qt.Orientation.Horizontal)
 
-        self.macro_dock = QDockWidget("Macros", self)
-        self.macro_dock.setObjectName("Macro Panel")
+        self.macro_dock = QDockWidget(_("Macros"), self)
+        self.macro_dock.setObjectName(_("Macro Panel"))
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea,
                            self.macro_dock)
@@ -308,9 +310,9 @@ class MainWindow(QMainWindow):
 
         if event.type() == QEvent.Type.Close and isinstance(source,
                                                             QDockWidget):
-            if source.windowTitle() == "Macros":
+            if source.windowTitle() == _("Macros"):
                 self.main_window_actions.toggle_macro_dock.setChecked(False)
-            elif source.windowTitle() == "Entry Line":
+            elif source.windowTitle() == _("Entry Line"):
                 self.main_window_actions.toggle_entry_line_dock.setChecked(
                     False)
 
@@ -407,7 +409,7 @@ class MainWindow(QMainWindow):
 
         # Get print area
         self.print_area = PrintAreaDialog(self, self.grid,
-                                          title="Print area").area
+                                          title=_("Print area")).area
         if self.print_area is None:
             return
 
@@ -426,7 +428,7 @@ class MainWindow(QMainWindow):
 
         # Get print area
         self.print_area = PrintAreaDialog(self, self.grid,
-                                          title="Print area").area
+                                          title=_("Print area")).area
         if self.print_area is None:
             return
 
@@ -683,7 +685,7 @@ class MainWindow(QMainWindow):
             return f"<ul>{devs_str}</ul>"
 
         devs = ("Martin Manns", "Jason Sexauer", "Vova Kolobok", "mgunyho",
-                "Pete Morgan")
+                "Pete Morgan", 'Ari Caldeira (i18n, Sezimal and Dozenal)')
         devs_str = devs_string(devs)
 
         doc_devs = ("Martin Manns", "Bosko Markovic", "Pete Morgan")
@@ -691,18 +693,27 @@ class MainWindow(QMainWindow):
 
         copyright_owner = "Martin Manns"
 
+        description_text = _('A non-traditional Python spreadsheet application')
+        version_text = _('Version:')
+        created_text = _('Created by:')
+        documented_text = _('Documented by:')
+        copyright_text = _('Copyright:')
+        licence_text = _('License:')
+        website_text = _('Web site:')
+        about_text = _('About')
+
         about_msg = \
             f"""<b>{APP_NAME}</b><><p>
-            A non-traditional Python spreadsheet application<p>
-            Version:&emsp;{VERSION}<p>
-            Created by:&emsp;{devs_str}<p>
-            Documented by:&emsp;{doc_devs_str}<p>
-            Copyright:&emsp;{copyright_owner}<p>
-            License:&emsp;{LICENSE}<p>
-            Web site:&emsp;<a href="{WEB_URL}">{WEB_URL}</a>
+            {description_text}<p>
+            {version_text}&emsp;{VERSION}<p>
+            {created_text}&emsp;{devs_str}<p>
+            {documented_text}&emsp;{doc_devs_str}<p>
+            {copyright_text}&emsp;{copyright_owner}<p>
+            {licence_text}&emsp;{LICENSE}<p>
+            {website_text}&emsp;<a href="{WEB_URL}">{WEB_URL}</a>
             """
 
-        QMessageBox.about(self, f"About {APP_NAME}", about_msg)
+        QMessageBox.about(self, f"{about_text} {APP_NAME}", about_msg)
 
     def on_focus_changed(self, old: QWidget, now: QWidget):
         """Handles grid clicks from entry line"""

@@ -50,9 +50,11 @@ except ImportError:
 try:
     from pyspread.actions import MainWindowActions
     from pyspread.icons import Icon
+    from pyspread.i18n import _
 except ImportError:
     from actions import MainWindowActions
     from icons import Icon
+    from i18n import _
 
 
 class MenuBar(QMenuBar):
@@ -94,7 +96,7 @@ class FileMenu(QMenu):
 
         """
 
-        super().__init__('&File', parent)
+        super().__init__(_('&File'), parent)
 
         self.parent = parent
 
@@ -131,7 +133,7 @@ class EditMenu(QMenu):
 
         """
 
-        super().__init__('&Edit', parent)
+        super().__init__(_('&Edit'), parent)
 
         self.addAction(actions.undo)
         self.addAction(actions.redo)
@@ -173,12 +175,12 @@ class ViewMenu(QMenu):
 
         """
 
-        super().__init__('&View', parent)
+        super().__init__(_('&View'), parent)
 
         self.addAction(actions.fullscreen)
         self.addSeparator()
 
-        self.toolbar_submenu = self.addMenu('Toolbars')
+        self.toolbar_submenu = self.addMenu(_('Toolbars'))
         self.toolbar_submenu.addAction(actions.toggle_main_toolbar)
         self.toolbar_submenu.addAction(actions.toggle_macro_toolbar)
         self.toolbar_submenu.addAction(actions.toggle_format_toolbar)
@@ -211,7 +213,7 @@ class FormatMenu(QMenu):
 
         """
 
-        super().__init__('&Format', parent)
+        super().__init__(_('&Format'), parent)
 
         self.addAction(actions.copy_format)
         self.addAction(actions.paste_format)
@@ -223,7 +225,7 @@ class FormatMenu(QMenu):
         self.addAction(actions.strikethrough)
         self.addSeparator()
 
-        self.renderer_submenu = self.addMenu('Cell renderer')
+        self.renderer_submenu = self.addMenu(_('Cell renderer'))
         self.renderer_submenu.addAction(actions.text)
         self.renderer_submenu.addAction(actions.image)
         self.renderer_submenu.addAction(actions.markup)
@@ -240,19 +242,19 @@ class FormatMenu(QMenu):
 
         self.addSeparator()
 
-        self.rotation_submenu = self.addMenu('Rotation')
+        self.rotation_submenu = self.addMenu(_('Rotation'))
         self.rotation_submenu.addAction(actions.rotate_0)
         self.rotation_submenu.addAction(actions.rotate_90)
         self.rotation_submenu.addAction(actions.rotate_180)
         self.rotation_submenu.addAction(actions.rotate_270)
 
-        self.justification_submenu = self.addMenu('Justification')
+        self.justification_submenu = self.addMenu(_('Justification'))
         self.justification_submenu.addAction(actions.justify_left)
         self.justification_submenu.addAction(actions.justify_center)
         self.justification_submenu.addAction(actions.justify_right)
         self.justification_submenu.addAction(actions.justify_fill)
 
-        self.alignment_submenu = self.addMenu('Alignment')
+        self.alignment_submenu = self.addMenu(_('Alignment'))
         self.alignment_submenu.addAction(actions.align_top)
         self.alignment_submenu.addAction(actions.align_center)
         self.alignment_submenu.addAction(actions.align_bottom)
@@ -281,7 +283,7 @@ class MacroMenu(QMenu):
 
         """
 
-        super().__init__('&Macro', parent)
+        super().__init__(_('&Macro'), parent)
 
         self.addAction(actions.insert_image)
         if matplotlib_figure is not None:
@@ -300,7 +302,7 @@ class HelpMenu(QMenu):
 
         """
 
-        super().__init__('&Help', parent)
+        super().__init__(_('&Help'), parent)
 
         self.addAction(actions.manual)
         self.addAction(actions.tutorial)
@@ -320,7 +322,7 @@ class FileHistoryMenu(QMenu):
 
         """
 
-        super().__init__('&Recent files', parent)
+        super().__init__(_('&Recent files'), parent)
 
         self.main_window = parent.parent.main_window
 
@@ -358,7 +360,7 @@ class BorderChoiceMenu(QMenu):
 
         super().__init__()
 
-        self.setTitle("Formatted borders")
+        self.setTitle(_("Formatted borders"))
         self.setIcon(Icon.border_menu)
 
         self.addAction(actions.format_borders_all)
@@ -392,7 +394,7 @@ class BorderWidthMenu(QMenu):
 
         super().__init__()
 
-        self.setTitle("Border width")
+        self.setTitle(_("Border width"))
         self.setIcon(Icon.format_borders)
 
         self.addAction(actions.format_borders_0)

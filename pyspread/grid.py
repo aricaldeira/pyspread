@@ -40,9 +40,6 @@ from io import BytesIO
 from typing import Any, Iterable, List, Tuple, Union
 
 from decimal import Decimal
-from swixknife import \
-    sezimal_format, decimal_format, dozenal_format, sezimal_context, \
-    SezimalDate, SezimalTime, SezimalDateTime
 
 import numpy
 
@@ -90,6 +87,8 @@ try:
                                 HorizontalHeaderContextMenu,
                                 VerticalHeaderContextMenu)
     from pyspread.widgets import CellButton
+    from pyspread.formatting import ClassFormatFunctions
+    from pyspread.i18n import _
 except ImportError:
     import commands
     from dialogs import DiscardDataDialog
@@ -107,6 +106,8 @@ except ImportError:
     from menus import (GridContextMenu, TableChoiceContextMenu,
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
     from widgets import CellButton
+    from formatting import class_format_functions
+    from i18n import _
 
 FONTSTYLES = (QFont.Style.StyleNormal,
               QFont.Style.StyleItalic,
@@ -666,8 +667,13 @@ class Grid(QTableView):
                    if code_array(key))
         sum_list = [res for res in res_gen if res is not None]
 
-        msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
-        msg = f"Selection: {len(selected_cell_list)} cells"
+        msg_tpl = "     " + "     ".join([_("Σ={}"), _("max={}"), _("min={}")])
+
+        if len(selected_cell_list) == 1:
+            msg = _("Selection: 1 cell")
+        else:
+            msg = _("Selection: {} cells").format(len(selected_cell_list))
+
         if sum_list:
             try:
                 msg += msg_tpl.format(sum(sum_list), max(sum_list),
@@ -695,7 +701,7 @@ class Grid(QTableView):
         else:
             rows = [row]
 
-        description = f"Resize rows {rows} to {new_height}"
+        description = _("Resize rows {} to {}").format(rows, new_height)
         command = commands.SetRowsHeight(self, rows, self.table,
                                          old_height / self.zoom,
                                          new_height / self.zoom, description)
@@ -1867,113 +1873,9 @@ class GridTableModel(QAbstractTableModel):
         def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
             try:
-                if type(obj).__name__ in ('Sezimal', 'SezimalInteger'):
-                    if obj._fraction:
-                        return sezimal_context.locale.format_number(
-                            obj,
-                            sezimal_places=sezimal_context.sezimal_precision,
-                            recurring_digits_notation=10 if sezimal_context.show_recurring_digits else False,
-                            use_fraction_group_separator=True,
-                        )
-
-                    else:
-                        return sezimal_context.locale.format_number(
-                            obj,
-                            sezimal_places=0,
-                        )
-
-                elif type(obj).__name__ == 'SezimalFraction':
-                    return sezimal_context.locale.format_number(
-                        obj.numerator,
-                        sezimal_places=0,
-                    ) + ' / ' + sezimal_context.locale.format_number(
-                        obj.denominator,
-                        sezimal_places=0,
-                    )
-
-                elif type(obj).__name__ in ('Dozenal', 'DozenalInteger'):
-                    if obj._fraction:
-                        return sezimal_context.locale.format_dozenal_number(
-                            obj,
-                            dozenal_places=sezimal_context.dozenal_precision,
-                            recurring_digits_notation=6 if sezimal_context.show_recurring_digits else False,
-                            use_fraction_group_separator=True,
-                        )
-
-                    else:
-                        return sezimal_context.locale.format_dozenal_number(
-                            obj,
-                            dozenal_places=0,
-                        )
-
-                elif type(obj).__name__ == 'DozenalFraction':
-                    return sezimal_context.locale.format_dozenal_number(
-                        obj.numerator,
-                        dozenal_places=0,
-                    ) + ' / ' + sezimal_context.locale.format_dozenal_number(
-                        obj.denominator,
-                        dozenal_places=0,
-                    )
-
-                elif type(obj).__name__ == 'Decimal':
-                    if obj != int(obj):
-                        return sezimal_context.locale.format_decimal_number(
-                            obj,
-                            decimal_places=sezimal_context.decimal_precision,
-                            recurring_digits_notation=6 if sezimal_context.show_recurring_digits else False,
-                            use_fraction_group_separator=True,
-                        )
-
-                    else:
-                        return sezimal_context.locale.format_decimal_number(
-                            obj,
-                            decimal_places=0,
-                        )
-
-                elif type(obj).__name__ == 'Fraction':
-                    return sezimal_context.locale.format_decimal_number(
-                        obj.numerator,
-                        decimal_places=0,
-                    ) + ' / ' + sezimal_context.locale.format_decimal_number(
-                        obj.denominator,
-                        decimal_places=0,
-                    )
-
-                elif type(obj).__name__ == 'SezimalDate':
-                    return obj.format(
-                        sezimal_context.locale.DATE_FORMAT,
-                        sezimal_context.locale,
-                    )
-
-                elif type(obj).__name__ == 'SezimalTime':
-                    return obj.format(
-                        sezimal_context.locale.TIME_FORMAT,
-                        sezimal_context.locale,
-                    )
-
-                elif type(obj).__name__ == 'SezimalDateTime':
-                    return obj.format(
-                        sezimal_context.locale.DATE_TIME_FORMAT,
-                        sezimal_context.locale,
-                    )
-
-                elif type(obj).__name__ == 'date':
-                    return SezimalDate(obj).format(
-                        sezimal_context.locale.ISO_DATE_FORMAT,
-                        sezimal_context.locale,
-                    )
-
-                elif type(obj).__name__ == 'time':
-                    return SezimalTime(obj).format(
-                        sezimal_context.locale.ISO_TIME_FORMAT,
-                        sezimal_context.locale,
-                    )
-
-                elif type(obj).__name__ == 'datetime':
-                    return SezimalDateTime(obj).format(
-                        sezimal_context.locale.ISO_DATE_TIME_FORMAT,
-                        sezimal_context.locale,
-                    )
+                if obj.__class__ in class_format_functions:
+                    format_function = class_format_functions[obj.__class__]
+                    return format_function(obj)
 
                 return str(obj)
             except Exception as err:
