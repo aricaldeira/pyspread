@@ -88,6 +88,7 @@ try:
     from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import ZEN
+    from pyspread.formatting import class_format_functions
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
@@ -96,6 +97,7 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
+    from formatting import class_format_functions
 
 
 class DefaultCellAttributeDict(AttrDict):
@@ -1478,15 +1480,15 @@ class CodeArray(DataArray):
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
-                     'NamedTuple', 'Sequence', 'Tuple', 'Union']
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union',
+                     'class_format_functions',
+                     ]
 
         try:
             from moneyed import Money
+            base_keys.append('Money')
         except ImportError:
             Money = None
-
-        if Money is not None:
-            base_keys.append('Money')
 
         for key in list(globals().keys()):
             if key not in base_keys:
