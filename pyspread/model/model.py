@@ -68,13 +68,6 @@ from typing import (
 
 import numpy
 
-import swixknife
-from swixknife import Sezimal, SezimalInteger, SezimalFraction
-from swixknife import Dozenal, DozenalInteger, DozenalFraction
-from swixknife import SezimalDate, SezimalTime, SezimalDateTime
-import fractions
-from fractions import Fraction as DecimalFraction
-
 from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
@@ -88,6 +81,20 @@ except ImportError:
     Money = None
 
 try:
+    import swixknife
+    from swixknife import Sezimal, SezimalInteger, SezimalFraction
+    from swixknife import Dozenal, DozenalInteger, DozenalFraction
+    from swixknife import SezimalDate, SezimalTime, SezimalDateTime
+    from swixknife import sezimal_context, sezimal_format, \
+        sezimal_format_fraction, decimal_format, \
+        dozenal_format, niftimal_format
+    import fractions
+    from fractions import Fraction as DecimalFraction
+    from swixknife.pyspread_formatting import swixknife_pyspread_formatting
+except:
+    Sezimal = None
+
+try:
     from pyspread.settings import Settings
     from pyspread.lib.attrdict import AttrDict
     import pyspread.lib.charts as charts
@@ -95,6 +102,7 @@ try:
     from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import ZEN
+    from pyspread.formatting import class_format_functions
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
@@ -103,6 +111,7 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
+    from formatting import class_format_functions
 
 
 class DefaultCellAttributeDict(AttrDict):
@@ -1467,7 +1476,7 @@ class CodeArray(DataArray):
     def reload_modules(self):
         """Reloads modules that are available in cells"""
 
-        modules = [bz2, base64, re, ast, sys, datetime, decimal, swixknife]
+        modules = [bz2, base64, re, ast, sys, datetime, decimal]
 
         for module in modules:
             reload(module)
@@ -1486,19 +1495,42 @@ class CodeArray(DataArray):
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
                      'NamedTuple', 'Sequence', 'Tuple', 'Union',
-                     'swixknife', 'fractions', 'DecimalFraction',
-                     'Sezimal', 'SezimalInteger', 'SezimalFraction',
-                     'Dozenal', 'DozenalInteger', 'DozenalFraction',
-                     'SezimalDate', 'SezimalTime', 'SezimalDateTime',
+                     'class_format_functions',
                      ]
 
         try:
             from moneyed import Money
+            base_keys.append('Money')
         except ImportError:
             Money = None
 
-        if Money is not None:
-            base_keys.append('Money')
+        if True:
+            import swixknife
+            from swixknife import Sezimal, SezimalInteger, SezimalFraction
+            from swixknife import Dozenal, DozenalInteger, DozenalFraction
+            from swixknife import SezimalDate, SezimalTime, SezimalDateTime
+            from swixknife import sezimal_context, sezimal_format, \
+                sezimal_format_fraction, decimal_format, \
+                dozenal_format, niftimal_format
+            import fractions
+            from fractions import Fraction as DecimalFraction
+            from swixknife.pyspread_formatting import swixknife_pyspread_formatting
+
+            base_keys += [
+                'swixknife',
+                'Sezimal', 'SezimalInteger', 'SezimalFraction',
+                'Dozenal', 'DozenalInteger', 'DozenalFraction',
+                'SezimalDate', 'SezimalTime', 'SezimalDateTime',
+                'sezimal_context', 'sezimal_format',
+                'sezimal_format_fraction', 'decimal_format',
+                'dozenal_format', 'niftimal_format',
+                'fractions', 'DecimalFraction',
+            ]
+
+            class_format_functions.update(swixknife_pyspread_formatting)
+
+        # except:
+        #     Sezimal = None
 
         for key in list(globals().keys()):
             if key not in base_keys:
