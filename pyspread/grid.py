@@ -91,6 +91,7 @@ try:
                                 HorizontalHeaderContextMenu,
                                 VerticalHeaderContextMenu)
     from pyspread.widgets import CellButton
+    from pyspread.formatting import class_format_functions
 except ImportError:
     import commands
     from dialogs import DiscardDataDialog
@@ -108,6 +109,7 @@ except ImportError:
     from menus import (GridContextMenu, TableChoiceContextMenu,
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
     from widgets import CellButton
+    from formatting import class_format_functions
 
 FONTSTYLES = (QFont.Style.StyleNormal,
               QFont.Style.StyleItalic,
@@ -1955,6 +1957,10 @@ class GridTableModel(QAbstractTableModel):
         def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
             try:
+                if obj.__class__ in class_format_functions:
+                    format_function = class_format_functions[obj.__class__]
+                    return format_function(obj)
+
                 return str(obj)
             except Exception as err:
                 return str(err)

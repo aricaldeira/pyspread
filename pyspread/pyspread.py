@@ -44,10 +44,12 @@ from PyQt6.QtWidgets import QApplication
 try:
     from pyspread.cli import PyspreadArgumentParser
     from pyspread.main_window import MainWindow
+    from pyspread import formatting
 
 except ImportError:
     from cli import PyspreadArgumentParser
     from main_window import MainWindow
+    import formatting
 
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
