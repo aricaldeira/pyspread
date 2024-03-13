@@ -1134,7 +1134,8 @@ class Workflows:
         renderer = grid.model.code_array.cell_attributes[current].renderer
 
         if renderer == "text":
-            clipboard.setText(str(data))
+            clipboard.setText(grid.model.data(grid.currentIndex()))
+            # clipboard.setText(str(data))
 
         elif renderer == "image":
             if isinstance(data, QImage):
