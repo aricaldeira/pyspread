@@ -6,4 +6,4 @@ APP_NAME = "pyspread"
 
 VERSION = "2.3-beta.1"
 
-import formatting
+from . import formatting
