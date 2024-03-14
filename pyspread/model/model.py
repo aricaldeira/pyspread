@@ -85,6 +85,7 @@ try:
     from swixknife import Sezimal, SezimalInteger, SezimalFraction
     from swixknife import Dozenal, DozenalInteger, DozenalFraction
     from swixknife import SezimalDate, SezimalTime, SezimalDateTime
+    from swixknife import SezimalRange, DozenalRange
     from swixknife import sezimal_context, sezimal_format, \
         sezimal_format_fraction, decimal_format, \
         dozenal_format, niftimal_format
@@ -1504,11 +1505,12 @@ class CodeArray(DataArray):
         except ImportError:
             Money = None
 
-        if True:
+        try:
             import swixknife
             from swixknife import Sezimal, SezimalInteger, SezimalFraction
             from swixknife import Dozenal, DozenalInteger, DozenalFraction
             from swixknife import SezimalDate, SezimalTime, SezimalDateTime
+            from swixknife import SezimalRange, DozenalRange
             from swixknife import sezimal_context, sezimal_format, \
                 sezimal_format_fraction, decimal_format, \
                 dozenal_format, niftimal_format
@@ -1521,6 +1523,7 @@ class CodeArray(DataArray):
                 'Sezimal', 'SezimalInteger', 'SezimalFraction',
                 'Dozenal', 'DozenalInteger', 'DozenalFraction',
                 'SezimalDate', 'SezimalTime', 'SezimalDateTime',
+                'SezimalRange', 'DozenalRange',
                 'sezimal_context', 'sezimal_format',
                 'sezimal_format_fraction', 'decimal_format',
                 'dozenal_format', 'niftimal_format',
@@ -1529,8 +1532,8 @@ class CodeArray(DataArray):
 
             class_format_functions.update(swixknife_pyspread_formatting)
 
-        # except:
-        #     Sezimal = None
+        except:
+            Sezimal = None
 
         for key in list(globals().keys()):
             if key not in base_keys:
