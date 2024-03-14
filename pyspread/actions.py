@@ -83,7 +83,10 @@ class Action(QAction):
             super().__init__(icon, label, parent, checkable=checkable)
 
         if shortcut is not None:
-            self.setShortcut(shortcut)
+            if type(shortcut) == list:
+                self.setShortcuts(shortcut)
+            else:
+                self.setShortcut(shortcut)
 
         if statustip is not None:
             self.setStatusTip(statustip)
@@ -186,7 +189,7 @@ class MainWindowActions(AttrDict):
 
         self.quit = Action(self.parent, _("&Quit"), self.parent.closeEvent,
                            icon=Icon.quit,
-                           shortcut='Ctrl+Q' if self.shortcuts else "",
+                           shortcut='Ctrl+q' if self.shortcuts else "",
                            statustip=_('Exit pyspread'),
                            role=QAction.MenuRole.QuitRole)
 
@@ -214,7 +217,7 @@ class MainWindowActions(AttrDict):
         self.copy = Action(self.parent, _("&Copy"),
                            self.parent.workflows.edit_copy,
                            icon=Icon.copy,
-                           shortcut='Ctrl+c' if self.shortcuts else "",
+                           shortcut=['Ctrl+c', 'Ctrl+Insert'] if self.shortcuts else "",
                            statustip=_('Copy the input strings of the cells '
                                      'to the clipboard'))
 
@@ -222,14 +225,14 @@ class MainWindowActions(AttrDict):
             Action(self.parent, _("Copy results"),
                    self.parent.workflows.edit_copy_results,
                    icon=Icon.copy_results,
-                   shortcut='Shift+Ctrl+c' if self.shortcuts else "",
-                   statustip=_('Copy the result strings of the cells to the '
+                   shortcut=['Shift+Ctrl+c', 'Ctrl+Shift+Insert'] if self.shortcuts else "",
+                   statustip=_('Copy the python code as strings of the cells to the '
                              'clipboard'))
 
         self.paste = Action(self.parent, _("&Paste"),
                             self.parent.workflows.edit_paste,
                             icon=Icon.paste,
-                            shortcut='Ctrl+v' if self.shortcuts else "",
+                            shortcut=['Ctrl+v', 'Shift+Insert'] if self.shortcuts else "",
                             statustip=_('Paste cells from the clipboard'))
 
         self.paste_as = Action(
