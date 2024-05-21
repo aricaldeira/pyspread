@@ -59,7 +59,7 @@ pages:
   - mkdir public
   - export LC_ALL=C
   - dpkg-reconfigure locales
-  - ./apidocs/build_docs.sh
+  - QT_QPA_PLATFORM=offscreen ./apidocs/build_docs.sh
   artifacts:
     paths:
     - public
