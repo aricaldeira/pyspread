@@ -59,7 +59,7 @@ pages:
   - mkdir public
   - export LC_ALL=C
   - dpkg-reconfigure locales
-  - cd apidocs
+  - cd ../apidocs
   - ./build_docs.sh
   artifacts:
     paths:
