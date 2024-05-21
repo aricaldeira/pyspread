@@ -66,6 +66,16 @@ When data shall be displayed as text, it has to be quoted so that the code repre
 
 ## Grid
 
+## Grid cells
+
+Grid cells display a representation of the cell's result. The actual output depends on the renderer. 
+ * The text renderer displays the return string from the `__str__` method. 
+ * The image renderer displays an image, which is derived from a QImage or from an SVG string or from a numpy.ndarray. In the latter case, the matrix values are displayed as image.
+ * The markup renderer displays the result from an html string. While it only supports basic html features, it allows to display formatted text.
+ * The matplotlib renderer displays a rendered matplotlib figure. Note that animations and interactive figures are not supported.
+
+Regardless of the selected renderer, each cell has a tooltip associated that displays up to 1000 characters of the result of the text renderer. Move the mouse over a cell to display the tooltip.
+
 #### Navigating the grid
 The grid can be navigated via the arrow keys as well as using the scrollbars. Note that if a cell that is outside the view is newly selected, the view may jump to the cell.
 

@@ -2351,9 +2351,13 @@ class GridCellDelegate(QStyledItemDelegate):
                                    Qt.AspectRatioMode.IgnoreAspectRatio,
                                    Qt.TransformationMode.SmoothTransformation)
         else:
-            qimage = qimage.scaled(int(img_width), int(img_height),
-                                   Qt.AspectRatioMode.KeepAspectRatio,
-                                   Qt.TransformationMode.SmoothTransformation)
+            try:
+                qimage = qimage.scaled(int(img_width), int(img_height),
+                                    Qt.AspectRatioMode.KeepAspectRatio,
+                                    Qt.TransformationMode.SmoothTransformation)
+
+            except AttributeError:
+                qimage = qimage.scaled(int(img_width), int(img_height))
 
         with painter_save(painter):
             try:
@@ -2405,8 +2409,11 @@ class GridCellDelegate(QStyledItemDelegate):
             svg_rect = rect
             svg.render(painter, svg_rect)
             return
-
-        svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+    
+        try:
+            svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        except AttributeError:
+            pass
 
         svg_size = svg.defaultSize()
 
