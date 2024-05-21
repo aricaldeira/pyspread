@@ -59,7 +59,8 @@ pages:
   - mkdir public
   - export LC_ALL=C
   - dpkg-reconfigure locales
-  - sphinx-build -a -b html ./apidocs ./public/
+  - cd apidocs
+  - ./build.sh
   artifacts:
     paths:
     - public
