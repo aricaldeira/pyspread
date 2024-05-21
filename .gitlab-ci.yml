@@ -56,10 +56,11 @@ pages:
   script:
   - apt install -y -qq locales
   - pip3 install --break-system-packages -r apidocs/requirements.txt
-  - mkdir public
+  - cd ..
+  - mkdir public apidocs
+  - cd apidocs
   - export LC_ALL=C
   - dpkg-reconfigure locales
-  - cd ../apidocs
   - ./build_docs.sh
   artifacts:
     paths:
