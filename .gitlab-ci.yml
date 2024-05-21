@@ -60,7 +60,7 @@ pages:
   - export LC_ALL=C
   - dpkg-reconfigure locales
   - cd apidocs
-  - ./build.sh
+  - ./build_docs.sh
   artifacts:
     paths:
     - public
