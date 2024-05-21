@@ -8,5 +8,3 @@ sphinxcontrib-napoleon
 sphinx-autodoc-typehints
 
 recommonmark
-sphinxbootstrap4theme
-

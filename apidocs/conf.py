@@ -1,65 +1,35 @@
 # Configuration file for the Sphinx documentation builder.
 #
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
 
-os.environ["__GEN_DOCS__"] = "1"
-
-HERE_PATH =  os.path.abspath( os.path.dirname( __file__ ))
-sys.path.insert(0, HERE_PATH) # for local *.rst files
-
-ROOT_PATH = os.path.abspath( os.path.join(HERE_PATH, "..") )
-if sys.path.count(ROOT_PATH) == 0:
-    sys.path.insert(0, ROOT_PATH)
-
-SRC_PATH = os.path.abspath( os.path.join(ROOT_PATH, "pyspread") )
-sys.path.insert(0, SRC_PATH)
-
-# -- Project information -----------------------------------------------------
+from pyspread.settings import VERSION
 
 project = 'pyspread'
-copyright = '2019 Martin Manns'
-author = 'Martin Manns'
-
-# The full version, including alpha/beta/rc tags
-# TODO use proper version here
-# from pyspread.settings import VERSION
-release = 'v2-dev'
-
+copyright = 'Martin Manns and the pyspread team '
+author = 'Martin Manns and the pyspread team'
 
 # -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
-    # 'sphinx.ext.coverage',
-    # 'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.graphviz',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
-
     'recommonmark'
 ]
 
-master_doc = 'index'
-
-# Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
@@ -76,11 +46,12 @@ source_suffix = {
 primary_domain = 'py'
 highlight_language = 'py'
 
+release = VERSION
 
-## Were autodoc so set stuff aphabetically
+# Were autodoc so set stuff aphabetically
 autodoc_member_order = "alphabetical"
 
-## Flags for the stuff to document..
+# Flags for the stuff to document..
 autodoc_default_flags = [
     'members',
     'undoc-members',
@@ -90,44 +61,32 @@ autodoc_default_flags = [
     #"exclude-members ",
     'show-inheritance'
 ]
+
 autoclass_content = "both"
 autosummary_generate = True
 
 
+
 # -- Options for HTML output -------------------------------------------------
-html_title = 'pyspread API docs'
-html_short_title = "pyspread"
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+html_theme = 'nature'
 
-html_theme = 'sphinxbootstrap4theme'
-import sphinxbootstrap4theme
-html_theme_path = [sphinxbootstrap4theme.get_path()]
-
-html_theme_options = dict(
-    navbar_style = "",
-    navbar_color_class = "light",
-    navbar_bg_class = "light",
-    navbar_show_pages = False,
-    navbar_pages_title = "Pages",
-    #navbar_links =
-    #navbar_collapse = md
-    #main_width = 80%
-    show_sidebar = True,
-    sidebar_right = False,
-    sidebar_fixed = False,
-    table_thead_class = "inverse"
-)
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_css_files = [
     'css/w3.css',
 ]
 
-#html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'], }
-html_sidebars = { '**': ['about.html', 'globaltoc.html'], }
+html_title = 'pyspread API docs'
+html_short_title = "pyspread"
+html_favicon = "_static/pyspread.png"
+
+
+html_sidebars = {
+   '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+   'using/windows': ['windowssidebar.html', 'searchbox.html'],
+}
+
 
 # If true, links to the reST sources are added to the pages.
 #
@@ -141,12 +100,7 @@ html_show_sphinx = False
 #
 html_show_copyright = False
 
-html_context = {
-    "git_repos_url": "https://gitlab.com/pyspread/pyspread"
-
-}
-
-html_favicon = "_static/pyspread.png"
+html_context = {"git_repos_url": "https://gitlab.com/pyspread/pyspread"}
 
 intersphinx_mapping = {
     'python': ('http://docs.python.org/3', None),
