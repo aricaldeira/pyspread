@@ -117,6 +117,23 @@ S[:, :, :]
 ```
 may lock up or even crash with a memory error if the grid size is too large.
 
+## How cells are evaluated
+
+Pyspread differs from traditional spreadsheets in its way to evaluate its cells. The approach is difficult for Python because side-effects must be taken into account. Even though there may be ways to achieve proper dependency tracking in Python, we have not found a way that is sufficiently fast for acceptable spreadsheet usage. Instead, pyspread employs a caching strategy.
+
+The following behavior applies to cells that are not frozen:
+
+Pyspread evaluates the macro editor code and the code of all visible cells. Whenever a cell that has not been evaluated before becomes visible, it is evaluated on the fly. Each evaluated cell result is stored in a result cache. When a cell is evaluated again, the cached result is used, and the cell is not re-evaluated. This also applies for cells that are called from other cell codes with code such as `S[1,2,3]`. 
+
+The result cache is cleared when
+  * macro editor changes have been applied or
+  * a cell code has been changed.
+Furthermore, certain actions such as `Freeze cell` may empty the cache.
+
+Frozen cells are handled differently:
+
+When a cell is frozen, it is directly evaluated. Its result is not stored inside but outside of the result cache. Macro or cell changes do not lead to a re-evaluation of frozen cells. Instead, the action `Refresh selected cells` updates a frozen cell that is selected. Furthermore when `Toggle periodic updates` is activated, all frozen cells are re-evaluated after a time period that is specified in the preferences dialog.
+
 ## Everything is accessible
 
 All parts of *pyspread* are written in Python, therefore all objects can be accessed from within each cell. This is also the case for external modules.
