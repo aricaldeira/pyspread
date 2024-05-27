@@ -185,9 +185,6 @@ def _C_(addr: str) -> Any:
     return S[t-1, l-1, table]  # Works in cells because S is global
 
 
-class_format_functions = {}
-
-
 class DefaultCellAttributeDict(AttrDict):
     """Holds default values for all cell attributes"""
 
