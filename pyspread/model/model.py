@@ -103,7 +103,6 @@ try:
     from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import ZEN
-    from pyspread.formatting import class_format_functions
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
@@ -112,7 +111,9 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
-    from formatting import class_format_functions
+
+
+class_format_functions = {}
 
 
 class DefaultCellAttributeDict(AttrDict):

@@ -71,8 +71,7 @@ try:
     from pyspread.lib.csv import csv_reader, convert
     from pyspread.lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from pyspread.model.model import CellAttribute
-    from pyspread.formatting import class_format_functions
+    from pyspread.model.model import CellAttribute, class_format_functions
 except ImportError:
     import commands
     from dialogs \
@@ -89,8 +88,8 @@ except ImportError:
     from lib.csv import csv_reader, convert
     from lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from model.model import CellAttribute
-    from formatting import class_format_functions
+    from model.model import CellAttribute, class_format_functions
+
 
 
 class Workflows:

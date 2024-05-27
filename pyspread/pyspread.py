@@ -44,13 +44,11 @@ from PyQt6.QtWidgets import QApplication
 try:
     from pyspread.cli import PyspreadArgumentParser
     from pyspread.main_window import MainWindow
-    from pyspread import formatting
     from pyspread.i18n import set_language
 
 except ImportError:
     from cli import PyspreadArgumentParser
     from main_window import MainWindow
-    import formatting
     from i18n import set_language
 
 
