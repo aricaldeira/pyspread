@@ -182,6 +182,9 @@ def _C_(addr: str) -> Any:
     return S[t-1, l-1, table]  # Works in cells because S is global
 
 
+class_format_functions = {}
+
+
 class DefaultCellAttributeDict(AttrDict):
     """Holds default values for all cell attributes"""
 
@@ -1563,10 +1566,11 @@ class CodeArray(DataArray):
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
                      'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_', '_C_',
-                     '_table_from_address', 'CellRange']
+                     '_table_from_address', 'CellRange', 'class_format_functions']
 
         try:
             from moneyed import Money
+            base_keys.append('Money')
         except ImportError:
             Money = None
 
