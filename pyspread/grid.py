@@ -73,7 +73,8 @@ try:
                                         BorderColorRightCache,
                                         BorderColorBottomCache)
     from pyspread.model.model import (CodeArray, CellAttribute,
-                                      DefaultCellAttributeDict)
+                                      DefaultCellAttributeDict,
+                                      class_format_functions)
     from pyspread.lib.attrdict import AttrDict
     from pyspread.interfaces.pys import (qt52qt6_fontweights,
                                              qt62qt5_fontweights)
@@ -85,7 +86,6 @@ try:
                                 HorizontalHeaderContextMenu,
                                 VerticalHeaderContextMenu)
     from pyspread.widgets import CellButton
-    from pyspread.formatting import class_format_functions
 except ImportError:
     import commands
     from dialogs import DiscardDataDialog
@@ -93,7 +93,8 @@ except ImportError:
                                BorderWidthBottomCache, BorderWidthRightCache,
                                EdgeBordersCache, BorderColorRightCache,
                                BorderColorBottomCache)
-    from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
+    from model.model import (CodeArray, CellAttribute, DefaultCellAttributeDict,
+                            class_format_functions)
     from lib.attrdict import AttrDict
     from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
@@ -103,7 +104,6 @@ except ImportError:
     from menus import (GridContextMenu, TableChoiceContextMenu,
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
     from widgets import CellButton
-    from formatting import class_format_functions
 
 FONTSTYLES = (QFont.Style.StyleNormal,
               QFont.Style.StyleItalic,
