@@ -122,6 +122,9 @@ except ImportError:
     from lib.string_helpers import ZEN
 
 
+class_format_functions = {}
+
+
 def update_xl_list():
     """Updates list of pycel modules to be accessible from within cells"""
 
@@ -1563,10 +1566,12 @@ class CodeArray(DataArray):
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
                      'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_', '_C_',
-                     '_table_from_address', 'CellRange']
+                     '_table_from_address', 'CellRange',
+                     'class_format_functions']
 
         try:
             from moneyed import Money
+            base_keys.append('Money')
         except ImportError:
             Money = None
 

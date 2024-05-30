@@ -79,7 +79,8 @@ try:
                                         BorderColorRightCache,
                                         BorderColorBottomCache)
     from pyspread.model.model import (CodeArray, CellAttribute,
-                                      DefaultCellAttributeDict)
+                                      DefaultCellAttributeDict,
+                                      class_format_functions)
     from pyspread.lib.attrdict import AttrDict
     from pyspread.interfaces.pys import (qt52qt6_fontweights,
                                          qt62qt5_fontweights)
@@ -98,7 +99,8 @@ except ImportError:
                                BorderWidthBottomCache, BorderWidthRightCache,
                                EdgeBordersCache, BorderColorRightCache,
                                BorderColorBottomCache)
-    from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
+    from model.model import (CodeArray, CellAttribute, DefaultCellAttributeDict,
+                            class_format_functions)
     from lib.attrdict import AttrDict
     from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
@@ -1955,6 +1957,10 @@ class GridTableModel(QAbstractTableModel):
         def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
             try:
+                if obj.__class__ in class_format_functions:
+                    format_function = class_format_functions[obj.__class__]
+                    return format_function(obj)
+
                 return str(obj)
             except Exception as err:
                 return str(err)

@@ -78,7 +78,7 @@ try:
     from pyspread.lib.csv import csv_reader, convert
     from pyspread.lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from pyspread.model.model import CellAttribute
+    from pyspread.model.model import CellAttribute, class_format_functions
 except ImportError:
     import commands
     from dialogs \
@@ -96,7 +96,7 @@ except ImportError:
     from lib.csv import csv_reader, convert
     from lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from model.model import CellAttribute
+    from model.model import CellAttribute, class_format_functions
 
 
 class Workflows:
@@ -1134,7 +1134,8 @@ class Workflows:
         renderer = grid.model.code_array.cell_attributes[current].renderer
 
         if renderer == "text":
-            clipboard.setText(str(data))
+            clipboard.setText(grid.model.data(grid.currentIndex()))
+            # clipboard.setText(str(data))
 
         elif renderer == "image":
             if isinstance(data, QImage):
@@ -1184,10 +1185,17 @@ class Workflows:
 
         def str_nn(ele):
             """str which returns '' if ele is None"""
-
             if ele is None:
                 return ''
-            return str(ele)
+
+            try:
+                if ele.__class__ in class_format_functions:
+                    format_function = class_format_functions[ele.__class__]
+                    return format_function(ele)
+
+                return str(ele)
+            except Exception as err:
+                return str(err)
 
         table = grid.table
         selection = grid.selection
