@@ -498,7 +498,7 @@ class Grid(QTableView):
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
-        elif event.key() == Qt.Key.Key_Delete:
+        elif event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             self.main_window.workflows.delete()
         elif (event.key() == Qt.Key.Key_Escape
               and self.editTriggers()
@@ -2415,7 +2415,7 @@ class GridCellDelegate(QStyledItemDelegate):
             svg_rect = rect
             svg.render(painter, svg_rect)
             return
-    
+
         try:
             svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         except AttributeError:
