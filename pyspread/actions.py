@@ -45,6 +45,11 @@ except ImportError:
     enchant = None
 
 try:
+    import dateutil
+except ImportError:
+    dateutil = None
+
+try:
     from pyspread.icons import Icon
     from pyspread.lib.attrdict import AttrDict
 except ImportError:
@@ -276,13 +281,6 @@ class MainWindowActions(AttrDict):
             icon=Icon.selection_mode, checkable=True,
             shortcut='Ins',
             statustip='Enter/leave selection mode')
-
-        self.quote = Action(self.parent, "&Quote",
-                            self.parent.grid.on_quote,
-                            icon=Icon.quote,
-                            shortcut='Ctrl+Return' if self.shortcuts else "",
-                            statustip="Convert cells' code to strings by "
-                                      "addding quotes")
 
         self.insert_rows = Action(self.parent, "Insert rows",
                                   self.parent.grid.on_insert_rows,
@@ -765,6 +763,37 @@ class MainWindowActions(AttrDict):
                                    icon=Icon.insert_chart,
                                    statustip='Create and display matplotlib '
                                              'chart')
+
+        self.quote = Action(self.parent, "&Quote",
+                            self.parent.grid.on_quote,
+                            icon=Icon.quote,
+                            shortcut='Ctrl+Return' if self.shortcuts else "",
+                            statustip="Convert cells' code to strings by "
+                                      "addding quotes")
+
+        self.money = Action(self.parent, "&Money",
+                            self.parent.grid.on_money,
+                            icon=Icon.money,
+                            shortcut='Ctrl+M' if self.shortcuts else "",
+                            statustip="Convert cells' code to Money")
+
+        if dateutil is not None:
+            self.datetime = Action(self.parent, "Datetime",
+                                   self.parent.grid.on_datetime,
+                                   icon=Icon.datetime,
+                                   statustip="Convert cells' code to datetime")
+
+            self.date = Action(self.parent, "&Date",
+                               self.parent.grid.on_date,
+                               icon=Icon.date,
+                               shortcut='Ctrl+D' if self.shortcuts else "",
+                               statustip="Convert cells' code to date")
+
+            self.time = Action(self.parent, "&Time",
+                               self.parent.grid.on_time,
+                               icon=Icon.time,
+                               shortcut='Ctrl+T' if self.shortcuts else "",
+                               statustip="Convert cells' code to time")
 
         self.insert_sum = Action(self.parent, "Insert sum",
                                  self.parent.workflows.macro_insert_sum,

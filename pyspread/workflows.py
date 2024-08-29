@@ -31,6 +31,7 @@ from contextlib import contextmanager
 from copy import copy
 import csv
 import io
+import logging
 import numpy
 import os.path
 from pathlib import Path
@@ -56,6 +57,11 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs \
         import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
@@ -64,6 +70,7 @@ try:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.interfaces.xlsx import XlsxReader
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
     from pyspread.lib.selection import Selection
@@ -71,7 +78,7 @@ try:
     from pyspread.lib.csv import csv_reader, convert
     from pyspread.lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from pyspread.model.model import CellAttribute
+    from pyspread.model.model import CellAttribute, class_format_functions
 except ImportError:
     import commands
     from dialogs \
@@ -81,6 +88,7 @@ except ImportError:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from interfaces.pys import PysReader, PysWriter
+    from interfaces.xlsx import XlsxReader
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
     from lib.selection import Selection
@@ -88,7 +96,7 @@ except ImportError:
     from lib.csv import csv_reader, convert
     from lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
-    from model.model import CellAttribute
+    from model.model import CellAttribute, class_format_functions
 
 
 class Workflows:
@@ -289,8 +297,22 @@ class Workflows:
         # File format handling
         if filepath.suffix == ".pysu":
             fopen = open
-        else:
+            freader = PysReader
+        elif filepath.suffix == ".pys":
             fopen = bz2.open
+            freader = PysReader
+        elif filepath.suffix == ".xlsx":
+            if openpyxl is None:
+                msg = f"openpyxl is not installed. {filepath} not opened."
+                self.main_window.statusBar().showMessage(msg)
+                return
+            fopen = open
+            freader = XlsxReader
+        else:
+            msg = f"Unknown file format {filepath.suffix}. "\
+                  f"{filepath} not opened."
+            self.main_window.statusBar().showMessage(msg)
+            return
 
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
@@ -304,18 +326,20 @@ class Workflows:
 
         try:
             with fopen(filepath, "rb") as infile:
-                reader = PysReader(infile, code_array)
+                reader = freader(infile, code_array)
                 try:
                     for i, _ in file_progress_gen(self.main_window, reader,
                                                   title, label, filelines):
                         pass
                 except Exception as error:
+                    logging.error(error)
                     grid.model.reset()
                     self.main_window.statusBar().showMessage(str(error))
                     self.main_window.safe_mode = False
                     return
                 except ProgressDialogCanceled:
                     msg = f"File open stopped by user at line {i}."
+                    logging.info(msg)
                     self.main_window.statusBar().showMessage(msg)
                     grid.model.reset()
                     self.main_window.safe_mode = False
@@ -1110,7 +1134,8 @@ class Workflows:
         renderer = grid.model.code_array.cell_attributes[current].renderer
 
         if renderer == "text":
-            clipboard.setText(str(data))
+            clipboard.setText(grid.model.data(grid.currentIndex()))
+            # clipboard.setText(str(data))
 
         elif renderer == "image":
             if isinstance(data, QImage):
@@ -1160,10 +1185,17 @@ class Workflows:
 
         def str_nn(ele):
             """str which returns '' if ele is None"""
-
             if ele is None:
                 return ''
-            return str(ele)
+
+            try:
+                if ele.__class__ in class_format_functions:
+                    format_function = class_format_functions[ele.__class__]
+                    return format_function(ele)
+
+                return str(ele)
+            except Exception as err:
+                return str(err)
 
         table = grid.table
         selection = grid.selection

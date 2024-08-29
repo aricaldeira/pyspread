@@ -535,8 +535,6 @@ class CellRenderer:
 
         """
 
-        zoomed_width = max(1, width * zoom)
-
         return QPen(QColor(255, 255, 255, 0), zoomed_width,
                     Qt.PenStyle.SolidLine, Qt.PenCapStyle.FlatCap,
                     Qt.PenJoinStyle.MiterJoin)

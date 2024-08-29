@@ -36,6 +36,7 @@ Pyspread's main grid
 
 from ast import literal_eval
 from contextlib import contextmanager
+from datetime import datetime, date, time
 from io import BytesIO
 from typing import Any, Iterable, List, Tuple, Union
 
@@ -64,6 +65,11 @@ except ImportError:
     matplotlib = None
 
 try:
+    from moneyed import Money
+except ImportError:
+    Money = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs import DiscardDataDialog
     from pyspread.grid_renderer import (painter_save, CellRenderer,
@@ -73,10 +79,11 @@ try:
                                         BorderColorRightCache,
                                         BorderColorBottomCache)
     from pyspread.model.model import (CodeArray, CellAttribute,
-                                      DefaultCellAttributeDict)
+                                      DefaultCellAttributeDict,
+                                      class_format_functions)
     from pyspread.lib.attrdict import AttrDict
     from pyspread.interfaces.pys import (qt52qt6_fontweights,
-                                             qt62qt5_fontweights)
+                                         qt62qt5_fontweights)
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import quote, wrap_text
     from pyspread.lib.qimage2ndarray import array2qimage
@@ -92,7 +99,8 @@ except ImportError:
                                BorderWidthBottomCache, BorderWidthRightCache,
                                EdgeBordersCache, BorderColorRightCache,
                                BorderColorBottomCache)
-    from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
+    from model.model import (CodeArray, CellAttribute, DefaultCellAttributeDict,
+                            class_format_functions)
     from lib.attrdict import AttrDict
     from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
@@ -490,7 +498,7 @@ class Grid(QTableView):
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
-        elif event.key() == Qt.Key.Key_Delete:
+        elif event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             self.main_window.workflows.delete()
         elif (event.key() == Qt.Key.Key_Escape
               and self.editTriggers()
@@ -1378,6 +1386,91 @@ class Grid(QTableView):
                                            description)
             self.main_window.undo_stack.push(command)
 
+    def on_money(self):
+        """Make cell money object event handler using default currency"""
+
+        description = f"Money type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, Money):
+                return
+            if isinstance(res, float):
+                code = quote(code)
+            currency_iso_code = self.main_window.settings.currency_iso_code
+            moneyed_code = f'Money({code}, "{currency_iso_code}")'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(moneyed_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_datetime(self):
+        """Make cell datetime object event handler"""
+
+        description = f"Datetime type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, datetime):
+                return
+            if not isinstance(res, str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code})'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_date(self):
+        """Make cell date object event handler"""
+
+        description = f"Date type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, date):
+                return
+            if not isinstance(res, str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code}).date()'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_time(self):
+        """Make cell time object event handler"""
+
+        description = f"Time type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, time):
+                return
+            if not isinstance(res, str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code}).time()'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
     def is_row_data_discarded(self, count: int) -> bool:
         """True if row data is to be discarded on row insertion
 
@@ -1565,12 +1658,14 @@ class GridHeaderView(QHeaderView):
 
         """
 
+        zoom = self.grid.zoom
+
         unzoomed_rect = QRect(0, 0,
-                              int(round(rect.width()/self.grid.zoom)),
-                              int(round(rect.height()/self.grid.zoom)))
+                              int(round(rect.width()/zoom)),
+                              int(round(rect.height()/zoom)))
         with painter_save(painter):
             painter.translate(rect.x()+1, rect.y()+1)
-            painter.scale(self.grid.zoom, self.grid.zoom)
+            painter.scale(zoom, zoom)
             super().paintSection(painter, unzoomed_rect, logicalIndex)
 
     def contextMenuEvent(self, event: QContextMenuEvent):
@@ -1862,6 +1957,10 @@ class GridTableModel(QAbstractTableModel):
         def safe_str(obj) -> str:
             """Returns str(obj), on RecursionError returns error message"""
             try:
+                if obj.__class__ in class_format_functions:
+                    format_function = class_format_functions[obj.__class__]
+                    return format_function(obj)
+
                 return str(obj)
             except Exception as err:
                 return str(err)
@@ -2316,7 +2415,7 @@ class GridCellDelegate(QStyledItemDelegate):
             svg_rect = rect
             svg.render(painter, svg_rect)
             return
-    
+
         try:
             svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         except AttributeError:

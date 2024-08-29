@@ -36,16 +36,20 @@ If you change the first parameter in the cell's function from 5 into 1 then the 
 ## Adjusting the float accuracy that is displayed in a cell
 
 While one can use the `round` function to adjust accuracy, this may be tedious for larger spreadsheets.
+Therefore, starting with pyspread v 2.3, `class_format_functions` is available. It is a dict that maps a type to a function.
+It should be used in the Macro editor. The following code adjusts `float` output:
 
-The recommended option is to use Python's builtin [decimal module](https://docs.python.org/3/library/decimal.html).
-When creating decimals from given numbers, do not forget to provide them as strings.
+```python
+class_format_functions[float] = lambda x: f"{x:.4f}"
+```
+
+Note that depending on your use case, `float` may not be the best choice. Consider using Python's builtin [decimal module](https://docs.python.org/3/library/decimal.html). When creating decimals from given numbers, do not forget to provide them as strings.
 
 ```
 Decimal(3.2)    # 3.20000000000000017763568394002504646778106689453125
 Decimal('3.2')  # 3.2
 ```
 
-If you actually want floating point arithmetics using `numpy.float` provides less digits for many cases. 
 For arbitrary precision, you may want to try out the [mpmath module](https://pypi.org/project/mpmath/), which
 provides the pretty attribute for human friendly representation.
 
