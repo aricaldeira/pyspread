@@ -1324,7 +1324,10 @@ class CodeArray(DataArray):
         """
 
         # Change numpy array repr function for grid cell results
-        numpy.set_printoptions(formatter = {'all': lambda x: repr(x.tolist())})
+        try:
+            numpy.set_printoptions(formatter = {'all': lambda s: repr(s.tolist())})
+        except AttributeError:
+            numpy.set_string_function(lambda s: repr(s.tolist()))
 
         # Prevent unchanged cells from being recalculated on cursor movement
 
