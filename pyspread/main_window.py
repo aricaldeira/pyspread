@@ -682,7 +682,7 @@ class MainWindow(QMainWindow):
             return f"<ul>{devs_str}</ul>"
 
         devs = ("Martin Manns", "Jason Sexauer", "Vova Kolobok", "mgunyho",
-                "Pete Morgan", "Ari Caldeira")
+                "Pete Morgan", "Ari Caldeira", "kirinokirino")
         devs_str = devs_string(devs)
 
         doc_devs = ("Martin Manns", "Bosko Markovic", "Pete Morgan")
