@@ -19,7 +19,9 @@ that grid size has been limited to 1 000 000 rows, 100 000 columns and 100 table
 ## File → Open
 
 Loading a spreadsheet from disk can be initiated with **`File → Open`**. Opening a
-file expects a file with the extension `.pysu` or `.pys`. The file format is *pyspread* specific. The formats differ only in `.pys` being a bzip2-compressed version of `.pysu`. `pysu` is the default option. It can be beneficial when using *pyspread* in combination with file version control systems such as git.
+file expects a file with the extension `.pysu`, `.pys` or - if the `pycel` package is installed - `.xlsx`. The file format is *pyspread* specific. The formats differ only in `.pys` being a bzip2-compressed version of `.pysu`. `pysu` is the default option. It can be beneficial when using *pyspread* in combination with file version control systems such as git.
+
+Using `.xlsx`, Excel files can be opened. Excel formula are converted into Python code via the `pycel` package. Note that many common files may not work as expected and may not appear at all because `pycel` does not support them, e.g. relative cell references are treated as absolute ones. Furthermore, using the resulting pyspread files will require `pycel` to be installed in order to run without errors.
 
 Since *pyspread* files are ultimately Python programs, a file is opened in safe mode if
 it has not been previously signed with the key that is shown in the Preference dialog.
