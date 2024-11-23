@@ -132,20 +132,20 @@ class Entryline(SpellTextEdit):
                 else:
                     self.store_data()
                     grid.row += 1
-            return False
+            return
         elif self.last_key == Qt.Key.Key_Tab:
             self.store_data()
             grid.column += 1
-            return False
+            return
         elif self.last_key == Qt.Key.Key_Escape:
             grid.on_current_changed()
             grid.setFocus()
-            return False
+            return
         elif self.last_key == Qt.Key.Key_Insert:
             grid.set_selection_mode(not grid.selection_mode)
-            return False
+            return
 
-        return True
+        return super().keyPressEvent(event)
 
     def store_data(self):
         """Stores current entry line data in grid model"""
