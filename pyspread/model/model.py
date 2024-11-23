@@ -1325,9 +1325,9 @@ class CodeArray(DataArray):
 
         # Change numpy array repr function for grid cell results
         try:
-            numpy.set_printoptions(formatter = {'all': lambda s: repr(s.tolist())})
+            numpy.set_printoptions(formatter = {'all': lambda s: repr(s.tolist() if hasattr(s, "tolist") else s)})
         except AttributeError:
-            numpy.set_string_function(lambda s: repr(s.tolist()))
+            numpy.set_string_function(lambda s: repr(s.tolist() if hasattr(s, "tolist") else s))
 
         # Prevent unchanged cells from being recalculated on cursor movement
 

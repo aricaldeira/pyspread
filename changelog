@@ -22,10 +22,12 @@ Dependencies:
 
 
 Bug fixes:
-* If <Enter> or <Tab> are typed too fast in the grid, respective actions are
+ * Errors when slicing S fixed
+ * If <Enter> or <Tab> are typed too fast in the grid, respective actions are
   now triggered only once and not twice
  * Added debug support via CLI using logging. Used mainly for xlsx import, yet.
  * Fixed a bug that prevented many xlsx files from being opened
+ * Errors when slicing S fixed
 
 Known issues:
  * Font weights may render slightly different from versio0n 2.2.x.
