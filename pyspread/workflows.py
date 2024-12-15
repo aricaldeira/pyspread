@@ -387,7 +387,7 @@ class Workflows:
         self.main_window.settings.add_to_file_history(filepath.as_posix())
 
         # Update recent files in the file menu
-        self.main_window.menuBar().file_menu.history_submenu.update()
+        self.main_window.menuBar().file_menu.history_submenu.update_()
 
         return filepath
 
@@ -517,7 +517,7 @@ class Workflows:
         self.main_window.settings.add_to_file_history(filepath.as_posix())
 
         # Update recent files in the file menu
-        self.main_window.menuBar().file_menu.history_submenu.update()
+        self.main_window.menuBar().file_menu.history_submenu.update_()
 
         self.sign_file(filepath)
 
