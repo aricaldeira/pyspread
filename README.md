@@ -82,19 +82,18 @@ $ python -m pyspread
 ```
 inside the top directory.
 
+# Contact
+
+For user questions or user feedback please use the [pyspread community board](https://gitter.im/pyspread/community) on gitter.
+
 # Contribute
 
 ## Issues
 
-Please submit issues in the gitlab issue tracker at
-- https://gitlab.com/pyspread/pyspread/issues
+For contributions, patches, development discussions and ideas please create an issue using the pyspread [issue tracker](https://gitlab.com/pyspread/pyspread/issues) on gitlab.
 
 ## Code
 
-Commit your changes, push them into your fork and send a pull request.
+Commit your changes, push them into your fork and send a merge request. [The fork documentation page](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html) gives an overview how to do this in gitlab.
 
-This page gives an overview how to do this:
-- https://help.github.com/articles/fork-a-repo
-
-You can find more more details about code organization at
-- https://pyspread.gitlab.io/pyspread/
+You can find more more details about code organization [here](https://pyspread.gitlab.io/pyspread/)

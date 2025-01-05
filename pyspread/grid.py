@@ -99,8 +99,8 @@ except ImportError:
                                BorderWidthBottomCache, BorderWidthRightCache,
                                EdgeBordersCache, BorderColorRightCache,
                                BorderColorBottomCache)
-    from model.model import (CodeArray, CellAttribute, DefaultCellAttributeDict,
-                            class_format_functions)
+    from model.model import (CodeArray, CellAttribute,
+                             DefaultCellAttributeDict, class_format_functions)
     from lib.attrdict import AttrDict
     from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
