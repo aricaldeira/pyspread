@@ -698,8 +698,18 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
         in_multiline = self.match_multiline(text, *self.tri_single)
         in_multiline = self.match_multiline(text, *self.tri_double)
 
+    def highlightBlock_spreadsheet(self, text):
+        # NYI! Currently this just disables the highlighting
+        pass
+
     def highlightBlock(self, text):
         """Overridden QSyntaxHighlighter method to apply the highlight"""
+
+        total_text = self.document().toPlainText()
+        if total_text and total_text[0] == "=":
+            # Use spreadsheet highlighter instead
+            self.highlightBlock_spreadsheet(text)
+            return
 
         self.highlightBlock_python(text)
 
