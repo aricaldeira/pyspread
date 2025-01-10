@@ -112,6 +112,7 @@ try:
     from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import ZEN
+    from pyspread.lib.parsers import spreadsheet_formula_to_code
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
@@ -120,6 +121,7 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
+    from lib.parsers import spreadsheet_formula_to_code
 
 
 class_format_functions = {}
@@ -1508,6 +1510,10 @@ class CodeArray(DataArray):
             pass
 
         try:
+            if code[0] == '=':
+                # FIXME: Somehow writing something like "=A5" as the first input,
+                #  makes pyspread compain "name 'Z' is not defined"
+                code = spreadsheet_formula_to_code(code)
             result = self.exec_then_eval(code, env, {})
 
         except AttributeError as err:
@@ -1570,7 +1576,7 @@ class CodeArray(DataArray):
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
                      'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_', '_C_',
                      '_table_from_address', 'CellRange',
-                     'class_format_functions']
+                     'class_format_functions', 'spreadsheet_formula_to_code']
 
         try:
             from moneyed import Money
