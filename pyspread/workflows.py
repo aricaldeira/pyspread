@@ -238,7 +238,7 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
         # Update macro editor
-        self.main_window.macro_panel.update()
+        self.main_window.macro_panel.update_()
 
         # Exit safe mode
         self.main_window.safe_mode = False
@@ -381,7 +381,7 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
         # Update macro editor
-        self.main_window.macro_panel.update()
+        self.main_window.macro_panel.update_()
 
         # Add to file history
         self.main_window.settings.add_to_file_history(filepath.as_posix())
