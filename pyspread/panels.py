@@ -31,7 +31,7 @@ from io import StringIO
 from sys import exc_info
 from traceback import print_exception
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QModelIndex
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QSplitter
 from PyQt6.QtWidgets import QTextEdit
@@ -122,6 +122,7 @@ class MacroPanel(QDialog):
             self.update_result_viewer(err=err)
         else:
             self.update_result_viewer(*self.code_array.execute_macros())
+            self.parent.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
         self.parent.grid.gui_update()
 
