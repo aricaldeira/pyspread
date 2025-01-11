@@ -31,7 +31,7 @@ from io import StringIO
 from sys import exc_info
 from traceback import print_exception
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QModelIndex
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QSplitter
 from PyQt6.QtWidgets import QTextEdit
@@ -56,7 +56,7 @@ class MacroPanel(QDialog):
         self._init_widgets()
         self._layout()
 
-        self.update()
+        self.update_()
 
         self.default_text_color = self.result_viewer.textColor()
         self.error_text_color = QColor("red")
@@ -122,10 +122,11 @@ class MacroPanel(QDialog):
             self.update_result_viewer(err=err)
         else:
             self.update_result_viewer(*self.code_array.execute_macros())
+            self.parent.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
         self.parent.grid.gui_update()
 
-    def update(self):
+    def update_(self):
         """Update macro content"""
 
         self.macro_editor.setPlainText(self.code_array.macros)

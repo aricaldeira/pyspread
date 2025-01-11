@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         self.print_area = None
 
         # Update recent files in the file menu
-        self.menuBar().file_menu.history_submenu.update()
+        self.menuBar().file_menu.history_submenu.update_()
 
         # Update toolbar toggle checkboxes
         self.update_action_toggles()
@@ -544,7 +544,7 @@ class MainWindow(QMainWindow):
 
             # Immediately adjust file history in menu
             if max_file_history_changed:
-                self.menuBar().file_menu.history_submenu.update()
+                self.menuBar().file_menu.history_submenu.update_()
 
     def on_dependencies(self):
         """Dependancies installer (:class:`installer.InstallerDialog`) """

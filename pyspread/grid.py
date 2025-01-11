@@ -2750,7 +2750,6 @@ class TableChoice(QTabBar):
                     grid.update_zoom()
 
             grid.update_index_widgets()
-            grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
             grid.gui_update()
             try:
                 v_pos, h_pos = grid.table_scrolls[current]
