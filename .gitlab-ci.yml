@@ -35,19 +35,6 @@ test_debian_testing_optional_req:
   - master
   - development
 
-test_debian_experimental:
-  image: debian:experimental
-  variables:
-    QT_QPA_PLATFORM: "offscreen"
-  script:
-  - mkdir -p /tmp/runtime-pyspreadci
-  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
-  - py.test-3
-  only:
-  - master
-  - development
-
-
 ## Release to pypi
 deploy_pypi:
   stage: release
