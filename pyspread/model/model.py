@@ -195,12 +195,12 @@ class DefaultCellAttributeDict(AttrDict):
         self.borderwidth_right = 1
         self.bordercolor_bottom = None
         self.bordercolor_right = None
-        self.bgcolor = 255, 255, 255  # Do not use theme
+        self.bgcolor = None
         self.textfont = None
         self.pointsize = 10
         self.fontweight = None
         self.fontstyle = None
-        self.textcolor = 0, 0, 0  # Do not use theme
+        self.textcolor = None
         self.underline = False
         self.strikethrough = False
         self.locked = False

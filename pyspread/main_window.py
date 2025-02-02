@@ -56,6 +56,7 @@ try:
     from pyspread.grid_renderer import painter_save
     from pyspread.entryline import Entryline
     from pyspread.menus import MenuBar
+    from pyspread.themes import ColorRole
     from pyspread.toolbar import (MainToolBar, FindToolbar, FormatToolbar,
                                   MacroToolbar)
     from pyspread.actions import MainWindowActions
@@ -77,6 +78,7 @@ except ImportError:
     from grid_renderer import painter_save
     from entryline import Entryline
     from menus import MenuBar
+    from themes import ColorRole
     from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
     from actions import MainWindowActions
     from workflows import Workflows
@@ -777,27 +779,28 @@ class MainWindow(QMainWindow):
             self.format_toolbar.line_width_button.setIcon(icon)
 
         if attributes.textcolor is None:
-            text_color = self.grid.palette().color(QPalette.ColorRole.Text)
+            textcolor = self.grid.palette().color(ColorRole.text)
         else:
-            text_color = QColor(*attributes.textcolor)
-        widgets.text_color_button.color = text_color
+            textcolor = QColor(*attributes.textcolor)
+        widgets.text_color_button.color = textcolor
 
         if attributes.bordercolor_bottom is None:
-            line_color = self.grid.palette().color(QPalette.ColorRole.Mid)
+            linecolor = self.grid.palette().color(ColorRole.line)
         else:
-            line_color = QColor(*attributes.bordercolor_bottom)
-        widgets.line_color_button.color = line_color
+            linecolor = QColor(*attributes.bordercolor_bottom)
+        widgets.line_color_button.color = linecolor
 
         if attributes.bgcolor is None:
-            bgcolor = self.grid.palette().color(QPalette.ColorRole.Base)
+            bgcolor = self.grid.palette().color(ColorRole.bg)
         else:
             bgcolor = QColor(*attributes.bgcolor)
         widgets.background_color_button.color = bgcolor
 
-        if attributes.textfont is None:
-            widgets.font_combo.font = QFont().family()
-        else:
-            widgets.font_combo.font = attributes.textfont
+        textfont = attributes.textfont
+        if textfont is None:
+            textfont = QFont().family()
+        widgets.font_combo.font = textfont
+
         widgets.font_size_combo.size = attributes.pointsize
 
         self.main_window_actions.merge_cells.setChecked(

@@ -91,6 +91,7 @@ try:
     from pyspread.menus import (GridContextMenu, TableChoiceContextMenu,
                                 HorizontalHeaderContextMenu,
                                 VerticalHeaderContextMenu)
+    from pyspread.themes import ColorRole
     from pyspread.widgets import CellButton
 except ImportError:
     import commands
@@ -109,6 +110,7 @@ except ImportError:
     from lib.typechecks import is_svg, check_shape_validity
     from menus import (GridContextMenu, TableChoiceContextMenu,
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
+    from themes import ColorRole
     from widgets import CellButton
 
 FONTSTYLES = (QFont.Style.StyleNormal,
@@ -167,12 +169,6 @@ class Grid(QTableView):
 
         self.verticalHeader().setMinimumSectionSize(0)
         self.horizontalHeader().setMinimumSectionSize(0)
-
-        # Palette adjustment for cases in  which the Base color is not white
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Base,
-                         QColor(*DefaultCellAttributeDict().bgcolor))
-        self.setPalette(palette)
 
         self.setCornerButtonEnabled(False)
 
@@ -1995,12 +1991,12 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.BackgroundRole:
             if self.main_window.settings.show_frozen \
                and self.code_array.cell_attributes[key].frozen:
-                pattern_rgb = self.grid.palette().highlight().color()
+                pattern_rgb = self.grid.palette().color(ColorRole.highlight)
                 bg_color = QBrush(pattern_rgb, Qt.BrushStyle.BDiagPattern)
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key].bgcolor
                 if bg_color_rgb is None:
-                    bg_color = QColor(255, 255, 255)
+                    bg_color = self.grid.palette().color(ColorRole.bg)
                 else:
                     bg_color = QColor(*bg_color_rgb)
             return bg_color
@@ -2008,7 +2004,7 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.ForegroundRole:
             text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
-                text_color = self.grid.palette().color(QPalette.ColorRole.Text)
+                text_color = self.grid.palette().color(ColorRole.text)
             else:
                 text_color = QColor(*text_color_rgb)
             return text_color
@@ -2208,7 +2204,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         text_color = self.grid.model.data(index,
                                           role=Qt.ItemDataRole.ForegroundRole)
-        ctx.palette.setColor(QPalette.ColorRole.Text, text_color)
+        ctx.palette.setColor(ColorRole.text, text_color)
 
         key = index.row(), index.column(), self.grid.table
         vertical_align = self.cell_attributes[key].vertical_align
