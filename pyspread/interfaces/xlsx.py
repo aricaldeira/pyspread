@@ -71,10 +71,12 @@ except ImportError:
 try:
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.selection import Selection
+    from pyspread.lib.parsers import spreadsheet_formula_to_code
     from pyspread.model.model import CellAttribute, CodeArray
 except ImportError:
     from lib.attrdict import AttrDict
     from lib.selection import Selection
+    from lib.parsers import spreadsheet_formula_to_code
     from model.model import CellAttribute, CodeArray
 
 
@@ -251,8 +253,7 @@ class XlsxReader:
         elif cell.data_type == TYPE_FORMULA:
             # Convert formula via pycel
             logging.debug(f"Cell {key} is coverted via pycel")
-            ex = excelformula.ExcelFormula(cell.value)
-            code = ex.python_code
+            code = spreadsheet_formula_to_code(cell.value)
         elif cell.data_type == TYPE_BOOL:
             code = "True" if cell.value else "False"
         elif cell.data_type == TYPE_NULL:
