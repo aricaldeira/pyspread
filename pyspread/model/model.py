@@ -1612,7 +1612,7 @@ class CodeArray(DataArray):
                     globals()[name] = fun
                     base_keys += XL_LIST
 
-            except UnboundLocalError:
+            except (UnboundLocalError, AttributeError):
                 pass  # openpyxl is not installed
 
         for key in list(globals().keys()):
