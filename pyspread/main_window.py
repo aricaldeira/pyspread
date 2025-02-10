@@ -160,6 +160,8 @@ class MainWindow(QMainWindow):
                 msg = f"File '{filepath}' could not be opened."
                 self.statusBar().showMessage(msg)
 
+        self.settings.changed_since_save = False
+
     def _init_window(self):
         """Initialize main window components"""
 
@@ -276,6 +278,9 @@ class MainWindow(QMainWindow):
         self.widgets.font_combo.fontChanged.connect(self.grid.on_font)
         self.widgets.font_size_combo.fontSizeChanged.connect(
             self.grid.on_font_size)
+
+        # Clear globals to make pycel work
+        self.on_clear_globals()
 
     def _layout(self):
         """Layouts for main window"""
