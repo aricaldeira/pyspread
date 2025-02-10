@@ -415,7 +415,7 @@ class MainWindow(QMainWindow):
 
         # Create print dialog
         dialog = QPrintDialog(printer, self)
-        if dialog.exec() == QPrintDialog.Accepted:
+        if dialog.exec() == QPrintDialog.accepted:
             self.on_paint_request(printer)
 
         self.print_area = None
