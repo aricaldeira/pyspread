@@ -2755,3 +2755,9 @@ class TableChoice(QTabBar):
             grid.horizontalScrollBar().setValue(h_pos)
 
         self.last = current
+
+        # Update entryline
+        try:
+            self.main_window.grid.on_current_changed()
+        except AttributeError:
+            pass
