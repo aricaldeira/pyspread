@@ -1688,8 +1688,12 @@ class GridHeaderView(QHeaderView):
 
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
-                self.setDefaultSectionSize(int(self.default_section_size
-                                               * self.grid.zoom))
+                default_size = int(self.default_section_size * self.grid.zoom)
+                self.setDefaultSectionSize(default_size)
+
+                # Fix for PyQt6 setDefaultSectionSize not working
+                for section in range(self.count()):
+                    self.resizeSection(section, default_size)
 
                 if self.orientation() == Qt.Orientation.Horizontal:
                     section_sizes = self.grid.column_widths
