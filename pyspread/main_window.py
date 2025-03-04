@@ -216,6 +216,43 @@ class MainWindow(QMainWindow):
             event.ignore()
         self.workflows.file_quit()  # has @handle_changed_since_save decorator
 
+    def dragEnterEvent(self, event: QEvent = None):
+        """Overloaded, accept the dragging of files into pyspread
+
+        :param event: Any QEvent
+
+        """
+
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event: QEvent = None):
+        """Overloaded, accept the moving of files over pyspread
+
+        :param event: Any QEvent
+
+        """
+
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            super().dragMoveEvent(event)
+
+    def dropEvent(self, event: QEvent = None):
+        """Overloaded, catch the dropping of files into pyspread
+
+        :param event: Any QEvent
+
+        """
+
+        for url in event.mimeData().urls():
+            if url.isLocalFile():
+                filepath = Path(url.toLocalFile())
+                self.workflows.filepath_open(filepath)
+                break
+
     def _init_widgets(self):
         """Initialize widgets"""
 
