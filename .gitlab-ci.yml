@@ -27,7 +27,7 @@ test_debian_testing_optional_req:
   variables:
     QT_QPA_PLATFORM: "offscreen"
   script:
-  - apt install r-base r-base-dev
+  - apt install -y -qq r-base r-base-dev
   - pip3 install --break-system-packages matplotlib numpy pytest openpyxl rpy2 py-moneyed dateutil enchant plotnine pycel pytest-qt
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
