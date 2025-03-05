@@ -250,7 +250,7 @@ class MainWindow(QMainWindow):
         for url in event.mimeData().urls():
             if url.isLocalFile():
                 filepath = Path(url.toLocalFile())
-                self.workflows.filepath_open(filepath)
+                self.workflows.file_open_recent(filepath)
                 break
 
     def _init_widgets(self):
