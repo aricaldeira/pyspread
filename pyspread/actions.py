@@ -282,17 +282,27 @@ class MainWindowActions(AttrDict):
             shortcut='Ins',
             statustip='Enter/leave selection mode')
 
-        self.shift_cells_down = Action(self.parent, "Shift cells down",
+        self.shift_cells_down = Action(self.parent, "Shift selection down",
                                        self.parent.grid.on_shift_cells_down,
-                                       icon=Icon.insert_row,
-                                       statustip='Shift cells below selection '
-                                                 'down')
+                                       icon=Icon.shift_down,
+                                       statustip='Shift selection down')
 
-        self.shift_cells_right = Action(self.parent, "Shift cells right",
+        self.shift_cells_right = Action(self.parent, "Shift selection right",
                                         self.parent.grid.on_shift_cells_right,
-                                        icon=Icon.insert_column,
-                                        statustip='Shift cells right of '
-                                                  'selection right')
+                                        icon=Icon.shift_right,
+                                        statustip='Shift selection right')
+
+        self.delete_shift_cells_up = Action(
+            self.parent, "Delete and shift cells up",
+            self.parent.grid.on_delete_shift_cells_up,
+            icon=Icon.shift_up,
+            statustip='Delete selection and shift cells below it up')
+
+        self.delete_shift_cells_left = Action(
+            self.parent, "Delete and shift cells left",
+            self.parent.grid.on_delete_shift_cells_left,
+            icon=Icon.shift_left,
+            statustip='Delete selection and shift cells right of it left')
 
         self.insert_rows = Action(self.parent, "Insert rows",
                                   self.parent.grid.on_insert_rows,

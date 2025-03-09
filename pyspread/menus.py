@@ -157,6 +157,8 @@ class EditMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.shift_cells_down)
         self.addAction(actions.shift_cells_right)
+        self.addAction(actions.delete_shift_cells_up)
+        self.addAction(actions.delete_shift_cells_left)
         self.addSeparator()
         self.addAction(actions.insert_rows)
         self.addAction(actions.insert_columns)
@@ -456,13 +458,16 @@ class GridContextMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.quote)
         self.addSeparator()
+        self.addAction(actions.shift_cells_down)
+        self.addAction(actions.shift_cells_right)
+        self.addAction(actions.delete_shift_cells_up)
+        self.addAction(actions.delete_shift_cells_left)
+        self.addSeparator()
         self.addAction(actions.insert_rows)
         self.addAction(actions.insert_columns)
-        self.addAction(actions.insert_table)
         self.addSeparator()
         self.addAction(actions.delete_rows)
         self.addAction(actions.delete_columns)
-        self.addAction(actions.delete_table)
 
 
 class HorizontalHeaderContextMenu(QMenu):
