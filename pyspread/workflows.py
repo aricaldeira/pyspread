@@ -1059,38 +1059,50 @@ class Workflows:
 
     # Edit menu
 
-    def delete(self, description_tpl: str = "Delete selection {}"):
+    def delete(self, description_tpl: str = "Delete selection {}",
+               selection: Selection = None):
         """Delete cells in selection
 
         :param description_tpl: Description template for `QUndoCommand`
+        :param selection: Selection to delete, deletes grid selection if None
 
         """
 
         grid = self.main_window.focused_grid
         model = grid.model
-        selection = grid.selection
+        if selection is None:
+            selection = grid.selection
 
         description = description_tpl.format(selection)
         command = commands.DeleteSelectedCellData(grid, model, selection,
                                                   description)
         self.main_window.undo_stack.push(command)
 
-    def edit_cut(self):
-        """Edit -> Cut workflow"""
+    def edit_cut(self, description_tpl: str = "Cut selection {}",
+                 selection: Selection = None):
+        """Edit -> Cut workflow
 
-        self.edit_copy()
-        self.delete(description_tpl="Cut selection {}")
+        :param description_tpl: Description template for `QUndoCommand`
+        :param selection: Selection to cut, cuts grid selection if None
 
-    def edit_copy(self):
+        """
+
+        self.edit_copy(selection=selection)
+        self.delete(description_tpl=description_tpl, selection=selection)
+
+    def edit_copy(self, *, selection: Selection = None):
         """Edit -> Copy workflow
 
         Copies selected grid code to clipboard
+
+        :param selection: Selection to copy, copies grid selection if None
 
         """
 
         grid = self.main_window.focused_grid
         table = grid.table
-        selection = grid.selection
+        if selection is None:
+            selection = grid.selection
         bbox = selection.get_grid_bbox(grid.model.shape)
         (top, left), (bottom, right) = bbox
 
@@ -1226,11 +1238,13 @@ class Workflows:
         else:
             self._copy_results_current(grid)
 
-    def _paste_to_selection(self, selection: Selection, data: str):
+    def _paste_to_selection(self, selection: Selection, data: str,
+                            description_tpl: str = "Paste clipboard to {}"):
         """Pastes data into grid filling the selection
 
         :param selection: Grid cell selection for pasting
         :param data: Clipboard text
+        :param description_tpl: Description template for `QUndoCommand`
 
         """
 
@@ -1238,7 +1252,6 @@ class Workflows:
         model = grid.model
         undo_stack = self.main_window.undo_stack
 
-        description_tpl = "Paste clipboard to {}"
         description = description_tpl.format(selection)
 
         cmd = commands.PasteSelectedCellData(grid, model, selection, data,

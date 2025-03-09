@@ -282,6 +282,12 @@ class MainWindowActions(AttrDict):
             shortcut='Ins',
             statustip='Enter/leave selection mode')
 
+        self.shift_cells_down = Action(self.parent, "Shift cells down",
+                                       self.parent.grid.on_shift_cells_down,
+                                       icon=Icon.insert_row,
+                                       statustip='Insert selection and shift'
+                                                 'cells that are below down')
+
         self.insert_rows = Action(self.parent, "Insert rows",
                                   self.parent.grid.on_insert_rows,
                                   icon=Icon.insert_row,

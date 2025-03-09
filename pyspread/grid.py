@@ -1523,6 +1523,41 @@ class Grid(QTableView):
         return any(key[2] in tables and self.model.code_array(key) is not None
                    for key in self.model.code_array)
 
+    def on_shift_cells_down(self, *,
+                            description_tpl: str = "Shift selection {} down"):
+        """Insert shift cells down event handler
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
+
+        try:
+            (top, left), (bottom, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+            left = right = self.column
+        count = bottom - top + 1
+
+        if self.is_row_data_discarded(count):
+            text = ("Shifting cells down will discard data.\n \n"
+                    "You may want to resize the grid before shifting.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
+
+        selection1 = Selection([(bottom+1, left)], [(None, right)], [], [], [])
+        self.main_window.workflows.edit_cut(description_tpl=description_tpl,
+                                            selection=selection1)
+
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        selection2 = Selection([(bottom+count+1, left)], [(None, right)],
+                               [], [], [])
+        self.main_window.workflows._paste_to_selection(
+            selection2, data,
+            description_tpl=description_tpl.format(selection1))
+
     def on_insert_rows(self):
         """Insert rows event handler"""
 
