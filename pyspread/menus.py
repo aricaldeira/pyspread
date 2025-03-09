@@ -156,6 +156,7 @@ class EditMenu(QMenu):
         self.addAction(actions.toggle_selection_mode)
         self.addSeparator()
         self.addAction(actions.shift_cells_down)
+        self.addAction(actions.shift_cells_right)
         self.addSeparator()
         self.addAction(actions.insert_rows)
         self.addAction(actions.insert_columns)

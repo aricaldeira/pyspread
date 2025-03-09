@@ -1545,14 +1545,49 @@ class Grid(QTableView):
             if DiscardDataDialog(self.main_window, text).choice is not True:
                 return
 
-        selection1 = Selection([(bottom+1, left)], [(None, right)], [], [], [])
+        selection1 = Selection([(top, left)], [(None, right)], [], [], [])
         self.main_window.workflows.edit_cut(description_tpl=description_tpl,
                                             selection=selection1)
 
         clipboard = QApplication.clipboard()
         data = clipboard.text()
 
-        selection2 = Selection([(bottom+count+1, left)], [(None, right)],
+        selection2 = Selection([(bottom+1, left)], [(None, right)],
+                               [], [], [])
+        self.main_window.workflows._paste_to_selection(
+            selection2, data,
+            description_tpl=description_tpl.format(selection1))
+
+    def on_shift_cells_right(
+            self, *, description_tpl: str = "Shift selection {} right"):
+        """Insert shift cells right event handler
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
+
+        try:
+            (top, left), (bottom, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+            left = right = self.column
+        count = right - left + 1
+
+        if self.is_column_data_discarded(count):
+            text = ("Shifting cells right will discard data.\n \n"
+                    "You may want to resize the grid before shifting.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
+
+        selection1 = Selection([(top, left)], [(bottom, None)], [], [], [])
+        self.main_window.workflows.edit_cut(description_tpl=description_tpl,
+                                            selection=selection1)
+
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        selection2 = Selection([(top, right+1)], [(bottom, None)],
                                [], [], [])
         self.main_window.workflows._paste_to_selection(
             selection2, data,

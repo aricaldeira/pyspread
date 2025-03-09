@@ -285,8 +285,14 @@ class MainWindowActions(AttrDict):
         self.shift_cells_down = Action(self.parent, "Shift cells down",
                                        self.parent.grid.on_shift_cells_down,
                                        icon=Icon.insert_row,
-                                       statustip='Insert selection and shift'
-                                                 'cells that are below down')
+                                       statustip='Shift cells below selection '
+                                                 'down')
+
+        self.shift_cells_right = Action(self.parent, "Shift cells right",
+                                        self.parent.grid.on_shift_cells_right,
+                                        icon=Icon.insert_column,
+                                        statustip='Shift cells right of '
+                                                  'selection right')
 
         self.insert_rows = Action(self.parent, "Insert rows",
                                   self.parent.grid.on_insert_rows,
