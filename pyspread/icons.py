@@ -101,6 +101,7 @@ class IconPath:
     # Format menu icons
     copy_format = ACTION_PATH / 'format-copy.svg'
     paste_format = ACTION_PATH / 'format-paste.svg'
+    default_format = ACTION_PATH / 'format-default.svg'
     font_dialog = ACTION_PATH / 'format-font.svg'
     bold = ACTION_PATH / 'format-text-bold.svg'
     italics = ACTION_PATH / 'format-text-italic.svg'

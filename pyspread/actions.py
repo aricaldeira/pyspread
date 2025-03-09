@@ -432,6 +432,12 @@ class MainWindowActions(AttrDict):
                    statustip='Apply format from the clipboard to the selected '
                              'cells')
 
+        self.default_format = \
+            Action(self.parent, "&Default format",
+                   self.parent.grid.on_format_default,
+                   icon=Icon.default_format,
+                   statustip='Reset cell format to system theme default')
+
         self.font = Action(self.parent, "&Font...",
                            self.parent.grid. on_font_dialog,
                            icon=Icon.font_dialog,

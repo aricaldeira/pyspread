@@ -797,6 +797,22 @@ class Grid(QTableView):
 
         self.main_window.settings.show_frozen = toggled
 
+    def on_format_default(self):
+        """Reset cell format to system theme by setting values to None
+
+        The merge status of cells is unaffected
+
+        """
+
+        attr_dict = DefaultCellAttributeDict()
+        attr_dict.pop("merge_area")  # Merged cells are not undone
+        attr = CellAttribute(self.selection, self.table, attr_dict)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = f"Reset cell format for cells {idx_string}"
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
+
     def on_font_dialog(self):
         """Font dialog event handler"""
 

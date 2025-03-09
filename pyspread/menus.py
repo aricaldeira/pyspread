@@ -219,6 +219,8 @@ class FormatMenu(QMenu):
         self.addAction(actions.copy_format)
         self.addAction(actions.paste_format)
         self.addSeparator()
+        self.addAction(actions.default_format)
+        self.addSeparator()
         self.addAction(actions.font)
         self.addAction(actions.bold)
         self.addAction(actions.italics)
