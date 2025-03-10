@@ -71,6 +71,24 @@ Quotation is not done if:
 
 ----------
 
+## Edit → Shift selection down
+
+Shifts the selected cells down. Cells below the selection are shifted down with the selection. Cells with content that go beyond the grid are deleted after a warning dialog. The step can be undone. It equals a cut and paste operation of the selected cells and the cells below. Formatting of cells is not affected, i.e. cell formatting is not shifted with the cells.
+
+## Edit → Shift selection right
+
+Shifts the selected cells right. Cells right of the selection are shifted down with the selection. Cells with content that go beyond the grid are deleted after a warning dialog. The step can be undone. It equals a cut and paste operation of the selected cells and the cells right. Formatting of cells is not affected, i.e. cell formatting is not shifted with the cells.
+
+## Edit → Delete and shift cells up
+
+Deletes the selected cells and shifts cells that are below the selection up. The step can be undone. It equals a cut and paste operation of the cells below the selection. Formatting of cells is not affected, i.e. cell formatting is not shifted with the cells.
+
+## Edit → Delete and shift cells left
+
+Deletes the selected cells and shifts cells that are right of the selection left. The step can be undone. It equals a cut and paste operation of the cells right of the selection. Formatting of cells is not affected, i.e. cell formatting is not shifted with the cells.
+
+----------
+
 ## Edit → Insert rows
 
 Inserts one row directly above the cursor if no selections are made. If selections are present, then the bounding box that covers all selected cells is calculated, and the number of rows of this bounding box is inserted above the bounding box.

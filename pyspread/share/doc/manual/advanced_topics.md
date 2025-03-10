@@ -53,23 +53,22 @@ Decimal('3.2')  # 3.2
 For arbitrary precision, you may want to try out the [mpmath module](https://pypi.org/project/mpmath/), which
 provides the pretty attribute for human friendly representation.
 
-If you are working with currencies, you may be interested in the [Python Money Class](https://pypi.org/project/money/).
-Putting their currency presets approach, which is stated on their project page, into the macro editor works well for me:
+If you are working with currencies, you may be interested in the **`Macro → Money`** action that requires the optional dependency [`py-moneyed`](https://pypi.org/project/py-moneyed/).
 
-```
-class EUR(Money):
-    def __init__(self, amount='0'):
-        super().__init__(amount=amount, currency='EUR')
-```
+## Deep calls
 
+Python's stack limits depth of calls. Therefore counting cells up by adding 1 to the cell result above is not recommended. Use the magic variable `X` instead.
 
 ## Cyclic references
 
 Cyclic references are possible in pyspread. However, recursion depth is limited. Pyspread shows an error when the maximum recursion depth is exceeded. It is strongly advisable to only use cyclic references when either a frozen or a button cell interrupts the cycle. Otherwise, cyclic calculations may lock up pyspread.
 
-## Result stability
+## Result stability in old Python versions (<=3.5)
 
-Result stability is not guaranteed when redefining global variables because execution order may be changed. This happens for when in large spreadsheets the result cache is full and cell results that are purged from the cache are re-evaluated.
+In old Python versions (<=3.5), result stability is not guaranteed because execution order may be changed. This results from the order of dict elements not being guaranteed.
+This happens for when in large spreadsheets the result cache is full and cell results that are purged from the cache are re-evaluated.
+This may be an issue when redefining global variables, which is therefore discouraged.
+Note that for Python 3.7+, dict order stability is a language feature and therefore result stability is guaranteed.
 
 ## Security annoyance when approving files in read only folders
 

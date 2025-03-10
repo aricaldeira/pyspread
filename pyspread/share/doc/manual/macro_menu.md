@@ -35,3 +35,33 @@ Starting from version 2.2, there is a second toolbar with [R](https://www.r-proj
 With the upcoming Python 3 version of *pyspread* (i.e. v. 1.99.0+), the chart dialog has been completely rewritten.
 
 For easier transition from previous versions of *pyspread*, the special class `charts.ChartFigure` is provided. This class subclasses the matplotlib Figure class. The subclass takes matplotlib arguments and creates a figure in one step. It is recommended to replace code that uses this class.
+
+----------
+
+## Macro → Quote
+
+Puts quotation marks around the cell code. This makes the cell content of each selected cell interpreted as a string.
+
+## Macro → Money (requires py-moneyed)
+
+Converts the content of the selected cells cell into a `Money` object. This requires the optional dependency `py-moneyed`. Currency follows the Money default currency that can be set in **`File → Preferences`**.
+
+## Macro → Datetime
+
+Converts the content of the selected cells cell into a `datetime` object.
+
+## Macro → Date
+
+Converts the content of the selected cells cell into a `date` object.
+
+## Macro → Time
+
+Converts the content of the selected cells cell into a `time` object.
+
+----------
+
+## Macro → Insert sum
+
+Inserts code into the cell below the bottom left cell of currently selected cells that sums up the content of the seleted cells.
+
+Note that for summation, `numpy.sum` is employed so that e.g. string objects cannot be concatenated this way.
