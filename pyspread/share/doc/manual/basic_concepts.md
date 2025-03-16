@@ -117,6 +117,14 @@ S[:, :, :]
 ```
 may lock up or even crash with a memory error if the grid size is too large.
 
+## Excel like cell code
+
+Starting with v2.4, pyspread evaluates Excel like code if a cell code starts with the character `=`.
+
+The code evaluation employs `pycel`, which is a required dependency for this feature. 
+Note that still is an *experimental* feature. Not all Excel functions are covered. 
+Furthermore, relative cell addressing is not supported.
+
 ## How cells are evaluated
 
 Classically, spreadsheets build a dependency graph in order to determine, which cells must be re-calculated at which time.
@@ -160,7 +168,6 @@ Their results are stored in an indivdual cache that is updated only if
 This behavior allows minimizing the number of executions of slow tasks. Furthermore, it allows cyclic updates e.g. for retrieving data from Web services.
 
 Button cells acts similar to frozen cells. However, they are activated by clicking on them.
-
 
 ## Everything is accessible
 
