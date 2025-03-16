@@ -5,6 +5,37 @@ Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
 
+2.4
+---
+
+This release adds basic Exel syntax for cell code.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt6 (≥ 6.5, requires PyQt6.Svg),
+   setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18),
+   python-dateutil (>= 2.7.0), py-moneyed (>=2.0),
+   rpy2 (>=3.4, requires R installation), plotnine (>=0.8), libvoikko (>=4.3),
+   nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4), pycel (>=1.0b30),
+   openpyxl [extra] (>=3.0.7)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+New features:
+ * If a cell code starts with `=` then it is interpreted as Excel syntax
+   (optional dependecy `pycel` required). Limitations of `pycel` apply.
+ * New action insert and shift/delete and shift cells that shift
+   below/right cells.
+ * Cell formats can now be set to defaults, which allows to let a cell
+   follow the OS theme, e.g. for a dark theme, the cell background of the
+   black, while it may be white for the identical pys file on light theme.
+ * Files can now be opened via drag 'n drop
+
+Bug fixes:
+ * Several bugs that appear with Python 3.13 fixed, e.g. printing,
+   cell refrencing, grid resizing
+ * The entry line is now updated on a table change
+ * Globals are now cleared after initialiying the grid
+
 2.3.1
 -----
 
@@ -30,7 +61,7 @@ Bug fixes:
  * Errors when slicing S fixed
 
 Known issues:
- * Font weights may render slightly different from versio0n 2.2.x.
+ * Font weights may render slightly different from version 2.2.x.
    This is caused by Qt6's new font weight model.
 
 
