@@ -1078,7 +1078,7 @@ class Workflows:
                                                   description)
         self.main_window.undo_stack.push(command)
 
-    def edit_cut(self, description_tpl: str = "Cut selection {}",
+    def edit_cut(self, *, description_tpl: str = "Cut selection {}",
                  selection: Selection = None):
         """Edit -> Cut workflow
 
