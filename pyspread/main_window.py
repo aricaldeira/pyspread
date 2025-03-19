@@ -34,6 +34,7 @@ pyspread
 
 """
 
+from collections.abc import Iterable
 import os
 from pathlib import Path
 
@@ -716,18 +717,27 @@ class MainWindow(QMainWindow):
         dialog = TutorialDialog(self)
         dialog.show()
 
+    def gen_authors(self):
+        """Generator of authors from the AUTHORS file"""
+
+        with open(Path(__file__).parents[1] / "AUTHORS") as infile:
+            for line in infile:
+                if not line.strip():
+                    break
+
+            for line in infile:
+                yield line
+
     def on_about(self):
         """Show about message box"""
 
-        def devs_string(devs: list) -> str:
+        def devs_string(devs: Iterable[str]) -> str:
             """Get string from devs list"""
 
             devs_str = "".join(f"<li>{dev}</li>" for dev in devs)
             return f"<ul>{devs_str}</ul>"
 
-        devs = ("Martin Manns", "Jason Sexauer", "Vova Kolobok", "mgunyho",
-                "Pete Morgan", "Ari Caldeira", "kirinokirino")
-        devs_str = devs_string(devs)
+        devs_str = devs_string(self.gen_authors())
 
         doc_devs = ("Martin Manns", "Bosko Markovic", "Pete Morgan")
         doc_devs_str = devs_string(doc_devs)
