@@ -94,10 +94,10 @@ class Settings:
     file_history = []
     """Files in file history"""
 
-    entry_line_font_family = "Monospace"
+    entry_line_font_family = "Iosevka Sezimal"
     """Font family for entry line widget"""
 
-    macro_editor_font_family = "Monospace"
+    macro_editor_font_family = "Iosevka Sezimal"
     """Font family for macro editor widget"""
 
     digest_types = None
