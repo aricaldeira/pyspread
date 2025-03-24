@@ -34,6 +34,7 @@ pyspread
 
 """
 
+from collections.abc import Iterable
 import os
 from pathlib import Path
 
@@ -56,6 +57,7 @@ try:
     from pyspread.grid_renderer import painter_save
     from pyspread.entryline import Entryline
     from pyspread.menus import MenuBar
+    from pyspread.themes import ColorRole
     from pyspread.toolbar import (MainToolBar, FindToolbar, FormatToolbar,
                                   MacroToolbar)
     from pyspread.actions import MainWindowActions
@@ -78,6 +80,7 @@ except ImportError:
     from grid_renderer import painter_save
     from entryline import Entryline
     from menus import MenuBar
+    from themes import ColorRole
     from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
     from actions import MainWindowActions
     from workflows import Workflows
@@ -137,7 +140,7 @@ class MainWindow(QMainWindow):
         self.print_area = None
 
         # Update recent files in the file menu
-        self.menuBar().file_menu.history_submenu.update()
+        self.menuBar().file_menu.history_submenu.update_()
 
         # Update toolbar toggle checkboxes
         self.update_action_toggles()
@@ -159,6 +162,8 @@ class MainWindow(QMainWindow):
             else:
                 msg = f"File '{filepath}' could not be opened."
                 self.statusBar().showMessage(msg)
+
+        self.settings.changed_since_save = False
 
     def _init_window(self):
         """Initialize main window components"""
@@ -213,6 +218,43 @@ class MainWindow(QMainWindow):
         if event:
             event.ignore()
         self.workflows.file_quit()  # has @handle_changed_since_save decorator
+
+    def dragEnterEvent(self, event: QEvent = None):
+        """Overloaded, accept the dragging of files into pyspread
+
+        :param event: Any QEvent
+
+        """
+
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event: QEvent = None):
+        """Overloaded, accept the moving of files over pyspread
+
+        :param event: Any QEvent
+
+        """
+
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            super().dragMoveEvent(event)
+
+    def dropEvent(self, event: QEvent = None):
+        """Overloaded, catch the dropping of files into pyspread
+
+        :param event: Any QEvent
+
+        """
+
+        for url in event.mimeData().urls():
+            if url.isLocalFile():
+                filepath = Path(url.toLocalFile())
+                self.workflows.file_open_recent(filepath)
+                break
 
     def _init_widgets(self):
         """Initialize widgets"""
@@ -276,6 +318,9 @@ class MainWindow(QMainWindow):
         self.widgets.font_combo.fontChanged.connect(self.grid.on_font)
         self.widgets.font_size_combo.fontSizeChanged.connect(
             self.grid.on_font_size)
+
+        # Clear globals to make pycel work
+        self.on_clear_globals()
 
     def _layout(self):
         """Layouts for main window"""
@@ -415,7 +460,7 @@ class MainWindow(QMainWindow):
 
         # Create print dialog
         dialog = QPrintDialog(printer, self)
-        if dialog.exec() == QPrintDialog.Accepted:
+        if dialog.exec() == QPrintDialog.accepted:
             self.on_paint_request(printer)
 
         self.print_area = None
@@ -449,8 +494,7 @@ class MainWindow(QMainWindow):
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
-        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform
-                               | QPainter.RenderHint.SmoothPixmapTransform)
+        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform)
 
         page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
 
@@ -547,7 +591,7 @@ class MainWindow(QMainWindow):
 
             # Immediately adjust file history in menu
             if max_file_history_changed:
-                self.menuBar().file_menu.history_submenu.update()
+                self.menuBar().file_menu.history_submenu.update_()
 
     def on_dependencies(self):
         """Dependancies installer (:class:`installer.InstallerDialog`) """
@@ -675,18 +719,27 @@ class MainWindow(QMainWindow):
         dialog = TutorialDialog(self)
         dialog.show()
 
+    def gen_authors(self):
+        """Generator of authors from the AUTHORS file"""
+
+        with open(Path(__file__).parents[1] / "AUTHORS") as infile:
+            for line in infile:
+                if not line.strip():
+                    break
+
+            for line in infile:
+                yield line
+
     def on_about(self):
         """Show about message box"""
 
-        def devs_string(devs: list) -> str:
+        def devs_string(devs: Iterable[str]) -> str:
             """Get string from devs list"""
 
             devs_str = "".join(f"<li>{dev}</li>" for dev in devs)
             return f"<ul>{devs_str}</ul>"
 
-        devs = ("Martin Manns", "Jason Sexauer", "Vova Kolobok", "mgunyho",
-                "Pete Morgan", 'Ari Caldeira (i18n, Sezimal and Dozenal)')
-        devs_str = devs_string(devs)
+        devs_str = devs_string(self.gen_authors())
 
         doc_devs = ("Martin Manns", "Bosko Markovic", "Pete Morgan")
         doc_devs_str = devs_string(doc_devs)
@@ -789,27 +842,28 @@ class MainWindow(QMainWindow):
             self.format_toolbar.line_width_button.setIcon(icon)
 
         if attributes.textcolor is None:
-            text_color = self.grid.palette().color(QPalette.ColorRole.Text)
+            textcolor = self.grid.palette().color(ColorRole.text)
         else:
-            text_color = QColor(*attributes.textcolor)
-        widgets.text_color_button.color = text_color
+            textcolor = QColor(*attributes.textcolor)
+        widgets.text_color_button.color = textcolor
 
         if attributes.bordercolor_bottom is None:
-            line_color = self.grid.palette().color(QPalette.ColorRole.Mid)
+            linecolor = self.grid.palette().color(ColorRole.line)
         else:
-            line_color = QColor(*attributes.bordercolor_bottom)
-        widgets.line_color_button.color = line_color
+            linecolor = QColor(*attributes.bordercolor_bottom)
+        widgets.line_color_button.color = linecolor
 
         if attributes.bgcolor is None:
-            bgcolor = self.grid.palette().color(QPalette.ColorRole.Base)
+            bgcolor = self.grid.palette().color(ColorRole.bg)
         else:
             bgcolor = QColor(*attributes.bgcolor)
         widgets.background_color_button.color = bgcolor
 
-        if attributes.textfont is None:
-            widgets.font_combo.font = QFont().family()
-        else:
-            widgets.font_combo.font = attributes.textfont
+        textfont = attributes.textfont
+        if textfont is None:
+            textfont = QFont().family()
+        widgets.font_combo.font = textfont
+
         widgets.font_size_combo.size = attributes.pointsize
 
         self.main_window_actions.merge_cells.setChecked(

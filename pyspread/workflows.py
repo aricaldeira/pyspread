@@ -31,6 +31,7 @@ from contextlib import contextmanager
 from copy import copy
 import csv
 import io
+import logging
 import numpy
 import os.path
 from pathlib import Path
@@ -56,6 +57,11 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs \
         import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
@@ -64,6 +70,7 @@ try:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.interfaces.xlsx import XlsxReader
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
     from pyspread.lib.selection import Selection
@@ -81,6 +88,7 @@ except ImportError:
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
                 FileExportDialog, SvgExportAreaDialog, SinglePageArea)
     from interfaces.pys import PysReader, PysWriter
+    from interfaces.xlsx import XlsxReader
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
     from lib.selection import Selection
@@ -89,7 +97,6 @@ except ImportError:
     from lib.file_helpers import \
         (linecount, file_progress_gen, ProgressDialogCanceled)
     from model.model import CellAttribute, class_format_functions
-
 
 
 class Workflows:
@@ -231,7 +238,7 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
         # Update macro editor
-        self.main_window.macro_panel.update()
+        self.main_window.macro_panel.update_()
 
         # Exit safe mode
         self.main_window.safe_mode = False
@@ -290,8 +297,22 @@ class Workflows:
         # File format handling
         if filepath.suffix == ".pysu":
             fopen = open
-        else:
+            freader = PysReader
+        elif filepath.suffix == ".pys":
             fopen = bz2.open
+            freader = PysReader
+        elif filepath.suffix == ".xlsx":
+            if openpyxl is None:
+                msg = f"openpyxl is not installed. {filepath} not opened."
+                self.main_window.statusBar().showMessage(msg)
+                return
+            fopen = open
+            freader = XlsxReader
+        else:
+            msg = f"Unknown file format {filepath.suffix}. "\
+                  f"{filepath} not opened."
+            self.main_window.statusBar().showMessage(msg)
+            return
 
         # Process events before showing the modal progress dialog
         QApplication.instance().processEvents()
@@ -305,18 +326,20 @@ class Workflows:
 
         try:
             with fopen(filepath, "rb") as infile:
-                reader = PysReader(infile, code_array)
+                reader = freader(infile, code_array)
                 try:
                     for i, _ in file_progress_gen(self.main_window, reader,
                                                   title, label, filelines):
                         pass
                 except Exception as error:
+                    logging.error(error)
                     grid.model.reset()
                     self.main_window.statusBar().showMessage(str(error))
                     self.main_window.safe_mode = False
                     return
                 except ProgressDialogCanceled:
                     msg = f"File open stopped by user at line {i}."
+                    logging.info(msg)
                     self.main_window.statusBar().showMessage(msg)
                     grid.model.reset()
                     self.main_window.safe_mode = False
@@ -358,13 +381,13 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
         # Update macro editor
-        self.main_window.macro_panel.update()
+        self.main_window.macro_panel.update_()
 
         # Add to file history
         self.main_window.settings.add_to_file_history(filepath.as_posix())
 
         # Update recent files in the file menu
-        self.main_window.menuBar().file_menu.history_submenu.update()
+        self.main_window.menuBar().file_menu.history_submenu.update_()
 
         return filepath
 
@@ -494,7 +517,7 @@ class Workflows:
         self.main_window.settings.add_to_file_history(filepath.as_posix())
 
         # Update recent files in the file menu
-        self.main_window.menuBar().file_menu.history_submenu.update()
+        self.main_window.menuBar().file_menu.history_submenu.update_()
 
         self.sign_file(filepath)
 
@@ -1036,38 +1059,50 @@ class Workflows:
 
     # Edit menu
 
-    def delete(self, description_tpl: str = "Delete selection {}"):
+    def delete(self, description_tpl: str = "Delete selection {}",
+               selection: Selection = None):
         """Delete cells in selection
 
         :param description_tpl: Description template for `QUndoCommand`
+        :param selection: Selection to delete, deletes grid selection if None
 
         """
 
         grid = self.main_window.focused_grid
         model = grid.model
-        selection = grid.selection
+        if selection is None:
+            selection = grid.selection
 
         description = description_tpl.format(selection)
         command = commands.DeleteSelectedCellData(grid, model, selection,
                                                   description)
         self.main_window.undo_stack.push(command)
 
-    def edit_cut(self):
-        """Edit -> Cut workflow"""
+    def edit_cut(self, *, description_tpl: str = "Cut selection {}",
+                 selection: Selection = None):
+        """Edit -> Cut workflow
 
-        self.edit_copy()
-        self.delete(description_tpl="Cut selection {}")
+        :param description_tpl: Description template for `QUndoCommand`
+        :param selection: Selection to cut, cuts grid selection if None
 
-    def edit_copy(self):
+        """
+
+        self.edit_copy(selection=selection)
+        self.delete(description_tpl=description_tpl, selection=selection)
+
+    def edit_copy(self, *, selection: Selection = None):
         """Edit -> Copy workflow
 
         Copies selected grid code to clipboard
+
+        :param selection: Selection to copy, copies grid selection if None
 
         """
 
         grid = self.main_window.focused_grid
         table = grid.table
-        selection = grid.selection
+        if selection is None:
+            selection = grid.selection
         bbox = selection.get_grid_bbox(grid.model.shape)
         (top, left), (bottom, right) = bbox
 
@@ -1203,11 +1238,13 @@ class Workflows:
         else:
             self._copy_results_current(grid)
 
-    def _paste_to_selection(self, selection: Selection, data: str):
+    def _paste_to_selection(self, selection: Selection, data: str,
+                            description_tpl: str = "Paste clipboard to {}"):
         """Pastes data into grid filling the selection
 
         :param selection: Grid cell selection for pasting
         :param data: Clipboard text
+        :param description_tpl: Description template for `QUndoCommand`
 
         """
 
@@ -1215,7 +1252,6 @@ class Workflows:
         model = grid.model
         undo_stack = self.main_window.undo_stack
 
-        description_tpl = "Paste clipboard to {}"
         description = description_tpl.format(selection)
 
         cmd = commands.PasteSelectedCellData(grid, model, selection, data,

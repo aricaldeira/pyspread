@@ -30,6 +30,7 @@
 
 from argparse import ArgumentParser
 from pathlib import Path
+import logging
 import sys
 
 try:
@@ -96,6 +97,16 @@ class PyspreadArgumentParser(ArgumentParser):
         self.add_argument('--default-settings', action='store_true',
                           help='start with default settings and save them on '
                                'exit')
+
+        self.add_argument('-d', '--debug',
+                          help="Print debug information",
+                          action="store_const", dest="loglevel",
+                          const=logging.DEBUG, default=logging.WARNING)
+
+        self.add_argument('-v', '--verbose',
+                          help="Print verbose information",
+                          action="store_const", dest="loglevel",
+                          const=logging.INFO)
 
         self.add_argument('file', type=Path, nargs='?', default=None,
                           help='open pyspread file in pys or pysu format')

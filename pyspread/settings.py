@@ -32,7 +32,7 @@ from pathlib import Path
 from platform import system
 from typing import Any
 
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QSettings, QLocale
 from PyQt6.QtWidgets import QToolBar, QWidget
 
 try:
@@ -137,6 +137,10 @@ class Settings:
 
     default_encoding = "utf-8"
     """Default encoding for exporting files (e.g. CSV)"""
+
+    currency_iso_code = QLocale.system().currencySymbol(
+        QLocale.CurrencySymbolFormat.CurrencyIsoCode)
+    """Default currency for Money shortcut"""
 
     encodings = (
         "ascii", "big5", "big5hkscs", "cp037", "cp424", "cp437",

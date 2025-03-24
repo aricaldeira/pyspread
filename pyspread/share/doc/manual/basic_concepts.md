@@ -117,6 +117,58 @@ S[:, :, :]
 ```
 may lock up or even crash with a memory error if the grid size is too large.
 
+## Excel like cell code
+
+Starting with v2.4, pyspread evaluates Excel like code if a cell code starts with the character `=`.
+
+The code evaluation employs `pycel`, which is a required dependency for this feature. 
+Note that still is an *experimental* feature. Not all Excel functions are covered. 
+Furthermore, relative cell addressing is not supported.
+
+## How cells are evaluated
+
+Classically, spreadsheets build a dependency graph in order to determine, which cells must be re-calculated at which time.
+With Python, this approach does not work well.
+Mutable objects such als lists may be altered by code in cells either by cell referencing or via the namespace.
+These changes may affect results of other cells etc.
+Another issue is that building a dependency graph via introspection is very slow in Python.
+Therefore, pyspread differs from traditional spreadsheets in its way to evaluate its cells.
+It computes cells lazily and relies on caching intermediate results in order to achieve fast responses when scolling though the grid.
+
+The following behavior applies to cells that are not frozen:
+
+Pyspread evaluates the macro editor code and the code of all visible cells.
+Whenever a cell that has not been evaluated before becomes visible, it is evaluated on the fly.
+Each evaluated cell result is stored in a result cache.
+When a cell is evaluated again, the cached result is used, and the cell is not re-evaluated.
+This also applies for cells that are called from other cell codes with code such as `S[1,2,3]`.
+
+Note that pyspread's cell calculation approach relies on cells being called via `S[<X> ,<Y> ,<Z>]`.
+Cell results that are accessed via the global namespace are not cached and therefore may slow down grid updates.
+
+The result cache is cleared when
+
+  * macro editor changes have been applied or
+  * a cell code has been changed.
+
+Furthermore, certain actions such as **`Format → Freeze cell`** may empty the cache.
+
+Frozen cells are handled differently:
+
+When a cell is frozen, it is directly evaluated.
+Its result is stored outside of the result cache in an indivdual cache.
+Macro or cell changes do not lead to a re-evaluation of frozen cells.
+
+Their results are stored in an indivdual cache that is updated only if
+
+ * the cell is unfrozen
+ * it is selected and **`View → Refresh selected cells <F5>`** is activated or
+ * **`View → Toggle periodic updates`** is activated and the update occurs. This happens periodically after a time period that is specified in the preferences dialog.
+
+This behavior allows minimizing the number of executions of slow tasks. Furthermore, it allows cyclic updates e.g. for retrieving data from Web services.
+
+Button cells acts similar to frozen cells. However, they are activated by clicking on them.
+
 ## Everything is accessible
 
 All parts of *pyspread* are written in Python, therefore all objects can be accessed from within each cell. This is also the case for external modules.

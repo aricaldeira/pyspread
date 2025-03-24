@@ -9,7 +9,11 @@
 import os
 import sys
 
-from pyspread.settings import VERSION
+try:
+    from pyspread.settings import VERSION
+except ImportError:
+    sys.path.insert(0, os.path.abspath('../'))
+    from pyspread.settings import VERSION
 
 project = 'pyspread'
 copyright = 'Martin Manns and the pyspread team '

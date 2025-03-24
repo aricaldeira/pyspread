@@ -78,6 +78,7 @@ def test_get_header(filepath, header):
     """Unit test for get_first_line"""
 
     dialect = sniff(filepath, 1024, encoding='utf-8')
+    dialect.quotechar = None
     with open(filepath) as csvfile:
         __header = get_header(csvfile, dialect)
 

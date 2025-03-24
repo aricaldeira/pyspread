@@ -5,20 +5,103 @@ Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
 
+2.4
+---
+
+This release adds basic Exel syntax for cell code.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt6 (≥ 6.5, requires PyQt6.Svg),
+   setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18),
+   python-dateutil (>= 2.7.0), py-moneyed (>=2.0),
+   rpy2 (>=3.4, requires R installation), plotnine (>=0.8), libvoikko (>=4.3),
+   nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4), pycel (>=1.0b30),
+   openpyxl [extra] (>=3.0.7)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+New features:
+ * If a cell code starts with `=` then it is interpreted as Excel syntax
+   (optional dependecy `pycel` required). Limitations of `pycel` apply.
+ * New action insert and shift/delete and shift cells that shift
+   below/right cells.
+ * Cell formats can now be set to defaults, which allows to let a cell
+   follow the OS theme, e.g. for a dark theme, the cell background of the
+   black, while it may be white for the identical pys file on light theme.
+ * Files can now be opened via drag 'n drop
+
+Bug fixes:
+ * Several bugs that appear with Python 3.13 fixed, e.g. printing,
+   cell refrencing, grid resizing
+ * The entry line is now updated on a table change
+ * Globals are now cleared after initialiying the grid
+
+2.3.1
+-----
+
+This is a bugfix release.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt6 (≥ 6.5, requires PyQt6.Svg),
+   setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18),
+   python-dateutil (>= 2.7.0), py-moneyed (>=2.0),
+   rpy2 (>=3.4, requires R installation), plotnine (>=0.8), libvoikko (>=4.3),
+   nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4), pycel (>=1.0b30),
+   openpyxl [extra] (>=3.0.7)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+
+Bug fixes:
+ * Errors when slicing S fixed
+ * If <Enter> or <Tab> are typed too fast in the grid, respective actions are
+  now triggered only once and not twice
+ * Added debug support via CLI using logging. Used mainly for xlsx import, yet.
+ * Fixed a bug that prevented many xlsx files from being opened
+ * Errors when slicing S fixed
+
+Known issues:
+ * Font weights may render slightly different from version 2.2.x.
+   This is caused by Qt6's new font weight model.
+
+
 2.3
 ---
 
 This release is the first to support and require PyQt6
 
+New features:
+ * Imports Excel xlsx files including code conversion into Python via pycel
+   Excel functionality is limited, no Pivot tables, no charts
+   Note that relative cell references from Excel files are not preserved
+   because pycel does not support it
+ * Money default currency is now changeable in preferences dialog
+
 Dependencies:
- * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt6 (≥ 6.5, requires PyQt6.Svg), setuptools (>=40.0), markdown2 (>= 2.3)
- * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18), python-dateutil (>= 2.7.0), py-moneyed (>=2.0), rpy2 (>=3.4), plotnine (>=0.8), libvoikko (>=4.3), nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4)
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt6 (≥ 6.5, requires PyQt6.Svg),
+   setuptools (>=40.0), markdown2 (>= 2.3)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18),
+   python-dateutil (>= 2.7.0), py-moneyed (>=2.0),
+   rpy2 (>=3.4, requires R installation), plotnine (>=0.8), libvoikko (>=4.3),
+   nuspell (>=5.1), hspell (>= 1.4), ggplot2 (>=3.4), pycel (>=1.0b30),
+   openpyxl [extra] (>=3.0.7)
  * For building the apidocs with Sphinx see apidocs/requirements.txt
 
-Known issues:
- * Font weights may render slightly different. This is caused by Qt6's new font weight model
+Bug fixes:
+ * API-Documentation script fixed for new Sphinx release
+ * Pyspread now runs again with PyQt <5.15
+ * Pyspread now runs with numpy >=2.0
+ * Documentation update on how cells are processed
+ * Optional dependencies are now tagged extra in rquirements.txt
 
-      
+Known issues:
+ * Font weights may render slightly different. This is caused by Qt6's new font
+   weight model
+ * If <Enter> or <Tab> are typed too fast in the grid, they may be triggered
+   twice
+
+
+
 2.2.3
 ---
 
@@ -33,7 +116,7 @@ Bug fixes:
  * Fix for Qt versions below 5.13 that do not provide lossless image rendering
  * csv import without quotations fixed
  * Periodic updates now again only updates frozen cells
- 
+
 
 2.2.2
 ---
@@ -49,7 +132,7 @@ Bug fixes:
  * pip install fixed by replacing deprecated setup.py option `requires` with `install_requires`
  * Shebang removed from desktop file
 
- 
+
 2.2.1
 -----
 

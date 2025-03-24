@@ -100,7 +100,11 @@ def csv_reader(csvfile: TextIO, dialect: csv.Dialect) -> Iterable[str]:
 
     """
 
-    csvreader = csv.reader(csvfile, dialect=dialect)
+    try:
+        csvreader = csv.reader(csvfile, dialect=dialect)
+    except ValueError:
+        dialect.quotechar = None
+        csvreader = csv.reader(csvfile, dialect=dialect)
     try:
         ignore_header = dialect.hasheader and not dialect.keepheader
     except AttributeError:

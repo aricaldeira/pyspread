@@ -52,15 +52,20 @@ with insert_path(PYSPREADPATH):
 
 param_test_cli = [
     (['pyspread'],
-     Namespace(file=None, default_settings=False)),
+     Namespace(file=None, default_settings=False, loglevel=30)),
     (['pyspread', 'test.pys'],
-     Namespace(file=PosixPath("test.pys"), default_settings=False)),
+     Namespace(file=PosixPath("test.pys"), default_settings=False,
+               loglevel=30)),
     (['pyspread', '--help'],
      None),
     (['pyspread', '--version'],
      None),
     (['pyspread', '--default-settings'],
-     Namespace(file=None, default_settings=True)),
+     Namespace(file=None, default_settings=True, loglevel=30)),
+    (['pyspread', '-d'],
+     Namespace(file=None, default_settings=False, loglevel=10)),
+    (['pyspread', '-v'],
+     Namespace(file=None, default_settings=False, loglevel=20)),
 ]
 
 

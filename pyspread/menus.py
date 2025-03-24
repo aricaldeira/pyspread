@@ -48,6 +48,11 @@ except ImportError:
     matplotlib_figure = None
 
 try:
+    import dateutil
+except ImportError:
+    dateutil = None
+
+try:
     from pyspread.actions import MainWindowActions
     from pyspread.icons import Icon
     from pyspread.i18n import _
@@ -152,7 +157,10 @@ class EditMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.toggle_selection_mode)
         self.addSeparator()
-        self.addAction(actions.quote)
+        self.addAction(actions.shift_cells_down)
+        self.addAction(actions.shift_cells_right)
+        self.addAction(actions.delete_shift_cells_up)
+        self.addAction(actions.delete_shift_cells_left)
         self.addSeparator()
         self.addAction(actions.insert_rows)
         self.addAction(actions.insert_columns)
@@ -217,6 +225,8 @@ class FormatMenu(QMenu):
 
         self.addAction(actions.copy_format)
         self.addAction(actions.paste_format)
+        self.addSeparator()
+        self.addAction(actions.default_format)
         self.addSeparator()
         self.addAction(actions.font)
         self.addAction(actions.bold)
@@ -289,6 +299,13 @@ class MacroMenu(QMenu):
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
         self.addSeparator()
+        self.addAction(actions.quote)
+        self.addAction(actions.money)
+        if dateutil is not None:
+            self.addAction(actions.datetime)
+            self.addAction(actions.date)
+            self.addAction(actions.time)
+        self.addSeparator()
         self.addAction(actions.insert_sum)
 
 
@@ -326,7 +343,7 @@ class FileHistoryMenu(QMenu):
 
         self.main_window = parent.parent.main_window
 
-    def update(self):
+    def update_(self):
         """Updates file history menu"""
 
         self.clear()
@@ -443,13 +460,16 @@ class GridContextMenu(QMenu):
         self.addSeparator()
         self.addAction(actions.quote)
         self.addSeparator()
+        self.addAction(actions.shift_cells_down)
+        self.addAction(actions.shift_cells_right)
+        self.addAction(actions.delete_shift_cells_up)
+        self.addAction(actions.delete_shift_cells_left)
+        self.addSeparator()
         self.addAction(actions.insert_rows)
         self.addAction(actions.insert_columns)
-        self.addAction(actions.insert_table)
         self.addSeparator()
         self.addAction(actions.delete_rows)
         self.addAction(actions.delete_columns)
-        self.addAction(actions.delete_table)
 
 
 class HorizontalHeaderContextMenu(QMenu):

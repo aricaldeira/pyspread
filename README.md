@@ -16,10 +16,15 @@ It is released under the [GPL v3. LICENSE](LICENSE)
 
 # Installation
 
-The table below shows for which operating systems, pyspread is available in which version.
-If pyspread is unavailable or outdated for your operating system, you can install it using one of the three methods below.
+It is recommended to install pyspread as a package that is provided for your operating system. The table below shows for which operating systems, pyspread is available in which version.
 
 ![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4)
+
+If pyspread is unavailable or outdated for your operating system, you can install it using one of the three methods below.
+
+When using pip, a Python virtual environment (venv) is recommended. Some operating systems may nudge your towards this. pipx could be a solution if venv is no option for you.
+
+Furthermore, note that the QtSvg extensions for PyQT are required. For some operating systems, they are packaged separately from PyQt. Please make sure QtSvg is installed on your system before using pip.
 
 ### With pip
 
@@ -77,19 +82,18 @@ $ python -m pyspread
 ```
 inside the top directory.
 
+# Contact
+
+For user questions or user feedback please use the [pyspread community board](https://gitter.im/pyspread/community) on gitter.
+
 # Contribute
 
 ## Issues
 
-Please submit issues in the gitlab issue tracker at
-- https://gitlab.com/pyspread/pyspread/issues
+For contributions, patches, development discussions and ideas please create an issue using the pyspread [issue tracker](https://gitlab.com/pyspread/pyspread/issues) on gitlab.
 
 ## Code
 
-Commit your changes, push them into your fork and send a pull request.
+Commit your changes, push them into your fork and send a merge request. [The fork documentation page](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html) gives an overview how to do this in gitlab.
 
-This page gives an overview how to do this:
-- https://help.github.com/articles/fork-a-repo
-
-You can find more more details about code organization at
-- https://pyspread.gitlab.io/pyspread/
+You can find more more details about code organization [here](https://pyspread.gitlab.io/pyspread/)

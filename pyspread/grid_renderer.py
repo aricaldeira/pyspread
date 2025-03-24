@@ -40,6 +40,11 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from typing import List, Tuple
 
+try:
+    from pyspread.themes import ColorRole
+except ImportError:
+    from themes import ColorRole
+
 from PyQt6.QtCore import Qt, QModelIndex, QRectF, QPointF
 from PyQt6.QtGui import (QBrush, QPainter, QPalette, QPen,
                          QPainterPath, QPolygonF, QPainterPathStroker)
@@ -368,7 +373,7 @@ class CellEdgeRenderer:
 
 
 class QColorCache(dict):
-    """QColor cache that returns default color for None"""
+    """QColor cache that returns placeholder text color for None"""
 
     def __init__(self, grid, *args, **kwargs):
         self.grid = grid
@@ -376,7 +381,7 @@ class QColorCache(dict):
 
     def __missing__(self, key):
         if key is None:
-            qcolor = QColor(self.grid.palette().color(QPalette.ColorRole.Mid))
+            qcolor = QColor(self.grid.palette().color(ColorRole.line))
         else:
             qcolor = QColor(*key)
 
@@ -535,9 +540,7 @@ class CellRenderer:
 
         """
 
-        zoomed_width = max(1, width * zoom)
-
-        return QPen(QColor(255, 255, 255, 0), zoomed_width,
+        return QPen(QColor(255, 255, 255, 0), zoom*width,
                     Qt.PenStyle.SolidLine, Qt.PenCapStyle.FlatCap,
                     Qt.PenJoinStyle.MiterJoin)
 

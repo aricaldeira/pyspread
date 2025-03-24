@@ -17,6 +17,14 @@ Pastes copied cell formats.
 
 ----------
 
+## Format → Default format
+
+Assigns the default format to the selected cells. This does not affect the merge status of cells, i.e. merged cells do not become unmerged. Default cell formatting enables system theme colors for the cell, which lets the cell adapt to system themes (e.g. light or dark theme).
+
+Note that default format is just another format so that applying default format to a cell does not delete or alter formatting layers below. Therefore, the complexity of `cell_attributes` is not reduced.
+
+----------
+
 ## Format → Font
 Assigns a font including style and size to the current cell if no selection is present. If a selection is present, the  font is assigned to each selected cell.
 

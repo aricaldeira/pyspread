@@ -56,7 +56,7 @@ import datetime
 import decimal
 from decimal import Decimal  # Needed
 from importlib import reload
-from inspect import isgenerator
+from inspect import getmembers, isfunction, isgenerator
 import io
 from itertools import product
 import re
@@ -71,9 +71,33 @@ import numpy
 from PyQt6.QtGui import QImage, QPixmap  # Needed
 
 try:
+    import dateutil
+except ImportError:
+    dateutil = None
+
+try:
     from matplotlib.figure import Figure
 except ImportError:
     Figure = None
+
+try:
+    import pycel
+    import pycel.excellib
+    import pycel.lib.date_time
+    import pycel.lib.engineering
+    import pycel.lib.information
+    import pycel.lib.logical
+    import pycel.lib.lookup
+    import pycel.lib.stats
+    import pycel.lib.text
+
+except ImportError:
+    pycel = None
+
+try:
+    from openpyxl.worksheet.cell_range import CellRange
+except ImportError:
+    CellRange = None
 
 try:
     from moneyed import Money
@@ -103,6 +127,7 @@ try:
     from pyspread.lib.typechecks import is_stringlike
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import ZEN
+    from pyspread.lib.parsers import spreadsheet_formula_to_code
 except ImportError:
     from settings import Settings
     from lib.attrdict import AttrDict
@@ -111,6 +136,70 @@ except ImportError:
     from lib.typechecks import is_stringlike
     from lib.selection import Selection
     from lib.string_helpers import ZEN
+    from lib.parsers import spreadsheet_formula_to_code
+
+
+class_format_functions = {}
+
+
+def update_xl_list():
+    """Updates list of pycel modules to be accessible from within cells"""
+
+    if pycel is not None:
+        try:
+            xl_members = getmembers(pycel.excellib)
+            xl_members += getmembers(pycel.lib.date_time)
+            xl_members += getmembers(pycel.lib.engineering)
+            xl_members += getmembers(pycel.lib.information)
+            xl_members += getmembers(pycel.lib.logical)
+            xl_members += getmembers(pycel.lib.lookup)
+            xl_members += getmembers(pycel.lib.stats)
+            xl_members += getmembers(pycel.lib.text)
+
+            for name, fun in xl_members:
+                globals()[name] = fun
+
+        except UnboundLocalError:
+            return  # openpyxl is not installed
+
+
+def _table_from_address(addr: str) -> int:
+    """Convert xlsx sheetname to table
+
+    :param sheetname: Name if Excel sheet as in global sheetnames
+    :return: Table index
+
+    """
+
+    if "!" in addr:
+        sheetname = addr.split("!")[0]
+        return _sheetnames.index(sheetname)
+        # Works because _sheetnames is global
+    return Z  # Works in cells because Z is global
+
+
+def _R_(addr: str) -> Any:
+    """Helper for pycel references in xlsx code
+
+    TODO: Move to separate lib module
+
+    """
+
+    l, t, r, b = CellRange(addr).bounds
+    table = _table_from_address(addr)
+    return S[t-1:b, l-1:r, table]  # Works in cells because S is global
+
+
+def _C_(addr: str) -> Any:
+    """Helper for pycel references in xlsx code
+
+    TODO: Move to separate lib module
+
+    """
+
+    l, t, _, _ = CellRange(addr).bounds
+    table = _table_from_address(addr)
+    return S[t-1, l-1, table]  # Works in cells because S is global
 
 
 class_format_functions = {}
@@ -126,12 +215,12 @@ class DefaultCellAttributeDict(AttrDict):
         self.borderwidth_right = 1
         self.bordercolor_bottom = None
         self.bordercolor_right = None
-        self.bgcolor = 255, 255, 255  # Do not use theme
+        self.bgcolor = None
         self.textfont = None
         self.pointsize = 10
         self.fontweight = None
         self.fontstyle = None
-        self.textcolor = 0, 0, 0  # Do not use theme
+        self.textcolor = None
         self.underline = False
         self.strikethrough = False
         self.locked = False
@@ -1255,7 +1344,10 @@ class CodeArray(DataArray):
         """
 
         # Change numpy array repr function for grid cell results
-        numpy.set_string_function(lambda s: repr(s.tolist()))
+        try:
+            numpy.set_printoptions(formatter = {'all': lambda s: repr(s.tolist() if hasattr(s, "tolist") else s)})
+        except AttributeError:
+            numpy.set_string_function(lambda s: repr(s.tolist() if hasattr(s, "tolist") else s))
 
         # Prevent unchanged cells from being recalculated on cursor movement
 
@@ -1436,6 +1528,10 @@ class CodeArray(DataArray):
             pass
 
         try:
+            if code[0] == '=':
+                # FIXME: Somehow writing something like "=A5" as the first input,
+                #  makes pyspread compain "name 'Z' is not defined"
+                code = spreadsheet_formula_to_code(code)
             result = self.exec_then_eval(code, env, {})
 
         except AttributeError as err:
@@ -1496,9 +1592,9 @@ class CodeArray(DataArray):
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
                      'numpy', 'CodeArray', 'DataArray', 'datetime', 'Decimal',
                      'decimal', 'signal', 'Any', 'Dict', 'Iterable', 'List',
-                     'NamedTuple', 'Sequence', 'Tuple', 'Union',
-                     'class_format_functions',
-                     ]
+                     'NamedTuple', 'Sequence', 'Tuple', 'Union', '_R_', '_C_',
+                     '_table_from_address', 'CellRange',
+                     'class_format_functions', 'spreadsheet_formula_to_code']
 
         try:
             from moneyed import Money
@@ -1535,6 +1631,34 @@ class CodeArray(DataArray):
 
         except:
             Sezimal = None
+
+        if dateutil is not None:
+            base_keys.append('dateutil')
+
+        try:
+            import pycel
+        except ImportError:
+            pycel = None
+
+        if pycel is not None:
+            try:
+                from inspect import getmembers
+                xl_members = getmembers(pycel.excellib)
+                xl_members += getmembers(pycel.lib.date_time)
+                xl_members += getmembers(pycel.lib.engineering)
+                xl_members += getmembers(pycel.lib.information)
+                xl_members += getmembers(pycel.lib.logical)
+                xl_members += getmembers(pycel.lib.lookup)
+                xl_members += getmembers(pycel.lib.stats)
+                xl_members += getmembers(pycel.lib.text)
+                XL_LIST = [n for n, _ in xl_members]
+
+                for name, fun in xl_members:
+                    globals()[name] = fun
+                    base_keys += XL_LIST
+
+            except (UnboundLocalError, AttributeError):
+                pass  # openpyxl is not installed
 
         for key in list(globals().keys()):
             if key not in base_keys:

@@ -34,6 +34,7 @@ pyspread
 
 """
 
+import logging
 import os
 import sys
 import traceback
@@ -74,6 +75,8 @@ def main():
 
     parser = PyspreadArgumentParser()
     args, _ = parser.parse_known_args()
+
+    logging.basicConfig(level=args.loglevel)
 
     app = QApplication(sys.argv)
     app.setDesktopFileName("io.gitlab.pyspread.pyspread")

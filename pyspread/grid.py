@@ -36,6 +36,7 @@ Pyspread's main grid
 
 from ast import literal_eval
 from contextlib import contextmanager
+from datetime import datetime, date, time
 from io import BytesIO
 from typing import Any, Iterable, List, Tuple, Union
 
@@ -66,6 +67,11 @@ except ImportError:
     matplotlib = None
 
 try:
+    from moneyed import Money
+except ImportError:
+    Money = None
+
+try:
     from pyspread import commands
     from pyspread.dialogs import DiscardDataDialog
     from pyspread.grid_renderer import (painter_save, CellRenderer,
@@ -79,7 +85,7 @@ try:
                                       class_format_functions)
     from pyspread.lib.attrdict import AttrDict
     from pyspread.interfaces.pys import (qt52qt6_fontweights,
-                                             qt62qt5_fontweights)
+                                         qt62qt5_fontweights)
     from pyspread.lib.selection import Selection
     from pyspread.lib.string_helpers import quote, wrap_text
     from pyspread.lib.qimage2ndarray import array2qimage
@@ -87,6 +93,7 @@ try:
     from pyspread.menus import (GridContextMenu, TableChoiceContextMenu,
                                 HorizontalHeaderContextMenu,
                                 VerticalHeaderContextMenu)
+    from pyspread.themes import ColorRole
     from pyspread.widgets import CellButton
     from pyspread.i18n import _
 except ImportError:
@@ -96,8 +103,8 @@ except ImportError:
                                BorderWidthBottomCache, BorderWidthRightCache,
                                EdgeBordersCache, BorderColorRightCache,
                                BorderColorBottomCache)
-    from model.model import (CodeArray, CellAttribute, DefaultCellAttributeDict,
-                            class_format_functions)
+    from model.model import (CodeArray, CellAttribute,
+                             DefaultCellAttributeDict, class_format_functions)
     from lib.attrdict import AttrDict
     from interfaces.pys import qt52qt6_fontweights, qt62qt5_fontweights
     from lib.selection import Selection
@@ -106,6 +113,7 @@ except ImportError:
     from lib.typechecks import is_svg, check_shape_validity
     from menus import (GridContextMenu, TableChoiceContextMenu,
                        HorizontalHeaderContextMenu, VerticalHeaderContextMenu)
+    from themes import ColorRole
     from widgets import CellButton
     from i18n import _
 
@@ -165,12 +173,6 @@ class Grid(QTableView):
 
         self.verticalHeader().setMinimumSectionSize(0)
         self.horizontalHeader().setMinimumSectionSize(0)
-
-        # Palette adjustment for cases in  which the Base color is not white
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Base,
-                         QColor(*DefaultCellAttributeDict().bgcolor))
-        self.setPalette(palette)
 
         self.setCornerButtonEnabled(False)
 
@@ -496,7 +498,7 @@ class Grid(QTableView):
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
-        elif event.key() == Qt.Key.Key_Delete:
+        elif event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             self.main_window.workflows.delete()
         elif (event.key() == Qt.Key.Key_Escape
               and self.editTriggers()
@@ -803,6 +805,22 @@ class Grid(QTableView):
         """
 
         self.main_window.settings.show_frozen = toggled
+
+    def on_format_default(self):
+        """Reset cell format to system theme by setting values to None
+
+        The merge status of cells is unaffected
+
+        """
+
+        attr_dict = DefaultCellAttributeDict()
+        attr_dict.pop("merge_area")  # Merged cells are not undone
+        attr = CellAttribute(self.selection, self.table, attr_dict)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = f"Reset cell format for cells {idx_string}"
+        command = commands.SetCellFormat(attr, self.model, self.currentIndex(),
+                                         self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_font_dialog(self):
         """Font dialog event handler"""
@@ -1389,6 +1407,91 @@ class Grid(QTableView):
                                            description)
             self.main_window.undo_stack.push(command)
 
+    def on_money(self):
+        """Make cell money object event handler using default currency"""
+
+        description = f"Money type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, Money):
+                return
+            if isinstance(res, float):
+                code = quote(code)
+            currency_iso_code = self.main_window.settings.currency_iso_code
+            moneyed_code = f'Money({code}, "{currency_iso_code}")'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(moneyed_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_datetime(self):
+        """Make cell datetime object event handler"""
+
+        description = f"Datetime type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, datetime):
+                return
+            if not isinstance(res, str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code})'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_date(self):
+        """Make cell date object event handler"""
+
+        description = f"Date type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, date):
+                return
+            if not isinstance(res, str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code}).date()'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
+    def on_time(self):
+        """Make cell time object event handler"""
+
+        description = f"Time type for cell selection {id(self.selection)}"
+
+        for idx in self.selected_idx:
+            row = idx.row()
+            column = idx.column()
+            key = row, column, self.table
+            code = self.model.code_array(key)
+            res = self.model.code_array[key]
+            if isinstance(res, time):
+                return
+            if not isinstance(res, str):
+                code = quote(code)
+            datetime_code = f'dateutil.parser.parse({code}).time()'
+            index = self.model.index(row, column, QModelIndex())
+            command = commands.SetCellCode(datetime_code, self.model, index,
+                                           description)
+            self.main_window.undo_stack.push(command)
+
     def is_row_data_discarded(self, count: int) -> bool:
         """True if row data is to be discarded on row insertion
 
@@ -1428,6 +1531,133 @@ class Grid(QTableView):
         tables = list(range(no_tables-count, no_tables+1))
         return any(key[2] in tables and self.model.code_array(key) is not None
                    for key in self.model.code_array)
+
+    def on_shift_cells_down(self, *,
+                            description_tpl: str = "Shift selection {} down"):
+        """Insert shift cells down event handler
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
+
+        try:
+            (top, left), (bottom, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+            left = right = self.column
+        count = bottom - top + 1
+
+        if self.is_row_data_discarded(count):
+            text = ("Shifting cells down will discard data.\n \n"
+                    "You may want to resize the grid before shifting.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
+
+        selection1 = Selection([(top, left)], [(None, right)], [], [], [])
+        self.main_window.workflows.edit_cut(description_tpl=description_tpl,
+                                            selection=selection1)
+
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        selection2 = Selection([(bottom+1, left)], [(None, right)],
+                               [], [], [])
+        self.main_window.workflows._paste_to_selection(
+            selection2, data,
+            description_tpl=description_tpl.format(selection1))
+
+    def on_shift_cells_right(
+            self, *, description_tpl: str = "Shift selection {} right"):
+        """Insert shift cells right event handler
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
+
+        try:
+            (top, left), (bottom, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+            left = right = self.column
+        count = right - left + 1
+
+        if self.is_column_data_discarded(count):
+            text = ("Shifting cells right will discard data.\n \n"
+                    "You may want to resize the grid before shifting.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
+
+        selection1 = Selection([(top, left)], [(bottom, None)], [], [], [])
+        self.main_window.workflows.edit_cut(description_tpl=description_tpl,
+                                            selection=selection1)
+
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        selection2 = Selection([(top, right+1)], [(bottom, None)],
+                               [], [], [])
+        self.main_window.workflows._paste_to_selection(
+            selection2, data,
+            description_tpl=description_tpl.format(selection1))
+
+    def on_delete_shift_cells_up(
+            self, *,
+            description_tpl: str = "Delete selection {} and shift cells up"):
+        """Delete cells and shift below cells up event handler
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
+
+        try:
+            (top, left), (bottom, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+            left = right = self.column
+
+        selection1 = Selection([(bottom+1, left)], [(None, right)], [], [], [])
+        self.main_window.workflows.edit_cut(description_tpl=description_tpl,
+                                            selection=selection1)
+
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        selection2 = Selection([(top, left)], [(None, right)], [], [], [])
+        self.main_window.workflows._paste_to_selection(
+            selection2, data,
+            description_tpl=description_tpl.format(selection1))
+
+    def on_delete_shift_cells_left(
+            self, *,
+            description_tpl: str = "Delete selection {} and shift cells left"):
+        """Delete cells and shift right cells left event handler
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
+
+        try:
+            (top, left), (bottom, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+            left = right = self.column
+
+        selection1 = Selection([(top, right+1)], [(bottom, None)], [], [], [])
+        self.main_window.workflows.edit_cut(description_tpl=description_tpl,
+                                            selection=selection1)
+
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        selection2 = Selection([(top, left)], [(bottom, None)],
+                               [], [], [])
+        self.main_window.workflows._paste_to_selection(
+            selection2, data,
+            description_tpl=description_tpl.format(selection1))
 
     def on_insert_rows(self):
         """Insert rows event handler"""
@@ -1576,12 +1806,14 @@ class GridHeaderView(QHeaderView):
 
         """
 
+        zoom = self.grid.zoom
+
         unzoomed_rect = QRect(0, 0,
-                              int(round(rect.width()/self.grid.zoom)),
-                              int(round(rect.height()/self.grid.zoom)))
+                              int(round(rect.width()/zoom)),
+                              int(round(rect.height()/zoom)))
         with painter_save(painter):
             painter.translate(rect.x()+1, rect.y()+1)
-            painter.scale(self.grid.zoom, self.grid.zoom)
+            painter.scale(zoom, zoom)
             super().paintSection(painter, unzoomed_rect, logicalIndex)
 
     def contextMenuEvent(self, event: QContextMenuEvent):
@@ -1608,8 +1840,12 @@ class GridHeaderView(QHeaderView):
 
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
-                self.setDefaultSectionSize(int(self.default_section_size
-                                               * self.grid.zoom))
+                default_size = int(self.default_section_size * self.grid.zoom)
+                self.setDefaultSectionSize(default_size)
+
+                # Fix for PyQt6 setDefaultSectionSize not working
+                for section in range(self.count()):
+                    self.resizeSection(section, default_size)
 
                 if self.orientation() == Qt.Orientation.Horizontal:
                     section_sizes = self.grid.column_widths
@@ -1911,12 +2147,12 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.BackgroundRole:
             if self.main_window.settings.show_frozen \
                and self.code_array.cell_attributes[key].frozen:
-                pattern_rgb = self.grid.palette().highlight().color()
+                pattern_rgb = self.grid.palette().color(ColorRole.highlight)
                 bg_color = QBrush(pattern_rgb, Qt.BrushStyle.BDiagPattern)
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key].bgcolor
                 if bg_color_rgb is None:
-                    bg_color = QColor(255, 255, 255)
+                    bg_color = self.grid.palette().color(ColorRole.bg)
                 else:
                     bg_color = QColor(*bg_color_rgb)
             return bg_color
@@ -1924,7 +2160,7 @@ class GridTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.ForegroundRole:
             text_color_rgb = self.code_array.cell_attributes[key].textcolor
             if text_color_rgb is None:
-                text_color = self.grid.palette().color(QPalette.ColorRole.Text)
+                text_color = self.grid.palette().color(ColorRole.text)
             else:
                 text_color = QColor(*text_color_rgb)
             return text_color
@@ -2124,7 +2360,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         text_color = self.grid.model.data(index,
                                           role=Qt.ItemDataRole.ForegroundRole)
-        ctx.palette.setColor(QPalette.ColorRole.Text, text_color)
+        ctx.palette.setColor(ColorRole.text, text_color)
 
         key = index.row(), index.column(), self.grid.table
         vertical_align = self.cell_attributes[key].vertical_align
@@ -2273,9 +2509,13 @@ class GridCellDelegate(QStyledItemDelegate):
                                    Qt.AspectRatioMode.IgnoreAspectRatio,
                                    Qt.TransformationMode.SmoothTransformation)
         else:
-            qimage = qimage.scaled(int(img_width), int(img_height),
-                                   Qt.AspectRatioMode.KeepAspectRatio,
-                                   Qt.TransformationMode.SmoothTransformation)
+            try:
+                qimage = qimage.scaled(int(img_width), int(img_height),
+                                    Qt.AspectRatioMode.KeepAspectRatio,
+                                    Qt.TransformationMode.SmoothTransformation)
+
+            except AttributeError:
+                qimage = qimage.scaled(int(img_width), int(img_height))
 
         with painter_save(painter):
             try:
@@ -2328,7 +2568,10 @@ class GridCellDelegate(QStyledItemDelegate):
             svg.render(painter, svg_rect)
             return
 
-        svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        try:
+            svg.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        except AttributeError:
+            pass
 
         svg_size = svg.defaultSize()
 
@@ -2659,7 +2902,6 @@ class TableChoice(QTabBar):
                     grid.update_zoom()
 
             grid.update_index_widgets()
-            grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
             grid.gui_update()
             try:
                 v_pos, h_pos = grid.table_scrolls[current]
@@ -2669,3 +2911,9 @@ class TableChoice(QTabBar):
             grid.horizontalScrollBar().setValue(h_pos)
 
         self.last = current
+
+        # Update entryline
+        try:
+            self.main_window.grid.on_current_changed()
+        except AttributeError:
+            pass

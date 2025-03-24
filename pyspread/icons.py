@@ -77,9 +77,12 @@ class IconPath:
     replace = ACTION_PATH / 'edit-find-replace.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
     sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
-    quote = ACTION_PATH / 'edit-quote.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
     sort_descending = ACTION_PATH / 'edit-sort-descending.svg'
+    shift_down = ACTION_PATH / 'edit-shift-down.svg'
+    shift_right = ACTION_PATH / 'edit-shift-right.svg'
+    shift_up = ACTION_PATH / 'edit-shift-up.svg'
+    shift_left = ACTION_PATH / 'edit-shift-left.svg'
     insert_row = ACTION_PATH / 'edit-insert-row.svg'
     insert_column = ACTION_PATH / 'edit-insert-column.svg'
     insert_table = ACTION_PATH / 'edit-insert-table.svg'
@@ -102,6 +105,7 @@ class IconPath:
     # Format menu icons
     copy_format = ACTION_PATH / 'format-copy.svg'
     paste_format = ACTION_PATH / 'format-paste.svg'
+    default_format = ACTION_PATH / 'format-default.svg'
     font_dialog = ACTION_PATH / 'format-font.svg'
     bold = ACTION_PATH / 'format-text-bold.svg'
     italics = ACTION_PATH / 'format-text-italic.svg'
@@ -153,6 +157,11 @@ class IconPath:
     insert_image = ACTION_PATH / 'macro-insert-image.svg'
     link_image = ACTION_PATH / 'macro-link-image.svg'
     insert_chart = ACTION_PATH / 'macro-insert-chart.svg'
+    quote = ACTION_PATH / 'macro-quote.svg'
+    money = ACTION_PATH / 'macro-money.svg'
+    datetime = ACTION_PATH / 'macro-datetime.svg'
+    date = ACTION_PATH / 'macro-date.svg'
+    time = ACTION_PATH / 'macro-time.svg'
     insert_sum = ACTION_PATH / 'macro-insert-sum.svg'
 
     # Help menu icons
